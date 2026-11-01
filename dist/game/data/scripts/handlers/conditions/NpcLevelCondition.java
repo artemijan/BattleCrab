@@ -38,6 +38,6 @@ public class NpcLevelCondition implements ICondition
 	@Override
 	public boolean test(Creature creature, WorldObject object)
 	{
-		return object.isNpc() && (((Creature) object).getLevel() >= _minLevel) && (((Creature) object).getLevel() < _maxLevel);
+		return object.isNpc() && (object.asCreature().getLevel() >= _minLevel) && (object.asCreature().getLevel() < _maxLevel);
 	}
 }

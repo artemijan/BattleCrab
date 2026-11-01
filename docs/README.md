@@ -5,6 +5,11 @@ explain **how it is built and why it was built that way**. They are not a
 backlog: the port is finished, and the work now is finding and fixing places
 where the server diverges from Java.
 
+**`main` is being ported to Salvation** — see
+[PLAN_SALVATION.md](PLAN_SALVATION.md) and its appendices in
+[salvation/](salvation/). Until that lands, these documents describe the
+Interlude server, which lives on the `interlude` branch.
+
 ## Architecture — why it looks like this
 
 | Document | What it answers |

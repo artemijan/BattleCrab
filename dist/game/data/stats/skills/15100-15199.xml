@@ -1,22 +1,22 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="15100" toLevel="1" name="Noblesse Blessing">
 		<!-- For 6 hours, buffs and debuffs do not disappear but remain upon death. -->
 		<icon>icon.skill1323</icon>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
-		<abnormalType>PRESERVE_ABNORMAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>21600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<staticReuse>true</staticReuse>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>PRESERVE_ABNORMAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="NoblesseBless" />
 		</effects>
@@ -25,16 +25,16 @@
 		<!-- Heals the target with 1488 power. If HP is full, CP is restored with the remaining power. -->
 		<icon>icon.skill11755</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>3000</reuseDelay>
-		<effectPoint>867</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>867</effectPoint>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>1488</power>
@@ -45,16 +45,16 @@
 		<!-- Heals the target with 1519 power. If HP is full, CP is restored with the remaining power. -->
 		<icon>icon.skill11755</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>3000</reuseDelay>
-		<effectPoint>895</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<magicLevel>90</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>895</effectPoint>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>1519</power>
@@ -65,16 +65,16 @@
 		<!-- Heals the target with 1557 power. If HP is full, CP is restored with the remaining power. -->
 		<icon>icon.skill11755</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>3000</reuseDelay>
-		<effectPoint>918</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<magicLevel>95</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>918</effectPoint>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>1557</power>
@@ -85,24 +85,24 @@
 		<!-- Immobilizes the enemy for 15 seconds. -->
 		<icon>icon.skill11561</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<hitTime>2500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>30000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-701</effectPoint>
-		<abnormalType>ROOT_MAGICALLY</abnormalType>
-		<basicProperty>MAGIC</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<effectRange>1100</effectRange>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
-		<trait>HOLD</trait>
+		<abnormalType>ROOT_MAGICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-701</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<reuseDelay>30000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="Root" />
 			<effect name="DefenceTrait">
@@ -114,21 +114,21 @@
 		<!-- Becomes invisible and decreases speed by 30%. -->
 		<icon>icon.skill10784</icon>
 		<operateType>A2</operateType>
-		<hitTime>200</hitTime>
-		<effectPoint>2</effectPoint>
-		<abnormalType>HIDE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>50</abnormalTime>
-		<staticReuse>true</staticReuse>
+		<abnormalType>HIDE</abnormalType>
 		<abnormalVisualEffect>STEALTH</abnormalVisualEffect>
-		<reuseDelay>360000</reuseDelay>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>2</effectPoint>
+		<hitTime>200</hitTime>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>34903</itemConsumeId> <!-- Mysterious Shadow -->
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="Hide">
 			</effect>
@@ -142,15 +142,15 @@
 		<!-- Sacrifice yourself to attempt a Lethal Strike on the enemy. -->
 		<icon>icon.skill10784</icon>
 		<operateType>A1</operateType>
-		<castRange>40</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>-700</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>200</effectRange>
-		<magicLevel>99</magicLevel>
-		<reuseDelay>360000</reuseDelay>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<effectPoint>-700</effectPoint>
+		<effectRange>200</effectRange>
+		<hitTime>500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>360000</reuseDelay>
 		<effects>
 			<effect name="Lethal">
 				<fullLethal>50</fullLethal>
@@ -161,16 +161,16 @@
 		<!-- Sacrifice. A state in which HP cannot be recovered. -->
 		<icon>icon.skill4036</icon>
 		<operateType>A2</operateType>
-		<abnormalType>TRANSFORM_SCRIFICE_P</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>10</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM_SCRIFICE_P</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="Hp">
 				<amount>-99</amount>
@@ -186,37 +186,37 @@
 		<!-- Increases your battle abilities. -->
 		<icon>icon.skill10292</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
-		<effectPoint>707</effectPoint>
-		<abnormalType>POSSESSION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<reuseDelay>3600000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>POSSESSION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>707</effectPoint>
+		<hitTime>2000</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>3600000</reuseDelay>
 	</skill>
 	<skill id="15109" toLevel="1" name="Ruler's Blessing">
 		<!-- Increases Sleep, Bleed, Stun, Poison, and Hold attack bonus by 30. -->
 		<icon>icon.skill0335</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>689</effectPoint>
-		<abnormalType>LUMIERE_BUFF</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>LUMIERE_BUFF</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>689</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>30</SLEEP>
@@ -231,18 +231,18 @@
 		<!-- Inflicts damage around you. -->
 		<icon>icon.skill0036</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
 		<effectPoint>-2</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>95</magicLevel>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>6552</power>
 			</effect>
 		</effects>
@@ -251,24 +251,24 @@
 		<!-- Inflicts damage and hurls one person for a certain distance. -->
 		<icon>icon.skill4107</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>FLY_AWAY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1100</effectRange>
-		<magicLevel>97</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1</abnormalTime>
-		<trait>SHOCK</trait>
+		<abnormalType>FLY_AWAY</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>120000</power>
 			</effect>
 			<effect name="FlyAway"> <!-- TODO: {i_fly_away;curve;push;600} -->
@@ -281,23 +281,23 @@
 		<!-- Armor is destroyed. P. Def. and M. Def. are decreased by 10%. Additional 500 decease and evasion is decreased by 4. Accumulates as you receive continuous attacks. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-2</effectPoint>
-		<abnormalType>ABSORB</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<affectRange>150</affectRange>
+		<abnormalType>ABSORB</abnormalType>
 		<affectLimit>10-10</affectLimit>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-2</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>120000</power>
 			</effect>
 			<effect name="PhysicalDefence">
@@ -316,7 +316,7 @@
 				<amount>-4</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>50</chance>
 				<targetType>SELF</targetType>
@@ -330,24 +330,24 @@
 		<!-- Armor is destroyed. P. Def. and M. Def. are decreased by 10%. Additional 500 decease and evasion is decreased by 4. Accumulates as you receive continuous attacks. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>ABSORB</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<effectRange>1100</effectRange>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<trait>BLEED</trait>
+		<abnormalType>ABSORB</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<trait>BLEED</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>160000</power>
 			</effect>
 			<effect name="DamOverTime">
@@ -370,7 +370,7 @@
 				<amount>-4</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>50</chance>
 				<targetType>SELF</targetType>
@@ -384,23 +384,23 @@
 		<!-- Armor is destroyed. P. Def. and M. Def. are decreased by 10%. Additional 500 decease and evasion is decreased by 4. Accumulates as you receive continuous attacks. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-2</effectPoint>
-		<abnormalType>ABSORB</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<affectRange>150</affectRange>
+		<abnormalType>ABSORB</abnormalType>
 		<affectLimit>10-10</affectLimit>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-2</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>160000</power>
 			</effect>
 			<effect name="PhysicalDefence">
@@ -419,7 +419,7 @@
 				<amount>-4</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>50</chance>
 				<targetType>SELF</targetType>
@@ -433,19 +433,19 @@
 		<!-- Inflicts damage around you. -->
 		<icon>icon.skill0036</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<coolTime>500</coolTime>
 		<effectPoint>-2</effectPoint>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>97</magicLevel>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>120000</power>
 			</effect>
 		</effects>
@@ -454,23 +454,23 @@
 		<!-- For 15 seconds, change one party member's silhouette into that of a pig. -->
 		<icon>icon.skill11537</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<hitTime>2500</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>CHANGEBODY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1100</effectRange>
-		<magicLevel>97</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>30</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
-		<trait>CHANGEBODY</trait>
+		<abnormalType>CHANGEBODY</abnormalType>
 		<abnormalVisualEffect>CHANGEBODY</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
+		<trait>CHANGEBODY</trait>
 		<effects>
 			<effect name="ChangeBody">
 				<templates>
@@ -492,21 +492,21 @@
 		<!-- Chooses 3 party members and kills them on the spot. -->
 		<icon>icon.skill0223</icon>
 		<operateType>A1</operateType>
-		<castRange>900</castRange>
-		<hitTime>5000</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>5</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>97</magicLevel>
-		<affectRange>150</affectRange>
-		<affectLimit>3-3</affectLimit>
-		<isDebuff>true</isDebuff>
 		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
+		<affectLimit>3-3</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>5</hitCancelTime>
+		<hitTime>5000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
 		<effects>
 			<effect name="Lethal">
 				<fullLethal>100</fullLethal>
@@ -517,29 +517,29 @@
 		<!-- Stuns all party members for 5 seconds. -->
 		<icon>icon.skill3080</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>4</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>97</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
-		<trait>SHOCK</trait>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>4</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>5000</power>
 			</effect>
 			<effect name="BlockActions">
@@ -551,15 +551,15 @@
 		<!-- Fully recovers your HP. -->
 		<icon>icon.skill11755</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>3</hitCancelTime>
-		<magicLevel>97</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>3</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
 		<effects>
 			<effect name="HealPercent">
 				<power>100</power>
@@ -567,21 +567,21 @@
 		</effects>
 	</skill>
 	<skill id="15120" toLevel="1" name="Death by Execution">
-		<!-- Selects one party member at random and kills him/her on the spot. -->
+		<!-- Selects one party member at random and kills him/ her on the spot. -->
 		<icon>icon.skill0223</icon>
 		<operateType>A1</operateType>
-		<castRange>900</castRange>
-		<hitTime>4000</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>4</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>97</magicLevel>
-		<isDebuff>true</isDebuff>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>4</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
 		<effects>
 			<effect name="Lethal">
 				<fullLethal>100</fullLethal>
@@ -589,26 +589,26 @@
 		</effects>
 	</skill>
 	<skill id="15121" toLevel="1" name="Rage Explosion">
-		<!-- Rage explodes at the death of your child. Uses Petra to greatly decrease HP and greatly increases HP Recovery Rate and P. Atk. -->
+		<!-- Rage explodes at the death of your child. Uses Petra to greatly decrease HP and greatly increases HP Recovery Bonus Rate and P. Atk. -->
 		<icon>icon.skill1068</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>2</effectPoint>
-		<abnormalType>PA_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>97</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>PA_UP</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>2</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>97</magicLevel>
 		<effects>
 			<effect name="HealPercent">
 				<power>-50</power>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
@@ -622,25 +622,25 @@
 		<!-- Hurls the opponent with a Vernier Calipers in your hands. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
-		<castRange>40</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-2</effectPoint>
-		<abnormalType>KNOCKDOWN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>400</effectRange>
-		<activateRate>90</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>2</abnormalTime>
-		<trait>KNOCKDOWN</trait>
+		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
+		<activateRate>90</activateRate>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-2</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>KNOCKDOWN</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>240000</power>
 			</effect>
 			<effect name="KnockBack">
@@ -662,22 +662,22 @@
 		<!-- Armor is destroyed. P. Def. and M. Def. are decreased by 10%. Additional 500 decease and evasion is decreased by 4. Accumulates as you receive continuous attacks. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
-		<castRange>40</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-2</effectPoint>
-		<abnormalType>ABSORB</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<effectRange>400</effectRange>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
+		<abnormalType>ABSORB</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-2</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>240000</power>
 			</effect>
 			<effect name="PhysicalDefence">
@@ -696,7 +696,7 @@
 				<amount>-4</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>50</chance>
 				<targetType>SELF</targetType>
@@ -710,22 +710,22 @@
 		<!-- Armor is destroyed. P. Def. and M. Def. are decreased by 10%. Additional 500 decease and evasion is decreased by 4. Accumulates as you receive continuous attacks. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A2</operateType>
-		<castRange>40</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-2</effectPoint>
-		<abnormalType>ABSORB</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<effectRange>400</effectRange>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
+		<abnormalType>ABSORB</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-2</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>240000</power>
 			</effect>
 			<effect name="PhysicalDefence">
@@ -744,7 +744,7 @@
 				<amount>-4</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>50</chance>
 				<targetType>SELF</targetType>
@@ -758,30 +758,30 @@
 		<!-- Tauti's final attack skill when he has lost almost all of his power. -->
 		<icon>icon.skill0793</icon>
 		<operateType>DA2</operateType>
-		<mpConsume>83</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>100</hitTime>
-		<coolTime>200</coolTime>
-		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>KNOCKDOWN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1100</effectRange>
-		<activateRate>70</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<trait>KNOCKDOWN</trait>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>70</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>100</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>83</mpConsume>
+		<reuseDelay>15000</reuseDelay>
+		<trait>KNOCKDOWN</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>270000</power>
 			</effect>
 			<effect name="KnockBack">
@@ -803,30 +803,30 @@
 		<!-- Tauti's final attack skill when he has lost almost all of his power. -->
 		<icon>icon.skill0793</icon>
 		<operateType>DA2</operateType>
-		<mpConsume>83</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>100</hitTime>
-		<coolTime>200</coolTime>
-		<reuseDelay>15000</reuseDelay>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>KNOCKDOWN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1100</effectRange>
-		<activateRate>70</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<trait>KNOCKDOWN</trait>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>70</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>100</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>83</mpConsume>
+		<reuseDelay>15000</reuseDelay>
+		<trait>KNOCKDOWN</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>270000</power>
 			</effect>
 			<effect name="KnockBack">
@@ -848,23 +848,23 @@
 		<!-- Continuously receives new weapons from the weapon stand to increase P. Atk. -->
 		<icon>icon.skill1068</icon>
 		<operateType>A2</operateType>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>5000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<abnormalType>SPEED_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
-		<affectRange>400</affectRange>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>SPEED_UP</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>700</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
@@ -874,21 +874,21 @@
 		<!-- Continuously receives new armor from the armor stand to increase P. Def. -->
 		<icon>icon.skill1040</icon>
 		<operateType>A2</operateType>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>5000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<abnormalType>RESIST_DERANGEMENT</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
-		<affectRange>400</affectRange>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>RESIST_DERANGEMENT</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>700</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>50</amount>
@@ -900,261 +900,262 @@
 		<!-- For test. Knight Full Buff stage 1. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15130" toLevel="1" name="Full Buff Knight Lv. 2">
 		<!-- For test. Knight Full Buff stage 2. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15131" toLevel="1" name="Full Buff Knight Lv. 3">
 		<!-- For test. Knight Full Buff stage 3. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15132" toLevel="1" name="Full Buff Knight Lv. 4">
 		<!-- For test. Knight Full Buff stage 4. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15133" toLevel="1" name="Full Buff Warrior Lv. 1">
 		<!-- For test. Warrior Full Buff stage 1. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15134" toLevel="1" name="Full Buff Warrior Lv. 2">
 		<!-- For test. Warrior Full Buff stage 2. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15135" toLevel="1" name="Full Buff Warrior Lv. 3">
 		<!-- For test. Warrior Full Buff stage 3. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15136" toLevel="1" name="Full Buff Warrior Lv. 4">
 		<!-- For test. Warrior Full Buff stage 4. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15137" toLevel="1" name="Full Buff Wizard Lv. 1">
 		<!-- For test. Wizard Full Buff stage 1. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15138" toLevel="1" name="Full Buff Wizard Lv. 2">
 		<!-- For test. Wizard Full Buff stage 2. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15139" toLevel="1" name="Full Buff Wizard Lv. 3">
 		<!-- For test. Wizard Full Buff stage 3. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15140" toLevel="1" name="Full Buff Wizard Lv. 4">
 		<!-- For test. Wizard Full Buff stage 4. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15141" toLevel="1" name="Super CP Lv. 1">
 		<!-- For test. Wizard Full Buff stage 1. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15142" toLevel="1" name="Super CP Lv. 2">
 		<!-- For test. Wizard Full Buff stage 2. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15143" toLevel="1" name="Super CP Lv. 3">
 		<!-- For test. Wizard Full Buff stage 3. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15144" toLevel="1" name="Super CP Lv. 4">
 		<!-- For test. Wizard Full Buff stage 4. Increases abilities through Kyu's power. -->
 		<icon>icon.skill11065</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
-	<skill id="15145" toLevel="1" name="Ruler's Authority">
-		<!-- Max CP/HP/MP +1000, Weight +25600, Damage +8%, received Damage - 9%, Damage Reflect Resistance +5%, Inventory Slot +36, and all Attribute Resistance +15. -->
-		<icon>icon.skill0332</icon>
+	<skill id="15145" toLevel="2" name="Ruler's Authority">
+		<!-- Level 1: When equipped, Max CP/ HP/ MP +1000, weight +25600, damage dealt +8%, damage received -9%, Damage Reflect Resistance +5%, inventory slot +36, and all attribute resistance +15. -->
+		<!-- Level 2: When equipped, Max CP/ HP/ MP +1000, weight +25600, damage dealt +10%, damage received -10%, Damage Reflect Resistance +10%, Fixed Damage Resistance +10%, inventory slot +36, all attribute resistance +20. -->
+		<icon>icon.belt_rulers_authority</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
@@ -1219,7 +1220,7 @@
 		</effects>
 	</skill>
 	<skill id="15146" toLevel="1" name="Mysterious Belt">
-		<!-- Max CP/HP/MP +500, PvP Damage +6%, Damage Reflect Resistance +5%, and received PvP Damage - 7%. -->
+		<!-- Max CP/ HP/ MP +500, PvP Damage +6%, Damage Reflect Resistance +5%, and received PvP Damage -7%. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
@@ -1269,25 +1270,25 @@
 	<skill id="15147" toLevel="1" name="Overheat">
 		<!-- The machine is overheated. Inflicts continuous damage on the target that harms you. -->
 		<icon>icon.skill1492</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>BLEEDING</abnormalType>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>500</coolTime>
 		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>10</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>99</magicLevel>
-		<trait>BLEED</trait>
-		<irreplacableBuff>true</irreplacableBuff>
 		<reuseDelay>120000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<specialLevel>-1</specialLevel>
+		<trait>BLEED</trait>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Overheat -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1301,25 +1302,25 @@
 	<skill id="15148" toLevel="1" name="Coolant Leak">
 		<!-- The machine is overheated. Inflicts a speed decreasing effect on the target that harms you. -->
 		<icon>icon.skill0102</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>SPEED_DOWN</abnormalType>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<coolTime>500</coolTime>
 		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>10</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>99</magicLevel>
-		<trait>BLEED</trait>
-		<irreplacableBuff>true</irreplacableBuff>
 		<reuseDelay>120000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<specialLevel>-1</specialLevel>
+		<trait>BLEED</trait>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Coolant Leak -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1333,22 +1334,22 @@
 	<skill id="15149" toLevel="1" name="Self Recovery">
 		<!-- Recovers your HP. -->
 		<icon>icon.skill1216</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>PD_UP_SPECIAL</abnormalType>
-		<operateType>A2</operateType>
-		<coolTime>500</coolTime>
-		<reuseDelay>120000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>10</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>10</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>120000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="HealOverTime">
 				<power>500</power>
@@ -1359,22 +1360,22 @@
 	<skill id="15150" toLevel="1" name="Self Defense">
 		<!-- The machine is protecting itself. Increases your P. Def. -->
 		<icon>icon.skill1389</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>DEBUFF_SHIELD</abnormalType>
-		<operateType>A2</operateType>
-		<coolTime>500</coolTime>
-		<reuseDelay>120000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>10</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>10</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>120000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>100</amount>
@@ -1389,25 +1390,25 @@
 	<skill id="15151" toLevel="1" name="Overheat">
 		<!-- The machine is burning from overheating and HP is wearing away. -->
 		<icon>icon.skill1492</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
 		<abnormalType>BLEEDING</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<castRange>40</castRange>
-		<hitTime>1000</hitTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-100</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>400</effectRange>
-		<magicLevel>99</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="DamOverTime">
 				<power>250</power>
@@ -1418,25 +1419,25 @@
 	<skill id="15152" toLevel="1" name="Coolant Leak">
 		<!-- Speed is decreased due to the machine's coolant leak. -->
 		<icon>icon.skill0102</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
 		<abnormalType>SPEED_DOWN</abnormalType>
 		<abnormalVisualEffect>SPEED_DOWN</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<castRange>40</castRange>
-		<hitTime>1000</hitTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-100</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>400</effectRange>
-		<magicLevel>99</magicLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="Speed">
 				<amount>-50</amount>
@@ -1448,57 +1449,57 @@
 		<!-- You are concentrating on incubating the summoned Draco Egg. Other Draco Eggs cannot be summoned. -->
 		<icon>icon.skill11507</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>SIGNAL_C</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>25</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>TARGET</targetType>
+		<abnormalType>SIGNAL_C</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="15154" toLevel="1" name="Attention to Draco Incubation">
 		<!-- You are concentrating on incubating the summoned Draco Egg. Other Draco Eggs cannot be summoned. -->
 		<icon>icon.skill11507</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>SIGNAL_C</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<affectRange>1000</affectRange>
-		<isMagic>1</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<abnormalType>SIGNAL_C</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="15155" toLevel="1" name="Petrify">
 		<!-- Petrify status. -->
 		<icon>icon.skill1540</icon>
 		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
-		<effectPoint>2</effectPoint>
-		<abnormalType>TURN_STONE</abnormalType>
-		<abnormalVisualEffect>FLESH_STONE</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
+		<abnormalType>TURN_STONE</abnormalType>
+		<abnormalVisualEffect>FLESH_STONE</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>2</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="BlockActions" />
 			<effect name="HpRegen">
@@ -1510,88 +1511,88 @@
 	<skill id="15156" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15157" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15158" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15159" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15160" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15161" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15162" toLevel="1" name="Flower Planting">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="15163" toLevel="1" name="Tauti Typhoon">
 		<!-- Being flung away from shock. Attached characters are fine, but long-range characters are affected by this skill. -->
 		<icon>icon.skill3080</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>FLY_AWAY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<activateRate>80</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<affectRange>1500</affectRange>
-		<fanRange>0;0;600;0</fanRange>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>RING_RANGE</affectScope>
+		<abnormalType>FLY_AWAY</abnormalType>
+		<activateRate>80</activateRate>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>RING_RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;600;0</fanRange>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>180000</power>
 			</effect>
 			<effect name="FlyAway">
@@ -1615,24 +1616,24 @@
 		<!-- Being flung away from shock. Attached characters are fine, but long-range characters are affected by this skill. -->
 		<icon>icon.skill3080</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>FLY_AWAY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<activateRate>80</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<affectRange>1500</affectRange>
-		<fanRange>0;0;600;0</fanRange>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>RING_RANGE</affectScope>
+		<abnormalType>FLY_AWAY</abnormalType>
+		<activateRate>80</activateRate>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>RING_RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;600;0</fanRange>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>180000</power>
 			</effect>
 			<effect name="FlyAway">
@@ -1656,26 +1657,26 @@
 		<!-- Cannot move due to shock. -->
 		<icon>icon.skill0100</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<activateRate>80</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>2</abnormalTime>
-		<trait>SHOCK</trait>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<fanRange>0;0;300;300</fanRange>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>SQUARE_PB</affectScope>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>SQUARE_PB</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;300;300</fanRange>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>280000</power>
 			</effect>
 			<effect name="BlockActions">
@@ -1687,28 +1688,28 @@
 		<!-- Throws forward toward the target who is holding Tauti to inflict damage and to knock down. -->
 		<icon>icon.skill0100</icon>
 		<operateType>DA2</operateType>
-		<castRange>900</castRange>
-		<hitTime>100</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>KNOCKDOWN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1100</effectRange>
-		<activateRate>80</activateRate>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<trait>KNOCKDOWN</trait>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>100</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>KNOCKDOWN</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>240000</power>
 			</effect>
 			<effect name="BlockActions" />
@@ -1730,27 +1731,27 @@
 		<!-- Takes hold of Tauti and throws him up. Uses falling damage to inflict tremendous harm. -->
 		<icon>icon.skill3080</icon>
 		<operateType>A2</operateType>
-		<castRange>2000</castRange>
-		<hitTime>5000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<trait>SHOCK</trait>
-		<affectRange>300</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>2000</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitTime>5000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>350000</power>
 			</effect>
 		</effects>
@@ -1759,23 +1760,23 @@
 		<!-- Pulls in all the PC's who are near Tauti. -->
 		<icon>icon.skill10016</icon>
 		<operateType>A2</operateType>
-		<mpConsume>123</mpConsume>
-		<hitTime>500</hitTime>
-		<coolTime>1000</coolTime>
-		<effectPoint>-2093</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1</abnormalTime>
-		<trait>PULL</trait>
-		<affectRange>1500</affectRange>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>STUN</abnormalType>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>1000</coolTime>
+		<effectPoint>-2093</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>123</mpConsume>
+		<trait>PULL</trait>
 		<effects>
 			<effect name="PullBack">
 				<speed>600</speed>
@@ -1789,24 +1790,24 @@
 		<!-- HP is cut down from the roar. HP is decreased by the energy of fire in the roar. -->
 		<icon>icon.skill0102</icon>
 		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BLEEDING</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<trait>BLEED</trait>
-		<irreplacableBuff>true</irreplacableBuff>
-		<affectRange>1500</affectRange>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BLEEDING</abnormalType>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>1500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
+		<trait>BLEED</trait>
 		<effects>
 			<effect name="DamOverTime">
 				<power>250</power>
@@ -1818,19 +1819,19 @@
 		<!-- P. Def. and M. Def. are increased. -->
 		<icon>icon.skill1418</icon>
 		<operateType>A2</operateType>
-		<hitTime>5000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>PD_UP_SPECIAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>4.5</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>99</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>PD_UP_SPECIAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>4.5</hitCancelTime>
+		<hitTime>5000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>950</amount>
@@ -1846,19 +1847,19 @@
 		<!-- Skill where Tauti throws crossways and receives back again. -->
 		<icon>icon.skill0003</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>SQUARE</affectScope>
+		<coolTime>500</coolTime>
 		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;200;200</fanRange>
+		<hitTime>1500</hitTime>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>99</magicLevel>
-		<affectRange>900</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<fanRange>0;0;200;200</fanRange>
-		<coolTime>500</coolTime>
-		<targetType>SELF</targetType>
-		<affectScope>SQUARE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>350000</power>
 			</effect>
 		</effects>
@@ -1867,26 +1868,26 @@
 		<!-- Bound in the air from Tauti's gaze. Cannot be removed with a de-buff removing skill. -->
 		<icon>icon.skill11276</icon>
 		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>AIRBIND</abnormalType>
+		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>200</castRange>
 		<effectPoint>-2</effectPoint>
-		<abnormalType>AIRBIND</abnormalType>
-		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
 		<effectRange>400</effectRange>
-		<magicLevel>99</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>10</abnormalTime>
-		<affectRange>400</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<isMagic>2</isMagic>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="BlockActions" />
 		</effects>
@@ -1895,64 +1896,64 @@
 		<!-- Bound in the air from Tauti's gaze. Cannot be removed with a de-buff removing skill. -->
 		<icon>icon.skill11276</icon>
 		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>AIRBIND</abnormalType>
+		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>200</castRange>
 		<effectPoint>-2</effectPoint>
-		<abnormalType>AIRBIND</abnormalType>
-		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
 		<effectRange>400</effectRange>
-		<magicLevel>99</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>10</abnormalTime>
-		<affectRange>400</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<isMagic>2</isMagic>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-1</specialLevel>
 	</skill>
-	<skill id="15174" toLevel="1" name="Petra Injection - Enhance HP Recovery">
+	<skill id="15174" toLevel="1" name="Petra Injection - Enhance HP Recovery Bonus">
 		<icon>icon.skill1434</icon>
 		<operateType>CA2</operateType>
-		<castRange>2500</castRange>
-		<hitTime>15000</hitTime>
-		<effectPoint>2</effectPoint>
+		<targetType>TARGET</targetType>
 		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
-		<channelingSkillId>15175</channelingSkillId> <!-- Petra Injection - Enhance HP Recovery -->
+		<castRange>2500</castRange>
+		<channelingSkillId>15175</channelingSkillId> <!-- Petra Injection - Enhance HP Recovery Bonus -->
 		<channelingStart>1.2</channelingStart>
 		<channelingTickInterval>2</channelingTickInterval>
-		<isMagic>2</isMagic>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>15000</hitTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
-	<skill id="15175" toLevel="1" name="Petra Injection - Enhance HP Recovery">
-		<!-- Zahak has used its Petra to increase Tauti's HP Recovery. -->
+	<skill id="15175" toLevel="1" name="Petra Injection - Enhance HP Recovery Bonus">
+		<!-- Zahak has used its Petra to increase Tauti's HP Recovery Bonus. -->
 		<icon>icon.skill1434</icon>
 		<operateType>A2</operateType>
-		<castRange>2500</castRange>
-		<effectPoint>2</effectPoint>
-		<abnormalType>HP_REGEN_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>4</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
+		<abnormalType>HP_REGEN_UP</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>2500</castRange>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="HpRegen">
 				<amount>1000</amount>
@@ -1963,40 +1964,40 @@
 	<skill id="15176" toLevel="1" name="Petra Injection - Enhance P. Def.">
 		<icon>icon.skill1434</icon>
 		<operateType>CA2</operateType>
-		<castRange>2500</castRange>
-		<hitTime>15000</hitTime>
-		<effectPoint>2</effectPoint>
+		<targetType>TARGET</targetType>
 		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<castRange>2500</castRange>
 		<channelingSkillId>15177</channelingSkillId> <!-- Petra Injection - Enhance P. Def. -->
 		<channelingStart>1.2</channelingStart>
 		<channelingTickInterval>2</channelingTickInterval>
-		<isMagic>2</isMagic>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>15000</hitTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15177" toLevel="1" name="Petra Injection - Enhance P. Def.">
 		<!-- Zahak has used its Petra to increase Tauti's P. Def. -->
 		<icon>icon.skill1434</icon>
 		<operateType>A2</operateType>
-		<castRange>2500</castRange>
-		<effectPoint>2</effectPoint>
-		<abnormalType>PD_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>4</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
+		<abnormalType>PD_UP</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>2500</castRange>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>200</amount>
@@ -2007,40 +2008,40 @@
 	<skill id="15178" toLevel="1" name="Petra Injection - Enhance M. Def.">
 		<icon>icon.skill1434</icon>
 		<operateType>CA2</operateType>
-		<castRange>2500</castRange>
-		<hitTime>15000</hitTime>
-		<effectPoint>2</effectPoint>
+		<targetType>TARGET</targetType>
 		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<castRange>2500</castRange>
 		<channelingSkillId>15179</channelingSkillId> <!-- Petra Injection - Enhance M. Def. -->
 		<channelingStart>1.2</channelingStart>
 		<channelingTickInterval>2</channelingTickInterval>
-		<isMagic>2</isMagic>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>15000</hitTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15179" toLevel="1" name="Petra Injection - Enhance M. Def.">
 		<!-- Zahak has used its Petra to increase Tauti's M. Def. -->
 		<icon>icon.skill1434</icon>
 		<operateType>A2</operateType>
-		<castRange>2500</castRange>
-		<effectPoint>2</effectPoint>
-		<abnormalType>MD_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>4</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
+		<abnormalType>MD_UP</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>2500</castRange>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>200</amount>
@@ -2051,40 +2052,40 @@
 	<skill id="15180" toLevel="1" name="Petra Injection - Enhance P. Atk.">
 		<icon>icon.skill1434</icon>
 		<operateType>CA2</operateType>
-		<castRange>2500</castRange>
-		<hitTime>15000</hitTime>
-		<effectPoint>2</effectPoint>
+		<targetType>TARGET</targetType>
 		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<castRange>2500</castRange>
 		<channelingSkillId>15181</channelingSkillId> <!-- Petra Injection - Enhance P. Atk. -->
 		<channelingStart>1.2</channelingStart>
 		<channelingTickInterval>2</channelingTickInterval>
-		<isMagic>2</isMagic>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>15000</hitTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="15181" toLevel="1" name="Petra Injection - Enhance P. Atk.">
 		<!-- Zahak has used its Petra to increase Tauti's P. Atk. -->
 		<icon>icon.skill1434</icon>
 		<operateType>A2</operateType>
-		<castRange>2500</castRange>
-		<effectPoint>2</effectPoint>
-		<abnormalType>PA_PD_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>3000</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>4</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
+		<abnormalType>PA_PD_UP</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>2500</castRange>
+		<effectPoint>2</effectPoint>
+		<effectRange>3000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="PhysicalSkillPower">
 				<amount>100</amount>
@@ -2096,20 +2097,20 @@
 		<!-- Provokes nearby enemies into attacking you. -->
 		<icon>icon.skill10027</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<affectRange>400</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<staticReuse>true</staticReuse>
-		<isDebuff>true</isDebuff>
 		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="TargetMe" />
 			<effect name="GetAgro" />
@@ -2119,20 +2120,20 @@
 		<!-- Provokes nearby enemies into attacking you. -->
 		<icon>icon.skill10027</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<affectRange>400</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<staticReuse>true</staticReuse>
-		<isDebuff>true</isDebuff>
 		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="TargetMe" />
 			<effect name="GetAgro" />
@@ -2142,20 +2143,20 @@
 		<!-- Provokes nearby enemies into attacking you. -->
 		<icon>icon.skill10027</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<affectRange>400</affectRange>
-		<affectLimit>10-10</affectLimit>
-		<staticReuse>true</staticReuse>
-		<isDebuff>true</isDebuff>
 		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="TargetMe" />
 			<effect name="GetAgro" />
@@ -2165,30 +2166,30 @@
 		<!-- Attacks the targets in the front and inflicts Stun for 9 seconds. -->
 		<icon>icon.skill10012</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>60000</reuseDelay>
-		<effectPoint>-694</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>30</lvlBonusRate>
-		<activateRate>70</activateRate>
-		<magicLevel>85</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
-		<trait>SHOCK</trait>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<affectRange>150</affectRange>
-		<fanRange>0;0;150;180</fanRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
+		<activateRate>70</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>FAN</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-694</effectPoint>
+		<fanRange>0;0;150;180</fanRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>60000</reuseDelay>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>9516</power>
 			</effect>
 			<effect name="BlockActions">
@@ -2200,30 +2201,30 @@
 		<!-- Attacks the targets in the front and inflicts Stun for 9 seconds. -->
 		<icon>icon.skill10012</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>60000</reuseDelay>
-		<effectPoint>-694</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>30</lvlBonusRate>
-		<activateRate>70</activateRate>
-		<magicLevel>90</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
-		<trait>SHOCK</trait>
-		<affectLimit>10-10</affectLimit>
-		<affectRange>150</affectRange>
-		<fanRange>0;0;150;180</fanRange>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
+		<activateRate>70</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>FAN</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-694</effectPoint>
+		<fanRange>0;0;150;180</fanRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<reuseDelay>60000</reuseDelay>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>11162</power>
 			</effect>
 			<effect name="BlockActions">
@@ -2235,30 +2236,30 @@
 		<!-- Attacks the targets in the front and inflicts Stun for 9 seconds. -->
 		<icon>icon.skill10012</icon>
 		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>60000</reuseDelay>
-		<effectPoint>-694</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>30</lvlBonusRate>
-		<activateRate>70</activateRate>
-		<magicLevel>95</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
-		<trait>SHOCK</trait>
-		<affectLimit>10-10</affectLimit>
-		<affectRange>150</affectRange>
-		<fanRange>0;0;150;180</fanRange>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
+		<activateRate>70</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>FAN</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-694</effectPoint>
+		<fanRange>0;0;150;180</fanRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<reuseDelay>60000</reuseDelay>
+		<trait>SHOCK</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>12809</power>
 			</effect>
 			<effect name="BlockActions">
@@ -2270,22 +2271,22 @@
 		<!-- Focuses on a target at the front and inflicts a long range attack. Attacks the target with 23391 power added to P. Atk. -->
 		<icon>icon.skill10771</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1100</affectRange>
+		<affectScope>FAN</affectScope>
 		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>350</coolTime>
 		<effectPoint>-689</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
-		<affectLimit>10-10</affectLimit>
-		<reuseDelay>7000</reuseDelay>
-		<affectRange>1100</affectRange>
 		<fanRange>0;0;1100;90</fanRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>7000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>23391</power>
 			</effect>
 		</effects>
@@ -2294,22 +2295,22 @@
 		<!-- Focuses on a target at the front and inflicts a long range attack. Attacks the target with 27459 power added to P. Atk. -->
 		<icon>icon.skill10771</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1100</affectRange>
+		<affectScope>FAN</affectScope>
 		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>350</coolTime>
 		<effectPoint>-689</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>1500</effectRange>
-		<magicLevel>90</magicLevel>
-		<affectLimit>10-10</affectLimit>
-		<reuseDelay>7000</reuseDelay>
-		<affectRange>1100</affectRange>
 		<fanRange>0;0;1100;90</fanRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<reuseDelay>7000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>27459</power>
 			</effect>
 		</effects>
@@ -2318,22 +2319,22 @@
 		<!-- Focuses on a target at the front and inflicts a long range attack. Attacks the target with 31527 power added to P. Atk. -->
 		<icon>icon.skill10771</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1100</affectRange>
+		<affectScope>FAN</affectScope>
 		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>350</coolTime>
 		<effectPoint>-689</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>1500</effectRange>
-		<magicLevel>95</magicLevel>
-		<affectLimit>10-10</affectLimit>
-		<reuseDelay>7000</reuseDelay>
-		<affectRange>1100</affectRange>
 		<fanRange>0;0;1100;90</fanRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<reuseDelay>7000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>31527</power>
 			</effect>
 		</effects>
@@ -2342,21 +2343,21 @@
 		<!-- Rains down arrows like rain on the target and its surrounding area with 22526 power added to P. Atk. -->
 		<icon>icon.skill10772</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>350</coolTime>
 		<effectPoint>-689</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>1500</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>22526</power>
 			</effect>
 		</effects>
@@ -2365,21 +2366,21 @@
 		<!-- Rains down arrows like rain on the target and its surrounding area with 26448 power added to P. Atk. -->
 		<icon>icon.skill10772</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>350</coolTime>
 		<effectPoint>-689</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>1500</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>90</magicLevel>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>26448</power>
 			</effect>
 		</effects>
@@ -2388,21 +2389,21 @@
 		<!-- Rains down arrows like rain on the target and its surrounding area with 30371 power added to P. Atk. -->
 		<icon>icon.skill10772</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>1100</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>350</coolTime>
 		<effectPoint>-689</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>1500</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>95</magicLevel>
-		<affectRange>200</affectRange>
-		<affectLimit>10-10</affectLimit>
 		<reuseDelay>15000</reuseDelay>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>30371</power>
 			</effect>
 		</effects>
@@ -2411,29 +2412,29 @@
 		<!-- Banishes enemies near the target to another dimension. The exiled target becomes incapacitated and invincible to some attacks, skills, and debuffs. Decreases 282 HP per second. -->
 		<icon>icon.skill11296</icon>
 		<operateType>A2</operateType>
-		<trait>DEPORT</trait>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>300000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-687</effectPoint>
-		<abnormalType>DEPORT</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<activateRate>80</activateRate>
-		<magicLevel>85</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>DEPORT</abnormalType>
 		<abnormalVisualEffect>DEPORT</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>300000</reuseDelay>
+		<trait>DEPORT</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -2456,29 +2457,29 @@
 		<!-- Banishes enemies near the target to another dimension. The exiled target becomes incapacitated and invincible to some attacks, skills, and debuffs. Decreases 296 HP per second. -->
 		<icon>icon.skill11296</icon>
 		<operateType>A2</operateType>
-		<trait>DEPORT</trait>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>300000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-687</effectPoint>
-		<abnormalType>DEPORT</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<activateRate>80</activateRate>
-		<magicLevel>90</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>DEPORT</abnormalType>
 		<abnormalVisualEffect>DEPORT</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<reuseDelay>300000</reuseDelay>
+		<trait>DEPORT</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -2501,29 +2502,29 @@
 		<!-- Banishes enemies near the target to another dimension. The exiled target becomes incapacitated and invincible to some attacks, skills, and debuffs. Decreases 313 HP per second. -->
 		<icon>icon.skill11296</icon>
 		<operateType>A2</operateType>
-		<trait>DEPORT</trait>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>300000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-687</effectPoint>
-		<abnormalType>DEPORT</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<activateRate>80</activateRate>
-		<magicLevel>95</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
+		<abnormalType>DEPORT</abnormalType>
 		<abnormalVisualEffect>DEPORT</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<reuseDelay>300000</reuseDelay>
+		<trait>DEPORT</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -2546,17 +2547,17 @@
 		<!-- Attacks nearby enemies with the wrath of the guardian spirit. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<coolTime>500</coolTime>
 		<effectPoint>-183</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
 		<reuseDelay>20000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Hp">
 				<amount>-391</amount>
@@ -2568,17 +2569,17 @@
 		<!-- Attacks nearby enemies with the wrath of the guardian spirit. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<coolTime>500</coolTime>
 		<effectPoint>-183</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>90</magicLevel>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
 		<reuseDelay>20000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Hp">
 				<amount>-417</amount>
@@ -2590,17 +2591,17 @@
 		<!-- Attacks nearby enemies with the wrath of the guardian spirit. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<coolTime>500</coolTime>
 		<effectPoint>-183</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>95</magicLevel>
-		<affectRange>150</affectRange>
-		<affectLimit>10-10</affectLimit>
 		<reuseDelay>20000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Hp">
 				<amount>-454</amount>

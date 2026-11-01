@@ -410,6 +410,7 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
             no_bookmark: false,
         }),
         mother_tree: None,
+        sayune_map_id: -1,
     });
     let ground_oid = world.next_npc_object_id;
 

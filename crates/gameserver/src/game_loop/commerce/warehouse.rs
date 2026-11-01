@@ -139,9 +139,6 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
         return;
     };
     let tgt = target(world, player_oid);
-    let wh_size = container_ref(world, player_oid, tgt)
-        .map(|c| c.items().len())
-        .unwrap_or(0) as i32;
     let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) else {
         return;
     };
@@ -152,13 +149,12 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
     )> = inv
         .unequipped_with_templates(&world.data.item_data)
         .collect();
-    let packet = sp::warehouse_deposit_list(
-        wh_type(tgt),
-        inventory::adena(world, player_oid),
-        wh_size,
-        &items,
-    );
-    send_to_client(world, client_id, packet);
+    let adena = inventory::adena(world, player_oid);
+    let packets =
+        [1, 2].map(|send_type| sp::warehouse_deposit_list(send_type, wh_type(tgt), adena, &items));
+    for packet in packets {
+        send_to_client(world, client_id, packet);
+    }
 }
 
 /// `WithdrawP`/`WithdrawC`/`package_withdraw` — show the withdraw window (the
@@ -189,13 +185,13 @@ pub(crate) fn open_withdraw_window(world: &mut World, client_id: u32) {
         .iter()
         .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
         .collect();
-    let packet = sp::warehouse_withdrawal_list(
-        wh_type(tgt),
-        inventory::adena(world, player_oid),
-        inv_size,
-        &items,
-    );
-    send_to_client(world, client_id, packet);
+    let adena = inventory::adena(world, player_oid);
+    let packets = [1, 2].map(|send_type| {
+        sp::warehouse_withdrawal_list(send_type, wh_type(tgt), adena, inv_size, &items)
+    });
+    for packet in packets {
+        send_to_client(world, client_id, packet);
+    }
 }
 
 /// `Freight` bypass (`package_withdraw`): set the active warehouse to the
@@ -576,8 +572,11 @@ pub(crate) fn handle_package_sendable_list(world: &mut World, client_id: u32, bo
         .unequipped_with_templates(&world.data.item_data)
         .filter(|(_, t)| t.is_freightable)
         .collect();
-    let packet = sp::package_sendable_list(recipient, inv.adena(), &items);
-    send_to_client(world, client_id, packet);
+    let packets = [1, 2]
+        .map(|send_type| sp::package_sendable_list(send_type, recipient, inv.adena(), &items));
+    for packet in packets {
+        send_to_client(world, client_id, packet);
+    }
 }
 
 /// `RequestPackageSend` (0xA8): freight the listed items to another character

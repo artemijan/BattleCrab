@@ -16,12 +16,12 @@
  */
 package quests.Q00034_InSearchOfCloth;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * In Search of Cloth (34)
@@ -33,18 +33,21 @@ public class Q00034_InSearchOfCloth extends Quest
 	private static final int RADIA = 30088;
 	private static final int RALFORD = 30165;
 	private static final int VARAN = 30294;
+	
 	// Monsters
 	private static final int[] MOBS =
 	{
 		23307, // Corpse Spider
 		23308, // Explosive Spider
 	};
+	
 	// Items
 	private static final int ARMOR_FRAGMENT = 36551;
 	private static final int ACCESSORY_GEM = 36556;
 	private static final int MYSTERIOUS_CLOTH = 7076;
 	private static final int SKEIN_OF_YARN = 7161;
 	private static final int SPINNERET = 7528;
+	
 	// Misc
 	private static final int MIN_LEVEL = 85;
 	private static final int SPINNERET_COUNT = 10;
@@ -98,6 +101,7 @@ public class Q00034_InSearchOfCloth extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				takeItems(player, SPINNERET, SPINNERET_COUNT);
 				giveItems(player, SKEIN_OF_YARN, 1);
 				qs.setCond(6, true);
@@ -125,11 +129,12 @@ public class Q00034_InSearchOfCloth extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player member = getRandomPartyMember(player, 4);
 		if ((member != null) && getRandomBoolean())
@@ -145,7 +150,6 @@ public class Q00034_InSearchOfCloth extends Quest
 				playSound(player, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 			}
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -251,6 +255,7 @@ public class Q00034_InSearchOfCloth extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

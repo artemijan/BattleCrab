@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="39700" name="Little Angel Wings" additionalName="LUC" type="Armor">
 		<!-- LUC +3 when equipped. -->
@@ -98,12 +98,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13659" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">87</stat>
 		</stats>
+		<skills>
+			<skill id="13659" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
+		</skills>
 	</item>
 	<item id="39711" name="Shining Mysterious Fragment" type="EtcItem">
 		<!-- Found from the magical creatures of Cruma Tower Underground Lv. 3. It emits a mysterious light. -->
@@ -198,7 +198,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -224,7 +224,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -250,7 +250,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
@@ -339,8 +339,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="39727" name="Emissary's Reward Box (Mid-grade)" type="EtcItem">
@@ -351,8 +351,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="39728" name="Emissary's Reward Box (High-grade)" type="EtcItem">
@@ -363,8 +363,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="39729" name="Emissary's Reward Box (Top-grade)" type="EtcItem">
@@ -375,8 +375,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="39730" name="Stakato Chitin" type="EtcItem">
@@ -416,7 +416,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="39733" name="Monster Blood" type="EtcItem">
-		<!-- Obtained by killing Stakatos in the Swamp of Screams. Bring these to Mercenary Kahman for rrewardrs. -->
+		<!-- Obtained by killing creatures in the Forest of the Dead. Bring these to Mysterious Wizard for rewardrs. -->
 		<set name="icon" val="icon.etc_dragon_blood_i00" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
@@ -557,7 +557,7 @@
 		</skills>
 	</item>
 	<item id="39748" name="Dimensional Bracelet - Stage 1" additionalName="STR" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives STR Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives STR Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -573,7 +573,7 @@
 		</skills>
 	</item>
 	<item id="39749" name="Dimensional Bracelet - Stage 1" additionalName="DEX" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives DEX Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives DEX Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -589,7 +589,7 @@
 		</skills>
 	</item>
 	<item id="39750" name="Dimensional Bracelet - Stage 1" additionalName="CON" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives CON Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives CON Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -605,7 +605,7 @@
 		</skills>
 	</item>
 	<item id="39751" name="Dimensional Bracelet - Stage 1" additionalName="INT" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives INT Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives INT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -621,7 +621,7 @@
 		</skills>
 	</item>
 	<item id="39752" name="Dimensional Bracelet - Stage 1" additionalName="MEN" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives MEN Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives MEN Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -637,7 +637,7 @@
 		</skills>
 	</item>
 	<item id="39753" name="Dimensional Bracelet - Stage 1" additionalName="WIT" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives WIT Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives WIT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -653,7 +653,7 @@
 		</skills>
 	</item>
 	<item id="39754" name="Dimensional Bracelet - Stage 1" additionalName="LUC" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives LUC Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives LUC Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -669,7 +669,7 @@
 		</skills>
 	</item>
 	<item id="39755" name="Dimensional Bracelet - Stage 1" additionalName="CHA" type="Armor">
-		<!-- Activates 1 talisman slot when equipped. Gives CHA Options / Can be Enhanced. -->
+		<!-- Activates 1 talisman slot when equipped. Gives CHA Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1381,7 +1381,7 @@
 		</skills>
 	</item>
 	<item id="39797" name="Dimensional Bracelet - Stage 2" additionalName="STR" type="Armor">
-		<!-- Activates 2 talisman slots when equipped. Gives STR Options / Can be Enhanced. -->
+		<!-- Activates 2 talisman slots when equipped. Gives STR Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1397,7 +1397,7 @@
 		</skills>
 	</item>
 	<item id="39798" name="Dimensional Bracelet - Stage 2" additionalName="DEX" type="Armor">
-		<!-- Activates 2 talisman slots when equipped. Gives DEX Options / Can be Enhanced. -->
+		<!-- Activates 2 talisman slots when equipped. Gives DEX Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1413,7 +1413,7 @@
 		</skills>
 	</item>
 	<item id="39799" name="Dimensional Bracelet - Stage 2" additionalName="CON" type="Armor">
-		<!-- Activates 2 talisman slots when equipped. Gives CON Options / Can be Enhanced. -->
+		<!-- Activates 2 talisman slots when equipped. Gives CON Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />

@@ -38,6 +38,7 @@ pub(crate) fn set_attack_intention(world: &mut World, npc_oid: i32) {
 /// its owner keeps whatever move type it was on, and a sown mob is left where
 /// Java's `setIntention(AI_INTENTION_IDLE)` leaves it.
 pub(crate) fn set_active_intention(world: &mut World, npc_oid: i32) {
+    super::follow::stop_follow(world, npc_oid);
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
         ai.intention = NpcIntention::Active;
     }
@@ -56,6 +57,7 @@ pub(crate) fn set_active_intention(world: &mut World, npc_oid: i32) {
 ///
 /// [`move_npc_to`]: move_npc_to
 pub(crate) fn set_move_to_intention(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
+    super::follow::stop_follow(world, npc_oid);
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
         ai.intention = NpcIntention::MoveTo;
     }

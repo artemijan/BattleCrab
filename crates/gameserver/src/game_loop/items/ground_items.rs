@@ -387,25 +387,21 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     let Some(ppos) = maybe_position(world, player_oid) else {
         return;
     };
-    // `PlayerCondOverride.DROP_ALL_ITEMS` — the drop path's override, and note
-    // it is **not** the `ITEM_CONDITIONS` the trade window reads for the same
-    // config key.
-    //
-    // Bound once because the three gates below combine it *differently*: the
-    // undroppable and quest-item gates want it together with
-    // `Config.GM_TRADE_RESTRICTED_ITEMS` (**False** here), the `TYPE2_QUEST`
-    // gate wants the override on its own. Keeping both spellings next to each
+    // `player.isGM()`, bound once because the three gates below combine it
+    // *differently*: the undroppable and quest-item gates want it together
+    // with `Config.GM_TRADE_RESTRICTED_ITEMS` (**False** here), the
+    // `TYPE2_QUEST` gate wants it on its own. Keeping both spellings next to each
     // other is what makes that asymmetry visible instead of looking like a
     // typo at one of the sites.
-    let can_drop_all = world
+    let is_gm = world
         .objects
         .get_component::<crate::model::Player>(&player_oid)
-        .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::DROP_ALL_ITEMS_ORDINAL));
-    let gm_bound_exempt = world.cfg.general.gm_trade_restricted_items && can_drop_all;
-    // `!Config.ALLOW_DISCARDITEM && !canOverrideCond(DROP_ALL_ITEMS)` — the
+        .is_some_and(|p| p.is_gm(&world.data));
+    let gm_bound_exempt = world.cfg.general.gm_trade_restricted_items && is_gm;
+    // `!Config.ALLOW_DISCARDITEM && !player.isGM()` — the
     // first clause of Java's big refusal, and the only one that turns dropping
     // off wholesale.
-    if !world.cfg.general.allow_discard_item && !can_drop_all {
+    if !world.cfg.general.allow_discard_item && !is_gm {
         send_to_client(
             world,
             client_id,
@@ -445,7 +441,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         );
         return;
     }
-    // `item.isQuestItem() && !(canOverrideCond(DROP_ALL_ITEMS) &&
+    // `item.isQuestItem() && !(player.isGM() &&
     // GM_TRADE_RESTRICTED_ITEMS)` — the quest-item gate takes the same
     // exemption, unlike the trade window's, where `isQuestItem()` sits outside
     // the exempted parenthesis and refuses even a GM.
@@ -509,8 +505,8 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // wider quest gate than the `isQuestItem()` flag above: it catches the
     // quest-typed items whose template never sets that flag.
     //
-    // **Its exemption is `can_drop_all` alone.** Java writes
-    // `&& !player.canOverrideCond(DROP_ALL_ITEMS)` here, with no
+    // **Its exemption is `is_gm` alone.** Java writes
+    // `&& !player.isGM()` here, with no
     // `GM_TRADE_RESTRICTED_ITEMS`, unlike the two gates above which require
     // both. So on this dist's `False` a GM clears this gate and is still
     // stopped by the `isQuestItem()` one. Ported as written; the port
@@ -520,7 +516,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .item_data
         .get(item_id)
         .is_some_and(|t| t.type2 == TYPE2_QUEST)
-        && !can_drop_all
+        && !is_gm
     {
         send_to_client(
             world,

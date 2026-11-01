@@ -16,39 +16,40 @@ pub const WH_TYPE_PRIVATE: i16 = 1;
 pub const WH_TYPE_CLAN: i16 = 2;
 
 /// `serverpackets/WareHouseDepositList` — the deposit window: the inventory
-/// items that can go into the warehouse, the player's adena, and the current
-/// warehouse fill (`warehouse_size`). `wh_type` is `WH_TYPE_PRIVATE`/`_CLAN`.
+/// items that can go into the warehouse and the player's adena. `wh_type` is
+/// `WH_TYPE_PRIVATE`/`_CLAN`. Protocol 140 sends it as `send_type` 1 (the
+/// header, with the stackable count in place of Interlude's id list) and then
+/// 2 (the items).
 pub fn warehouse_deposit_list(
+    send_type: u8,
     wh_type: i16,
     adena: i64,
-    warehouse_size: i32,
     items: &[(&ItemInstance, &ItemTemplate)],
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::WAREHOUSE_DEPOSIT_LIST);
-    w.write_i16(wh_type);
-    w.write_i64(adena);
-    w.write_i32(warehouse_size);
-    let stackable: Vec<i32> = items
-        .iter()
-        .filter(|(_, t)| t.is_stackable)
-        .map(|(it, _)| it.item_id)
-        .collect();
-    w.write_i16(stackable.len() as i16);
-    for id in stackable {
-        w.write_i32(id);
-    }
-    w.write_i16(items.len() as i16);
-    for (item, template) in items {
-        write_item_entry(&mut w, item, template, false);
-        w.write_i32(item.object_id);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(i32::from(wh_type));
+        w.write_i32(items.len() as i32);
+        for (item, template) in items {
+            write_item_entry(&mut w, item, template, false);
+            w.write_i32(item.object_id);
+        }
+    } else {
+        w.write_i16(wh_type);
+        w.write_i64(adena);
+        w.write_i32(items.iter().filter(|(_, t)| t.is_stackable).count() as i32);
+        w.write_i32(items.len() as i32);
     }
     w.into_bytes()
 }
 
 /// `serverpackets/WareHouseWithdrawalList` — the withdraw window: the warehouse
-/// contents, the player's adena, and the current inventory fill (`inv_size`).
+/// contents, the player's adena, and the current inventory fill (`inv_size`),
+/// sent as `send_type` 1 (the header) and then 2 (the items).
 pub fn warehouse_withdrawal_list(
+    send_type: u8,
     wh_type: i16,
     adena: i64,
     inv_size: i32,
@@ -56,24 +57,22 @@ pub fn warehouse_withdrawal_list(
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::WAREHOUSE_WITHDRAW_LIST);
-    w.write_i16(wh_type);
-    w.write_i64(adena);
-    w.write_i16(items.len() as i16);
-    let stackable: Vec<i32> = items
-        .iter()
-        .filter(|(_, t)| t.is_stackable)
-        .map(|(it, _)| it.item_id)
-        .collect();
-    w.write_i16(stackable.len() as i16);
-    for id in stackable {
-        w.write_i32(id);
-    }
-    w.write_i32(inv_size);
-    for (item, template) in items {
-        write_item_entry(&mut w, item, template, false);
-        w.write_i32(item.object_id);
-        w.write_i32(0);
-        w.write_i32(0);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i16(0);
+        w.write_i32(inv_size);
+        w.write_i32(items.len() as i32);
+        for (item, template) in items {
+            write_item_entry(&mut w, item, template, false);
+            w.write_i32(item.object_id);
+            w.write_i32(0);
+            w.write_i32(0);
+        }
+    } else {
+        w.write_i16(wh_type);
+        w.write_i64(adena);
+        w.write_i32(inv_size);
+        w.write_i32(items.len() as i32);
     }
     w.into_bytes()
 }
@@ -92,20 +91,28 @@ pub fn package_to_list(chars: &[(i32, String)]) -> Vec<u8> {
 }
 
 /// `serverpackets/PackageSendableList` — the sender's freightable items and
-/// adena, for the character chosen in [`package_to_list`].
+/// adena, for the character chosen in [`package_to_list`], sent as
+/// `send_type` 1 (the header) and then 2 (the items).
 pub fn package_sendable_list(
+    send_type: u8,
     recipient_object_id: i32,
     adena: i64,
     items: &[(&ItemInstance, &ItemTemplate)],
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PACKAGE_SENDABLE_LIST);
-    w.write_i32(recipient_object_id);
-    w.write_i64(adena);
-    w.write_i32(items.len() as i32);
-    for (item, template) in items {
-        write_item_entry(&mut w, item, template, false);
-        w.write_i32(item.object_id);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(items.len() as i32);
+        w.write_i32(items.len() as i32);
+        for (item, template) in items {
+            write_item_entry(&mut w, item, template, false);
+            w.write_i32(item.object_id);
+        }
+    } else {
+        w.write_i32(recipient_object_id);
+        w.write_i64(adena);
+        w.write_i32(items.len() as i32);
     }
     w.into_bytes()
 }

@@ -47,6 +47,9 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -56,7 +59,12 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
-        effects: vec![SkillEffect::MagicalAttack { power }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     }
 }

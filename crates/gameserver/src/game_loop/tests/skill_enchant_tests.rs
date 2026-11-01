@@ -29,7 +29,12 @@ fn install_enchant_data(world: &mut World) {
         target_type: TargetType::Enemy,
         effect_point: -100,
         magic_type: 1,
-        effects: vec![SkillEffect::MagicalAttack { power: 1.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 1.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(base.clone());
@@ -37,8 +42,11 @@ fn install_enchant_data(world: &mut World) {
         world.data.skill_data.insert_enchanted_for_test(Skill {
             sub_level: sub,
             // A big, visible power step so the cast test can tell +N landed.
-            effects: vec![SkillEffect::MagicalAttack {
+            effects: vec![SkillEffect::MagicalDamage {
                 power: 1.0 + (sub - 1000) as f64 * 10.0,
+                debuff_modifier: 1.0,
+                races: Vec::new(),
+                race_modifier: 1.0,
             }],
             ..base.clone()
         });

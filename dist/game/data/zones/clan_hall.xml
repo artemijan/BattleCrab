@@ -418,4 +418,40 @@
 		<node X="17736" Y="170870" />
 		<node X="17736" Y="170592" />
 	</zone>
+	<zone name="orchid_hall_1" type="ClanHallZone" shape="Cylinder" minZ="-5900" maxZ="-5300" rad="1000">
+		<stat name="clanHallId" val="186" />
+		<node X="-122331" Y="-122122" />
+	</zone>
+	<zone name="ellia_hall_1" type="ClanHallZone" shape="Cylinder" minZ="-5800" maxZ="-5200" rad="1000">
+		<stat name="clanHallId" val="187" />
+		<node X="-121845" Y="-116549" />
+	</zone>
+	<zone name="laurell_hall_1" type="ClanHallZone" shape="Cylinder" minZ="-6000" maxZ="-5400" rad="1000">
+		<stat name="clanHallId" val="188" />
+		<node X="-122044" Y="-111229" />
+	</zone>
+	<zone name="orchid_hall_2" type="ClanHallZone" shape="Cylinder" minZ="-5900" maxZ="-5300" rad="1000">
+		<stat name="clanHallId" val="189" />
+		<node X="-117013" Y="-122052" />
+	</zone>
+	<zone name="ellia_hall_2" type="ClanHallZone" shape="Cylinder" minZ="-5800" maxZ="-5200" rad="1000">
+		<stat name="clanHallId" val="190" />
+		<node X="-116605" Y="-116554" />
+	</zone>
+	<zone name="laurell_hall_2" type="ClanHallZone" shape="Cylinder" minZ="-6000" maxZ="-5400" rad="1000">
+		<stat name="clanHallId" val="191" />
+		<node X="-116837" Y="-111230" />
+	</zone>
+	<zone name="orchid_hall_3" type="ClanHallZone" shape="Cylinder" minZ="-5900" maxZ="-5300" rad="1000">
+		<stat name="clanHallId" val="192" />
+		<node X="-111721" Y="-122062" />
+	</zone>
+	<zone name="ellia_hall_3" type="ClanHallZone" shape="Cylinder" minZ="-5800" maxZ="-5200" rad="1000">
+		<stat name="clanHallId" val="193" />
+		<node X="-111388" Y="-116559" />
+	</zone>
+	<zone name="laurell_hall_3" type="ClanHallZone" shape="Cylinder" minZ="-6000" maxZ="-5400" rad="1000">
+		<stat name="clanHallId" val="194" />
+		<node X="-111505" Y="-111229" />
+	</zone>
 </list>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>31688</npc> <!-- Olympiad Manager -->
+	</npcs>
+	<item>
+		<ingredient id="13722" count="22000" /> <!-- Olympiad Token -->
+		<production id="13752" count="1" /> <!-- Olympiad Warrior's Ring -->
+	</item>
+	<item>
+		<ingredient id="13722" count="33000" /> <!-- Olympiad Token -->
+		<production id="13754" count="1" /> <!-- Olympiad Warrior's Earring -->
+	</item>
+	<item>
+		<ingredient id="45584" count="48" /> <!-- Mark of Battle -->
+		<production id="45621" count="1" /> <!-- Talisman - Battle: Support (3-day) -->
+	</item>
+	<item>
+		<ingredient id="45584" count="16" /> <!-- Mark of Battle -->
+		<production id="45620" count="1" /> <!-- Talisman - Battle: Support (1-day) -->
+	</item>
+	<item>
+		<ingredient id="45584" count="48" /> <!-- Mark of Battle -->
+		<production id="45618" count="1" /> <!-- Talisman - Battle: Speed (3-day) -->
+	</item>
+	<item>
+		<ingredient id="45584" count="16" /> <!-- Mark of Battle -->
+		<production id="45617" count="1" /> <!-- Talisman - Battle: Speed (1-day) -->
+	</item>
+	<item>
+		<ingredient id="45584" count="48" /> <!-- Mark of Battle -->
+		<production id="45615" count="1" /> <!-- Talisman - Battle: Attack (3-day) -->
+	</item>
+	<item>
+		<ingredient id="45584" count="16" /> <!-- Mark of Battle -->
+		<production id="45614" count="1" /> <!-- Talisman - Battle: Attack (1-day) -->
+	</item>
+	<item>
+		<ingredient id="45584" count="30600" /> <!-- Mark of Battle -->
+		<production id="45606" count="1" /> <!-- Special Magic Ornament Eternal Belt - PVE Attack -->
+	</item>
+	<item>
+		<ingredient id="45584" count="30600" /> <!-- Mark of Battle -->
+		<production id="45607" count="1" /> <!-- Special Magic Ornament Eternal Belt - PVE Defense -->
+	</item>
+	<item>
+		<ingredient id="45584" count="30600" /> <!-- Mark of Battle -->
+		<production id="45608" count="1" /> <!-- Special Magic Ornament Eternal Belt - PVP Attack -->
+	</item>
+	<item>
+		<ingredient id="45584" count="30600" /> <!-- Mark of Battle -->
+		<production id="45609" count="1" /> <!-- Special Magic Ornament Eternal Belt - PVP Defense -->
+	</item>
+
+</list>

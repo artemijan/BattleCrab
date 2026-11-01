@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="13000" name="Sealed Helm of Nightmare" additionalName="Light Armor" type="Armor">
 		<!-- Sealed Masterwork Item. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_leather_helmet_i02" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="108" />
@@ -21,6 +22,7 @@
 		<!-- Sealed Masterwork Item. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.armor_leather_helmet_i02" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="108" />
@@ -197,9 +199,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="5" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -209,8 +211,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="5" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_dropable" val="false" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -236,8 +238,8 @@
 		<set name="weight" val="5" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="TELEPORTBOOKMARK" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="TELEPORTBOOKMARK" />
 	</item>
 	<item id="13017" name="White Weasel Minion Necklace" type="EtcItem">
 		<!-- Item that allows you to summon a minion who temporarily casts warrior support magic. Hunger gauge lasts 5 hours. -->
@@ -253,9 +255,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -274,9 +276,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -295,9 +297,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -316,15 +318,15 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
 	</item>
 	<item id="13021" name="Color Title" type="EtcItem">
-		<!-- Item that allows you to change your character's title color. You can change back to the original color by using the "/resetname" command after changing the title color. -->
+		<!-- Item that allows you to change your character's title color. You can change back to the original color by using the "/ resetname" command after changing the title color. -->
 		<set name="icon" val="icon.color_name_i00" />
 		<set name="default_action" val="NICK_COLOR" />
 		<set name="immediate_effect" val="true" />
@@ -370,7 +372,7 @@
 		<set name="is_destroyable" val="false" />
 		<skills>
 			<skill id="5763" level="1" /> <!-- Wink -->
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -389,7 +391,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8257" level="1" /> <!-- Release Agathion's Seal - Angry Devil -->
+			<skill id="8257" level="1" /> <!-- Agathion Summon - Angry Devil -->
 			<skill id="5956" level="1" /> <!-- Agathion Cute Trick - Angry Devil -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -409,7 +411,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8256" level="1" /> <!-- Release Agathion's Seal - Joy -->
+			<skill id="8256" level="1" /> <!-- Agathion Summon - Joy -->
 			<skill id="5955" level="1" /> <!-- Agathion Cute Trick - Joy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -429,7 +431,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8258" level="1" /> <!-- Release Agathion's Seal - Sorrow -->
+			<skill id="8258" level="1" /> <!-- Agathion Summon - Sorrow -->
 			<skill id="5957" level="1" /> <!-- Agathion Cute Trick - Sorrow -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -516,9 +518,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2577" level="1" /> <!-- Instant Defense -->
 		</skills>
@@ -540,9 +542,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_event_restricted" val="true" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2592" level="1" /> <!-- Quick Healing Potion -->
 		</skills>
@@ -565,13 +567,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_depositable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="43" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">148</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -595,20 +597,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="43" />
-		</cond>
-		<skills>
-			<skill id="8237" level="1" /> <!-- Shalin Heal -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8237" level="1" /> <!-- Shalin Heal -->
+		</skills>
 	</item>
 	<item id="13036" name="Sword of Ice and Fire" type="Weapon">
 		<!-- Sword created with the essences of water and fire. Can only be equipped in the Pailaka instant dungeon. -->
@@ -628,21 +630,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="43" />
-		</cond>
-		<skills>
-			<skill id="8237" level="1" /> <!-- Shalin Heal -->
-			<skill id="8238" level="1" /> <!-- Shalin Strike -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8237" level="1" /> <!-- Shalin Heal -->
+			<skill id="8238" level="1" /> <!-- Shalin Strike -->
+		</skills>
 	</item>
 	<item id="13037" name="Pailaka Soulshot (D-grade)" type="EtcItem">
 		<!-- Weapon containing the light of Spirits -->
@@ -677,9 +679,9 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="13039" name="Essence of Fire" type="EtcItem">
 		<!-- If you bring it along with an Reinforced Spirit's Sword to the Temple Inspector, you can exchange them for a Sword of Ice and Fire. -->
@@ -694,9 +696,9 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="13040" name="Fire Attribute Enhancer" type="EtcItem">
 		<!-- Temporarily increases P. Def. for fire-related attributes. Can only be used in the Pailaka instant dungeon. -->
@@ -713,9 +715,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2335" level="1" /> <!-- Fire Resistance Potion -->
 		</skills>
@@ -735,9 +737,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2336" level="1" /> <!-- Water Resistance Potion -->
 		</skills>
@@ -760,20 +762,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="44" />
-		</cond>
-		<skills>
-			<skill id="8250" level="1" /> <!-- Summon Tigress -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">143</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8250" level="1" /> <!-- Summon Tigress -->
+		</skills>
 	</item>
 	<item id="13043" name="Reinforced Ancient Legacy Sword" type="Weapon">
 		<!-- Sword containing the power of the Giants. Can only be equipped in the Pailaka instant dungeon. -->
@@ -793,21 +795,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="44" />
-		</cond>
-		<skills>
-			<skill id="8242" level="1" /> <!-- Ice Ball -->
-			<skill id="8250" level="1" /> <!-- Summon Tigress -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">279</stat>
 			<stat type="mAtk">153</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8242" level="1" /> <!-- Ice Ball -->
+			<skill id="8250" level="1" /> <!-- Summon Tigress -->
+		</skills>
 	</item>
 	<item id="13044" name="Complete Ancient Legacy Sword" type="Weapon">
 		<!-- Sword containing the power of the Giants. Can only be equipped in the Pailaka instant dungeon. -->
@@ -827,22 +829,22 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="44" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">299</stat>
+			<stat type="mAtk">163</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8242" level="1" /> <!-- Ice Ball -->
 			<skill id="8243" level="1" /> <!-- Chill Strike -->
 			<skill id="8250" level="2" /> <!-- Summon Tigress -->
 		</skills>
-		<stats>
-			<stat type="pAtk">299</stat>
-			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="13045" name="Pailaka Soulshot (C-grade)" type="EtcItem">
 		<!-- Weapon containing the light of Spirits -->
@@ -860,9 +862,9 @@
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="is_questitem" val="true" />
 		<set name="is_tradable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2151" level="1" /> <!-- Soulshot (C-grade) -->
 		</skills>
@@ -880,9 +882,9 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="13047" name="Pailaka Weapon Upgrade Stage 2" type="EtcItem">
 		<!-- If you bring it along with an Ancient Legacy Sword Stage 2 to the Dwarf Adventurer, you can exchange them for an Ancient Legacy Sword Stage 3. -->
@@ -897,9 +899,9 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="13048" name="Pailaka Antidote" type="EtcItem">
 		<!-- Cures Paralysis-type Poison s. Can only be used in the Pailaka instant dungeon. -->
@@ -916,9 +918,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="44" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2578" level="1" /> <!-- Cure Poison Paralyze -->
 		</skills>
@@ -937,9 +939,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="44" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2340" level="1" /> <!-- Dark Attack Resistance Potion -->
 		</skills>
@@ -961,9 +963,9 @@
 		<set name="is_event_restricted" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">49</stat>
 			<stat type="pDef">49</stat>
@@ -974,8 +976,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="120" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -997,24 +999,24 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="45" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">251</stat>
+			<stat type="mAtk">161</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="8249" level="1" type="ON_UNEQUIP" /> <!-- Cancel Critical Hit -->
 			<skill id="8239" level="1" /> <!-- Critical Up -->
 			<skill id="8240" level="1" /> <!-- Obliteration Storm -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">251</stat>
-			<stat type="mAtk">161</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="13053" name="Reinforced Spear of Silenos" type="Weapon">
 		<!-- Spear of Silenos obtained from the Internal Supporter. Can only be equipped in the Pailaka instant dungeon. -->
@@ -1034,24 +1036,24 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="45" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">271</stat>
+			<stat type="mAtk">171</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="8249" level="1" type="ON_UNEQUIP" /> <!-- Cancel Critical Hit -->
 			<skill id="8239" level="1" /> <!-- Critical Up -->
 			<skill id="8240" level="2" /> <!-- Obliteration Storm -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">271</stat>
-			<stat type="mAtk">171</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="13054" name="Complete Spear of Silenos" type="Weapon">
 		<!-- Spear of Silenos obtained from the Internal Supporter. Can only be equipped in the Pailaka instant dungeon. -->
@@ -1071,24 +1073,24 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player instanceId="45" />
-		</cond>
+		</conditions>
+		<stats>
+			<stat type="pAtk">291</stat>
+			<stat type="mAtk">181</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="8249" level="1" type="ON_UNEQUIP" /> <!-- Cancel Critical Hit -->
 			<skill id="8239" level="1" /> <!-- Critical Up -->
 			<skill id="8240" level="3" /> <!-- Obliteration Storm -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">291</stat>
-			<stat type="mAtk">181</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="13055" name="Pailaka Soulshot (A-grade)" type="EtcItem">
 		<!-- Weapon containing the light of Spirits -->
@@ -1106,9 +1108,9 @@
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="is_questitem" val="true" />
 		<set name="is_tradable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2153" level="1" /> <!-- Soulshot (A-grade) -->
 		</skills>
@@ -1126,9 +1128,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="13057" name="Weapon Upgrade Stage 2" type="EtcItem">
 		<!-- If you bring it along with a Spear of Silenos Stage 2 to the Ketra Orc Intelligence Officer, you can exchange them for Spear of Silenos Stage 3. -->
@@ -1143,9 +1145,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="13058" name="Silenos Hair Accessory" type="Armor">
 		<set name="icon" val="icon.accessory_barka_karm_i00" />
@@ -1179,9 +1181,9 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="44" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2593" level="1" /> <!-- Bow/Crossbow Attack Resistance Potion -->
 		</skills>
@@ -1211,18 +1213,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">267</stat>
 			<stat type="mAtk">202</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="13062" name="Monster Only (Employee's Friend)" type="Weapon">
 		<set name="icon" val="icon.weapon_mon_friend_employee_i00" />
@@ -1241,17 +1243,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">442</stat>
 			<stat type="mAtk">163</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="13063" name="Unfair Joystick" type="EtcItem">
 		<set name="icon" val="icon.etc_gateleeper_stick_i00" />
@@ -1295,7 +1297,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="13068" name="Fantasy Isle Coin (Premium Account)" type="EtcItem">
+	<item id="13068" name="Fantasy Isle Coin (PA)" type="EtcItem">
 		<set name="icon" val="icon.etc_pig_adena_i01" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
@@ -1331,8 +1333,9 @@
 		<set name="material" val="CRYSTAL" />
 		<set name="weight" val="20" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1345,8 +1348,9 @@
 		<set name="material" val="CRYSTAL" />
 		<set name="weight" val="20" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1359,8 +1363,9 @@
 		<set name="material" val="CRYSTAL" />
 		<set name="weight" val="20" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1433,13 +1438,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="SIGIL" />
-		<skills>
-			<skill id="8310" level="1" /> <!-- Arcana Sigil -->
-		</skills>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="pDef">13</stat>
 		</stats>
+		<skills>
+			<skill id="8310" level="1" /> <!-- Arcana Sigil -->
+		</skills>
 	</item>
 	<item id="13079" name="My Teleport Book Pack" type="EtcItem">
 		<!-- Wrapped Pack containing Free Teleporter's Scroll. -->
@@ -1505,7 +1510,7 @@
 		</capsuled_items>
 	</item>
 	<item id="13083" name="Agathion - Love Pack (30-day)" type="EtcItem">
-		<!-- Wrapped Pack containing Pumpkin Transformation Stick (30 days). -->
+		<!-- Dimensional Item Pack. A pack containing Love Agathion Bracelet (7-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i01" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />

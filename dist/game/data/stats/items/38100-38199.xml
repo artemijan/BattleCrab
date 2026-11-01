@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="38100" name="Leona's Cube (1-time)" type="EtcItem">
-		<!-- Double-click for a chance to obtain either Emperor's Rune (2-hour), Emperor's Vitality Tonic, Scroll: 1,000,000 SP, Scroll: 5,000,000 SP, or Scroll: 10,000,000 SP. Once a day. -->
+		<!-- Double-click for a chance to obtain either Emperor's Rune (2-hour), Emperor's Vitality Tonic, Scroll: 1,000,000 SP, Scroll: 5,000,000 SP, or Scroll: 10,000,000 SP. -->
 		<set name="icon" val="icon.etc_violet_crystal_cube_pc_i00" />
 		<set name="weight" val="10" />
 		<set name="is_tradable" val="false" />
@@ -31,8 +31,8 @@
 		<set name="icon" val="icon.etc_sp_scroll2_i00" />
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
@@ -47,8 +47,8 @@
 		<set name="icon" val="icon.etc_sp_scroll3_i00" />
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
@@ -77,12 +77,21 @@
 	<item id="38105" name="Superior CP Potion" type="EtcItem">
 		<!-- Restores 1000 CP. -->
 		<set name="icon" val="icon.etc_cp_potion_i00" />
-		<set name="weight" val="25" />
-		<set name="is_stackable" val="true" />
-		<set name="etcitem_type" val="POTION" />
-		<set name="commissionItemType" val="POTION" />
 		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="etcitem_type" val="POTION" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LIQUID" />
+		<set name="weight" val="100" />
+		<set name="price" val="500" />
+		<set name="reuse_delay" val="500" />
+		<set name="is_stackable" val="true" />
+		<set name="is_oly_restricted" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="is_event_restricted" val="true" />
+		<set name="commissionItemType" val="POTION" />
+		<skills>
+			<skill id="17324" level="1" /> <!-- Superior CP Potion -->
+		</skills>
 	</item>
 	<item id="38106" name="Small Green Mackerel" type="EtcItem">
 		<!-- Small Green Mackerel. The last of its kind. Double-click to obtain either a Fish Bone/ Fish Scale/ Fish Jewel. You can use this as a crafting ingredient or trade for an appearance modification item through a fishing guild member. -->
@@ -531,113 +540,108 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="38161" name="Agathion - Blessed Virgo" type="Armor">
-		<!-- Can summon Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Enchant: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. and Def. each increase by 30. -->
+		<!-- Can summon Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Enchant: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. and Def. each increase by 30. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17610" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17610" level="1" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
 			<skill id="26117" level="5" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38162" name="Agathion - Twinkling Virgo" type="Armor">
-		<!-- Can summon Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Atk.: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. each increase by 30. -->
+		<!-- Can summon Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Atk.: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. each increase by 30. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17610" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17610" level="1" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
-			<skill id="17567" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
+			<skill id="17567" level="1" /> <!-- Enchant Attribute Attack -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38163" name="Agathion - Radiant Virgo" type="Armor">
-		<!-- Can summon Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Resistance: Fire/ Water/ Earth/ Wind/ Dark/ Holy Def. each increase by 30. -->
+		<!-- Can summon Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Resistance: Fire/ Water/ Earth/ Wind/ Dark/ Holy Def. each increase by 30. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17610" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17610" level="1" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
-			<skill id="17568" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
+			<skill id="17568" level="1" /> <!-- Enchant Attribute Defense -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38164" name="Agathion - Virgo" type="Armor">
-		<!-- Summons Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. -->
+		<!-- Summons Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17610" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17610" level="1" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38165" name="Agathion - Faint Virgo" type="Armor">
-		<!-- Summons Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.) -->
+		<!-- Summons Virgo. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.) -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17610" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17610" level="1" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
@@ -770,7 +774,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="38180" name="Blades of Delusion Appearance Stone" additionalName="30-day" type="EtcItem">
-		<!-- Turns the appearance of a dualsword into that of a Blades of Delusion. 30-day. -->
+		<!-- Turns the appearance of a dual sword into that of a Blades of Delusion. 30-day. -->
 		<set name="icon" val="icon.shape_shifting_dual_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -833,7 +837,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="38186" name="Blades of Delusion Appearance Stone" type="EtcItem">
-		<!-- Turns the appearance of a dualsword into that of a Blades of Delusion. -->
+		<!-- Turns the appearance of a dual sword into that of a Blades of Delusion. -->
 		<set name="icon" val="icon.shape_shifting_dual_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -972,8 +976,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="38199" name="Blue Mackerel Appearance Stone: Dualsword" additionalName="30-day" type="EtcItem">
-		<!-- Turns the appearance of a dualsword into that of a Blue Mackerel. 30-day. -->
+	<item id="38199" name="Blue Mackerel Appearance Stone: Dual Sword" additionalName="30-day" type="EtcItem">
+		<!-- Turns the appearance of a dual sword into that of a Blue Mackerel. 30-day. -->
 		<set name="icon" val="icon.shape_shifting_dual_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />

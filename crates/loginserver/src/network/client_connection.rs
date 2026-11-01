@@ -495,7 +495,7 @@ pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListen
     // Java leaves this listener unprotected — `FloodProtectedListener` is wired
     // only to `GameServerListener`, so the player-facing port's sole defence is
     // `LoginTryBeforeBan`, which an attacker reaches only after completing a
-    // full RSA handshake. Same rules, same `LoginServer.ini` keys, applied here
+    // full RSA handshake. Same rules, same login `Server.ini` keys, applied here
     // too (see `crate::net_flood`).
     let guard = crate::net_flood::ConnectionFloodGuard::new();
     loop {

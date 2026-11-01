@@ -323,6 +323,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             v.p,
             skills,
             &world.data,
+            world.cfg.character.maximum_player_level,
         ));
         cs.send(crate::network::user_info::user_info(
             &v,

@@ -77,6 +77,17 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
         .get_component::<Vitals>(&object_id)
         .is_none_or(|v| v.dead)
 }
+/// Java `Creature.isAlikeDead()` — really dead, or playing dead.
+pub(crate) fn is_alike_dead(world: &World, object_id: i32) -> bool {
+    is_dead(world, object_id) || is_fake_death(world, object_id)
+}
+
+pub(crate) fn is_fake_death(world: &World, object_id: i32) -> bool {
+    crate::game_loop::abnormal::flags_of(world, object_id)
+        & crate::model::skill::effect_flag::FAKE_DEATH
+        != 0
+}
+
 pub(crate) fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool {
     world
         .objects

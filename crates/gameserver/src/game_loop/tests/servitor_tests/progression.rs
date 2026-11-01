@@ -167,10 +167,10 @@ fn a_pet_levels_when_it_earns_enough() {
     assert_eq!(pet.max_fed, 300, "food capacity follows the level");
 }
 
-/// A pet cannot pass the top level its species table defines — every per-level
-/// lookup would fall off the end.
+/// A pet stops one below `MAX_PET_LEVEL` (`PetStat.getMaxLevel() - 1`), with
+/// its exp one short of that level's row.
 #[test]
-fn a_pet_stops_at_its_species_max_level() {
+fn a_pet_stops_below_the_max_pet_level() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let pet_oid = summoned_pet(&mut world);
@@ -183,8 +183,26 @@ fn a_pet_stops_at_its_species_max_level() {
             .unwrap()
             .level,
         3,
-        "capped at the highest level the table defines"
+        "MAX_PET_LEVEL 4 is never reached"
     );
+    assert_eq!(
+        world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp,
+        79_999
+    );
+}
+
+/// Java throws when the species has no row for `MAX_PET_LEVEL`, before any exp
+/// is added; the pet keeps what it had.
+#[test]
+fn a_species_without_the_max_pet_level_row_earns_nothing() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let pet_oid = summoned_pet(&mut world);
+    world.data.experience.max_pet_level = 5;
+
+    add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
+    let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
+    assert_eq!((pet.level, pet.exp), (1, 0));
 }
 
 /// Java `getControlItem().setEnchantLevel(getLevel())` — the collar's enchant

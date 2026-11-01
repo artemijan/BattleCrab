@@ -1,4 +1,4 @@
-//! `TriggerSkillByAttack` — chance-on-hit skill triggers (G19).
+//! `TriggerSkillByDamageDealt` — chance-on-hit skill triggers (G19).
 //!
 //! Sword/Blunt Weapon Mastery 205, Dagger Mastery 209 and Dance of Shadows 366
 //! all carry one. Each fires a short self- or party-buff when the carrier lands
@@ -9,7 +9,7 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 
 use crate::model::components::skills::SkillBook;
-use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::effects::{DamageTrigger, SkillEffect};
 
 const PLAYER: i32 = 8001;
 const CID: u32 = 1;
@@ -30,7 +30,7 @@ fn trigger_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     (world, db, l)
 }
 
-/// Build a carrier skill holding one `TriggerSkillByAttack`, plus the skill it
+/// Build a carrier skill holding one `TriggerSkillByDamageDealt`, plus the skill it
 /// triggers (a plain 60s stat buff, so "did it fire" is just "is the buff up").
 fn install(world: &mut World, effect: SkillEffect) {
     use crate::model::skill::Skill;
@@ -70,13 +70,24 @@ fn install(world: &mut World, effect: SkillEffect) {
 }
 
 fn a_trigger(chance: i32, is_critical: bool) -> SkillEffect {
-    SkillEffect::TriggerSkillByAttack {
-        min_damage: 1,
-        chance,
-        skill_id: TRIGGERED,
-        skill_level: 1,
-        on_party: false,
+    dealt(
+        DamageTrigger {
+            chance,
+            ..damage_trigger(TRIGGERED)
+        },
         is_critical,
+    )
+}
+
+/// A dealt trigger with Java's defaults for the hit-kind flags: normal attacks
+/// only, no reflect, any weapon.
+fn dealt(trigger: DamageTrigger, is_critical: bool) -> SkillEffect {
+    SkillEffect::TriggerSkillByDamageDealt {
+        trigger,
+        is_critical,
+        allow_normal_attack: true,
+        allow_skill_attack: false,
+        allow_reflect: false,
         allow_weapons: 0,
     }
 }
@@ -179,15 +190,13 @@ fn a_hit_below_min_damage_does_not_fire() {
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 40, 0, 0);
     install(
         &mut world,
-        SkillEffect::TriggerSkillByAttack {
-            min_damage: 100,
-            chance: 100,
-            skill_id: TRIGGERED,
-            skill_level: 1,
-            on_party: false,
-            is_critical: false,
-            allow_weapons: 0,
-        },
+        dealt(
+            DamageTrigger {
+                min_damage: 100,
+                ..damage_trigger(TRIGGERED)
+            },
+            false,
+        ),
     );
     know(&mut world, PLAYER);
 
@@ -209,8 +218,9 @@ fn a_zero_chance_trigger_never_fires() {
     install(&mut world, a_trigger(0, false));
     know(&mut world, PLAYER);
 
+    // 1-damage hits: the dummy has 100 HP, and a corpse fires nothing.
     for _ in 0..20 {
-        hit(&mut world, 50, false);
+        hit(&mut world, 1, false);
     }
     assert!(!triggered(&world, PLAYER), "chance 0 never fires");
 }
@@ -225,10 +235,11 @@ fn an_already_active_trigger_is_not_recast() {
     install(&mut world, a_trigger(100, false));
     know(&mut world, PLAYER);
 
-    hit(&mut world, 50, false);
+    hit(&mut world, 1, false);
     let after_first = pbuffs(&world, PLAYER);
+    // 1-damage hits keep the 100 HP dummy alive for all of them.
     for _ in 0..5 {
-        hit(&mut world, 50, false);
+        hit(&mut world, 1, false);
     }
     let after_many = pbuffs(&world, PLAYER);
     assert_eq!(
@@ -263,13 +274,17 @@ fn real_dist_carriers_parse() {
     let trigger_of = |id: i32, level: i32| {
         skills.get(id, level).and_then(|s| {
             s.effects.iter().find_map(|e| match e {
-                SkillEffect::TriggerSkillByAttack {
-                    chance,
-                    skill_id,
+                SkillEffect::TriggerSkillByDamageDealt {
+                    trigger,
                     is_critical,
                     allow_weapons,
                     ..
-                } => Some((*chance, *skill_id, *is_critical, *allow_weapons != 0)),
+                } => Some((
+                    trigger.chance,
+                    trigger.skill_id,
+                    *is_critical,
+                    *allow_weapons != 0,
+                )),
                 _ => None,
             })
         })
@@ -300,4 +315,324 @@ fn the_triggered_skills_carry_real_effects() {
         dagger.effects
     );
     assert_eq!(dagger.abnormal_time, 5, "for 5 seconds");
+}
+
+// ---------------------------------------------------------------------------
+// Salvation's full parameter set
+// ---------------------------------------------------------------------------
+
+/// Register `id` at `level` as a plain 60 s pump, the shape every triggered
+/// skill below takes, with `edit` applied on top.
+fn pump(
+    world: &mut World,
+    id: i32,
+    level: i32,
+    edit: impl FnOnce(&mut crate::model::skill::Skill),
+) {
+    use crate::model::skill::Skill;
+    use crate::model::skill::effects::StatModifierEffect;
+    use crate::model::stats::StatModifierType;
+    let mut s = Skill {
+        id,
+        level,
+        name: format!("T{id}"),
+        magic_level: 1,
+        abnormal_time: 60,
+        abnormal_level: level,
+        abnormal_type: format!("TRIG{id}"),
+        effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+            stat: Stat::PhysicalAttack,
+            mode: StatModifierType::Diff,
+            amount: 10.0,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+            hp_percent: 0,
+        })],
+        ..Default::default()
+    };
+    edit(&mut s);
+    world.data.skill_data.insert_for_test(s);
+}
+
+fn armed(effect: SkillEffect) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = trigger_world();
+    let _c = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 5, 40, 0, 0);
+    install(&mut world, effect);
+    know(&mut world, PLAYER);
+    (world, db, l)
+}
+
+/// One `reduceCurrentHp` from the player onto the mob with an explicit hit
+/// context — the shape skill, reflect and DoT damage arrive in.
+fn land_hit(world: &mut World, hit: combat::DamageHit) {
+    combat::apply_physical_damage(world, PLAYER, MOB_OID, 1.0, hit);
+}
+
+/// `allowNormalAttack`/`allowSkillAttack` split the two kinds of hit by
+/// `skill == null`. The defaults (normal yes, skill no) ignore a skill hit;
+/// a skill-only trigger is the mirror image.
+#[test]
+fn allow_flags_split_swings_from_skill_hits() {
+    let (mut world, _db, _l) = armed(a_trigger(100, false));
+    land_hit(&mut world, combat::DamageHit::SKILL);
+    assert!(
+        !triggered(&world, PLAYER),
+        "default: a skill hit is ignored"
+    );
+
+    let skill_only = SkillEffect::TriggerSkillByDamageDealt {
+        trigger: damage_trigger(TRIGGERED),
+        is_critical: false,
+        allow_normal_attack: false,
+        allow_skill_attack: true,
+        allow_reflect: false,
+        allow_weapons: 0,
+    };
+    let (mut world, _db, _l) = armed(skill_only);
+    hit(&mut world, 1, false);
+    assert!(!triggered(&world, PLAYER), "skill-only: a swing is ignored");
+    land_hit(&mut world, combat::DamageHit::SKILL);
+    assert!(triggered(&world, PLAYER), "skill-only: a skill hit fires");
+}
+
+/// Reflected damage and DoT ticks are both excluded by default; `allowReflect`
+/// lets the former through, nothing lets the latter.
+#[test]
+fn reflect_and_dot_hits_are_gated() {
+    let reflect = combat::DamageHit {
+        reflect: true,
+        ..Default::default()
+    };
+    let (mut world, _db, _l) = armed(a_trigger(100, false));
+    land_hit(&mut world, reflect);
+    assert!(!triggered(&world, PLAYER), "reflect is off by default");
+    land_hit(
+        &mut world,
+        combat::DamageHit {
+            dot: true,
+            ..Default::default()
+        },
+    );
+    assert!(!triggered(&world, PLAYER), "a DoT tick never fires");
+
+    let allow = SkillEffect::TriggerSkillByDamageDealt {
+        trigger: damage_trigger(TRIGGERED),
+        is_critical: false,
+        allow_normal_attack: true,
+        allow_skill_attack: false,
+        allow_reflect: true,
+        allow_weapons: 0,
+    };
+    let (mut world, _db, _l) = armed(allow);
+    land_hit(&mut world, reflect);
+    assert!(
+        triggered(&world, PLAYER),
+        "allowReflect admits reflected damage"
+    );
+}
+
+/// The attacker-level window and `attackerType` both gate on the attacker.
+#[test]
+fn attacker_level_and_type_gate_the_attacker() {
+    let (mut world, _db, _l) = armed(dealt(
+        DamageTrigger {
+            min_attacker_level: 99,
+            ..damage_trigger(TRIGGERED)
+        },
+        false,
+    ));
+    hit(&mut world, 1, false);
+    assert!(!triggered(&world, PLAYER), "below minAttackerLevel");
+
+    let (mut world, _db, _l) = armed(dealt(
+        DamageTrigger {
+            attacker_type: crate::model::skill::effects::AttackerType::Attackable,
+            ..damage_trigger(TRIGGERED)
+        },
+        false,
+    ));
+    hit(&mut world, 1, false);
+    assert!(!triggered(&world, PLAYER), "a player is no Attackable");
+
+    let (mut world, _db, _l) = armed(dealt(
+        DamageTrigger {
+            attacker_type: crate::model::skill::effects::AttackerType::Playable,
+            ..damage_trigger(TRIGGERED)
+        },
+        false,
+    ));
+    hit(&mut world, 1, false);
+    assert!(triggered(&world, PLAYER), "but is a Playable");
+}
+
+/// `targetType=TARGET` resolves from the attacker onto the creature it hit, so
+/// the triggered buff lands on the mob rather than the player.
+#[test]
+fn target_type_target_lands_on_the_creature_hit() {
+    let (mut world, _db, _l) = armed(dealt(
+        DamageTrigger {
+            target_type: TargetType::Target,
+            ..damage_trigger(TRIGGERED)
+        },
+        false,
+    ));
+    hit(&mut world, 1, false);
+    assert!(has_buff(&world, MOB_OID, TRIGGERED), "on the mob");
+    assert!(!triggered(&world, PLAYER), "not on the attacker");
+}
+
+/// `triggerCast` spends the triggered skill's raw `reuseDelay` through
+/// `disableSkill`: no re-fire until it lifts, and no reuse *timestamp* — so
+/// nothing for `SkillCoolTime` or the save to carry.
+#[test]
+fn a_triggered_reuse_locks_the_skill_without_a_timestamp() {
+    let (mut world, _db, _l) = armed(a_trigger(100, false));
+    pump(&mut world, TRIGGERED, 1, |s| s.reuse_delay = 10_000);
+
+    hit(&mut world, 1, false);
+    assert!(triggered(&world, PLAYER), "first fire lands");
+    let has_timestamp = world
+        .objects
+        .get_component::<crate::model::components::skills::Reuses>(&PLAYER)
+        .is_some_and(|r| r.0.contains_key(&TRIGGERED));
+    assert!(!has_timestamp, "disableSkill writes no reuse timestamp");
+
+    crate::game_loop::skills::effects::expire_buffs_where(&mut world, PLAYER, |_, b| {
+        b.skill_id == TRIGGERED
+    });
+    hit(&mut world, 1, false);
+    assert!(!triggered(&world, PLAYER), "still disabled");
+
+    world.tick += crate::scheduler::ms_to_ticks(10_000) + 1;
+    hit(&mut world, 1, false);
+    assert!(triggered(&world, PLAYER), "fires again once the lock lifts");
+}
+
+/// `triggerSkills` is a ladder: the target's current rung is silently removed
+/// and the next one cast; standing on the last rung fires nothing.
+#[test]
+fn trigger_skills_climb_a_ladder() {
+    const RUNG2: i32 = 9902;
+    let (mut world, _db, _l) = armed(dealt(
+        DamageTrigger {
+            trigger_skills: vec![(TRIGGERED, 1), (RUNG2, 1)],
+            ..damage_trigger(0)
+        },
+        false,
+    ));
+    pump(&mut world, RUNG2, 1, |_| {});
+
+    hit(&mut world, 1, false);
+    assert!(triggered(&world, PLAYER), "first rung");
+    hit(&mut world, 1, false);
+    assert!(!triggered(&world, PLAYER), "first rung removed…");
+    assert!(has_buff(&world, PLAYER, RUNG2), "…for the second");
+    hit(&mut world, 1, false);
+    assert!(has_buff(&world, PLAYER, RUNG2), "the top rung stays");
+    assert!(
+        !triggered(&world, PLAYER),
+        "and nothing restarts the ladder"
+    );
+}
+
+/// `skillLevelScaleTo` steps the target's copy one level per fire, to the cap.
+#[test]
+fn skill_level_scale_to_steps_up_to_the_cap() {
+    let (mut world, _db, _l) = armed(dealt(
+        DamageTrigger {
+            skill_level_scale_to: 3,
+            ..damage_trigger(TRIGGERED)
+        },
+        false,
+    ));
+    for level in 1..=3 {
+        pump(&mut world, TRIGGERED, level, |_| {});
+    }
+    let level =
+        |world: &World| crate::game_loop::skills::cast::buff_level(world, PLAYER, TRIGGERED);
+    let mut seen = Vec::new();
+    for _ in 0..4 {
+        hit(&mut world, 1, false);
+        seen.push(level(&world));
+    }
+    assert_eq!(seen, vec![Some(1), Some(2), Some(3), Some(3)]);
+}
+
+/// A passive carrier whose `<passiveConditions>` fail never started its
+/// effects in Java, so its trigger is not listening.
+#[test]
+fn a_passive_carrier_off_its_conditions_does_not_fire() {
+    let (mut world, _db, _l) = armed(a_trigger(100, false));
+    let mut carrier = world.data.skill_data.get(CARRIER, 1).cloned().unwrap();
+    carrier.passive_conditions = vec![
+        crate::model::skill::condition::SkillCondition::EquipWeapon {
+            mask: crate::data::item_data::kinds::WeaponType::from_name("DAGGER").mask_bit(),
+        },
+    ];
+    world.data.skill_data.insert_for_test(carrier);
+
+    hit(&mut world, 1, false);
+    assert!(!triggered(&world, PLAYER), "no dagger, no listener");
+}
+
+/// `TriggerSkillByDamageReceived` casts as the *bearer* when the fired skill is
+/// itself `SELF`-targeted, and as the attacker otherwise — visible in whose
+/// `disableSkill` the fired skill's reuse lands on.
+#[test]
+fn a_received_trigger_picks_its_caster_by_the_fired_skills_target_type() {
+    use crate::model::components::skills::DisabledSkills;
+    let locked = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<DisabledSkills>(&oid)
+            .is_some_and(|d| d.0.contains_key(&TRIGGERED))
+    };
+    for (fired_type, caster) in [(TargetType::Self_, PLAYER), (TargetType::Target, MOB_OID)] {
+        let (mut world, _db, _l) = armed(SkillEffect::TriggerSkillByDamageReceived {
+            trigger: damage_trigger(TRIGGERED),
+            hp_percent: 100,
+        });
+        pump(&mut world, TRIGGERED, 1, |s| {
+            s.reuse_delay = 10_000;
+            s.target_type = fired_type;
+        });
+        combat::apply_attack_damage(&mut world, MOB_OID, PLAYER, 1.0, false, false, None, 0);
+        assert!(
+            triggered(&world, PLAYER),
+            "{fired_type:?}: lands on the bearer"
+        );
+        assert!(locked(&world, caster), "{fired_type:?}: cast by {caster}");
+    }
+}
+
+/// Java's order inside `Attackable.reduceCurrentHp`: hate first, then the
+/// damage events, and only then `reduceHp`'s HP-block refusal. So a hit on an
+/// HP-blocked mob still fires the attacker's trigger and still draws hate —
+/// it just takes no HP.
+#[test]
+fn an_hp_blocked_mob_still_hears_the_hit() {
+    let (mut world, _db, _l) = armed(a_trigger(100, false));
+    let mut shield =
+        crate::model::skill::active_buff::ActiveBuff::passive_pump(9999, 1, Vec::new());
+    shield.effect_flags = crate::model::skill::effect_flag::HP_BLOCK;
+    world
+        .objects
+        .get_component_mut::<crate::model::components::skills::Buffs>(&MOB_OID)
+        .expect("mob buffs")
+        .0
+        .push(shield);
+    let hp_before = nvit(&world, MOB_OID).cur_hp;
+
+    hit(&mut world, 1, false);
+    assert_eq!(nvit(&world, MOB_OID).cur_hp, hp_before, "no HP taken");
+    assert!(triggered(&world, PLAYER), "the damage event still fired");
+    let hate = world
+        .objects
+        .get_component::<AggroList>(&MOB_OID)
+        .and_then(|a| a.0.get(&PLAYER).map(|i| i.hate))
+        .unwrap_or(0.0);
+    assert!(hate > 0.0, "and the hit still drew hate: {hate}");
 }

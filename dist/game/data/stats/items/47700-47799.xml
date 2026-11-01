@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47700" name="Greater Blue Cat's Eye" type="Armor">
 		<!-- When equipped, M. Skill Critical Damage +12% and M. Skill Power +5%. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
@@ -10,7 +10,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18714" level="6" /> <!-- Blue Cat's Eye -->
+			<skill id="18714" level="6" /> <!-- Greater Blue Cat's Eye -->
 		</skills>
 	</item>
 	<item id="47701" name="La Vie En Rose's Red Cat's Eye Box" type="EtcItem">
@@ -160,9 +160,9 @@
 			<item id="46771" min="1" max="1" chance="7.14285" /> <!-- Emerald Fortune Box -->
 			<item id="46772" min="1" max="1" chance="7.14285" /> <!-- Aquamarine Fortune Box -->
 			<item id="46773" min="1" max="1" chance="7.14285" /> <!-- Pearl Fortune Box -->
-			<item id="46774" min="1" max="1" chance="7.14285" /> <!-- Vital Stone Fortune Box -->
-			<item id="46775" min="1" max="1" chance="7.14285" /> <!-- Garnet Fortune Box -->
-			<item id="46776" min="1" max="1" chance="7.14285" /> <!-- Tanzanite Fortune Box -->
+			<item id="46774" min="1" max="1" chance="7.14285" /> <!-- Vital Stone Treasure Chest of Good Fortune -->
+			<item id="46775" min="1" max="1" chance="7.14285" /> <!-- Garnet Treasure Chest of Good Fortune -->
+			<item id="46776" min="1" max="1" chance="7.14285" /> <!-- Tanzanite Treasure Chest of Good Fortune -->
 		</capsuled_items>
 	</item>
 	<item id="47709" name="Red Cat's Eye Fortune Box" type="EtcItem">
@@ -245,9 +245,9 @@
 		<set name="weight" val="2" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="47715" name="Clan Reward" type="EtcItem">
 		<!-- Recharge yourself! This item is paid to those who have worked for the growth of the Clan. You can get 25 Vitality Replenishing Star Candy. -->
@@ -255,10 +255,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FISH" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="36094" min="25" max="25" chance="100" /> <!-- Vitality Replenishing Star Candy -->
@@ -279,10 +279,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
@@ -441,7 +442,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="18732" level="2" /> <!-- Low-grade Keucereus Defense Supply Box -->
+			<skill id="18732" level="2" /> <!-- High-grade Keucereus Defense Supply Box -->
 		</skills>
 	</item>
 	<item id="47731" name="Low-grade Keucereus Defense Success Reward Box" type="EtcItem">
@@ -457,7 +458,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="18732" level="3" /> <!-- Low-grade Keucereus Defense Supply Box -->
+			<skill id="18732" level="3" /> <!-- Low-grade Keucereus Defense Success Reward Box -->
 		</skills>
 	</item>
 	<item id="47732" name="High-grade Keucereus Defense Success Reward Box" type="EtcItem">
@@ -473,7 +474,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<skills>
-			<skill id="18732" level="4" /> <!-- Low-grade Keucereus Defense Supply Box -->
+			<skill id="18732" level="4" /> <!-- High-grade Keucereus Defense Success Reward Box -->
 		</skills>
 	</item>
 	<item id="47733" name="Guardian Captain Isberg Elimination Commemorative Supply Items" type="EtcItem">
@@ -488,7 +489,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47734" name="Freya's Art of Seduction - Barrier" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally reduces damage taken by 10%, and increases all property Defense by 100. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/ M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally reduces damage taken by 10%, and increases all property Defense by 100. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -497,18 +498,18 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18741" level="1" /> <!-- Art of Seduction -->
+			<skill id="18741" level="1" /> <!-- Freya's Art of Seduction - Barrier -->
 		</skills>
 	</item>
 	<item id="47735" name="Freya's Art of Seduction - EXP" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/ M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -517,30 +518,30 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18742" level="1" /> <!-- Art of Seduction -->
+			<skill id="18742" level="1" /> <!-- Freya's Art of Seduction - Exp -->
 		</skills>
 	</item>
 	<item id="47736" name="Pa'agrio's Blessing - Might" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases Damage by 10%, and grants 10% Skill Power. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/ M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./ Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases Damage by 10%, and grants 10% Skill Power. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
+		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -548,23 +549,23 @@
 		</skills>
 	</item>
 	<item id="47737" name="Pa'agrio's Blessing - EXP" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/ M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./ Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on June 15, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
+		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18728" level="1" /> <!-- Pa'agrio's Blessing - EXP -->
+			<skill id="18728" level="1" /> <!-- Pa'agrio's Blessing - Exp -->
 		</skills>
 	</item>
 	<item id="47738" name="Test Fishing Rod" type="Weapon">
@@ -589,7 +590,7 @@
 		</stats>
 	</item>
 	<item id="47739" name="Hunter's Amulet" type="EtcItem">
-		<!-- When enhancing an influence talisman, prevents the talisman's stage from being reset to 1. Stage is maintained when enhancement fails. -->
+		<!-- Can be purchased with Raid Points from Black Cat NPC in Hunter's Village by members of Hunter's Guild Faction - Level 2 and above. Can be exchanged with a Faction NPC when upgrading a Faction Talisman. The Hunter's Amulet adds an alternative upgrade path which keeps the current Faction Talisman stage even if the exchange fails. -->
 		<set name="icon" val="icon.etc_mark_red_i00" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -606,12 +607,11 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="SILVER" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13584" level="2" /> <!-- Advanced Aria's Bracelet CON -->
+			<skill id="13584" level="2" /> <!-- High-grade Aria's Bracelet - CON -->
 		</skills>
 	</item>
 	<item id="47741" name="Advanced Aria's Bracelet" additionalName="MEN+4" type="Armor">
@@ -623,12 +623,11 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="SILVER" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13585" level="2" /> <!-- Advanced Aria's Bracelet MEN -->
+			<skill id="13585" level="2" /> <!-- High-grade Aria's Bracelet - MEN -->
 		</skills>
 	</item>
 	<item id="47742" name="Advanced Aria's Bracelet" additionalName="DEX+4" type="Armor">
@@ -640,12 +639,11 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="SILVER" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13586" level="2" /> <!-- Advanced Aria's Bracelet DEX -->
+			<skill id="13586" level="2" /> <!-- High-grade Aria's Bracelet - DEX -->
 		</skills>
 	</item>
 	<item id="47743" name="Advanced Aria's Bracelet" additionalName="WIT+4" type="Armor">
@@ -657,12 +655,11 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="SILVER" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13587" level="2" /> <!-- Advanced Aria's Bracelet WIT -->
+			<skill id="13587" level="2" /> <!-- High-grade Aria's Bracelet - WIT -->
 		</skills>
 	</item>
 	<item id="47744" name="Advanced Aria's Bracelet" additionalName="STR+4" type="Armor">
@@ -674,12 +671,11 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="SILVER" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13588" level="2" /> <!-- Advanced Aria's Bracelet STR -->
+			<skill id="13588" level="2" /> <!-- High-grade Aria's Bracelet - STR -->
 		</skills>
 	</item>
 	<item id="47745" name="Advanced Aria's Bracelet" additionalName="INT+4" type="Armor">
@@ -691,16 +687,15 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="SILVER" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13589" level="2" /> <!-- Advanced Aria's Bracelet INT -->
+			<skill id="13589" level="2" /> <!-- High-grade Aria's Bracelet - INT -->
 		</skills>
 	</item>
 	<item id="47746" name="+10 Blessed Helios Weapon Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, a +10 Blessed Helios Weapon can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knights' Supply Box. When used, a +10 Blessed Helios Weapon can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i00" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
@@ -711,11 +706,11 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="18738" level="1" /> <!-- +10 Blessed Amaranthine Weapon -->
+			<skill id="18738" level="1" /> <!-- +10 Blessed Helios Weapon Supply Items -->
 		</skills>
 	</item>
 	<item id="47747" name="+8 Blessed Eternal Armor Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, a +8 Blessed Eternal Armor item can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knights' Supply Box. When used, a +8 Blessed Eternal Armor item can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i03" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
@@ -726,11 +721,11 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="18740" level="1" /> <!-- +8 Blessed Eternal Armor -->
+			<skill id="18740" level="1" /> <!-- +8 Blessed Eternal Armor Supply Items -->
 		</skills>
 	</item>
 	<item id="47748" name="Rare Weapon Fragment Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, a Shadow Ingot/Tauti's Fragment/Kelbim's Atelia Fragment can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knights' Supply Box. When used, a Shadow Ingot/ Tauti's Fragment/ Kelbim's Atelia Fragment can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i06" />
 		<set name="default_action" val="PEEL" />
 		<set name="material" val="LEATHER" />
@@ -748,8 +743,8 @@
 			<item id="46079" min="1" max="1" chance="25" /> <!-- Kelbim's Atelia Fragment -->
 		</capsuled_items>
 	</item>
-	<item id="47749" name="Dark Eternal Enhancement Stones Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, 2 Dark Eternal Enhancement Stones can be obtained. This item will be deleted after the event is over. -->
+	<item id="47749" name="Dark Eternal Enhancement Stones Supply Box" type="EtcItem">
+		<!-- Top-grade Balthus Knights' Supply Box. When used, 2 Dark Eternal Enhancement Stones can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i04" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
@@ -762,8 +757,8 @@
 			<item id="35567" min="2" max="2" chance="75" /> <!-- Dark Eternal Enhancement Stone -->
 		</capsuled_items>
 	</item>
-	<item id="47750" name="Zodiac Agathion Stage 5 Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, a Zodiac Agathion Stage 5 Bracelet can be obtained. This item will be deleted after the event is over. -->
+	<item id="47750" name="Zodiac Agathion Stage 5 Supplies" type="EtcItem">
+		<!-- Top-grade Balthus Knights' Supply Items. When used, a Stage 5 Zodiac Agathion bracelet can be obtained. To be deleted after the event ends. -->
 		<set name="icon" val="icon.etc_treasure_box_i04" />
 		<set name="default_action" val="PEEL" />
 		<set name="material" val="LEATHER" />
@@ -831,9 +826,9 @@
 	<item id="47751" name="+8 Blessed Eternal Armor Heavy Capsule" additionalName="Event" type="EtcItem">
 		<!-- Double click to obtain a +8 Blessed Eternal Armor Heavy Set. Will be deleted on June 15, 2016, after regular maintenance. -->
 		<set name="icon" val="icon.etc_equip_item_box_i00" />
-		<set name="default_action" val="CAPSULE" />
-		<set name="immediate_effect" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="material" val="FISH" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -853,9 +848,9 @@
 	<item id="47752" name="+8 Blessed Eternal Armor Greaves Capsules" additionalName="Event" type="EtcItem">
 		<!-- Double click to obtain a +8 Blessed Eternal Armor Greaves Set. Will be deleted on June 15, 2016, after regular maintenance. -->
 		<set name="icon" val="icon.etc_equip_item_box_i00" />
-		<set name="default_action" val="CAPSULE" />
-		<set name="immediate_effect" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="material" val="FISH" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -874,9 +869,9 @@
 	<item id="47753" name="+8 Blessed Eternal Armor Robe Capsule" additionalName="Event" type="EtcItem">
 		<!-- Double click to obtain a +8 Blessed Eternal Armor Robe Set. Will be deleted on June 15, 2016, after regular maintenance. -->
 		<set name="icon" val="icon.etc_equip_item_box_i00" />
-		<set name="default_action" val="CAPSULE" />
+		<set name="default_action" val="PEEL" />
+		<set name="material" val="PAPER" />
 		<set name="immediate_effect" val="true" />
-		<set name="material" val="FISH" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -902,7 +897,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47755" name="Shining Dragon's Treasure Chest" type="EtcItem">
-		<!-- Double-click to get one of a rare items, out of Bloody/Dark Enhancement Stone or Enhancement Protection Stone, at random. -->
+		<!-- Double-click to get one of a rare items, out of Bloody/ Dark Enhancement Stone or Enhancement Protection Stone, at random. -->
 		<set name="icon" val="icon.bm_dragon_shinning_present" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="LEATHER" />
@@ -919,7 +914,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47757" name="Dragon's Elemental Potion" additionalName="EXP" type="EtcItem">
-		<!-- When used, increases Attack Attribute by 50, and all Defense Attributes by 50, as well as XP/SP received by 10% for 30 minutes. Buff effect persists through death. Cooldown time is 5 minutes. Cannot be used in the Olympiad. -->
+		<!-- When used, increases Attack Attribute by 50, and all Defense Attributes by 50, as well as XP/ SP received by 10% for 30 minutes. Buff effect persists through death. Cooldown time is 5 minutes. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_dragon_posion_brave" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
@@ -928,7 +923,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47758" name="Dragon's Breath" type="EtcItem">
-		<!-- If you take this to the Dimensional Merchant, you will receive items based on the number you take. -->
+		<!-- If you take this to the Dimensional Merchant, you will receive items based on the number. Will be deleted on July 6th 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.bm_dragon_breath" />
 		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
@@ -938,7 +933,7 @@
 		<set name="is_freightable" val="true" />
 	</item>
 	<item id="47759" name="Dragon's Gold Key" type="EtcItem">
-		<!-- If you take this to the Dimensional Merchant, you will receive Shining Dragon's Treasure Chests based on the number you take. -->
+		<!-- If you take 6 of these to the Dimensional Merchant, or 1 Gold Key and 30 Wind Vitality Tonics, you will receive a Shining Dragon's Treasure Chest. Will be deleted on July 6th 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.bm_dragon_key" />
 		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
@@ -956,7 +951,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47761" name="+7 Shirt Chest (Sparkle/Attack/Magic)" type="EtcItem">
-		<!-- Double-click to obtain one of Shiny +7 Einhasad/Reflect Attack/Reflect Magic Shirt. -->
+		<!-- Double-click to obtain one of Shiny +7 Einhasad/ Reflect Attack/ Reflect Magic Shirt. -->
 		<set name="icon" val="icon.event_six_party_box_i00" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
@@ -965,11 +960,11 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
 		<skills>
-			<skill id="18651" level="1" /> <!-- +7 T-shirt Box (Shining/ Attack/ Magic) -->
+			<skill id="18651" level="1" /> <!-- +7 T-shirt Box (Shining/Attack/Magic) -->
 		</skills>
 	</item>
 	<item id="47762" name="Lindvior's Earring" additionalName="7-day" type="Armor">
-		<!-- MP+59, Petrification P. Atk. and Resistance 50% increase, Knock Back/Knock Down P. Atk. and Resistance 40% increase, Pull Success Rate 40% increase, Pull/Danger Zone Resistance 40% increase, P. Critical Damage 10% increase, M. Critical Damage 10% increase, P./M. Atk. Abnormal Status Reflection 10% increase, 10% chance to reflect M. Atk. Damage to an enemy performing a P. Atk. Speed 5, DEX +3, WIT +3, The/Dark Attribute Def. increase. Can use a Knock Back/Knock Down cancellation skill, and receive Knock Back/Knock Down resistance increase to 100%. Does not stack with identical earrings. -->
+		<!-- MP+59, Petrification P. Atk. and Resistance +50%, Knock Back/ Knock Down P. Atk. and Resistance +40%, Pull Success Rate +40%, Pull/ Danger Zone Resistance +40%, P. Critical Damage +10%, M. Critical Damage +10%, P./ M. Atk. Abnormal Status Reflection +10%, 10% chance to reflect M. Atk. Damage to an enemy performing a P. Atk. Speed 5, DEX +3, WIT +3, Wind/ Dark Attribute Def. +30. Can use a Knock Back/ Knock Down cancellation skill, and receive Knock Back/ Knock Down resistance for 5 seconds. Does not stack with identical earrings. -->
 		<set name="icon" val="icon.npoint_earring_of_lind_30day" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -977,22 +972,21 @@
 		<set name="crystal_type" val="R" />
 		<set name="material" val="GOLD" />
 		<set name="weight" val="150" />
-		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
-			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">170</stat>
 			<stat type="maxMp">59</stat>
 		</stats>
+		<skills>
+			<skill id="13524" level="1" /> <!-- Lindvior's Earring -->
+			<skill id="13542" level="1" /> <!-- Lindvior's Earring -->
+		</skills>
 	</item>
 	<item id="47763" name="Dragon's Treasure Chest - 10" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Items. When used, 10 Dragon's Treasure Chests can be obtained. Will be deleted on June 15, 2016, after regular maintenance. -->
+		<!-- Top-grade Balthus Knights' Supply Items. When used, 10 Dragon's Treasure Chests can be obtained. Will be deleted on June 15, 2016, after regular maintenance. -->
 		<set name="icon" val="icon.bm_dragon_present" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1007,7 +1001,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47764" name="Red Libra Request - Altar of Evil" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Altar of Evil and Bloody Swampland. A character of level 85 to level 95 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Altar of Evil and Bloody Swampland. A character of level 85 to level 95 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1018,7 +1012,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47765" name="Red Libra Request - Fairy Settlement" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Fairy Settlement. A character of level 85 to level 95 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Fairy Settlement. A character of level 85 to level 95 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1029,7 +1023,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47766" name="Red Libra Request - Isle of Souls" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Isle of Souls. A character of level 90 to level 99 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Isle of Souls. A character of level 90 to level 99 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1040,7 +1034,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47767" name="Red Libra Request - Seal of Shilen" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Seal of Shilen. A character of level 90 to level 99 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Seal of Shilen. A character of level 90 to level 99 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1051,7 +1045,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47768" name="Red Libra Request - Monsters from Three Areas" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Cemetery, Pagan Temple, and Blazing Swamp. A character of level 95 to level 101 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Cemetery, Pagan Temple, and Blazing Swamp. A character of level 95 to level 101 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1062,7 +1056,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47769" name="Red Libra Request - Raider's Crossroads" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Raider's Crossroads. A character of level 95 to level 101 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Raider's Crossroads. A character of level 95 to level 101 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1073,7 +1067,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47770" name="Red Libra Request - Hellbound" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in Hellbound. A character of level 97 to level 103 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in Hellbound. A character of level 97 to level 103 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1084,7 +1078,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47771" name="Red Libra Request - Enchanted Valley" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Enchanted Valley. A character of level 100 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Enchanted Valley. A character of level 100 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1095,7 +1089,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47772" name="Red Libra Request - Giant's Cave" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Giant's Cave. A character of level 100 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Giant's Cave. A character of level 100 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1106,7 +1100,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47773" name="Red Libra Request - Garden of Spirits" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Garden of Spirits. A character of level 100 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Garden of Spirits. A character of level 100 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1117,7 +1111,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47774" name="Red Libra Request - Atelia Fortress" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Atelia Fortress. A character of level 100 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Atelia Fortress. A character of level 100 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1128,7 +1122,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47775" name="Red Libra Request - Superion" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in Superion. A character of level 100 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed once a day. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in Superion. A character of level 100 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed once a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1139,7 +1133,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47776" name="Red Libra Request - Altar of Evil" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Altar of Evil and Bloody Swampland. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Altar of Evil and Bloody Swampland. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1149,7 +1143,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47777" name="Red Libra Request - Fairy Settlement" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Fairy Settlement. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Fairy Settlement. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1159,7 +1153,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47778" name="Red Libra Request - Isle of Souls" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Isle of Souls. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Isle of Souls. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1169,7 +1163,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47779" name="Red Libra Request - Seal of Shilen" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Seal of Shilen. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Seal of Shilen. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1179,7 +1173,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47780" name="Red Libra Request - Monsters from Three Areas" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Cemetery, Pagan Temple, and Blazing Swamp. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Cemetery, Pagan Temple, and Blazing Swamp. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1189,7 +1183,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47781" name="Red Libra Request - Raider's Crossroads" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Raider's Crossroads. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Raider's Crossroads. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1199,7 +1193,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47782" name="Red Libra Request - Hellbound" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in Hellbound. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in Hellbound. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1209,7 +1203,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47783" name="Red Libra Request - Enchanted Valley" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Enchanted Valley. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Enchanted Valley. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1219,7 +1213,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47784" name="Red Libra Request - Giant's Cave" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Giant's Cave. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Giant's Cave. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1229,7 +1223,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47785" name="Red Libra Request - Garden of Spirits" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Garden of Spirits. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Garden of Spirits. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1239,7 +1233,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47786" name="Red Libra Request - Atelia Fortress" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in the Atelia Fortress. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in the Atelia Fortress. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1249,7 +1243,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47787" name="Red Libra Request - Superion" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to hunt monsters in Superion. It will be deleted when the Red Libra merchants leave. -->
+		<!-- A request letter from the Red Libra merchants to hunt monsters in Superion. Will be deleted after the event. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="material" val="LEATHER" />
 		<set name="is_tradable" val="false" />
@@ -1259,23 +1253,29 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47788" name="Pink's Style Potion - Kelbim Light Armor" type="EtcItem">
-		<!-- Pink style potion. Use to wear Kelbim Light Armor for 1 hour. It will be deleted when the Red Libra merchants leave. -->
+		<!-- Pink style potion. Use to wear Kelbim Light Armor for 1 hour. Will be deleted after the event. -->
 		<set name="icon" val="icon.dragon_dye_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="120" />
 		<set name="is_stackable" val="true" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47789" name="Pink's Style Potion - Freya Robe" type="EtcItem">
-		<!-- Pink style potion. Use to wear a Freya Robe for 1 hour. It will be deleted when the Red Libra merchants leave. -->
+		<!-- Pink style potion. Use to wear a Freya Robe for 1 hour. Will be deleted after the event. -->
 		<set name="icon" val="icon.dragon_dye_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="120" />
 		<set name="is_stackable" val="true" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47790" name="Pink's Style Potion - Blue Dynasty Armor" type="EtcItem">
-		<!-- Pink style potion. Use to wear Blue Dynasty Armor for 1 hour. It will be deleted when the Red Libra merchants leave. -->
+		<!-- Pink style potion. Use to wear Blue Dynasty Armor for 1 hour. Will be deleted after the event. -->
 		<set name="icon" val="icon.dragon_dye_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
@@ -1291,23 +1291,29 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47792" name="Pink's Style Potion - Formal Wear" type="EtcItem">
-		<!-- Pink style potion. Use to wear Formal Wear for 1 hour. It will be deleted when the Red Libra merchants leave. -->
+		<!-- Pink style potion. Use to wear Formal Wear for 1 hour. Will be deleted after the event. -->
 		<set name="icon" val="icon.dragon_dye_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="120" />
 		<set name="is_stackable" val="true" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47793" name="Pink's Style Potion - Vampiric Outfit" type="EtcItem">
-		<!-- Pink style potion. Use to wear a Vampiric Outfit for 1 hour. It will be deleted when the Red Libra merchants leave. -->
+		<!-- Pink style potion. Use to wear a Vampiric Outfit for 1 hour. Will be deleted after the event. -->
 		<set name="icon" val="icon.dragon_dye_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="120" />
 		<set name="is_stackable" val="true" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47794" name="Pink's Style Potion - Robin Hood Costume" type="EtcItem">
-		<!-- Pink style potion. Use to wear a Robin Hood Costume for 1 hour. It will be deleted when the Red Libra merchants leave. -->
+		<!-- Pink style potion. Use to wear a Robin Hood Costume for 1 hour. Will be deleted after the event. -->
 		<set name="icon" val="icon.dragon_dye_i01" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
@@ -1321,9 +1327,12 @@
 		<set name="material" val="PAPER" />
 		<set name="weight" val="120" />
 		<set name="is_stackable" val="true" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47796" name="Red Libra Request - Kartia Labyrinth (Lv. 95 party)" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to kill the Incarnation of Gluttony, Kalios in Kartia Labyrinth (Lv. 95 party). A character of level 95 to level 105 can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed twice a day. -->
+		<!-- A request letter from the Red Libra merchants to kill the Incarnation of Gluttony, Kalios in Kartia Labyrinth (Lv. 95 party). A character of level 95 to level 105 can receive the request by double-clicking the item. Will be deleted after the event. Can be performed twice a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1334,7 +1343,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47797" name="Red Libra Request - Crystal Prison (Baylor)" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to kill Warden Baylor in the Crystal Prison. A character of level 97 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed twice a day. -->
+		<!-- A request letter from the Red Libra merchants to kill Warden Baylor in the Crystal Prison. A character of level 97 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed twice a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1345,7 +1354,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47798" name="Red Libra Request - Nightmare Kamaloka" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to kill the lead Dark Rider in Nightmare Kamaloka. A character of level 99 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed twice a day. -->
+		<!-- A request letter from the Red Libra merchants to kill the lead Dark Rider in Nightmare Kamaloka. A character of level 99 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed twice a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -1356,7 +1365,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47799" name="Red Libra Request - Embryo Command Post" type="EtcItem">
-		<!-- A request letter from the Red Libra merchants to kill Commander Burnstein in the Embryo Command Post. A character of level 100 or over can receive the request by double-clicking the item. It will be deleted when the Red Libra merchants leave. Can be performed twice a day. -->
+		<!-- A request letter from the Red Libra merchants to kill Commander Burnstein in the Embryo Command Post. A character of level 100 or over can receive the request by double-clicking the item. Will be deleted after the event. Can be performed twice a day. -->
 		<set name="icon" val="icon.red_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />

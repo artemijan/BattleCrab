@@ -164,6 +164,8 @@ pub(crate) fn npc_finalized_stats(
         crit_hit: finalize(&mods, Stat::CriticalRate, base.crit_hit)
             .clamp(0.0, caps.max_p_crit_rate),
         m_crit_hit: base.m_crit_hit,
+        p_skill_crit_rate: finalize(&mods, Stat::CriticalRateSkill, base.p_skill_crit_rate)
+            .clamp(0.0, caps.max_p_skill_crit_rate),
         accuracy: finalize(&mods, Stat::AccuracyCombat, base.accuracy as f64) as i32,
         evasion: finalize(&mods, Stat::EvasionRate, base.evasion as f64)
             .clamp(0.0, caps.max_evasion) as i32,

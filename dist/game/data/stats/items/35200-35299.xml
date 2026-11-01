@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="35200" name="Bloody Helios Shooter" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -21,23 +21,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="8856" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13794" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35201" name="Bloody Helios Buster" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -56,23 +58,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8857" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35202" name="Bloody Helios Caster" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -91,24 +95,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="8858" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">575</stat>
 			<stat type="mAtk">417</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8858" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="35203" name="Bloody Helios Retributer" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -127,25 +133,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="35204" name="Bloody Helios Dualsword" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35204" name="Bloody Helios Dual Sword" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -164,22 +172,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="35205" name="Bloody Helios Dual Dagger" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -198,23 +208,25 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35206" name="Bloody Helios Dual Blunt Weapon" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. Can bestow 2 regular Soul Crystals and 1 special Soul Crystal. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -233,23 +245,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="35207" name="Bloody Helios Shaper" additionalName="Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -268,24 +282,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="8849" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13787" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35208" name="Bloody Helios Shaper" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -304,24 +320,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="8849" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13787" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35209" name="Bloody Helios Shaper" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 81.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 81.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -340,24 +358,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8849" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13787" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35210" name="Bloody Helios Cutter" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -376,23 +396,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="8850" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13788" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35211" name="Bloody Helios Cutter" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -411,23 +433,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8850" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13788" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35212" name="Bloody Helios Cutter" additionalName="Health" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -446,23 +470,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="8850" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13788" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35213" name="Bloody Helios Slasher" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_twohand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -481,23 +507,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8851" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13789" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35214" name="Bloody Helios Slasher" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_twohand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -516,23 +544,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="8851" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13789" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35215" name="Bloody Helios Slasher" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_twohand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -551,23 +581,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="8851" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13789" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35216" name="Bloody Helios Avenger" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_onehand_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -586,24 +618,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="8852" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13790" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35217" name="Bloody Helios Avenger" additionalName="Critical Damage" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 1232 during a critical attack. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 1232 during a critical attack. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_onehand_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -622,24 +656,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
 			<skill id="8852" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13790" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35218" name="Bloody Helios Avenger" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_onehand_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -658,24 +694,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8852" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13790" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35219" name="Bloody Helios Fighter" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 75.5. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 75.5. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_fist_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -694,24 +732,26 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8853" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13791" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35220" name="Bloody Helios Fighter" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_fist_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -730,24 +770,26 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="8853" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13791" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35221" name="Bloody Helios Fighter" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_fist_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -766,24 +808,26 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="8853" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13791" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35222" name="Bloody Helios Stormer" additionalName="HP Drain" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Recovers 4% of standard physical damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Recovers 4% of standard physical damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_spear_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -802,24 +846,26 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="8854" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13111" level="1" /> <!-- Special Ability: HP Drain -->
 			<skill id="13792" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="35223" name="Bloody Helios Stormer" additionalName="Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_spear_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -838,24 +884,26 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="8854" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13110" level="4" /> <!-- Special Ability: Guidance -->
 			<skill id="13792" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="35224" name="Bloody Helios Stormer" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_spear_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -874,24 +922,26 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="8854" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13109" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13792" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="35225" name="Bloody Helios Thrower" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
 		<set name="icon" val="icon.weapon_R99_bow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -911,24 +961,26 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="8855" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13793" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35226" name="Bloody Helios Thrower" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
 		<set name="icon" val="icon.weapon_R99_bow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -948,24 +1000,26 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8855" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13793" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35227" name="Bloody Helios Thrower" additionalName="Long Blow" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Attack range increases. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Attack range increases. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
 		<set name="icon" val="icon.weapon_R99_bow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -985,24 +1039,26 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="8855" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13793" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35228" name="Bloody Helios Shooter" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1022,24 +1078,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="8856" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13794" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35229" name="Bloody Helios Shooter" additionalName="Critical Slow" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1059,6 +1117,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
@@ -1066,18 +1135,9 @@
 			<skill id="13794" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35230" name="Bloody Helios Shooter" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1097,24 +1157,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="8856" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13794" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35231" name="Bloody Helios Buster" additionalName="Acumen" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1133,24 +1195,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="8857" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35232" name="Bloody Helios Buster" additionalName="Magic Hold" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1169,7 +1233,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
@@ -1177,17 +1251,9 @@
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35233" name="Bloody Helios Buster" additionalName="Mana Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Max MP increases by 30%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Max MP increases by 30%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1206,24 +1272,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="8857" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35234" name="Bloody Helios Caster" additionalName="Empower" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1242,25 +1310,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
 			<skill id="8858" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35235" name="Bloody Helios Caster" additionalName="Acumen" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1279,25 +1349,27 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="8858" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35236" name="Bloody Helios Caster" additionalName="Magic Hold" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1316,7 +1388,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13114" level="1" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
@@ -1324,18 +1407,9 @@
 			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35237" name="Bloody Helios Retributer" additionalName="MP Regeneration" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. MP Recovery Rate increases. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. MP Recovery Bonus Rate increases. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1354,26 +1428,28 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
-			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
+			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="35238" name="Bloody Helios Retributer" additionalName="Acumen" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1392,26 +1468,28 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="35239" name="Bloody Helios Retributer" additionalName="Empower" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1430,26 +1508,28 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
-			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">700</stat>
 			<stat type="mAtk">459</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
+			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="35240" name="Bloody Helios Dualsword" additionalName="Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35240" name="Bloody Helios Dual Sword" additionalName="Haste" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1468,23 +1548,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="35241" name="Bloody Helios Dualsword" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35241" name="Bloody Helios Dual Sword" additionalName="Damage Up" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1503,23 +1585,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="35242" name="Bloody Helios Dualsword" additionalName="Health" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35242" name="Bloody Helios Dual Sword" additionalName="Health" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1538,23 +1622,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">875</stat>
 			<stat type="mAtk">313</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="35243" name="Bloody Helios Dual Dagger" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1573,24 +1659,26 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35244" name="Bloody Helios Dual Dagger" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1609,24 +1697,26 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35245" name="Bloody Helios Dual Dagger" additionalName="Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1645,24 +1735,26 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35246" name="Bloody Helios Dual Blunt Weapon" additionalName="Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1681,24 +1773,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35247" name="Bloody Helios Dual Blunt Weapon" additionalName="Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1717,24 +1811,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35248" name="Bloody Helios Dual Blunt Weapon" additionalName="Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1753,24 +1849,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35249" name="Bloody Helios Shaper" additionalName="Guidance + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 8. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 8. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1789,6 +1887,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8849" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13787" level="1" /> <!-- Additional Ability Health -->
@@ -1796,18 +1905,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35250" name="Bloody Helios Shaper" additionalName="Haste + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 81.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 81.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1826,6 +1926,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8849" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13787" level="1" /> <!-- Additional Ability Health -->
@@ -1833,18 +1944,9 @@
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35251" name="Bloody Helios Shaper" additionalName="Focus + Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 79.2. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 79.2. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1863,6 +1965,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">629</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8849" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13787" level="1" /> <!-- Additional Ability Health -->
@@ -1870,18 +1983,9 @@
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">629</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35252" name="Bloody Helios Cutter" additionalName="Haste + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1900,6 +2004,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8850" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13788" level="1" /> <!-- Additional Ability Health -->
@@ -1907,17 +2021,9 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35253" name="Bloody Helios Cutter" additionalName="Focus + Health" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 75.4. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 75.4. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1936,6 +2042,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8850" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13788" level="1" /> <!-- Additional Ability Health -->
@@ -1943,17 +2059,9 @@
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35254" name="Bloody Helios Cutter" additionalName="Health + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Accuracy and P. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1972,6 +2080,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8850" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13788" level="1" /> <!-- Additional Ability Health -->
@@ -1979,17 +2097,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35255" name="Bloody Helios Slasher" additionalName="Focus + Damage" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_twohand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2008,6 +2118,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8851" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13789" level="1" /> <!-- Additional Ability Health -->
@@ -2015,17 +2135,9 @@
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35256" name="Bloody Helios Slasher" additionalName="Damage Up + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_twohand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2044,6 +2156,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8851" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13789" level="1" /> <!-- Additional Ability Health -->
@@ -2051,17 +2173,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35257" name="Bloody Helios Slasher" additionalName="Haste + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_twohand_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2080,6 +2194,16 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8851" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13789" level="1" /> <!-- Additional Ability Health -->
@@ -2087,17 +2211,9 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35258" name="Bloody Helios Avenger" additionalName="Haste + Critical Damage" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. P. Atk. Increases by 1232 during a critical attack. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. P. Atk. Increases by 1232 during a critical attack. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_onehand_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2116,6 +2232,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
 			<skill id="13790" level="1" /> <!-- Additional Ability Health -->
@@ -2123,18 +2250,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35259" name="Bloody Helios Avenger" additionalName="Critical Damage + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 1232 during a critical attack. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 1232 during a critical attack. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_onehand_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2153,6 +2271,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3572" level="8" /> <!-- Special Ability: Critical Damage -->
 			<skill id="13790" level="1" /> <!-- Additional Ability Health -->
@@ -2160,18 +2289,9 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35260" name="Bloody Helios Avenger" additionalName="Focus + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases. -->
 		<set name="icon" val="icon.weapon_R99_onehand_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2190,6 +2310,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8852" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13790" level="1" /> <!-- Additional Ability Health -->
@@ -2197,18 +2328,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35261" name="Bloody Helios Fighter" additionalName="Focus + Damage" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 81.9. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 81.9. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_fist_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2227,6 +2349,17 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8853" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13791" level="1" /> <!-- Additional Ability Health -->
@@ -2234,18 +2367,9 @@
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35262" name="Bloody Helios Fighter" additionalName="Damage Up + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_fist_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2264,6 +2388,17 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8853" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13791" level="1" /> <!-- Additional Ability Health -->
@@ -2271,18 +2406,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35263" name="Bloody Helios Fighter" additionalName="Haste + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 75.5. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 75.5. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_fist_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2301,6 +2427,17 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8853" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13791" level="1" /> <!-- Additional Ability Health -->
@@ -2308,18 +2445,9 @@
 			<skill id="3565" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35264" name="Bloody Helios Stormer" additionalName="HP Drain + Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Recovers 4% of standard melee physical damage inflicted upon the enemy as HP. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Recovers 4% of standard melee physical damage inflicted upon the enemy as HP. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_spear_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2338,6 +2466,17 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="13792" level="1" /> <!-- Additional Ability Health -->
@@ -2346,18 +2485,9 @@
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="35265" name="Bloody Helios Stormer" additionalName="Guidance + Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.8. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.8. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_spear_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2376,6 +2506,17 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="13792" level="1" /> <!-- Additional Ability Health -->
@@ -2384,18 +2525,9 @@
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="35266" name="Bloody Helios Stormer" additionalName="Damage Up + HP Drain" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Recovers 4% of standard melee physical damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Recovers 4% of standard melee physical damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. When enchanted to +4, Multi-attack additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_spear_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2414,6 +2546,17 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="13792" level="1" /> <!-- Additional Ability Health -->
@@ -2422,18 +2565,9 @@
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="35267" name="Bloody Helios Thrower" additionalName="Damage Up + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
 		<set name="icon" val="icon.weapon_R99_bow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2453,6 +2587,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="8855" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13793" level="1" /> <!-- Additional Ability Health -->
@@ -2460,18 +2605,9 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35268" name="Bloody Helios Thrower" additionalName="Focus + Long Blow" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Attack range increases. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Attack range increases. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
 		<set name="icon" val="icon.weapon_R99_bow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2491,6 +2627,17 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="8855" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13793" level="1" /> <!-- Additional Ability Health -->
@@ -2498,18 +2645,9 @@
 			<skill id="13061" level="1" /> <!-- Special Ability: Long Blow -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35269" name="Bloody Helios Thrower" additionalName="Long Blow + Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Attack range increases. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Attack range increases. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases. -->
 		<set name="icon" val="icon.weapon_R99_bow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2529,6 +2667,17 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1415</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="8855" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13793" level="1" /> <!-- Additional Ability Health -->
@@ -2536,18 +2685,9 @@
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1415</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35270" name="Bloody Helios Shooter" additionalName="Focus + Critical Slow" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 78.7. Chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2567,6 +2707,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
@@ -2575,18 +2726,9 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35271" name="Bloody Helios Shooter" additionalName="Critical Slow + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Chance of casting Slow during a Critical Attack. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Chance of casting Slow during a Critical Attack. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2606,6 +2748,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="13113" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
@@ -2614,18 +2767,9 @@
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35272" name="Bloody Helios Shooter" additionalName="Haste + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, Atk. Spd. Increases. -->
 		<set name="icon" val="icon.weapon_R99_crossbow_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2645,6 +2789,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">1274</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="8856" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13794" level="1" /> <!-- Additional Ability Health -->
@@ -2652,18 +2807,9 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1274</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="35273" name="Bloody Helios Buster" additionalName="Acumen + Magic Hold" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2682,7 +2828,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
@@ -2691,17 +2847,9 @@
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35274" name="Bloody Helios Buster" additionalName="Magic Hold + Mana Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. Max MP increases by 30%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. Max MP increases by 30%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2720,7 +2868,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
@@ -2729,17 +2887,9 @@
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35275" name="Bloody Helios Buster" additionalName="Mana Up + Acumen" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Max MP increases by 30%. Magic Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Max MP increases by 30%. Magic Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Rate increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2758,7 +2908,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8857" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13795" level="1" /> <!-- Additional Ability Health -->
@@ -2766,17 +2926,9 @@
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35276" name="Bloody Helios Caster" additionalName="Empower + Acumen" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 460. Magic Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 460. Magic Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2795,7 +2947,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8858" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
@@ -2803,18 +2966,9 @@
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35277" name="Bloody Helios Caster" additionalName="Acumen + Magic Hold" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2833,7 +2987,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
@@ -2842,18 +3007,9 @@
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35278" name="Bloody Helios Caster" additionalName="Magic Hold + Empower" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. 20% chance of casting Dryad Root on the target during magic use. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, Magical Accuracy and M. Critical Damage increase. -->
 		<set name="icon" val="icon.weapon_R99_onehand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2872,7 +3028,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">575</stat>
+			<stat type="mAtk">417</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="13796" level="1" /> <!-- Additional Ability Health -->
@@ -2881,18 +3048,9 @@
 			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
 			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">575</stat>
-			<stat type="mAtk">417</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35279" name="Bloody Helios Retributer" additionalName="MP Regeneration + Acumen" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. MP Recovery Rate increases. Magic Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. MP Recovery Bonus Rate increases. Magic Casting Spd. Increases by 15%. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2911,7 +3069,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">700</stat>
+			<stat type="mAtk">459</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="accMagic">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
@@ -2919,19 +3089,9 @@
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">700</stat>
-			<stat type="mAtk">459</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35280" name="Bloody Helios Retributer" additionalName="Acumen + Empower" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Casting Spd. Increases by 15%. M. Atk. Increases by 460. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2950,7 +3110,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">700</stat>
+			<stat type="mAtk">459</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="accMagic">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
@@ -2958,19 +3130,9 @@
 			<skill id="3575" level="8" /> <!-- Special Ability: Empower -->
 			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">700</stat>
-			<stat type="mAtk">459</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35281" name="Bloody Helios Retributer" additionalName="Empower + MP Regeneration" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 322. MP Recovery rate increases. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. M. Atk. Increases by 322. MP Recovery Bonus rate increases. Increases damage inflicted during PvP. When enchanted to +4, M. Atk. M. Critical Damage, and Casting Spd. Increase. -->
 		<set name="icon" val="icon.weapon_R99_twohand_magic_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2989,7 +3151,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="material" val="WOOD" />
+		<stats>
+			<stat type="pAtk">700</stat>
+			<stat type="mAtk">459</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="accMagic">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8859" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13797" level="1" /> <!-- Additional Ability Health -->
@@ -2997,19 +3171,9 @@
 			<skill id="3576" level="8" /> <!-- Special Ability: MP Regeneration -->
 			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">700</stat>
-			<stat type="mAtk">459</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="35282" name="Bloody Helios Dualsword" additionalName="Haste + Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35282" name="Bloody Helios Dual Sword" additionalName="Haste + Damage Up" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Atk. Spd. Increases by about 15%. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3028,24 +3192,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="35283" name="Bloody Helios Dualsword" additionalName="Damage Up + Health" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35283" name="Bloody Helios Dual Sword" additionalName="Damage Up + Health" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Max HP increases by 25%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3064,24 +3230,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="35284" name="Bloody Helios Dualsword" additionalName="Health + Haste" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
+	<item id="35284" name="Bloody Helios Dual Sword" additionalName="Health + Haste" type="Weapon">
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Max HP increases by 25%. Atk. Spd. Increases by about 15%. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Rate increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_sword_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3100,24 +3268,26 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8860" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13798" level="1" /> <!-- Additional Ability Health -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="3564" level="8" /> <!-- Special Ability: Haste -->
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35285" name="Bloody Helios Dual Dagger" additionalName="Damage Up + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3136,6 +3306,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
@@ -3143,18 +3324,9 @@
 			<skill id="3567" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35286" name="Bloody Helios Dual Dagger" additionalName="Focus + Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 79.2. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 79.2. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3173,6 +3345,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
@@ -3180,18 +3363,9 @@
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35287" name="Bloody Helios Dual Dagger" additionalName="Guidance + Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.9. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Critical Damage increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_dagger_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3210,6 +3384,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">719</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8861" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13799" level="1" /> <!-- Additional Ability Health -->
@@ -3217,18 +3402,9 @@
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">719</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35288" name="Bloody Helios Dual Blunt Weapon" additionalName="Focus + Guidance" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Critical increases by 79.2. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Critical increases by 79.2. Accuracy increases by 7.9. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3247,6 +3423,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
@@ -3254,18 +3441,9 @@
 			<skill id="3573" level="7" /> <!-- Special Ability: Guidance -->
 			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35289" name="Bloody Helios Dual Blunt Weapon" additionalName="Guidance + Damage Up" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.8. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. Accuracy increases by 7.8. P. Atk. Increases by 415. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3284,6 +3462,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
@@ -3291,18 +3480,9 @@
 			<skill id="13062" level="4" /> <!-- Special Ability: Damage Up -->
 			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35290" name="Bloody Helios Dual Blunt Weapon" additionalName="Damage Up + Focus" type="Weapon">
-		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/MP/CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
+		<!-- PvE enchant type item. When equipped, damage to an NPC +15% and Max HP/ MP/ CP +10%. <Soul Crystal Enhancement>. P. Atk. Increases by 415. Critical increases by 78.7. Increases damage inflicted during PvP. When enchanted to +4, P. Skill Power increases and P. Atk. additionally increases. -->
 		<set name="icon" val="icon.weapon_R99_dual_blunt_pve_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -3321,6 +3501,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="2" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">875</stat>
+			<stat type="mAtk">313</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="8862" level="1" /> <!-- PvE Damage Increase -->
 			<skill id="13800" level="1" /> <!-- Additional Ability Health -->
@@ -3328,15 +3519,6 @@
 			<skill id="3566" level="9" /> <!-- Special Ability: Focus -->
 			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">875</stat>
-			<stat type="mAtk">313</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="35291" name="Glorious Shirt" type="Armor">
 		<!-- Glorious Shirt. HP increases by 465. -->
@@ -3349,23 +3531,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="8871" level="1" /> <!-- Glorious T-shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8871" level="1" /> <!-- Glorious T-shirt -->
+		</skills>
 	</item>
-	<item id="35292" name="Scroll of Escape: Guillotine Fortress" type="EtcItem">
+	<item id="35292" name="Scroll of Escape:Guillotine Fortress" type="EtcItem">
 		<!-- Magical scroll that relocates you to the Guillotine Fortress. Cannot be sold in shops. -->
 		<set name="icon" val="icon.etc_scroll_of_return_i00" />
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9461" level="1" /> <!-- Scroll of Escape: Guillotine Fortress -->
@@ -3382,12 +3564,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="BRACELET" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8863" level="1" /> <!-- Tauti's Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">216</stat>
 		</stats>
+		<skills>
+			<skill id="8863" level="1" /> <!-- Tauti's Bracelet -->
+		</skills>
 	</item>
 	<item id="35294" name="Enhanced Tauti's Bracelet" type="Armor">
 		<!-- Tauti's Bracelet with refined abilities. Activates 5 talisman slots when equipped. MP +216, Str +1, Int +1. -->
@@ -3414,9 +3596,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="35296" name="Specter Shaper Fragment" type="EtcItem">

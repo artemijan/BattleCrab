@@ -18,9 +18,9 @@ package quests.Q00124_MeetingTheElroki;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Meeting the Elroki (124)
@@ -34,6 +34,7 @@ public class Q00124_MeetingTheElroki extends Quest
 	private static final int ASAMAH = 32115;
 	private static final int KARAKAWEI = 32117;
 	private static final int MANTARASA = 32118;
+	
 	// Item
 	private static final int MANTARASA_EGG = 8778;
 	
@@ -103,6 +104,7 @@ public class Q00124_MeetingTheElroki extends Quest
 				break;
 			}
 		}
+		
 		return event;
 	}
 	
@@ -284,6 +286,7 @@ public class Q00124_MeetingTheElroki extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

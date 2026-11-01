@@ -100,10 +100,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut data = GameData::load_from_with(
         &datapack_root,
         gameserver::data::DataOptions {
-            max_equipable_item_grade: config.character.max_equipable_item_grade,
             maximum_player_level: config.character.maximum_player_level,
             correct_prices: config.general.correct_prices,
-            initial_equipment_event: config.character.initial_equipment_event,
             custom_npc_data: config.general.custom_npc_data,
             custom_skills_load: config.general.custom_skills_load,
             custom_items_load: config.general.custom_items_load,
@@ -111,7 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             custom_buylist_load: config.general.custom_buylist_load,
         },
     );
-    // Stat ceilings + run-speed boost live in Character.ini; fold them into the
+    // Stat ceilings + run-speed boost live in Player.ini; fold them into the
     // read-only data bundle the stat finalizers read (`GameData::combat_caps`).
     data.combat_caps = gameserver::data::CombatCaps {
         run_spd_boost: config.character.run_spd_boost,
@@ -121,6 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         max_m_atk: config.character.max_m_atk,
         max_p_crit_rate: config.character.max_p_crit_rate,
         max_m_crit_rate: config.character.max_m_crit_rate,
+        max_p_skill_crit_rate: config.character.max_p_skill_crit_rate,
         max_p_atk_speed: config.character.max_p_atk_speed,
         max_m_atk_speed: config.character.max_m_atk_speed,
         max_evasion: config.character.max_evasion,
@@ -147,10 +146,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         gm: config.general.skill_check_gm,
     };
     data.default_access_level = config.general.default_access_level;
-    // `HtmCache.loadFile`'s two content-affecting keys, installed before any
+    // `HtmCache.loadFile`'s content-affecting key, installed before any
     // html is read.
     gameserver::data::htm_cache::set_html_settings(gameserver::data::htm_cache::HtmlSettings {
-        hide_bypass_removal: config.general.hide_bypass_removal,
         check_encoding: config.general.check_html_encoding,
     });
     // `HtmCache.getInstance()`: on `HtmCache = True` every html file is loaded
@@ -165,7 +163,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         info!("Cache[HTML]: Running lazy cache.");
     }
-    // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
+    // Player.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
     // per-skill `abnormalTime` overrides into the loaded skills (Java does this
     // in the `Skill` constructor). No-op when the list is empty/disabled.
     data.skill_data
@@ -246,7 +244,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.database_url.clone(),
         config.server.database_max_connections,
         config.server.max_characters_number_per_account,
-        config.general.database_clean_up,
+        gameserver::db::IdManagerBoot {
+            clean_up: config.general.database_clean_up,
+            first_object_id: config.general.first_object_id.into(),
+            last_object_id: config.general.last_object_id.into(),
+        },
         gameserver::db::GroundItemBootConfig {
             save_dropped_item: config.general.save_dropped_item,
             clear_dropped_item_table: config.general.clear_dropped_item_table,

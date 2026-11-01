@@ -221,11 +221,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // despite the name it drops **every** script (AI and events included), not
     // only quests. The port's registry holds the same set, so emptying it is
     // the same switch.
-    if world.cfg.general.alt_dev_no_quests {
+    if world.cfg.general.no_quests {
         world.quests = Arc::new(quests::QuestRegistry::new(Vec::new()));
-        info!("ScriptEngine: AltDevNoQuests is set — no scripts registered.");
-    } else if world.cfg.general.alt_dev_show_quests_load_in_logs
-        || world.cfg.general.alt_dev_show_scripts_load_in_logs
+        info!("ScriptEngine: NoQuests is set — no scripts registered.");
+    } else if world.cfg.general.show_quest_load_in_logs
+        || world.cfg.general.show_script_load_in_logs
     {
         // Java logs one line per registration, and the two keys are **not**
         // synonyms: `Quest(int questId)` calls `addQuest` when the id is
@@ -236,10 +236,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         for name in world.quests.names() {
             let is_quest = world.quests.quest_id(name).is_some_and(|id| id > 0);
             if is_quest {
-                if world.cfg.general.alt_dev_show_quests_load_in_logs {
+                if world.cfg.general.show_quest_load_in_logs {
                     info!("Loaded quest {name}.");
                 }
-            } else if world.cfg.general.alt_dev_show_scripts_load_in_logs {
+            } else if world.cfg.general.show_script_load_in_logs {
                 info!("Loaded script {name}.");
             }
         }

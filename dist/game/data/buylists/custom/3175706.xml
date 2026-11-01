@@ -96,6 +96,28 @@
 	<item id="1856" price="1600" /> <!-- Amulet: Chant of Life -->
 	<item id="3038" price="3100" /> <!-- Blueprint: Summon Mechanic Golem -->
 	<item id="3039" price="6400" /> <!-- Spellbook: Summon Storm Cubic -->
+	<item id="3040" price="7400" /> <!-- Spellbook: Summon Vampiric Cubic -->
 	<item id="3041" price="6400" /> <!-- Spellbook: Summon Phantom Cubic -->
 	<item id="3042" price="6400" /> <!-- Spellbook: Life Scavenge -->
+	<item id="3045" price="7400" /> <!-- Spellbook: Summon Life Cubic -->
+	<item id="10025" price="150" /> <!-- Battle Manual - Fallen Arrow -->
+	<item id="10026" price="150" /> <!-- Battle Manual - Fallen Attack -->
+	<item id="10027" price="1100" /> <!-- Battle Manual - Detect Trap -->
+	<item id="10028" price="1100" /> <!-- Battle Manual - Defuse Trap -->
+	<item id="10029" price="1400" /> <!-- Battle Manual - Dark Strike -->
+	<item id="10031" price="1400" /> <!-- Battle Manual - Double Thrust -->
+	<item id="10032" price="1400" /> <!-- Battle Manual - Abyssal Blaze -->
+	<item id="10033" price="2300" /> <!-- Battle Manual - Dark Explosion -->
+	<item id="10058" price="3100" /> <!-- Battle Manual - Fire Trap -->
+	<item id="10072" price="500" /> <!-- Battle Manual - Increase Power -->
+	<item id="10073" price="500" /> <!-- Battle Manual - Rapid Attack -->
+	<item id="10074" price="2300" /> <!-- Battle Manual - Furious Soul -->
+	<item id="10075" price="5200" /> <!-- Battle Manual - Sword Shield -->
+	<item id="10076" price="5200" /> <!-- Battle Manual - Disarm -->
+	<item id="10077" price="4100" /> <!-- Battle Manual - Fast Shot -->
+	<item id="10078" price="2300" /> <!-- Battle Manual - Death Mark -->
+	<item id="10079" price="5200" /> <!-- Battle Manual - Courage -->
+	<item id="10094" price="4100" /> <!-- Battle Manual - Rush -->
+	<item id="10180" price="1600" /> <!-- Battle Manual - Penetrate Shot -->
+	<item id="10181" price="2100" /> <!-- Battle Manual - Erase Mark -->
 </list>

@@ -75,28 +75,22 @@ fn a_pet_stored_dead_is_restored_dead() {
     );
 }
 
-/// At the species' top level there is no next-level band, so the penalty
-/// computes to zero rather than to garbage. Java would throw here (its
-/// `getExpForLevel(level + 1)` has no row and it logs an NPE); a max-level pet
-/// simply losing nothing is the safer reading, and it is pinned because the
-/// death tests silently measured *only* this case until the fixture grew a
-/// third level.
+/// A pet at the cap still has a band above it: its exp stops one short of the
+/// `MAX_PET_LEVEL` row, and that row is the band's top, as the dist's level-111
+/// rows are for a level-110 pet. So the penalty is the usual share: band
+/// 80,000 − 20,000, at 6.5 − 0.07 × 3 = 6.29 %, is 3,774.
 #[test]
-fn a_max_level_pet_loses_nothing_on_death() {
+fn a_pet_at_the_cap_loses_its_share_on_death() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let pet_oid = summoned_pet(&mut world);
     add_pet_exp(&mut world, OWNER, 10_000_000.0, 0.0);
     let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
-    assert_eq!(pet.level, 3, "at the species cap");
-    let before = pet.exp;
+    assert_eq!(pet.level, 3, "at the cap");
+    assert_eq!(pet.exp, 79_999, "one short of the MAX_PET_LEVEL row");
 
     crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
-    assert_eq!(
-        pet_exp(&world, pet_oid),
-        before,
-        "no band above the cap, so no penalty"
-    );
+    assert_eq!(pet_exp(&world, pet_oid), 79_999 - 3_774);
 }
 
 // ---------------------------------------------------------------------------

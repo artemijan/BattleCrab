@@ -24,6 +24,21 @@ const ARMOR_GRADE_PENALTY: i32 = 6213;
 /// the character may wear without penalty (`Player.getExpertiseLevel`).
 const EXPERTISE_SKILL: i32 = 239;
 
+/// Java `Player.getExpertiseLevel()`, as a [`CrystalType::level`]: the grade
+/// `RemoveEquipPenalty` on the `EXPERTISE` skill sets, whose `<grade>` table
+/// runs D…R99 for levels 1…10. That is the same ladder as `level()`, so the
+/// skill's level *is* the grade level; 0 (NONE) without the skill.
+///
+/// [`CrystalType::level`]: crate::data::item_data::kinds::CrystalType::level
+pub(crate) fn expertise_level(world: &World, object_id: i32) -> i32 {
+    world
+        .objects
+        .get_component::<SkillBook>(&object_id)
+        .and_then(|s| s.0.get(&EXPERTISE_SKILL).copied())
+        .unwrap_or(0)
+        .max(0)
+}
+
 /// Port of `Player.refreshExpertisePenalty`. Recomputes the weapon/armor grade
 /// penalties from currently-equipped gear versus the character's expertise
 /// level, (re)applies the penalty debuff skills, and resends `EtcStatusUpdate`
@@ -37,12 +52,7 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
 
     // --- read phase: expertise level + highest over-grade weapon/armor. ---
     let (weapon_penalty, armor_penalty) = {
-        let expertise = world
-            .objects
-            .get_component::<SkillBook>(&object_id)
-            .and_then(|s| s.0.get(&EXPERTISE_SKILL).copied())
-            .unwrap_or(0)
-            .max(0);
+        let expertise = expertise_level(world, object_id);
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
@@ -121,12 +131,13 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
             .objects
             .get_component::<crate::model::components::stats::WeightPenalty>(&object_id)
             .map_or(0, |w| w.level);
-        let charges = view.p.charges;
+        let (charges, souls) = (view.p.charges, view.p.souls);
         crate::game_loop::helpers::send_to_client(
             world,
             client_id,
             crate::network::enter_world::etc_status_update(
                 charges,
+                souls,
                 weight_penalty,
                 weapon_penalty,
                 armor_penalty,

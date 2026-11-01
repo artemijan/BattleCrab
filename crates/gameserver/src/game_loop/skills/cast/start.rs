@@ -192,7 +192,8 @@ pub(crate) fn start_casting(
         crate::game_loop::party::notify_party_vitals(world, object_id);
     }
 
-    // Broadcast the cast start, then the caster-only YOU_USE_S1 + cast bar.
+    // Broadcast the cast start — unless `isNotBroadcastable()` — then the
+    // caster-only YOU_USE_S1 + cast bar.
     {
         let Some((tx, ty, tz, _)) = target_state(world, target_oid) else {
             return;
@@ -204,20 +205,22 @@ pub(crate) fn start_casting(
         let Some(caster_pos) = world.objects.get_component::<Position>(&object_id) else {
             return;
         };
-        broadcast::broadcast_including_self(
-            world,
-            object_id,
-            &server_packets::magic_skill_use(
-                caster,
-                caster_pos,
-                (target_oid, tx, ty, tz),
-                skill.id,
-                skill.level,
-                displayed_cast_time,
-                skill.reuse_delay_group,
-                skill.reuse_delay,
-            ),
-        );
+        if !skill.not_broadcastable {
+            broadcast::broadcast_including_self(
+                world,
+                object_id,
+                &server_packets::magic_skill_use(
+                    caster,
+                    caster_pos,
+                    (target_oid, tx, ty, tz),
+                    skill.id,
+                    skill.level,
+                    displayed_cast_time,
+                    skill.reuse_delay_group,
+                    skill.reuse_delay,
+                ),
+            );
+        }
     }
     helpers::send_sm_to_client(
         world,

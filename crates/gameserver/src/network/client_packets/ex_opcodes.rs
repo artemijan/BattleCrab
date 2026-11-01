@@ -13,7 +13,10 @@ pub const REQUEST_KEY_MAPPING: u16 = 0x21;
 /// `ExRpItemLink`, without which the link stays a bare "?".
 pub const REQUEST_EX_RQ_ITEM_LINK: u16 = 0x1E;
 pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
-pub const REQUEST_USER_BAN_INFO: u16 = 0x138;
+/// `RequestChangeToAwakenedClass` — the answer to `ExChangeToAwakenedClass`:
+/// 1 accepts the awakening.
+pub const REQUEST_CHANGE_TO_AWAKENED_CLASS: u16 = 0xA2;
+pub const REQUEST_USER_BAN_INFO: u16 = 0x15E;
 /// `ExSendClientIni` — the client reports its `client.ini` after auth.
 /// Mobius registers a `null` handler (no packet class), so it is consumed
 /// and ignored.
@@ -21,6 +24,10 @@ pub const EX_SEND_CLIENT_INI: u16 = 0x104;
 /// `RequestHardWareInfo` (G31) — the client's hardware fingerprint (MAC,
 /// CPU, VGA, Windows build). Sendable at any connection state.
 pub const REQUEST_HARDWARE_INFO: u16 = 0xAE;
+/// `RequestFlyMove` — the next Sayune hop (the chosen location id).
+pub const REQUEST_FLY_MOVE: u16 = 0x91;
+/// `RequestFlyMoveStart` — the Sayune jump button was pressed.
+pub const REQUEST_FLY_MOVE_START: u16 = 0xAD;
 /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
 /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
 pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
@@ -114,6 +121,10 @@ pub const EX_SEND_SELECTED_QUEST_ZONE_ID: u16 = 0xFF;
 pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
 /// `ExRequestAutoFish` — toggle the auto-fishing loop (G32).
 pub const REQUEST_EX_AUTO_FISH: u16 = 0x105;
+/// `RequestItemEnsoul` — insert soul crystals into a weapon.
+pub const REQUEST_ITEM_ENSOUL: u16 = 0x108;
+/// `RequestTryEnSoulExtraction` — take one soul crystal option back out.
+pub const REQUEST_TRY_EN_SOUL_EXTRACTION: u16 = 0x128;
 /// Item auction (G30.5): bid on / request info about an auctioneer's auction.
 pub const REQUEST_BID_ITEM_AUCTION: u16 = 0x36;
 pub const REQUEST_INFO_ITEM_AUCTION: u16 = 0x37;

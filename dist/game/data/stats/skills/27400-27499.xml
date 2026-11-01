@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="27400" toLevel="1" name="Tribal Warrior Hair Accessory Appearance Stone">
 		<icon>icon.skill0000</icon>
@@ -96,7 +96,7 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="27422" toLevel="1" name="XP Rune (Dragon's Ascension)">
-		<!-- Increases XP/SP by 100%. (Lv. 99 or below) -->
+		<!-- Increases XP/ SP by 100%. (Lv. 99 or below) -->
 		<icon>br_cashtex.item.br_cash_rune_of_feather_i00</icon>
 		<operateType>P</operateType>
 		<passiveConditions>
@@ -129,15 +129,15 @@
 	</skill>
 	<skill id="27426" toLevel="1" name="Shadow Shaper Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26437</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -156,15 +156,15 @@
 	</skill>
 	<skill id="27427" toLevel="1" name="Shadow Cutter Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26438</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -183,15 +183,15 @@
 	</skill>
 	<skill id="27428" toLevel="1" name="Shadow Slasher Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26439</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -210,15 +210,15 @@
 	</skill>
 	<skill id="27429" toLevel="1" name="Shadow Fighter Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26440</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -237,15 +237,15 @@
 	</skill>
 	<skill id="27430" toLevel="1" name="Shadow Stormer Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26441</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -264,15 +264,15 @@
 	</skill>
 	<skill id="27431" toLevel="1" name="Shadow Thrower Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26442</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -291,15 +291,15 @@
 	</skill>
 	<skill id="27432" toLevel="1" name="Shadow Shooter Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26443</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -318,15 +318,15 @@
 	</skill>
 	<skill id="27433" toLevel="1" name="Shadow Buster Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26444</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -345,15 +345,15 @@
 	</skill>
 	<skill id="27434" toLevel="1" name="Shadow Retributer Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26445</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -370,17 +370,17 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="27435" toLevel="1" name="Shadow Dualsword Box">
+	<skill id="27435" toLevel="1" name="Shadow Dual Sword Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26446</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -391,7 +391,7 @@
 			<effect name="RestorationRandom">
 				<items>
 					<item chance="100">
-						<item id="46326" count="1" minEnchant="1" maxEnchant="9" /> <!-- Shadow Dualsword -->
+						<item id="46326" count="1" minEnchant="1" maxEnchant="9" /> <!-- Shadow Dual Sword -->
 					</item>
 				</items>
 			</effect>
@@ -410,16 +410,18 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="27439" toLevel="3" name="Vital Stone - Vital Wind">
-		<!-- For 15 seconds when hunting, Vitality Consumption +20%, XP/SP Gain +20%. -->
+		<!-- Level 1: For 15 seconds when hunting monsters, Vitality Consumption +20%, XP/ SP Gain +20%. -->
+		<!-- Level 2: For 15 seconds when hunting monsters, Vitality Consumption +50%, XP/ SP Gain +50%. -->
+		<!-- Level 3: For 15 seconds when hunting monsters, Vitality Consumption +100%, XP/ SP Gain +100%. -->
 		<icon>icon.etc_bm_jewel_vital</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1200000</reuseDelay>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>EXP_SPECIAL</abnormalType>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<reuseDelay>1200000</reuseDelay>
 		<effects>
 			<effect name="VitalityPointsRate">
 				<amount>
@@ -446,7 +448,12 @@
 		</effects>
 	</skill>
 	<skill id="27440" toLevel="6" name="Cat's Eye">
-		<!-- Damage Reflect Resistance +10%. -->
+		<!-- Level 1: Damage Reflect Resistance +10%. -->
+		<!-- Level 2: Damage Reflect Resistance +20%. -->
+		<!-- Level 3: Damage Reflect Resistance +30%. -->
+		<!-- Level 4: Damage Reflect Resistance +40%. -->
+		<!-- Level 5: Damage Reflect Resistance +50%. -->
+		<!-- Level 6: Damage Reflect Resistance +50%. Additionally, 10% chance of reflecting debuffs to the enemy. -->
 		<icon>BranchIcon.Icon.etc_bm_jewel_catseye_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -478,8 +485,8 @@
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<hitTime>500</hitTime>
-		<reuseDelay>1800000</reuseDelay>
 		<isMagic>1</isMagic>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="DamageBlock">
 				<type>BLOCK_HP</type>
@@ -500,7 +507,12 @@
 		</effects>
 	</skill>
 	<skill id="27442" toLevel="6" name="Amethyst">
-		<!-- PvP Damage +3%. -->
+		<!-- Level 1: Damage in PvP +3%. -->
+		<!-- Level 2: Damage in PvP +5%. -->
+		<!-- Level 3: Damage in PvP +7%. -->
+		<!-- Level 4: Damage in PvP +10%. -->
+		<!-- Level 5: Damage in PvP +15%. -->
+		<!-- Level 6: Damage in PvP +15%. Chance of receiving P. Critical Attack -25%. -->
 		<icon>BranchIcon.Icon.etc_bm_jewel_amethyst_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -538,28 +550,28 @@
 				<mode>PER</mode>
 			</effect>
 			<effect name="DefenceCriticalRate" fromLevel="6" toLevel="6">
-				<amount>-25</amount>
+				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="27443" toLevel="1" name="Amethyst - Remove Invincibility">
-		<!-- Removes invincibility and debuff invincibility of target. Cooldown 30 minutes. -->
+		<!-- Removes invincibility or debuff immunity from the target. -->
 		<icon>BranchIcon.Icon.etc_bm_jewel_amethyst_i00</icon>
 		<operateType>A1</operateType>
-		<castRange>900</castRange>
-		<hitTime>2110</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>1800000</reuseDelay>
-		<effectPoint>-2036</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>600</effectRange>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-2036</effectPoint>
+		<effectRange>600</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2110</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>INVINCIBILITY_SPECIAL;INVINCIBILITY</dispel>
@@ -582,27 +594,28 @@
 		</effects>
 	</skill>
 	<skill id="27444" toLevel="1" name="Summon Scroll: Pomona">
-		<!-- For 30 min., obtained XP +10%, Max HP/MP/CP +30%, P. Def./M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption - 15%. Cannot use with the Art of Seduction buff. -->
+		<!-- For 30 min., obtained XP +10%, Max HP/ MP/ CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption -15%. Cannot use with the Art of Seduction buff. -->
 		<icon>icon.etc_star_scroll_baekisung</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>15000</reuseDelay>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="27445" toLevel="1" name="Attendance Vitality Tonic">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>26510</itemConsumeId> <!-- Attendance Vitality Tonic -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3600000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3600000</reuseDelay>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="VitalityPointUp">
 				<value>35000</value>
@@ -612,26 +625,26 @@
 	<skill id="27446" toLevel="1" name="Lv. 5 Legendary CHA Dye Pack">
 		<icon>icon.etc_pi_gift_box_i04</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27447" toLevel="1" name="Lv. 5 Legendary LUC Dye Pack">
 		<icon>icon.etc_pi_gift_box_i04</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27448" toLevel="1" name="Lv. 3 Legendary CHA Dye Pack">
 		<icon>icon.etc_pi_gift_box_i04</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27449" toLevel="1" name="Lv. 3 Legendary LUC Dye Pack">
 		<icon>icon.etc_pi_gift_box_i04</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27450" toLevel="1" name="Pirate Captain Appearance Stone">
 		<icon>icon.skill0000</icon>

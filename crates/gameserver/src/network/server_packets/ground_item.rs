@@ -1,7 +1,9 @@
 //! Ground-item packets (Classic layouts): `SpawnItem` (an item already lying in
 //! view when you enter its region), `DropItem` (a fresh drop, with the toss
-//! animation from a dropper), and `GetItem` (the pickup animation). Augmentation
-//! isn't modelled, so its flag byte is always 0.
+//! animation from a dropper), and `GetItem` (the pickup animation). A ground
+//! item keeps neither augmentation nor soul crystal options (the instance is
+//! reduced to id/count/enchant on the way down), so both trailing bytes are
+//! always 0.
 
 use commons::network::PacketWriter;
 
@@ -34,7 +36,7 @@ pub fn spawn_item(it: &GroundItemView) -> Vec<u8> {
     w.write_i32(0); // c2
     w.write_u8(it.enchant as u8);
     w.write_u8(0); // augmentation present
-    w.write_u8(0);
+    w.write_u8(0); // regular soul crystal option count
     w.into_bytes()
 }
 
@@ -53,7 +55,7 @@ pub fn drop_item(dropper_object_id: i32, it: &GroundItemView) -> Vec<u8> {
     w.write_u8(0);
     w.write_u8(it.enchant as u8);
     w.write_u8(0); // augmentation present
-    w.write_u8(0);
+    w.write_u8(0); // regular soul crystal option count
     w.into_bytes()
 }
 

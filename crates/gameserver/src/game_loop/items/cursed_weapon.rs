@@ -553,22 +553,9 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
     if !removed {
         return;
     }
-    // Java's `destroyItem(…, sendMessage = true)` refreshes the client's bag;
-    // the weight/adena footers ride along (see `helpers::send_inventory_update`).
-    let max_load = crate::game_loop::stats::weight::max_load(world, object_id);
-    if let Some(inv) = world.objects.get_component::<Inventory>(&object_id) {
-        let list = crate::network::enter_world::item_list(inv, &world.data, false);
-        let adena = crate::network::enter_world::ex_adena_inven_count(inv);
-        let weight = crate::network::enter_world::ex_user_info_inven_weight(
-            object_id,
-            inv,
-            &world.data,
-            max_load,
-        );
-        send_to_client(world, client_id, list);
-        send_to_client(world, client_id, adena);
-        send_to_client(world, client_id, weight);
-    }
+    // Java's `destroyItem(…, sendMessage = true)` refreshes the client's bag
+    // with `sendItemList()`, adena and weight included.
+    crate::game_loop::character::inventory::send_inventory_item_list(world, object_id);
     // A stray weapon can still be *worn* — and `EnterWorld` already sent its
     // `ExUserInfoEquipSlot` before this sweep runs, so the client would render
     // the sword the sweep just deleted until the next equip change.

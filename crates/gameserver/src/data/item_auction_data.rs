@@ -1,9 +1,8 @@
 //! `data/ItemAuctions.xml` — the item-auction auctioneer instances (G30.5, Java
 //! `ItemAuctionManager.parseDocument` + `ItemAuctionInstance`'s XML constructor).
 //! Each `<instance>` is one auctioneer NPC with a schedule and a rotating list
-//! of `<item>`s to auction. This dist ships the file with every instance
-//! commented out, so it loads empty; the engine exists so an operator can add
-//! auctions (`AltItemAuctionEnabled` is already `True`).
+//! of `<item>`s to auction. This dist ships one: Giran's auctioneer 34328,
+//! Saturdays at 17:00, rotating 21 items.
 
 use crate::data::xml;
 use crate::data::xml::attr_i32_trimmed as attr_i32;
@@ -176,11 +175,23 @@ fn parse_item(e: &BytesStart) -> Option<AuctionItem> {
 mod tests {
     use super::*;
 
-    /// The dist ships every instance commented out → nothing loads.
+    /// `<instance id="34328" day_of_week="6" hour_of_day="17">` with 21
+    /// items. Java's `AuctionDateGenerator` maps `day_of_week` + 1 onto
+    /// `Calendar.DAY_OF_WEEK` (Sunday = 1), so 6 is Saturday — Mon=0..Sun=6
+    /// weekday 5 here.
     #[test]
-    fn dist_file_is_empty() {
+    fn dist_ships_the_giran_auctioneer() {
         let data = ItemAuctionData::load_from(crate::data::DIST_GAME);
-        assert!(data.is_empty(), "ItemAuctions.xml ships with no instances");
+        assert_eq!(data.len(), 1);
+        let c = data.get(34328).expect("auctioneer 34328");
+        assert_eq!(c.schedule.weekday, Some(5));
+        assert_eq!(c.schedule.interval_days, None);
+        assert_eq!((c.schedule.hour, c.schedule.minute), (17, 0));
+        assert_eq!(c.items.len(), 21);
+        let first = &c.items[0];
+        assert_eq!((first.auction_item_id, first.item_id), (1, 46495));
+        assert_eq!(first.auction_init_bid, 100_000_000);
+        assert_eq!(first.auction_length_min, 60);
     }
 
     #[test]

@@ -72,14 +72,12 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
         })
         .collect();
     let in_store = store_lines(world, owner);
-    let packet = sp::manage_list_sell(
-        owner,
-        inventory::adena(world, owner),
-        &sellable,
-        &in_store,
-        packaged,
-    );
-    send_to_client(world, client_id, packet);
+    let adena = inventory::adena(world, owner);
+    let packets = [1, 2]
+        .map(|phase| sp::manage_list_sell(phase, owner, adena, &sellable, &in_store, packaged));
+    for packet in packets {
+        send_to_client(world, client_id, packet);
+    }
 }
 
 /// `SetPrivateStoreListSell` (0x31): activate the store with the given
@@ -493,29 +491,39 @@ fn send_manage_buy_window(world: &mut World, client_id: u32) {
     let Some(owner) = player_of(world, client_id) else {
         return;
     };
-    let packet = {
+    let collar = crate::game_loop::servitor::active_pet_collar(world, owner);
+    let packets = {
         let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
             return;
         };
+        // Java `getUniqueItems(false, true, true)`: one line per item id, no
+        // adena, and only items `isAvailable(owner, false, false)` — not
+        // equipped, not a quest item, tradable, not the summoned pet's collar.
+        let mut seen = std::collections::HashSet::new();
         let inventory: Vec<StoreLine> = inv
-            .items()
-            .iter()
-            .filter_map(|it| {
-                let t = world.data.item_data.get(it.item_id)?;
-                // Java `getUniqueItems(false, true)` → `isSellable() &&
-                // isAvailable(..., allowNonTradeable = false)`, i.e. untradable
-                // items are left out of the reference list too.
-                (!t.is_quest_item && t.is_tradable()).then_some(StoreLine {
-                    item: *it,
-                    template: t,
-                    price: 0,
-                })
+            .unequipped_with_templates(&world.data.item_data)
+            .filter(|(it, t)| {
+                it.item_id != crate::data::item_data::ADENA_ID
+                    && !t.is_quest_item
+                    && t.is_tradable()
+                    && collar != Some(it.object_id)
+            })
+            // The duplicate check runs on what was kept, so an equipped first
+            // copy doesn't hide a spare one.
+            .filter(|(it, _)| seen.insert(it.item_id))
+            .map(|(it, t)| StoreLine {
+                item: *it,
+                template: t,
+                price: 0,
             })
             .collect();
         let wanted = wanted_lines(world, owner);
-        sp::manage_list_buy(owner, inventory::adena(world, owner), &inventory, &wanted)
+        let adena = inventory::adena(world, owner);
+        [1, 2].map(|phase| sp::manage_list_buy(phase, owner, adena, &inventory, &wanted))
     };
-    send_to_client(world, client_id, packet);
+    for packet in packets {
+        send_to_client(world, client_id, packet);
+    }
 }
 
 /// `SetPrivateStoreListBuy` (0x9A): open the store for business. Java's gates,

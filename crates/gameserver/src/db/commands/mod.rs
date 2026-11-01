@@ -4,6 +4,7 @@ use super::DbCommand;
 use super::DbEvent;
 use super::EventTx;
 use super::ID_BLOCK_SIZE;
+use super::IdManagerBoot;
 use super::boot;
 use super::clean_up_database;
 use super::clear_ground_items;
@@ -34,11 +35,24 @@ mod residences;
 mod social;
 mod world;
 
+/// Take up to `count` ids `[start, end)` off the counter, never past
+/// `LastObjectId`. A short or empty block is Java's "Ran out of valid ids":
+/// the game thread skips what it cannot number and logs it.
+fn reserve_ids(next_id: &mut i64, count: i64, last_object_id: i64) -> (i64, i64) {
+    let start = *next_id;
+    let end = (start + count).min(last_object_id + 1).max(start);
+    if end - start < count {
+        error!("IdManager: Ran out of valid ids.");
+    }
+    *next_id = end;
+    (start, end)
+}
+
 pub(crate) async fn run(
     url: String,
     max_connections: u32,
     max_characters: i32,
-    clean_up: bool,
+    ids: IdManagerBoot,
     ground_items: GroundItemBootConfig,
     mut cmd_rx: CmdRx,
     event_tx: EventTx,
@@ -73,19 +87,16 @@ pub(crate) async fn run(
     // Java `IdManager`'s constructor order: clean the orphans first, *then*
     // walk the tables for used object ids. Doing it the other way round would
     // reserve ids belonging to rows this is about to delete.
-    if clean_up {
+    if ids.clean_up {
         clean_up_database(&db).await;
     }
 
-    let mut next_id = load_next_id(&db).await;
+    let mut next_id = load_next_id(&db, ids.first_object_id).await;
 
     // Hand the game thread its initial runtime-id block unprompted (it can't
     // ask before it knows the DB thread is up; see `DbCommand::ReserveIds`).
-    let _ = event_tx.send(DbEvent::IdBlock {
-        start: next_id,
-        end: next_id + ID_BLOCK_SIZE,
-    });
-    next_id += ID_BLOCK_SIZE;
+    let (start, end) = reserve_ids(&mut next_id, ID_BLOCK_SIZE, ids.last_object_id);
+    let _ = event_tx.send(DbEvent::IdBlock { start, end });
 
     send_boot_events(&db, &ground_items, &event_tx).await;
 
@@ -95,7 +106,12 @@ pub(crate) async fn run(
                 reload(&db, &event_tx, client_id, account, true).await
             }
             DbCommand::CreateCharacter { client_id, data } => {
-                let result = create_character(&db, &mut next_id, max_characters, &data).await;
+                let result = if next_id > ids.last_object_id {
+                    error!("IdManager: Ran out of valid ids.");
+                    CreateResult::Fail
+                } else {
+                    create_character(&db, &mut next_id, max_characters, &data).await
+                };
                 let _ = event_tx.send(DbEvent::CharacterCreated { client_id, result });
                 if result == CreateResult::Ok {
                     // Java caches the list after creation but does not re-send it.
@@ -135,11 +151,8 @@ pub(crate) async fn run(
             DbCommand::ClearGroundItems => clear_ground_items(&db).await,
             DbCommand::StorePlayer { save } => store_player(&db, &save).await,
             DbCommand::ReserveIds { count } => {
-                let _ = event_tx.send(DbEvent::IdBlock {
-                    start: next_id,
-                    end: next_id + count,
-                });
-                next_id += count;
+                let (start, end) = reserve_ids(&mut next_id, count, ids.last_object_id);
+                let _ = event_tx.send(DbEvent::IdBlock { start, end });
             }
             DbCommand::InsertFriendPair { a, b } => social::insert_friend_pair(&db, a, b).await,
             DbCommand::InsertBlock { owner, target } => {
@@ -628,36 +641,10 @@ pub(crate) async fn run(
                 owner_id,
                 items,
             } => social::store_mail_items(&db, message_id, owner_id, items).await,
-            DbCommand::StoreLottery {
-                idnr,
-                enddate,
-                prize,
-            } => minigames::store_lottery(&db, idnr, enddate, prize).await,
-            DbCommand::FinishLottery {
-                idnr,
-                prize,
-                newprize,
-                number1,
-                number2,
-                prize1,
-                prize2,
-                prize3,
-            } => {
-                minigames::finish_lottery(
-                    &db, idnr, prize, newprize, number1, number2, prize1, prize2, prize3,
-                )
-                .await
-            }
-            DbCommand::IncreaseLotteryPrize { idnr, prize } => {
-                minigames::increase_lottery_prize(&db, idnr, prize).await
-            }
             DbCommand::LoadCustomMail => social::load_custom_mail(&db, &event_tx).await,
             DbCommand::LoadBirthdays { days } => social::load_birthdays(&db, &event_tx, days).await,
             DbCommand::DeleteCustomMail { date, receiver } => {
                 social::delete_custom_mail(&db, date, receiver).await
-            }
-            DbCommand::LoadLotteryTickets { round } => {
-                minigames::load_lottery_tickets(&db, &event_tx, round).await
             }
             DbCommand::SaveMdtHistory {
                 race_id,

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>33930</npc> <!-- Dandy -->
+	</npcs>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38775" count="1" /> <!-- Sealed Antharas Shaper Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38776" count="1" /> <!-- Sealed Antharas Slasher Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38777" count="1" /> <!-- Sealed Antharas Thrower Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38778" count="1" /> <!-- Sealed Antharas Buster Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38779" count="1" /> <!-- Sealed Antharas Cutter Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38780" count="1" /> <!-- Sealed Antharas Stormer Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38781" count="1" /> <!-- Sealed Antharas Fighter Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38782" count="1" /> <!-- Sealed Antharas Avenger Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38783" count="1" /> <!-- Sealed Antharas Dual Blunt Weapon Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38784" count="1" /> <!-- Sealed Antharas Dualsword Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38785" count="1" /> <!-- Sealed Valakas Shaper Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38786" count="1" /> <!-- Sealed Valakas Cutter Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38787" count="1" /> <!-- Sealed Valakas Slasher Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38788" count="1" /> <!-- Sealed Valakas Thrower Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38789" count="1" /> <!-- Sealed Valakas Buster Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38790" count="1" /> <!-- Sealed Valakas Caster Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38791" count="1" /> <!-- Sealed Valakas Retributer Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38792" count="1" /> <!-- Sealed Lindvior Shaper Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38793" count="1" /> <!-- Sealed Lindvior Thrower Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38794" count="1" /> <!-- Sealed Lindvior Slasher Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38795" count="1" /> <!-- Sealed Lindvior Caster Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38796" count="1" /> <!-- Sealed Lindvior Cutter Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38797" count="1" /> <!-- Sealed Lindvior Shooter Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="100000" /> <!-- Adena -->
+		<production id="38798" count="1" /> <!-- Sealed Lindvior Dual Dagger Borrowed by Dandy -->
+	</item>
+	<item>
+		<ingredient id="57" count="1600" /> <!-- Adena -->
+		<production id="32249" count="1" /> <!-- Infinite Wooden Quiver -->
+	</item>
+	<item>
+		<ingredient id="57" count="1600" /> <!-- Adena -->
+		<production id="32256" count="1" /> <!-- Infinite Wooden Bolt Container -->
+	</item>
+</list>

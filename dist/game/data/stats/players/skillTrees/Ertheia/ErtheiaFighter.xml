@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<!-- Ertheia Fighter -->
+	<skillTree type="classSkillTree" classId="182">
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="1" getLevel="5" levelUpSp="2" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="1" getLevel="5" levelUpSp="2" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="1" getLevel="5" levelUpSp="2" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="2" getLevel="20" levelUpSp="6" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="1" getLevel="20" levelUpSp="6" />
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="1" getLevel="20" levelUpSp="6" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="2" getLevel="20" levelUpSp="6" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="2" getLevel="20" levelUpSp="6" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="1" getLevel="20" levelUpSp="6" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="3" getLevel="28" levelUpSp="11" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="2" getLevel="28" levelUpSp="11" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="2" getLevel="28" levelUpSp="11" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="4" getLevel="36" levelUpSp="20" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="3" getLevel="36" levelUpSp="20" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="3" getLevel="36" levelUpSp="20" />
+	</skillTree>
+</list>

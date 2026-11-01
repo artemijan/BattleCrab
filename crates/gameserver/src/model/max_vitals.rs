@@ -4,9 +4,9 @@
 use crate::data::GameData;
 use crate::data::player_template::PlayerTemplate;
 
-use super::components::stats::StatModifiers;
+use super::components::stats::{BaseStats, StatModifiers};
 use super::inventory::Inventory;
-use super::stats::Stat;
+use super::stats::{BaseStat, Stat};
 
 /// Java `Creature.getCurrentHpPercent()` — `(int) ((currentHp * 100) / maxHp)`.
 ///
@@ -35,7 +35,19 @@ fn equipped_stat_sum(inventory: &Inventory, data: &GameData, stat: Stat) -> f64 
         .sum()
 }
 
-/// `MaxHpFinalizer`: `mul·(baseHpMax(level)·CON bonus) + add`, plus each
+/// `conBonus · chaBonus` (or `menBonus · chaBonus`): the Max{Hp,Mp,Cp}
+/// finalizers read the player's **current** CON/MEN/CHA (`getCON()`, dyes and
+/// armor sets included), and a stat of 0 counts as a bonus of 1.
+fn vital_bonus(data: &GameData, base: &BaseStats, stat: BaseStat) -> f64 {
+    let own = if base.get(stat) > 0 {
+        data.stat_bonus.bonus(stat, base.get(stat))
+    } else {
+        1.0
+    };
+    own * data.stat_bonus.bonus(BaseStat::Cha, base.cha)
+}
+
+/// `MaxHpFinalizer`: `mul·(baseHpMax(level)·CON·CHA bonus) + add`, plus each
 /// equipped item's flat `maxHp` bonus (added *after* the buff `mul`, per Java —
 /// items aren't scaled by the buff). `inventory = None` for the pre-equip
 /// char-creation preview. The `mul`/`add` come from the buff modifier maps —
@@ -43,11 +55,12 @@ fn equipped_stat_sum(inventory: &Inventory, data: &GameData, stat: Stat) -> f64 
 pub fn calc_max_hp(
     data: &GameData,
     t: &PlayerTemplate,
+    stats: &BaseStats,
     level: i32,
     inventory: Option<&Inventory>,
     mods: &StatModifiers,
 ) -> f64 {
-    let base = t.base_hp_max(level) * data.stat_bonus.con_bonus(t.base_con);
+    let base = t.base_hp_max(level) * vital_bonus(data, stats, BaseStat::Con);
     let mul = mods.mul.get(&Stat::MaxHp).copied().unwrap_or(1.0);
     let add = mods.add.get(&Stat::MaxHp).copied().unwrap_or(0.0);
     let item = inventory
@@ -70,11 +83,14 @@ pub fn calc_max_hp(
                 .any(|cw| cw.item_id == it.item_id)
         })
     });
-    if cursed {
+    // A player's max HP is finally held to `Integer.MAX_VALUE`, which only
+    // matters on the cursed arm.
+    let limited = if cursed {
         total
     } else {
         total.min(data.combat_caps.max_hp)
-    }
+    };
+    limited.min(f64::from(i32::MAX))
 }
 
 /// `MaxHpFinalizer`'s "Apply enchanted item bonus HP" arm: every equipped
@@ -101,15 +117,16 @@ fn enchanted_armour_hp(inventory: &Inventory, data: &GameData) -> f64 {
         .sum()
 }
 
-/// `MaxMpFinalizer`: `mul·(baseMpMax(level)·MEN bonus) + add` + equipped `maxMp`.
+/// `MaxMpFinalizer`: `mul·(baseMpMax(level)·MEN·CHA bonus) + add` + equipped `maxMp`.
 pub fn calc_max_mp(
     data: &GameData,
     t: &PlayerTemplate,
+    stats: &BaseStats,
     level: i32,
     inventory: Option<&Inventory>,
     mods: &StatModifiers,
 ) -> f64 {
-    let base = t.base_mp_max(level) * data.stat_bonus.men_bonus(t.base_men);
+    let base = t.base_mp_max(level) * vital_bonus(data, stats, BaseStat::Men);
     let mul = mods.mul.get(&Stat::MaxMp).copied().unwrap_or(1.0);
     let add = mods.add.get(&Stat::MaxMp).copied().unwrap_or(0.0);
     let item = inventory
@@ -118,11 +135,16 @@ pub fn calc_max_mp(
     mul * base + add + item
 }
 
-/// `MaxCpFinalizer`: `mul·(baseCpMax(level)·CON bonus) + add`. No item bonus —
-/// no item in this dist carries `maxCp`, and Java's `MaxCpFinalizer` has no
-/// paperdoll loop.
-pub fn calc_max_cp(data: &GameData, t: &PlayerTemplate, level: i32, mods: &StatModifiers) -> f64 {
-    let base = t.base_cp_max(level) * data.stat_bonus.con_bonus(t.base_con);
+/// `MaxCpFinalizer`: `mul·(baseCpMax(level)·CON·CHA bonus) + add`. No item
+/// bonus — Java's `MaxCpFinalizer` has no paperdoll loop.
+pub fn calc_max_cp(
+    data: &GameData,
+    t: &PlayerTemplate,
+    stats: &BaseStats,
+    level: i32,
+    mods: &StatModifiers,
+) -> f64 {
+    let base = t.base_cp_max(level) * vital_bonus(data, stats, BaseStat::Con);
     let mul = mods.mul.get(&Stat::MaxCp).copied().unwrap_or(1.0);
     let add = mods.add.get(&Stat::MaxCp).copied().unwrap_or(0.0);
     mul * base + add

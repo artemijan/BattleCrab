@@ -5,7 +5,7 @@
 //! player-facing login listener accepts every connection, and the sole defence
 //! on it is `LoginTryBeforeBan` (5 wrong passwords → a 15-minute IP ban), which
 //! an attacker only reaches *after* a full RSA handshake. Applying the same
-//! `LoginServer.ini` rules to the client listener as well closes that gap; the
+//! `Server.ini` rules to the client listener as well closes that gap; the
 //! keys are shared, since an operator reading "Flood Protection" in that file
 //! reasonably expects it to cover the port players actually connect to.
 
@@ -102,16 +102,20 @@ impl ConnectionFloodGuard {
 mod tests {
     use super::*;
 
-    /// The shipped `LoginServer.ini` values, through the real key names.
+    /// The shipped `Server.ini` values, through the real key names.
     fn cfg() -> LoginConfig {
-        LoginConfig::from_parser(&commons::config::PropertiesParser::from_content(
-            "LoginServer.ini",
-            "EnableFloodProtection = True\n\
+        use commons::config::PropertiesParser;
+        LoginConfig::from_parsers(
+            &PropertiesParser::from_content(
+                "Server.ini",
+                "EnableFloodProtection = True\n\
              FastConnectionLimit = 15\n\
              NormalConnectionTime = 700\n\
              FastConnectionTime = 350\n\
              MaxConnectionPerIP = 50\n",
-        ))
+            ),
+            &PropertiesParser::from_content("Database.ini", ""),
+        )
     }
 
     #[tokio::test]

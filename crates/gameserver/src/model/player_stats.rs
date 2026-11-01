@@ -24,7 +24,6 @@ struct EquippedBonuses {
     weapon_m_atk: Option<f64>,
     weapon_p_atk_spd: Option<f64>,
     weapon_crit: Option<f64>,
-    weapon_m_crit: Option<f64>,
     weapon_atk_range: Option<i32>,
     weapon_random_dmg: Option<i32>,
     p_def: f64,
@@ -33,6 +32,20 @@ struct EquippedBonuses {
     magic_accuracy: f64,
     evasion: f64,
     magic_evasion: f64,
+    /// `mCritRate` summed over every piece — `MCritRateFinalizer` reads
+    /// `calcWeaponPlusBaseValue`, so R-grade leggings add theirs to the class
+    /// base rather than a weapon replacing it.
+    m_crit: f64,
+    /// `calcEnchantBodyPart` per finalizer — see
+    /// [`crate::model::enchant_bonus::body_part_enchant_bonus`]. `body_p_atk`
+    /// and `body_m_atk` count the chest **twice**: Java asks for `CHEST` and
+    /// `FULL_ARMOR`, and both resolve to the chest slot.
+    body_p_atk: f64,
+    body_m_atk: f64,
+    body_crit: f64,
+    body_accuracy: f64,
+    body_evasion: f64,
+    body_speed: f64,
     /// Sum of `getBaseDefBySlot` over the *occupied* pDef/mDef slots — the naked
     /// slot defenses the P/MDefenseFinalizer subtracts so worn gear replaces
     /// (not stacks on) the class base. See the finalizer loops in Java's
@@ -47,7 +60,7 @@ struct EquippedBonuses {
     enchant_m_atk: f64,
     enchant_p_def: f64,
     enchant_m_def: f64,
-    /// `ShotsBonusFinalizer` — `1 + enchantLevel·0.003` off the equipped weapon.
+    /// `ShotsBonusFinalizer` — `1 + enchantLevel·0.007` off the equipped weapon.
     shots_bonus: f64,
 }
 
@@ -60,7 +73,6 @@ impl Default for EquippedBonuses {
             weapon_m_atk: None,
             weapon_p_atk_spd: None,
             weapon_crit: None,
-            weapon_m_crit: None,
             weapon_atk_range: None,
             weapon_random_dmg: None,
             p_def: 0.0,
@@ -69,6 +81,13 @@ impl Default for EquippedBonuses {
             magic_accuracy: 0.0,
             evasion: 0.0,
             magic_evasion: 0.0,
+            m_crit: 0.0,
+            body_p_atk: 0.0,
+            body_m_atk: 0.0,
+            body_crit: 0.0,
+            body_accuracy: 0.0,
+            body_evasion: 0.0,
+            body_speed: 0.0,
             p_def_slot_sub: 0.0,
             m_def_slot_sub: 0.0,
             enchant_p_atk: 0.0,
@@ -123,7 +142,7 @@ impl EquippedBonuses {
             }
         }
 
-        // `ShotsBonusFinalizer`: `1 + enchantLevel·0.003`, read off the active
+        // `ShotsBonusFinalizer`: `1 + enchantLevel·0.007`, read off the active
         // weapon instance. Java's `getActiveWeaponInstance()` is the right hand.
         if let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) {
             eq.shots_bonus = crate::model::enchant_bonus::shots_bonus(weapon.enchant_level);
@@ -158,19 +177,23 @@ impl EquippedBonuses {
             {
                 eq.enchant_p_atk += enchant_p_atk_bonus(
                     tpl.crystal_type,
+                    tpl.blessed,
                     body_part,
                     data.item_data.weapon_type(item.item_id),
                     item.enchant_level,
                 );
             }
             if enchant_bonus_applies(body_part, declares(Stat::MagicalAttack), false) {
-                eq.enchant_m_atk += enchant_m_atk_bonus(tpl.crystal_type, item.enchant_level);
+                eq.enchant_m_atk +=
+                    enchant_m_atk_bonus(tpl.crystal_type, tpl.blessed, item.enchant_level);
             }
             if enchant_bonus_applies(body_part, declares(Stat::PhysicalDefence), true) {
-                eq.enchant_p_def += enchant_def_bonus(tpl.crystal_type, item.enchant_level);
+                eq.enchant_p_def +=
+                    enchant_def_bonus(tpl.crystal_type, tpl.blessed, item.enchant_level);
             }
             if enchant_bonus_applies(body_part, declares(Stat::MagicalDefence), true) {
-                eq.enchant_m_def += enchant_def_bonus(tpl.crystal_type, item.enchant_level);
+                eq.enchant_m_def +=
+                    enchant_def_bonus(tpl.crystal_type, tpl.blessed, item.enchant_level);
             }
         }
 
@@ -185,7 +208,6 @@ impl EquippedBonuses {
                     Stat::MagicalAttack => eq.weapon_m_atk = Some(val),
                     Stat::PhysicalAttackSpeed => eq.weapon_p_atk_spd = Some(val),
                     Stat::CriticalRate => eq.weapon_crit = Some(val),
-                    Stat::MagicCriticalRate => eq.weapon_m_crit = Some(val),
                     _ => {}
                 }
             }
@@ -208,6 +230,7 @@ impl EquippedBonuses {
                     Stat::AccuracyMagic => eq.magic_accuracy += val,
                     Stat::EvasionRate => eq.evasion += val,
                     Stat::MagicEvasionRate => eq.magic_evasion += val,
+                    Stat::MagicCriticalRate => eq.m_crit += val,
                     // maxHp/maxMp item bonuses are folded in by
                     // `calc_max_hp`/`calc_max_mp` themselves
                     // (`equipped_stat_sum`) — adding them here would count
@@ -215,6 +238,35 @@ impl EquippedBonuses {
                     _ => {}
                 }
             }
+        }
+
+        // `calcEnchantBodyPart`: one slot per finalizer, R grade at +4 and up.
+        {
+            use crate::model::enchant_bonus::{
+                BODY_PART_ACCURACY_EVASION, BODY_PART_CRIT, BODY_PART_M_ATK, BODY_PART_P_ATK,
+                BODY_PART_SPEED, BodyPartRate, body_part_enchant_bonus,
+            };
+            let bonus = |slot: PaperdollSlot, rate: BodyPartRate| {
+                inventory
+                    .paperdoll_item(slot)
+                    .and_then(|it| {
+                        data.item_data.get(it.item_id).map(|tpl| {
+                            body_part_enchant_bonus(
+                                tpl.crystal_type,
+                                tpl.blessed,
+                                it.enchant_level,
+                                rate,
+                            )
+                        })
+                    })
+                    .unwrap_or(0.0)
+            };
+            eq.body_p_atk = 2.0 * bonus(PaperdollSlot::Chest, BODY_PART_P_ATK);
+            eq.body_m_atk = 2.0 * bonus(PaperdollSlot::Chest, BODY_PART_M_ATK);
+            eq.body_crit = bonus(PaperdollSlot::Legs, BODY_PART_CRIT);
+            eq.body_accuracy = bonus(PaperdollSlot::Gloves, BODY_PART_ACCURACY_EVASION);
+            eq.body_evasion = bonus(PaperdollSlot::Head, BODY_PART_ACCURACY_EVASION);
+            eq.body_speed = bonus(PaperdollSlot::Feet, BODY_PART_SPEED);
         }
         eq
     }
@@ -253,6 +305,9 @@ impl Player {
         let dex_bonus = sb.bonus(BaseStat::Dex, base.dex);
         let int_bonus = sb.bonus(BaseStat::Int, base.int_);
         let wit_bonus = sb.bonus(BaseStat::Wit, base.wit);
+        // Salvation's `chaBonus`, a player-only factor in the P/M attack,
+        // P/M defence and both attack-speed finalizers.
+        let cha_bonus = sb.bonus(BaseStat::Cha, base.cha);
         // Java's stat display getters (`getPAtk`/`getPDef`/…) return `(int)
         // getValue()` — a truncation toward zero, *not* a round. The engine
         // stores the finalized double and the packet layer truncates (`as i32`
@@ -296,31 +351,34 @@ impl Player {
             t.base_m_atk as f64,
         );
         let caps = &data.combat_caps;
-        // Every max cap below goes through Java's `validateValue`, which skips
-        // the ceiling for creatures with the MAX_STATS_VALUE cond override —
-        // granted to GMs on login (Player.restore). Floors still apply.
-        let cap = |max: f64| if self.is_gm(data) { f64::MAX } else { max };
+        // Every max cap below goes through Java's `validateValue`, which holds
+        // a GM to it like anyone else (the `!creature.isGM()` exemption is
+        // commented out); only the run-speed cap is raised for a GM.
+        let cap = |max: f64| max;
         // Java adds `calcEnchantedItemBonus` to the weapon base *before* the
         // stat bonus and level mod, so an enchant on a level-80 character is
         // worth far more than the flat table suggests.
         combat.p_atk = finalize(
             mods,
             Stat::PhysicalAttack,
-            (p_atk_base + eq.enchant_p_atk) * str_bonus * level_mod,
+            (p_atk_base + eq.enchant_p_atk + eq.body_p_atk) * str_bonus * level_mod * cha_bonus,
         )
         .clamp(0.0, cap(caps.max_p_atk));
         combat.m_atk = finalize(
             mods,
             Stat::MagicalAttack,
-            (m_atk_base + eq.enchant_m_atk) * (int_bonus * level_mod).powf(2.2072),
+            (m_atk_base + eq.enchant_m_atk + eq.body_m_atk)
+                * (int_bonus * level_mod * cha_bonus).powf(2.2072),
         )
         .clamp(0.0, cap(caps.max_m_atk));
 
         // P/MDefenseFinalizer: (naked base + summed gear def − the naked defense
-        // of every occupied slot) × levelMod (mDef also × MEN bonus), then the
-        // `defaultValue` mul(≥0.5)/add and the `base × 0.2` floor.
-        let p_def_pre =
-            (t.base_p_def as f64 + eq.enchant_p_def + eq.p_def - eq.p_def_slot_sub) * level_mod;
+        // of every occupied slot) × CHA bonus × levelMod (mDef also × MEN
+        // bonus), then the `defaultValue` mul(≥0.5)/add and the `base × 0.2`
+        // floor.
+        let p_def_pre = (t.base_p_def as f64 + eq.enchant_p_def + eq.p_def - eq.p_def_slot_sub)
+            * cha_bonus
+            * level_mod;
         combat.p_def = finalize_def(
             mods,
             Stat::PhysicalDefence,
@@ -333,6 +391,7 @@ impl Player {
             1.0
         };
         let m_def_pre = (t.base_m_def as f64 + eq.enchant_m_def + eq.m_def - eq.m_def_slot_sub)
+            * cha_bonus
             * men_bonus
             * level_mod;
         combat.m_def = finalize_def(
@@ -351,26 +410,31 @@ impl Player {
             eq.weapon_p_atk_spd,
             t.base_p_atk_spd as f64,
         );
-        combat.p_atk_spd =
-            finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
-                .clamp(1.0, cap(caps.max_p_atk_speed)) as i32;
+        combat.p_atk_spd = finalize_speed(
+            mods,
+            Stat::PhysicalAttackSpeed,
+            p_atk_spd_base * dex_bonus * cha_bonus,
+        )
+        .clamp(1.0, cap(caps.max_p_atk_speed)) as i32;
         combat.m_atk_spd = finalize_speed(
             mods,
             Stat::MagicAttackSpeed,
-            t.base_m_atk_spd as f64 * wit_bonus,
+            t.base_m_atk_spd as f64 * wit_bonus * cha_bonus,
         )
         .clamp(1.0, cap(caps.max_m_atk_speed)) as i32;
 
-        // P/MCritRateFinalizer (in per-mille, ×10): weapon replaces base crit.
-        // Only the *physical* rate goes through `calcWeaponBaseValue`; Java's
-        // `MCritRateFinalizer` uses `calcWeaponPlusBaseValue`, which a
-        // transform's `<base>` never contributes a MAGIC_CRITICAL_RATE key to.
+        // P/MCritRateFinalizer (in per-mille, ×10). Only the *physical* rate
+        // goes through `calcWeaponBaseValue` (the weapon replaces the base, and
+        // an armour piece's `critRate` is never read); `MCritRateFinalizer` uses
+        // `calcWeaponPlusBaseValue`, the class base plus every piece's
+        // `mCritRate`, which a transform's `<base>` never sets. Both add the
+        // R-grade leggings bonus.
         let crit_base = tf_or(
             tf_base.and_then(|b| b.crit_rate),
             eq.weapon_crit,
             t.base_crit_rate as f64,
-        );
-        let m_crit_base = eq.weapon_m_crit.unwrap_or(t.base_m_crit_rate as f64);
+        ) + eq.body_crit;
+        let m_crit_base = t.base_m_crit_rate as f64 + eq.m_crit + eq.body_crit;
         combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0)
             .clamp(0.0, cap(caps.max_p_crit_rate));
         combat.m_crit_hit = finalize(
@@ -379,6 +443,17 @@ impl Player {
             m_crit_base * wit_bonus * 10.0,
         )
         .clamp(0.0, cap(caps.max_m_crit_rate));
+        // `PSkillCritRateFinalizer`: `calcWeaponPlusBaseValue` (no item on this
+        // dist declares `physicalSkillCriticalRate`, so the template's
+        // `basePSkillCritRate` alone) plus the leggings bonus, × STR bonus, then
+        // the buff mul/add, clamped to `[0, MaxPSkillCritRate]`.
+        let skill_crit_str_bonus = if base.str_ > 0 { str_bonus } else { 1.0 };
+        combat.p_skill_crit_rate = finalize(
+            mods,
+            Stat::CriticalRateSkill,
+            (f64::from(t.base_p_skill_crit_rate) + eq.body_crit) * skill_crit_str_bonus,
+        )
+        .clamp(0.0, cap(caps.max_p_skill_crit_rate));
 
         // P/MAccuracyFinalizer, P/MEvasionRateFinalizer. Gear accuracy/evasion
         // sums add on top (`calcWeaponPlusBaseValue`). `as i32` truncates toward
@@ -414,12 +489,12 @@ impl Player {
         combat.accuracy = finalize(
             mods,
             Stat::AccuracyCombat,
-            (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.accuracy,
+            (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.accuracy + eq.body_accuracy,
         ) as i32;
         combat.magic_accuracy = finalize(
             mods,
             Stat::AccuracyMagic,
-            (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy,
+            (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy + eq.body_accuracy,
         ) as i32;
         // `PEvasionRateFinalizer` ends on `validateValue(…, Double.NEGATIVE_INFINITY,
         // MAX_EVASION)` — a **ceiling only**. Evasion is allowed to go negative,
@@ -429,7 +504,7 @@ impl Player {
         combat.evasion = finalize(
             mods,
             Stat::EvasionRate,
-            (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.evasion,
+            (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.evasion + eq.body_evasion,
         )
         .min(cap(caps.max_evasion)) as i32;
         // `MEvasionRateFinalizer` runs the **same** `validateValue` ceiling as its
@@ -438,7 +513,7 @@ impl Player {
         combat.magic_evasion = finalize(
             mods,
             Stat::MagicEvasionRate,
-            (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion,
+            (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion + eq.body_evasion,
         )
         .min(cap(caps.max_evasion)) as i32;
 
@@ -477,11 +552,19 @@ impl Player {
         // stats above; stored as f64 (Speeds is shared with NPCs, whose
         // templates don't take the player boost). The `as i16` in `user_info`
         // truncates for display, matching Java's `(int)` getter.
-        // `SpeedFinalizer.getBaseSpeed`: a mounted player's base speeds are the
-        // mount's `speed_on_ride` row (looked up at the *mount's* level),
-        // halved when the mount is 10+ levels above the rider — the class
-        // template only stands in when the species has no row (Java gets null
-        // back and keeps `calcWeaponPlusBaseValue`).
+        // `SpeedFinalizer.getBaseSpeed`, in Java's order:
+        //
+        // 1. `calcWeaponPlusBaseValue` — the class template's speed, or a
+        //    non-stance transform's `<moving>` value in its place;
+        // 2. a mounted player's base speeds are the mount's `speed_on_ride` row
+        //    (looked up at the *mount's* level), halved when the mount is 10+
+        //    levels above the rider — the step-1 value only stands in when the
+        //    species has no row (Java gets null back);
+        // 3. `+ RUN_SPD_BOOST` for every player, a transformed one included;
+        // 4. `× SwampZone.getMoveBonus()` inside a swamp.
+        //
+        // `calc` then adds the R-grade boots bonus, and only after all of that
+        // do the buff mul/add apply — so a swamp slows the base, not the buffs.
         //
         // Java halves again on `player.isHungry()`, which is **inert** for a
         // rider — the predicate requires `hasPet()` and `mount()` unsummons the
@@ -500,25 +583,44 @@ impl Player {
         } else {
             1.0
         };
+        let moving = (self.transform_id != 0)
+            .then(|| data.transforms.get(self.transform_id))
+            .flatten()
+            .filter(|tf| !tf.kind.is_stance())
+            .map(|tf| tf.template(self.is_female));
+        let swamp = speeds.swamp_multiplier;
         let base_speed = |ride_spd: Option<f64>, class_base: f64| {
-            ride_spd.map_or(class_base, |s| s * level_gap_penalty) + caps.run_spd_boost
+            (ride_spd.map_or(class_base, |s| s * level_gap_penalty) + caps.run_spd_boost) * swamp
+                + eq.body_speed
         };
         speeds.run_spd = finalize(
             mods,
             Stat::RunSpeed,
-            base_speed(ride.map(|r| r.ride_run_spd), t.base_run_spd as f64),
+            base_speed(
+                ride.map(|r| r.ride_run_spd),
+                moving
+                    .and_then(|m| m.run_spd)
+                    .unwrap_or(t.base_run_spd as f64),
+            ),
         );
         speeds.walk_spd = finalize(
             mods,
             Stat::WalkSpeed,
-            base_speed(ride.map(|r| r.ride_walk_spd), t.base_walk_spd as f64),
+            base_speed(
+                ride.map(|r| r.ride_walk_spd),
+                moving
+                    .and_then(|m| m.walk_spd)
+                    .unwrap_or(t.base_walk_spd as f64),
+            ),
         );
         speeds.swim_run_spd = finalize(
             mods,
             Stat::SwimRunSpeed,
             base_speed(
                 ride.map(|r| r.ride_fast_swim_spd),
-                t.base_swim_run_spd as f64,
+                moving
+                    .and_then(|m| m.swim_run_spd)
+                    .unwrap_or(t.base_swim_run_spd as f64),
             ),
         );
         speeds.swim_walk_spd = finalize(
@@ -526,39 +628,19 @@ impl Player {
             Stat::SwimWalkSpeed,
             base_speed(
                 ride.map(|r| r.ride_slow_swim_spd),
-                t.base_swim_walk_spd as f64,
+                moving
+                    .and_then(|m| m.swim_walk_spd)
+                    .unwrap_or(t.base_swim_walk_spd as f64),
             ),
         );
 
-        // A transform replaces the class base run/walk with the template's
-        // `<moving>` values (Java's transform move-speed override), still folding
-        // the buff modifiers on top. Absolute template speeds — the class
-        // `RUN_SPD_BOOST` is not re-added (the transform values are self-tuned).
-        if self.transform_id != 0
-            && let Some(tf) = data.transforms.get(self.transform_id)
-        {
-            let tmpl = tf.template(self.is_female);
-            if let Some(run) = tmpl.run_spd {
-                speeds.run_spd = finalize(mods, Stat::RunSpeed, run);
-            }
-            if let Some(walk) = tmpl.walk_spd {
-                speeds.walk_spd = finalize(mods, Stat::WalkSpeed, walk);
-            }
-        }
-
-        // `SpeedFinalizer`: a playable inside a `SwampZone` has every speed
-        // scaled, after the boost and before the clamp.
-        if speeds.swamp_multiplier != 1.0 {
-            let m = speeds.swamp_multiplier;
-            speeds.run_spd *= m;
-            speeds.walk_spd *= m;
-            speeds.swim_run_spd *= m;
-            speeds.swim_walk_spd *= m;
-        }
-
         // SpeedFinalizer's `validateValue`: players clamp to [1, MaxRunSpeed]
-        // (300 on this dist).
-        let speed_cap = cap(caps.max_run_speed);
+        // (300 on this dist), a GM to [1, 10000].
+        let speed_cap = if self.is_gm(data) {
+            10_000.0
+        } else {
+            caps.max_run_speed
+        };
         for spd in [
             &mut speeds.run_spd,
             &mut speeds.walk_spd,

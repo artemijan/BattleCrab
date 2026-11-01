@@ -312,14 +312,29 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
         .cur_cp = 0.0;
     let hp_before = pvit(&world, 5801).cur_hp;
     // A huge non-DoT hit: refused outright.
-    combat::apply_physical_damage(&mut world, 90001, 5801, 999_999.0, false, false);
+    combat::apply_physical_damage(
+        &mut world,
+        90001,
+        5801,
+        999_999.0,
+        combat::DamageHit::default(),
+    );
     assert_eq!(
         pvit(&world, 5801).cur_hp,
         hp_before,
         "HP_BLOCK refuses a normal hit"
     );
     // A DoT tick: Java's one exemption besides a skill's own HP cost.
-    combat::apply_physical_damage(&mut world, 90001, 5801, 5.0, true, false);
+    combat::apply_physical_damage(
+        &mut world,
+        90001,
+        5801,
+        5.0,
+        combat::DamageHit {
+            dot: true,
+            ..Default::default()
+        },
+    );
     assert_eq!(
         pvit(&world, 5801).cur_hp,
         hp_before - 5.0,

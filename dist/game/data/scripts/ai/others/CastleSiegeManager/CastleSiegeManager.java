@@ -18,14 +18,13 @@ package ai.others.CastleSiegeManager;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Castle Siege Manager AI.
  * @author St3eT
  */
-public class CastleSiegeManager extends AbstractNpcAI
+public class CastleSiegeManager extends Script
 {
 	// NPCs
 	private static final int[] SIEGE_MANAGER =
@@ -69,6 +68,7 @@ public class CastleSiegeManager extends AbstractNpcAI
 		{
 			npc.getCastle().getSiege().listRegisterClan(player);
 		}
+		
 		return htmltext;
 	}
 	

@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="8100" toLevel="1" name="Augment Option - Water Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -16,9 +16,9 @@
 	<skill id="8101" toLevel="1" name="Augment Option - Wind Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -29,9 +29,9 @@
 	<skill id="8102" toLevel="1" name="Augment Option - Earth Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -42,9 +42,9 @@
 	<skill id="8103" toLevel="1" name="Augment Option - Holy Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -55,9 +55,9 @@
 	<skill id="8104" toLevel="1" name="Augment Option - Dark Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -68,9 +68,9 @@
 	<skill id="8105" toLevel="1" name="Augment Option - Fire Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -81,9 +81,9 @@
 	<skill id="8106" toLevel="1" name="Augment Option - Water Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -94,9 +94,9 @@
 	<skill id="8107" toLevel="1" name="Augment Option - Wind Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -107,9 +107,9 @@
 	<skill id="8108" toLevel="1" name="Augment Option - Earth Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -120,9 +120,9 @@
 	<skill id="8109" toLevel="1" name="Augment Option - Holy Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -133,9 +133,9 @@
 	<skill id="8110" toLevel="1" name="Augment Option - Dark Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -146,9 +146,9 @@
 	<skill id="8111" toLevel="1" name="Augment Option - Fire Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -159,9 +159,9 @@
 	<skill id="8112" toLevel="1" name="Augment Option - Water Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -172,9 +172,9 @@
 	<skill id="8113" toLevel="1" name="Augment Option - Wind Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -185,9 +185,9 @@
 	<skill id="8114" toLevel="1" name="Augment Option - Earth Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -198,9 +198,9 @@
 	<skill id="8115" toLevel="1" name="Augment Option - Holy Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -211,9 +211,9 @@
 	<skill id="8116" toLevel="1" name="Augment Option - Dark Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -224,9 +224,9 @@
 	<skill id="8117" toLevel="1" name="Augment Option - Fire Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -237,9 +237,9 @@
 	<skill id="8118" toLevel="1" name="Augment Option - Water Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -250,9 +250,9 @@
 	<skill id="8119" toLevel="1" name="Augment Option - Wind Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -263,9 +263,9 @@
 	<skill id="8120" toLevel="1" name="Augment Option - Earth Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -276,9 +276,9 @@
 	<skill id="8121" toLevel="1" name="Augment Option - Holy Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -289,9 +289,9 @@
 	<skill id="8122" toLevel="1" name="Augment Option - Dark Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -302,9 +302,9 @@
 	<skill id="8123" toLevel="1" name="Augment Option - Fire Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -315,9 +315,9 @@
 	<skill id="8124" toLevel="1" name="Augment Option - Water Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -328,9 +328,9 @@
 	<skill id="8125" toLevel="1" name="Augment Option - Wind Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -341,9 +341,9 @@
 	<skill id="8126" toLevel="1" name="Augment Option - Earth Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -354,9 +354,9 @@
 	<skill id="8127" toLevel="1" name="Augment Option - Holy Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -367,9 +367,9 @@
 	<skill id="8128" toLevel="1" name="Augment Option - Dark Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -380,9 +380,9 @@
 	<skill id="8129" toLevel="1" name="Augment Option - Fire Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -393,9 +393,9 @@
 	<skill id="8130" toLevel="1" name="Augment Option - Water Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -406,9 +406,9 @@
 	<skill id="8131" toLevel="1" name="Augment Option - Wind Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -419,9 +419,9 @@
 	<skill id="8132" toLevel="1" name="Augment Option - Earth Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -432,9 +432,9 @@
 	<skill id="8133" toLevel="1" name="Augment Option - Holy Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -445,9 +445,9 @@
 	<skill id="8134" toLevel="1" name="Augment Option - Dark Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -458,9 +458,9 @@
 	<skill id="8135" toLevel="1" name="Augment Option - Fire Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -471,9 +471,9 @@
 	<skill id="8136" toLevel="1" name="Augment Option - Water Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -484,9 +484,9 @@
 	<skill id="8137" toLevel="1" name="Augment Option - Wind Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -497,9 +497,9 @@
 	<skill id="8138" toLevel="1" name="Augment Option - Earth Attack">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>6.42</amount>
@@ -510,9 +510,9 @@
 	<skill id="8139" toLevel="1" name="Augment Option - Holy Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -523,9 +523,9 @@
 	<skill id="8140" toLevel="1" name="Augment Option - Dark Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -536,9 +536,9 @@
 	<skill id="8141" toLevel="1" name="Augment Option - Fire Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -549,9 +549,9 @@
 	<skill id="8142" toLevel="1" name="Augment Option - Water Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -562,9 +562,9 @@
 	<skill id="8143" toLevel="1" name="Augment Option - Wind Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -575,9 +575,9 @@
 	<skill id="8144" toLevel="1" name="Augment Option - Earth Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>6.42</amount>
@@ -588,9 +588,9 @@
 	<skill id="8145" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>1.28</SHOCK>
@@ -600,9 +600,9 @@
 	<skill id="8146" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>1.28</BLEED>
@@ -612,9 +612,9 @@
 	<skill id="8147" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>1.28</POISON>
@@ -624,9 +624,9 @@
 	<skill id="8148" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>1.28</SLEEP>
@@ -636,9 +636,9 @@
 	<skill id="8149" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>1.28</PARALYZE>
@@ -648,9 +648,9 @@
 	<skill id="8150" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>1.28</DERANGEMENT>
@@ -660,9 +660,9 @@
 	<skill id="8151" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>1.28</SHOCK>
@@ -672,9 +672,9 @@
 	<skill id="8152" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.28</BLEED>
@@ -684,9 +684,9 @@
 	<skill id="8153" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>1.28</POISON>
@@ -696,9 +696,9 @@
 	<skill id="8154" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>1.28</SLEEP>
@@ -708,9 +708,9 @@
 	<skill id="8155" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>1.28</PARALYZE>
@@ -720,9 +720,9 @@
 	<skill id="8156" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.28</DERANGEMENT>
@@ -732,9 +732,9 @@
 	<skill id="8157" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>1.6</SHOCK>
@@ -744,9 +744,9 @@
 	<skill id="8158" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>1.6</BLEED>
@@ -756,9 +756,9 @@
 	<skill id="8159" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>1.6</POISON>
@@ -768,9 +768,9 @@
 	<skill id="8160" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>1.6</SLEEP>
@@ -780,9 +780,9 @@
 	<skill id="8161" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>1.6</PARALYZE>
@@ -792,9 +792,9 @@
 	<skill id="8162" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>1.6</DERANGEMENT>
@@ -804,9 +804,9 @@
 	<skill id="8163" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>1.6</SHOCK>
@@ -816,9 +816,9 @@
 	<skill id="8164" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>1.6</BLEED>
@@ -828,9 +828,9 @@
 	<skill id="8165" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>1.6</POISON>
@@ -840,9 +840,9 @@
 	<skill id="8166" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>1.6</SLEEP>
@@ -852,9 +852,9 @@
 	<skill id="8167" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>1.6</PARALYZE>
@@ -864,9 +864,9 @@
 	<skill id="8168" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>1.6</DERANGEMENT>
@@ -876,9 +876,9 @@
 	<skill id="8169" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>2.25</SHOCK>
@@ -888,9 +888,9 @@
 	<skill id="8170" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>2.25</BLEED>
@@ -900,9 +900,9 @@
 	<skill id="8171" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>2.25</POISON>
@@ -912,9 +912,9 @@
 	<skill id="8172" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>2.25</SLEEP>
@@ -924,9 +924,9 @@
 	<skill id="8173" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>2.25</PARALYZE>
@@ -936,9 +936,9 @@
 	<skill id="8174" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>2.25</DERANGEMENT>
@@ -948,9 +948,9 @@
 	<skill id="8175" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>2.25</SHOCK>
@@ -960,9 +960,9 @@
 	<skill id="8176" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>2.25</BLEED>
@@ -972,9 +972,9 @@
 	<skill id="8177" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>2.25</POISON>
@@ -984,9 +984,9 @@
 	<skill id="8178" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>2.25</SLEEP>
@@ -996,9 +996,9 @@
 	<skill id="8179" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>2.25</PARALYZE>
@@ -1008,9 +1008,9 @@
 	<skill id="8180" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>2.25</DERANGEMENT>
@@ -1020,9 +1020,9 @@
 	<skill id="8181" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SHOCK>2.57</SHOCK>
@@ -1032,9 +1032,9 @@
 	<skill id="8182" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<BLEED>2.57</BLEED>
@@ -1044,9 +1044,9 @@
 	<skill id="8183" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<POISON>2.57</POISON>
@@ -1056,9 +1056,9 @@
 	<skill id="8184" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<SLEEP>2.57</SLEEP>
@@ -1068,9 +1068,9 @@
 	<skill id="8185" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<PARALYZE>2.57</PARALYZE>
@@ -1080,9 +1080,9 @@
 	<skill id="8186" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackTrait">
 				<DERANGEMENT>2.57</DERANGEMENT>
@@ -1092,9 +1092,9 @@
 	<skill id="8187" toLevel="1" name="Augment Option - Stun Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>2.57</SHOCK>
@@ -1104,9 +1104,9 @@
 	<skill id="8188" toLevel="1" name="Augment Option - Bleed Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>2.57</BLEED>
@@ -1116,9 +1116,9 @@
 	<skill id="8189" toLevel="1" name="Augment Option - Poison Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>2.57</POISON>
@@ -1128,9 +1128,9 @@
 	<skill id="8190" toLevel="1" name="Augment Option - Sleep Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>2.57</SLEEP>
@@ -1140,9 +1140,9 @@
 	<skill id="8191" toLevel="1" name="Augment Option - Paralysis Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>2.57</PARALYZE>
@@ -1152,9 +1152,9 @@
 	<skill id="8192" toLevel="1" name="Augment Option - Mental Attack Resistance">
 		<!-- Accessory that contains special power. -->
 		<icon>icon.skill4416_dwarf</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>2.57</DERANGEMENT>
@@ -1162,13 +1162,13 @@
 		</effects>
 	</skill>
 	<skill id="8193" toLevel="1" name="Heavy Armor of Nightmare Set - PvP">
-		<!-- Increases Sleep/Hold Resistance and P. Atk. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. CON+2, DEX-2 -->
+		<!-- Increases Sleep/ Hold Resistance and P. Atk. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. CON +2, DEX -2. -->
 		<icon>icon.armor_t80_ul_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1182,7 +1182,7 @@
 				<HOLD>70</HOLD>
 				<SLEEP>70</SLEEP>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1201,13 +1201,13 @@
 		</effects>
 	</skill>
 	<skill id="8194" toLevel="1" name="Majestic Plate Heavy Armor Set - PvP">
-		<!-- Increases resistance, attack/accuracy to Stun attack. Decreases damage received during PvP and slows down all speed ranges of the attacker at a certain probability. STR+2. CON-2 -->
+		<!-- Increases resistance, attack/ accuracy to Stun attack. Decreases damage received during PvP and slows down all speed ranges of the attacker at a certain probability. STR +2. CON -2. -->
 		<icon>icon.armor_t83_ul_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1221,7 +1221,7 @@
 				<!-- Accuracy +3 -->
 				<SHOCK>50</SHOCK>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>4</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1244,13 +1244,13 @@
 		</effects>
 	</skill>
 	<skill id="8195" toLevel="1" name="Light Armor of Nightmare Set - PvP">
-		<!-- Increases Sleep/Hold Resistance and M. Def. Restores HP by using some of the damage inflicted upon the enemy with a certain probability. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. DEX+1, CON-1 -->
+		<!-- Increases Sleep/ Hold Resistance and M. Def. Restores HP by using some of the damage inflicted upon the enemy with a certain probability. Decreases damage received during PvP and has a chance to cancel the opponent's target when attacked. DEX +1, CON -1. -->
 		<icon>icon.armor_t81_ul_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1287,13 +1287,13 @@
 		</effects>
 	</skill>
 	<skill id="8196" toLevel="1" name="Majestic Leather Light Armor Set - PvP">
-		<!-- Increases Stun Resistance, bow and crossbow attack/Maximum MP/weight limit. Decreases damage inflicted during PvP and cancels the target's targeting at a certain probability. DEX+1, CON-1 -->
+		<!-- Increases Stun Resistance, bow and crossbow attack/ Maximum MP/ weight limit. Decreases damage inflicted during PvP and cancels the target's targeting at a certain probability. DEX +1, CON -1. -->
 		<icon>icon.armor_t84_ul_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Mirage -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1307,12 +1307,13 @@
 				<!-- Point at which a weight penalty is applied +5759 -->
 				<SHOCK>50</SHOCK>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 				<weaponType>
 					<item>BOW</item>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 			<effect name="MaxMp">
@@ -1337,13 +1338,13 @@
 		</effects>
 	</skill>
 	<skill id="8197" toLevel="1" name="Robe of Nightmare Set - PvP">
-		<!-- Increases Sleep/Hold Resistance and MP regeneration/M. Atk. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. INT+2, WIT-2 -->
+		<!-- Increases Sleep/ Hold Resistance and MP regeneration/ M. Atk. Decreases damage received during PvP, and has a chance to decrease the opponent's Critical Rate and Critical Damage when attacked. INT+2, WIT -2. -->
 		<icon>icon.armor_t82_ul_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1358,7 +1359,7 @@
 				<HOLD>70</HOLD>
 				<SLEEP>70</SLEEP>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1381,13 +1382,13 @@
 		</effects>
 	</skill>
 	<skill id="8198" toLevel="1" name="Majestic Robe Set - PvP">
-		<!-- Increases Stun Resistance, Maximum MP/Casting Spd./MP Recovery bonus. Decreases damage inflicted during PvP, Critical Rate and Critical Damage at a certain probability. MEN+1, INT-1 -->
+		<!-- Increases Stun Resistance, Maximum MP/ Casting Speed/ MP Recovery Bonus. Decreases damage inflicted during PvP, Critical Rate and Critical Damage at a certain probability. MEN +1, INT-1. -->
 		<icon>icon.armor_t85_ul_i00</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Critical Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>
@@ -1429,13 +1430,13 @@
 		</effects>
 	</skill>
 	<skill id="8199" toLevel="1" name="Imperial Crusader Heavy Armor Set - PvP">
-		<!-- Increases Sleep/Hold Resistance and Max HP/P. Def. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. STR+2, DEX-2 -->
+		<!-- Increases Sleep/ Hold Resistance and Max HP/ P. Def. Decreases damage received during PvP and has a chance to decrease all the attacker's speeds. STR +2, DEX -2. -->
 		<icon>icon.armor_t88_u_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- PvP Armor - Speed Down -->
 				<attackerType>Playable</attackerType>
 				<chance>2</chance>

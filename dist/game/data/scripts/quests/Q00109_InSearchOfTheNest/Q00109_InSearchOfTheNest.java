@@ -18,13 +18,13 @@ package quests.Q00109_InSearchOfTheNest;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * In Search of the Nest (109)
- * @author Adry_85
+ * @author Adry_85, Gladicek
  */
 public class Q00109_InSearchOfTheNest extends Quest
 {
@@ -32,14 +32,19 @@ public class Q00109_InSearchOfTheNest extends Quest
 	private static final int PIERCE = 31553;
 	private static final int SCOUTS_CORPSE = 32015;
 	private static final int KAHMAN = 31554;
+	
 	// Items
 	private static final int SCOUTS_NOTE = 14858;
+	
+	// Misc
+	private static final int MIN_LEVEL = 81;
 	
 	public Q00109_InSearchOfTheNest()
 	{
 		super(109);
 		addStartNpc(PIERCE);
 		addTalkId(PIERCE, SCOUTS_CORPSE, KAHMAN);
+		addCondMinLevel(MIN_LEVEL, "31553-04.htm");
 		registerQuestItems(SCOUTS_NOTE);
 	}
 	
@@ -52,106 +57,123 @@ public class Q00109_InSearchOfTheNest extends Quest
 			return getNoQuestMsg(player);
 		}
 		
+		final String htmltext = null;
 		switch (event)
 		{
-			case "31553-0.htm":
+			case "31553-02.html":
 			{
 				qs.startQuest();
 				break;
 			}
-			case "32015-2.html":
+			case "32015-02.html":
 			{
-				giveItems(player, SCOUTS_NOTE, 1);
-				qs.setCond(2, true);
+				if (qs.isCond(1))
+				{
+					giveItems(player, SCOUTS_NOTE, 1);
+					qs.setCond(2, true);
+				}
 				break;
 			}
-			case "31553-3.html":
+			case "31553-06.html":
 			{
-				takeItems(player, SCOUTS_NOTE, -1);
-				qs.setCond(3, true);
+				if (qs.isCond(2))
+				{
+					takeItems(player, SCOUTS_NOTE, -1);
+					qs.setCond(3, true);
+				}
 				break;
 			}
-			case "31554-2.html":
+			case "31554-02.html":
 			{
-				giveAdena(player, 161500, true);
-				addExpAndSp(player, 701500, 50000);
-				qs.exitQuest(false, true);
+				if (qs.isCond(3))
+				{
+					giveAdena(player, 900990, true);
+					addExpAndSp(player, 8550000, 2052);
+					qs.exitQuest(false, true);
+				}
 				break;
 			}
 		}
-		return event;
+		
+		return htmltext;
 	}
 	
 	@Override
 	public String onTalk(Npc npc, Player player)
 	{
-		final QuestState qs = getQuestState(player, true);
 		String htmltext = getNoQuestMsg(player);
-		switch (npc.getId())
+		final QuestState qs = getQuestState(player, true);
+		if (qs == null)
 		{
-			case PIERCE:
+			return htmltext;
+		}
+		
+		switch (qs.getState())
+		{
+			case State.CREATED:
 			{
-				switch (qs.getState())
+				if (npc.getId() == PIERCE)
 				{
-					case State.CREATED:
-					{
-						htmltext = (player.getLevel() < 81) ? "31553-0a.htm" : "31553-0b.htm";
-						break;
-					}
-					case State.STARTED:
+					htmltext = "31553-01.htm";
+				}
+				break;
+			}
+			case State.STARTED:
+			{
+				switch (npc.getId())
+				{
+					case PIERCE:
 					{
 						switch (qs.getCond())
 						{
 							case 1:
 							{
-								htmltext = "31553-1.html";
+								htmltext = "31553-03.html";
 								break;
 							}
 							case 2:
 							{
-								htmltext = "31553-2.html";
+								htmltext = "31553-05.html";
 								break;
 							}
 							case 3:
 							{
-								htmltext = "31553-3a.html";
+								htmltext = "31553-07.html";
 								break;
 							}
 						}
 						break;
 					}
-					case State.COMPLETED:
+					case SCOUTS_CORPSE:
 					{
-						htmltext = getAlreadyCompletedMsg(player);
+						if (qs.isCond(1))
+						{
+							htmltext = "32015-01.html";
+						}
+						else if (qs.isCond(2))
+						{
+							htmltext = "32015-03.html";
+						}
+						break;
+					}
+					case KAHMAN:
+					{
+						if (qs.isCond(3))
+						{
+							htmltext = "31554-01.html";
+						}
 						break;
 					}
 				}
 				break;
 			}
-			case SCOUTS_CORPSE:
+			case State.COMPLETED:
 			{
-				if (qs.isStarted())
-				{
-					if (qs.isCond(1))
-					{
-						htmltext = "32015-1.html";
-					}
-					else if (qs.isCond(2))
-					{
-						htmltext = "32015-3.html";
-					}
-				}
-				break;
-			}
-			case KAHMAN:
-			{
-				if (qs.isStarted() && qs.isCond(3))
-				{
-					htmltext = "31554-1.html";
-				}
+				htmltext = getAlreadyCompletedMsg(player);
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

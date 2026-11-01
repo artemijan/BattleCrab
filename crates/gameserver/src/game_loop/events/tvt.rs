@@ -35,7 +35,7 @@ use crate::world::World;
 
 /// The event's registry name (Java `params.set("Name", "Team Vs Team")`; the
 /// script owning the manager is registered under this too, so the html buttons'
-/// `bypass -h Quest TvT <event>` route to it).
+/// `bypass -h Script TvT <event>` route to it).
 pub(crate) const NAME: &str = "TvT";
 
 /// The Giran event-manager NPC (Java `MANAGER = 70010`).

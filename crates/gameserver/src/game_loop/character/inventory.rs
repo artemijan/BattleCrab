@@ -26,12 +26,30 @@ use tracing::warn;
 // Reads and the `InventoryUpdate` change builders.
 // ---------------------------------------------------------------------------
 
+/// Java `Player.sendItemList`: `ItemList` 1 and 2, `ExQuestItemList` 1 and 2,
+/// then `updateAdenaAndWeight` (the adena counter and the weight bar). Java
+/// debounces both steps (250 ms and 800 ms, the last call winning); here they
+/// go out at once.
 pub(crate) fn send_inventory_item_list(world: &World, player: i32) {
+    let max_load = crate::game_loop::stats::weight::max_load(world, player);
     if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
+        for pkt in crate::network::enter_world::item_lists(inv, &world.data) {
+            send_to_player(world, player, pkt);
+        }
         send_to_player(
             world,
             player,
-            crate::network::enter_world::item_list(inv, &world.data, false),
+            crate::network::enter_world::ex_adena_inven_count(inv),
+        );
+        send_to_player(
+            world,
+            player,
+            crate::network::enter_world::ex_user_info_inven_weight(
+                player,
+                inv,
+                &world.data,
+                max_load,
+            ),
         );
     }
 }

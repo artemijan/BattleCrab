@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="700" name="_" type="EtcItem">
 		<!-- Description of the hobgoblin amulet -->
@@ -394,9 +394,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2002" level="1" /> <!-- Healing Drug -->
 		</skills>
@@ -416,9 +416,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2003" level="1" /> <!-- Squash Seed -->
 		</skills>
@@ -437,9 +437,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="728" name="Mana Potion" type="EtcItem">
 		<!-- Magical, liquid medicine that restores MP for a certain amount of time. -->
@@ -456,15 +456,15 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="26030" level="1" /> <!-- Mana Potion -->
 		</skills>
 	</item>
 	<item id="729" name="Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. +4 for A-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +5 for two-handed swords, two-handed blunts, dualswords, and two-handed fist weapons. P. Atk. +8 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk. / M. Atk. bonus double. Enchanting is safe up to +3. -->
+		<!-- When enchanted, P. Atk. +4 for A-grade one-handed swords, one-handed blunts, daggers, spears, and other weapons. P. Atk. +5 for two-handed swords, two-handed blunts, dual swords, and two-handed fist weapons. P. Atk. +8 for bows. M. Atk. +3 for all weapons. Starting at +4, P. Atk./ M. Atk. bonus double. Enchanting is safe up to +3. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i04" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -543,7 +543,7 @@
 		</skills>
 	</item>
 	<item id="734" name="Wind Walk Potion" type="EtcItem">
-		<!-- Magical potion that increases Speed. -->
+		<!-- Magical potion that increases Speed -->
 		<set name="icon" val="icon.etc_potion_green_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -558,9 +558,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2011" level="1" /> <!-- Wind Walk Potion -->
 		</skills>
@@ -581,9 +581,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2012" level="1" /> <!-- Haste Potion -->
 		</skills>
@@ -640,7 +640,7 @@
 		<stats>
 			<stat type="pAtk">12</stat>
 			<stat type="mAtk">9</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -712,7 +712,7 @@
 		<stats>
 			<stat type="pAtk">14</stat>
 			<stat type="mAtk">11</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -737,7 +737,7 @@
 		<stats>
 			<stat type="pAtk">13</stat>
 			<stat type="mAtk">15</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -786,7 +786,7 @@
 		<stats>
 			<stat type="pAtk">11</stat>
 			<stat type="mAtk">13</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -814,7 +814,7 @@
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="mAtk">11</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -840,7 +840,7 @@
 		<stats>
 			<stat type="pAtk">21</stat>
 			<stat type="mAtk">32</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -911,7 +911,7 @@
 		<stats>
 			<stat type="pAtk">13</stat>
 			<stat type="mAtk">14</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>

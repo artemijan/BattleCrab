@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="31000" name="Bound Spinebone Sword*Spinebone Sword" type="Weapon">
 		<!-- Bound Spinebone Sword*Spinebone Sword. -->
@@ -24,7 +24,7 @@
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -53,7 +53,7 @@
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -82,7 +82,7 @@
 			<stat type="pAtk">51</stat>
 			<stat type="mAtk">32</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -112,7 +112,7 @@
 			<stat type="mAtk">39</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -141,14 +141,14 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="31005" name="Bound Stiletto" additionalName="Critical Bleed" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 17% chance of casting Bleed on the target during a standard Critical Attack. -->
+	<item id="31005" name="Bound Stiletto - Critical Bleed" type="Weapon">
+		<!-- <Special Option>. Has a 17% chance of casting Bleed on the target during a standard Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_stiletto_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -166,21 +166,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">68</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3020" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">68</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31006" name="Bound Stiletto" additionalName="Critical Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 9% chance of casting Poison on the target during a standard Critical Attack. -->
+	<item id="31006" name="Bound Stiletto - Critical Poison" type="Weapon">
+		<!-- <Special Option>. Has a 9% chance of casting Poison on the target during a standard Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_stiletto_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -198,21 +198,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">68</stat>
+			<stat type="pAtkSpd">433</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3041" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">68</stat>
-			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31007" name="Bound Stiletto" additionalName="Mortal Strike" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the success rate of Mortal Blow and Deadly Blow by 48%. -->
+	<item id="31007" name="Bound Stiletto - Mortal Strike" type="Weapon">
+		<!-- <Special Option>. Increases the success rate of Mortal Blow and Deadly Blow by 48%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_stiletto_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -230,18 +230,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3035" level="2" /> <!-- Special Ability: Mighty Mortal -->
-		</skills>
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3035" level="2" /> <!-- Special Ability: Mighty Mortal -->
+		</skills>
 	</item>
 	<item id="31008" name="Bound Stormbringer*Katana" type="Weapon">
 		<!-- Bound Stormbringer*Katana. No Soul Crystal option. -->
@@ -263,17 +263,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3013" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">183</stat>
 			<stat type="mAtk">81</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="31009" name="Bound Stormbringer*Spirit Sword" type="Weapon">
 		<!-- Bound Stormbringer*Spirit Sword. No Soul Crystal option. -->
@@ -295,17 +295,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3044" level="7" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">183</stat>
 			<stat type="mAtk">81</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3044" level="7" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="31010" name="Bound Stormbringer*Stormbringer" type="Weapon">
 		<!-- Bound Stormbringer*Stormbringer. No Soul Crystal option. -->
@@ -327,17 +327,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3046" level="6" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
 		<stats>
 			<stat type="pAtk">175</stat>
 			<stat type="mAtk">78</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3046" level="6" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="31011" name="Bound Stormbringer*Shamshir" type="Weapon">
 		<!-- Bound Stormbringer*Shamshir. No Soul Crystal option. -->
@@ -359,17 +359,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3042" level="7" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">183</stat>
 			<stat type="mAtk">81</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3042" level="7" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="31012" name="Bound Stormbringer*Raid Sword" type="Weapon">
 		<!-- Bound Stormbringer*Raid Sword. No Soul Crystal option. -->
@@ -391,17 +391,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3045" level="7" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">183</stat>
 			<stat type="mAtk">81</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3045" level="7" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="31013" name="Bound Stormbringer" type="Weapon">
 		<!-- Bound Stormbringer. No Soul Crystal option. -->
@@ -427,13 +427,13 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="31014" name="Bound Stormbringer" additionalName="Critical Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 248 and decreases HP by 12 during a Critical Attack. -->
+	<item id="31014" name="Bound Stormbringer - Critical Anger" type="Weapon">
+		<!-- <Special Option>. P. Atk. +248 and decreases HP by 12 during a Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -451,21 +451,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3026" level="1" /> <!-- Special Ability: Critical Anger -->
 			<skill id="3025" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31015" name="Bound Stormbringer" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 86. -->
+	<item id="31015" name="Bound Stormbringer - Focus" type="Weapon">
+		<!-- <Special Option>. Increases Critical by 86. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -483,20 +483,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31016" name="Bound Stormbringer" additionalName="Light Armor" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Weight Gauge by 20%. -->
+	<item id="31016" name="Bound Stormbringer - Light Armor" type="Weapon">
+		<!-- <Special Option>. Increases Weight Gauge by 20%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -514,17 +514,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-		</skills>
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+		</skills>
 	</item>
 	<item id="31017" name="Bound Star Buster" type="Weapon">
 		<!-- Bound Item. No Soul Crystal option. -->
@@ -550,7 +550,7 @@
 			<stat type="mAtk">99</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -574,18 +574,18 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="31019" name="Bound Star Buster - Haste" type="Weapon">
 		<!-- Bound Item. Cannot be exchanged or dropped. <Special Option>. Increases Atk. Spd. by about 6%. No Soul Crystal option. -->
@@ -606,18 +606,18 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="31020" name="Bound Star Buster - Rsk. Focus" type="Weapon">
 		<!-- Bound Item. <Special Option>. Increases Critical by 99 when HP drops to 60% or below. No Soul Crystal option. -->
@@ -638,18 +638,18 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3027" level="6" /> <!-- Special Ability: Rsk. Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3027" level="6" /> <!-- Special Ability: Rsk. Focus -->
+		</skills>
 	</item>
 	<item id="31021" name="Bound Scorpion" type="Weapon">
 		<!-- Bound Scorpion. No Soul Crystal option. -->
@@ -671,21 +671,21 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">144</stat>
+			<stat type="mAtk">78</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">144</stat>
-			<stat type="mAtk">78</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
-	<item id="31022" name="Bound Scorpion" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 24 and decreases Max HP by 15%. -->
+	<item id="31022" name="Bound Scorpion - Anger" type="Weapon">
+		<!-- <Special Option>. P. Atk. +24 and decreases Max HP by 15%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_scorpion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -703,21 +703,21 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">144</stat>
+			<stat type="mAtk">78</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3600" level="3" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">144</stat>
-			<stat type="mAtk">78</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
-	<item id="31023" name="Bound Scorpion" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 31% chance of casting Stun on the target during a Critical Attack. -->
+	<item id="31023" name="Bound Scorpion - Critical Stun" type="Weapon">
+		<!-- <Special Option>. Has about a 31% chance of casting Stun on the target during a Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_scorpion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -735,22 +735,22 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">144</stat>
+			<stat type="mAtk">78</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3016" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">144</stat>
-			<stat type="mAtk">78</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
-	<item id="31024" name="Bound Scorpion" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+	<item id="31024" name="Bound Scorpion - Long Blow" type="Weapon">
+		<!-- <Special Option>. Increases the attack range. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_scorpion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -768,18 +768,18 @@
 		<set name="damage_range" val="0;0;80;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">144</stat>
 			<stat type="mAtk">78</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="31025" name="Bound Scale Mail" type="Armor">
 		<!-- Bound Scale Mail. -->
@@ -848,7 +848,7 @@
 			<stat type="mAtk">47</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -878,13 +878,13 @@
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="31029" name="Bound Skull Graver" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 20 and decreases Max HP by 15%. -->
+	<item id="31029" name="Bound Skull Graver - Anger" type="Weapon">
+		<!-- <Special Option>. P. Atk. +20 and decreases Max HP by 15%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_skull_graver_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -902,21 +902,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3012" level="1" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31030" name="Bound Skull Graver" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. -->
+	<item id="31030" name="Bound Skull Graver - Health" type="Weapon">
+		<!-- <Special Option>. Increases Max HP by 25%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_skull_graver_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -934,21 +934,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31031" name="Bound Skull Graver" additionalName="Rsk. Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 138 when HP drops to 60% or below. -->
+	<item id="31031" name="Bound Skull Graver - Rsk. Focus" type="Weapon">
+		<!-- <Special Option>. Increases Critical by 138 when HP drops to 60% or below. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_skull_graver_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -966,18 +966,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3027" level="1" /> <!-- Special Ability: Rsk. Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3027" level="1" /> <!-- Special Ability: Rsk. Focus -->
+		</skills>
 	</item>
 	<item id="31032" name="Bound Scalpel" type="Weapon">
 		<!-- Bound scalpel. -->
@@ -1004,7 +1004,7 @@
 			<stat type="mAtk">26</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1034,7 +1034,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1059,18 +1059,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31035" name="Bound Chevalier Rapier" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Katana conversion, Bound Chevalier Rapier. No Soul Crystal option. -->
@@ -1092,18 +1092,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31036" name="Bound Chevalier Rapier" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Spirit Sword conversion, Bound Chevalier Rapier. No Soul Crystal option. -->
@@ -1125,18 +1125,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31037" name="Bound Chevalier Rapier" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Raid Sword conversion, Bound Chevalier Rapier. No Soul Crystal option. -->
@@ -1158,18 +1158,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31038" name="Bound Chevalier Rapier - Guidance" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Shamshir. <Special Option>. Increases Accuracy by 6. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1190,19 +1190,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3007" level="2" /> <!-- Special Ability: Guidance -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3007" level="2" /> <!-- Special Ability: Guidance -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31039" name="Bound Chevalier Rapier - Back Blow" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Keshanberk. <Special Option>. Increases P. Critical Rate by 67 when attacking the target from behind. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1223,19 +1223,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3018" level="2" /> <!-- Special Ability: Back Blow -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3018" level="2" /> <!-- Special Ability: Back Blow -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31040" name="Bound Chevalier Rapier - Rsk. Evasion" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Shamshir. <Special Option>. Increases Evasion 7 when HP drops to 60% or below. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1256,19 +1256,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3028" level="2" /> <!-- Special Ability: Rsk. Evasion -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3028" level="2" /> <!-- Special Ability: Rsk. Evasion -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31041" name="Bound Chevalier Rapier - Focus" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Katana. <Special Option>. Increases Critical by 82. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1289,19 +1289,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31042" name="Bound Chevalier Rapier - Critical Damage" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Katana. <Special Option>. P. Atk. +194 during a Critical Attack. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1322,19 +1322,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31043" name="Bound Chevalier Rapier - Haste" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Katana. <Special Option>. Increases Atk. Spd. by about 7%. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1355,19 +1355,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31044" name="Bound Chevalier Rapier - Critical Damage" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Spirit Sword. <Special Option>. P. Atk. +194 during a Critical Attack. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1388,19 +1388,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="2" /> <!-- Special Ability: Critical Damage -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31045" name="Bound Chevalier Rapier - Critical Poison" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Spirit Sword. <Special Option>. Has a 15% chance of casting Poison on the target during a standard Critical Attack. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1421,19 +1421,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31046" name="Bound Chevalier Rapier - Haste" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Spirit Sword. <Special Option>. Increases Atk. Spd. by about 7%. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1454,19 +1454,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="2" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31047" name="Bound Chevalier Rapier - Focus" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Raid Sword. <Special Option>. Increases Critical by 82. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1487,19 +1487,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="2" /> <!-- Special Ability: Focus -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31048" name="Bound Chevalier Rapier - Critical Drain" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Raid Sword. <Special Option>. Absorbs 9 HP from the target during a Critical Attack. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -1520,19 +1520,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3022" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3022" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31049" name="Bound Chevalier Rapier - Critical Poison" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Spirit Sword. <Special Option>. Has a 15% chance of casting Poison on the target during a standard Critical Attack. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical. No Soul Crystal option.Attack. -->
@@ -1553,19 +1553,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3024" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31050" name="Bound Schlager" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Flamberge conversion, Bound Schlager. No Soul Crystal option. -->
@@ -1592,7 +1592,7 @@
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1616,18 +1616,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3023" level="1" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">116</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3023" level="1" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="31052" name="Bound Schlager - Focus" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Flamberge conversion. <Special Option>. Increases Critical by 86. No Soul Crystal option. -->
@@ -1648,18 +1648,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">116</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="31053" name="Bound Schlager - Light Armor" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Flamberge Conversion. <Special Option>. Increases Weight Gauge by 20%. No Soul Crystal option. -->
@@ -1680,18 +1680,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-		</skills>
 		<stats>
 			<stat type="pAtk">116</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+		</skills>
 	</item>
 	<item id="31054" name="Bound Zubei's Breastplate" type="Armor">
 		<set name="icon" val="icon.armor_t64_u_i00" />
@@ -1753,6 +1753,7 @@
 		<!-- Part of the Heavy Zubei's set. -->
 		<set name="icon" val="icon.armor_t64_b_i02" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="crystal_type" val="B" />
 		<set name="crystal_count" val="2" />
 		<set name="weight" val="1180" />
@@ -1772,6 +1773,7 @@
 		<!-- Part of the Light Zubei's set. -->
 		<set name="icon" val="icon.armor_t64_b_i02" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="crystal_type" val="B" />
 		<set name="crystal_count" val="2" />
@@ -1791,6 +1793,7 @@
 		<!-- Part of the Zubei's Robe set. -->
 		<set name="icon" val="icon.armor_t64_b_i02" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="crystal_type" val="B" />
 		<set name="crystal_count" val="2" />
@@ -1810,6 +1813,7 @@
 		<!-- Part of the Heavy Zubei's set. -->
 		<set name="icon" val="icon.armor_t64_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="B" />
 		<set name="crystal_count" val="2" />
@@ -1829,6 +1833,7 @@
 		<!-- Part of the Light Zubei's set. -->
 		<set name="icon" val="icon.armor_t64_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="B" />
 		<set name="crystal_count" val="2" />
@@ -1848,6 +1853,7 @@
 		<!-- Part of the Zubei's Robe set. -->
 		<set name="icon" val="icon.armor_t64_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="crystal_type" val="B" />
 		<set name="crystal_count" val="2" />
@@ -2088,18 +2094,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">97</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31075" name="Bound Soldat Estoc - Critical Anger" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Stormbringer conversion. <Special Option>\Decreases HP by 12 during a Critical Attack. P. Atk. +248. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -2120,20 +2126,20 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">97</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="pAtkSpd">406</stat>
+			<stat type="critRate">10</stat>
+			<stat type="randomDamage">40</stat>
+			<stat type="accCombat">-1.5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3025" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Anger -->
 			<skill id="3026" level="1" /> <!-- Special Ability: Critical Anger -->
 			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
 		</skills>
-		<stats>
-			<stat type="pAtk">97</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
-			<stat type="randomDamage">40</stat>
-			<stat type="accCombat">-1.5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="31076" name="Bound Soldat Estoc - Focus" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Stormbringer conversion. <Special Option>. Increases Critical by 86. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -2154,19 +2160,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">97</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="1" /> <!-- Special Ability: Focus -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31077" name="Bound Soldat Estoc - Light Armor" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Stormbringer conversion. <Special Option>. Increases Weight Gauge by 20%. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. No Soul Crystal option. -->
@@ -2187,19 +2193,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">97</stat>
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="31078" name="Bound Soul Separator" type="Weapon">
 		<!-- Bound Item. No Soul Crystal option. -->
@@ -2224,7 +2230,7 @@
 			<stat type="pAtk">203</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -2249,18 +2255,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
-		<skills>
-			<skill id="3064" level="1" /> <!-- Special Ability: Guidance -->
-		</skills>
 		<stats>
 			<stat type="pAtk">203</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3064" level="1" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="31080" name="Bound Soul Separator - Critical Damage" type="Weapon">
 		<!-- Bound Item. <Special Option>. P. Atk. +200 during a Critical Attack. Increases damage inflicted during PvP. No Soul Crystal option. -->
@@ -2281,18 +2287,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
-		<skills>
-			<skill id="3066" level="2" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">203</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3066" level="2" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 	<item id="31081" name="Bound Soul Separator - Rsk. Haste" type="Weapon">
 		<!-- Bound Item. <Special Option>. Increases Atk. Spd. by 11% when HP drops to 60% or below. Increases damage inflicted during PvP. No Soul Crystal option. -->
@@ -2313,18 +2319,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
-		<skills>
-			<skill id="3056" level="2" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">203</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3056" level="2" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="31082" name="Bound Reaper" type="Weapon">
 		<!-- Bound Item. No Soul Crystal option. -->
@@ -2350,7 +2356,7 @@
 			<stat type="pAtk">294</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
@@ -2376,19 +2382,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">294</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="31084" name="Bound Reaper - Quick Recovery" type="Weapon">
 		<!-- Bound Item. Kamael-exclusive Weapon: Soul Bow Conversion. <Special Option>. Decreases cooldown by about 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
@@ -2410,18 +2416,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">294</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="31085" name="Bound Reaper - Critical Poison" type="Weapon">
 		<!-- Bound Item. Kamael-exclusive Weapon: Soul Bow Conversion. <Special Option>. Has an 18% chance of casting Poison on the target during a standard Critical Attack. Increases damage inflicted during PvP. No Soul Crystal option. -->
@@ -2443,19 +2449,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3062" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
-		</skills>
 		<stats>
 			<stat type="pAtk">294</stat>
 			<stat type="mAtk">114</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3062" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
+		</skills>
 	</item>
 	<item id="31086" name="Bound Pa'agrian Sword" type="Weapon">
 		<!-- Bound Pa'agrian Sword. No Soul Crystal option. -->
@@ -2481,13 +2487,13 @@
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="31087" name="Bound Pa'agrian Sword" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 77. -->
+	<item id="31087" name="Bound Pa'agrian Sword - Focus" type="Weapon">
+		<!-- <Special Option>. Increases Critical by 77. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_sword_of_paagrio_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2505,20 +2511,20 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">169</stat>
+			<stat type="mAtk">76</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3010" level="3" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">169</stat>
-			<stat type="mAtk">76</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31088" name="Bound Pa'agrian Sword" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. -->
+	<item id="31088" name="Bound Pa'agrian Sword - Health" type="Weapon">
+		<!-- <Special Option>. Increases Max HP by 25%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_sword_of_paagrio_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2536,20 +2542,20 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">169</stat>
+			<stat type="mAtk">76</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
 		</skills>
-		<stats>
-			<stat type="pAtk">169</stat>
-			<stat type="mAtk">76</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31089" name="Bound Pa'agrian Sword" additionalName="Critical Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Absorbs 9 HP from the target during a Critical Attack. -->
+	<item id="31089" name="Bound Pa'agrian Sword - Critical Drain" type="Weapon">
+		<!-- <Special Option>. Absorbs 9 HP from the target during a Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_sword_of_paagrio_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2567,17 +2573,17 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3022" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-		</skills>
 		<stats>
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3022" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+		</skills>
 	</item>
 	<item id="31090" name="Bound Ecliptic Sword" type="Weapon">
 		<!-- Bound Ecliptic Sword. No Soul Crystal option. -->
@@ -2604,13 +2610,13 @@
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">111</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="31091" name="Bound Ecliptic Sword" additionalName="Empower" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. + 26. -->
+	<item id="31091" name="Bound Ecliptic Sword - Empower" type="Weapon">
+		<!-- <Special Option>. M. Atk. +26. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_sword_of_eclipse_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2629,20 +2635,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">125</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3076" level="4" /> <!-- Special Ability: Empower -->
 		</skills>
-		<stats>
-			<stat type="pAtk">125</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31092" name="Bound Ecliptic Sword" additionalName="M. Atk." type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP consumption by 15% and M. Atk. by 112 during magic use. -->
+	<item id="31092" name="Bound Ecliptic Sword - M. Atk." type="Weapon">
+		<!-- <Special Option>. Increases MP consumption by 15% and M. Atk. by 112 during magic use. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_sword_of_eclipse_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2661,20 +2667,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">125</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3077" level="4" /> <!-- Special Ability: M. Atk. -->
 		</skills>
-		<stats>
-			<stat type="pAtk">125</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="31093" name="Bound Ecliptic Sword" additionalName="Magic Silence" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Silence on the target during magic use. -->
+	<item id="31093" name="Bound Ecliptic Sword - Magic Silence" type="Weapon">
+		<!-- <Special Option>. Has a 10% chance of casting Silence on the target during magic use. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_sword_of_eclipse_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -2693,17 +2699,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3078" level="4" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Silence -->
-		</skills>
 		<stats>
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">111</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3078" level="4" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Silence -->
+		</skills>
 	</item>
 	<item id="31094" name="Bound Sword of Occult" type="Weapon">
 		<!-- Bound Sword of Occult. -->
@@ -2730,7 +2736,7 @@
 			<stat type="pAtk">43</stat>
 			<stat type="mAtk">45</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -2759,7 +2765,7 @@
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -2784,17 +2790,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="31097" name="Bound Sword of Valhalla - Magic Weakness" type="Weapon">
 		<!-- Bound Item. <Special Option>. Has a 7% chance of casting Curse Weakness on the target during magic use. No Soul Crystal option. -->
@@ -2816,17 +2822,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="1164" level="11" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1164" level="11" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
 	</item>
 	<item id="31098" name="Bound Sword of Valhalla - Magic Regeneration" type="Weapon">
 		<!-- Bound Item. <Special Option>. Has a 30% chance of casting Regeneration on the target during magic use. No Soul Crystal option. -->
@@ -2848,17 +2854,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="ORIHARUKON" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="1044" level="3" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
-		</skills>
 		<stats>
 			<stat type="pAtk">140</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1044" level="3" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
+		</skills>
 	</item>
 	<item id="31099" name="Bound Sword of Mystic" type="Weapon">
 		<!-- Bound Sword of Mystic. -->
@@ -2885,7 +2891,7 @@
 			<stat type="pAtk">43</stat>
 			<stat type="mAtk">45</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>

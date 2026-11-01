@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Messiah Castle Outer Fort -->
+<instance id="265" maxWorlds="20" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/instance.xsd">
+	<time duration="120" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="-248896" y="132589" z="1051" />
+		</enter>
+		<exit type="ORIGIN" />
+	</locations>
+	<conditions>
+		<condition type="Party" />
+		<condition type="CommandChannel" />
+		<condition type="CommandChannelLeader" />
+		<condition type="GroupMin">
+			<param name="limit" value="21" />
+		</condition>
+		<condition type="GroupMax">
+			<param name="limit" value="35" />
+		</condition>
+		<condition type="Level">
+			<param name="min" value="100" />
+		</condition>
+		<condition type="Distance" />
+		<condition type="Reenter" />
+	</conditions>
+	<reenter apply="ON_ENTER">
+		<reset day="SATURDAY" hour="6" minute="30" />
+	</reenter>
+	<spawnlist>
+		<group name="NPC">
+			<!-- Entrance -->
+			<npc id="34300" x="-248210" y="132727" z="1047" heading="30773" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-248159" y="132987" z="1047" heading="30773" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34327" x="-248270" y="132875" z="1051" heading="30773" /> <!-- Violet - Messenger from the Blackbird Clan -->
+			<!-- Devianne Squad -->
+			<npc id="34300" x="-249117" y="140126" z="1559" heading="29130" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-249143" y="140256" z="1559" heading="29130" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34303" x="-249183" y="140150" z="1559" heading="29130" /> <!-- Devianne - Truth Seeker -->
+			<npc id="34325" x="-249168" y="140020" z="1564" heading="29130" /> <!-- Teleport Wizard - Blackbird Clan -->
+			<!-- Elikia Squad -->
+			<npc id="34300" x="-238078" y="141626" z="4119" heading="7949" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-238247" y="141801" z="4119" heading="7949" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34302" x="-238140" y="141733" z="4124" heading="7949" /> <!-- Elikia - Verdure Elder -->
+			<npc id="34325" x="-238324" y="141894" z="4119" heading="7949" /> <!-- Teleport Wizard - Blackbird Clan -->
+			<!-- Sporcha Squad -->
+			<npc id="34300" x="-243054" y="142765" z="2071" heading="43556" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-243223" y="142861" z="2071" heading="43556" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34321" x="-243171" y="142766" z="2071" heading="43556" /> <!-- Sporcha - Blackbid Clan -->
+			<npc id="34325" x="-242822" y="142651" z="2071" heading="43556" /> <!-- Teleport Wizard - Blackbird Clan -->
+			<!-- Leona Squad -->
+			<npc id="34300" x="-248813" y="146230" z="3095" heading="60699" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-248944" y="146070" z="3095" heading="60699" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34301" x="-248852" y="146137" z="3095" heading="60699" /> <!-- Leona - Lord of the Blackbird Clan -->
+			<npc id="34325" x="-248856" y="145822" z="3099" heading="60699" /> <!-- Teleport Wizard - Blackbird Clan -->
+		</group>
+		<group name="DEVIANNE_1">
+			<territories>
+				<territory shape="NPoly" minZ="1530" maxZ="1580">
+					<node x="-250218" y="140523" />
+					<node x="-251290" y="140164" />
+				</territory>
+			</territories>
+			<npc id="24014" count="5" /> <!-- Castle Guard -->
+			<npc id="24015" count="5" /> <!-- Castle Guardian Knight -->
+			<npc id="24019" count="5" /> <!-- Castle Dark Wizard -->
+			<npc id="24043" count="5" /> <!-- Castle Archer -->
+			<!-- Raid Boss -->
+			<npc id="24017" x="-251636" y="141195" z="1564" heading="59433" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-251802" y="140958" z="1561" heading="59433" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-251978" y="140710" z="1563" heading="59433" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-251505" y="141113" z="1564" heading="59433" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-251839" y="140619" z="1564" heading="59433" /> <!-- Castle Soul Reaper -->
+			<npc id="24023" x="-251671" y="140871" z="1561" heading="59433" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="DEVIANNE_1_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-252588" y="141709" z="1559" heading="58223" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-252842" y="141420" z="1559" heading="58223" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-252745" y="141602" z="1559" /> <!-- Custom Sayune -->
+		</group>
+		<group name="DEVIANNE_2_1">
+			<territories>
+				<territory shape="Cylinder" minZ="2050" maxZ="2100" rad="200">
+					<node x="-255589" y="144379" />
+				</territory>
+			</territories>
+			<npc id="24014" count="2" /> <!-- Castle Guard -->
+			<npc id="24015" count="1" /> <!-- Castle Guardian Knight -->
+			<npc id="24019" count="1" /> <!-- Castle Dark Wizard -->
+			<npc id="24043" count="1" /> <!-- Castle Archer -->
+		</group>
+		<group name="DEVIANNE_2_2">
+			<territories>
+				<territory shape="Cylinder" minZ="2050" maxZ="2100" rad="200">
+					<node x="-255279" y="144944" />
+				</territory>
+			</territories>
+			<npc id="24014" count="2" /> <!-- Castle Guard -->
+			<npc id="24015" count="1" /> <!-- Castle Guardian Knight -->
+			<npc id="24019" count="1" /> <!-- Castle Dark Wizard -->
+			<npc id="24043" count="1" /> <!-- Castle Archer -->
+		</group>
+		<group name="DEVIANNE_2_3">
+			<territories>
+				<territory shape="Cylinder" minZ="2050" maxZ="2100" rad="200">
+					<node x="-256007" y="145167" />
+				</territory>
+			</territories>
+			<npc id="24014" count="2" /> <!-- Castle Guard -->
+			<npc id="24015" count="1" /> <!-- Castle Guardian Knight -->
+			<npc id="24019" count="1" /> <!-- Castle Dark Wizard -->
+			<npc id="24043" count="1" /> <!-- Castle Archer -->
+		</group>
+		<group name="DEVIANNE_2_4">
+			<npc id="24047" x="-255705" y="145683" z="2073" heading="1950" /> <!-- Castle Executor -->
+			<npc id="24047" x="-256334" y="146022" z="2073" heading="1950" /> <!-- Castle Executor -->
+			<npc id="24047" x="-256117" y="146663" z="2073" heading="1950" /> <!-- Castle Executor -->
+			<!-- Raid Boss -->
+			<npc id="24022" x="-256364" y="147912" z="2076" heading="51835" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-256315" y="147634" z="2076" heading="51835" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-256613" y="147562" z="2076" heading="51835" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-256902" y="147499" z="2076" heading="51835" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-256962" y="147785" z="2076" heading="51835" /> <!-- Embryo Magic Cannon -->
+			<npc id="24042" x="-256678" y="147846" z="2076" heading="51835" /> <!-- Embryo Castle Magic Cannon -->
+		</group>
+		<group name="DEVIANNE_2_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-256654" y="148618" z="2073" heading="51835" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-256980" y="148561" z="2073" heading="51835" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-256819" y="148576" z="2073" /> <!-- Custom Sayune -->
+		</group>
+		<group name="DEVIANNE_3">
+			<territories>
+				<territory shape="NPoly" minZ="4100" maxZ="4150">
+					<node x="-256569" y="150734" />
+					<node x="-257315" y="150757" />
+					<node x="-257334" y="151511" />
+					<node x="-256973" y="153343" />
+					<node x="-256243" y="153159" />
+					<node x="-256574" y="151477" />
+				</territory>
+				<banned_territory shape="Cuboid" minZ="4100" maxZ="4150">
+					<node x="-256644" y="152419" />
+					<node x="-256838" y="152715" />
+				</banned_territory>
+			</territories>
+			<npc id="24016" count="12" /> <!-- Castle Berserker -->
+			<npc id="24018" count="12" /> <!-- Castle High Priest -->
+			<npc id="24020" count="12" /> <!-- Castle Choir -->
+			<!-- Raid Boss -->
+			<npc id="24017" x="-255932" y="154273" z="4121" heading="44693" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-256224" y="154406" z="4121" heading="44693" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-256508" y="154520" z="4124" heading="44693" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-256012" y="154115" z="4121" heading="44693" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-256578" y="154353" z="4123" heading="44693" /> <!-- Castle Soul Reaper -->
+			<npc id="24023" x="-256289" y="154232" z="4121" heading="44693" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="DEVIANNE_3_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-255630" y="155394" z="4119" heading="44747" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-255941" y="155559" z="4119" heading="44747" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-255758" y="155475" z="4119" /> <!-- Custom Sayune -->
+		</group>
+		<group name="ELIKIA_1">
+			<territories>
+				<territory shape="NPoly" minZ="4100" maxZ="4150">
+					<node x="-237950" y="142911" />
+					<node x="-237404" y="142382" />
+					<node x="-236768" y="143004" />
+					<node x="-235505" y="144903" />
+					<node x="-236176" y="145255" />
+					<node x="-237380" y="143469" />
+				</territory>
+				<banned_territory shape="Cuboid" minZ="4100" maxZ="4150">
+					<node x="-236411" y="143895" />
+					<node x="-236543" y="144434" />
+				</banned_territory>
+			</territories>
+			<npc id="24014" count="10" /> <!-- Castle Guard -->
+			<npc id="24015" count="10" /> <!-- Castle Guardian Knight -->
+			<npc id="24019" count="10" /> <!-- Castle Dark Wizard -->
+			<npc id="24043" count="10" /> <!-- Castle Archer -->
+			<!-- Raid Boss -->
+			<npc id="24017" x="-235669" y="145499" z="4123" heading="44889" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-235409" y="145382" z="4124" heading="44889" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-235939" y="145619" z="4123" heading="44889" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-235271" y="145674" z="4123" heading="44889" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-235815" y="145928" z="4124" heading="44889" /> <!-- Castle Soul Reaper -->
+			<npc id="24023" x="-235541" y="145780" z="4121" heading="44889" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="ELIKIA_1_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-234957" y="146732" z="4119" heading="46225" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-235313" y="146855" z="4119" heading="46225" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-235097" y="146863" z="4119" /> <!-- Custom Sayune -->
+		</group>
+		<group name="ELIKIA_2">
+			<territories>
+				<territory shape="Cuboid" minZ="3600" maxZ="3650">
+					<node x="-234817" y="150987" />
+					<node x="-235836" y="151796" />
+				</territory>
+				<banned_territory shape="Cuboid" minZ="3600" maxZ="3650">
+					<node x="-235476" y="151555" />
+					<node x="-235152" y="151277" />
+				</banned_territory>
+			</territories>
+			<npc id="24048" count="8" /> <!-- Enhanced Poslof -->
+			<!-- Raid Boss -->
+			<npc id="24022" x="-235183" y="152324" z="3607" heading="51041" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-235149" y="152198" z="3607" heading="51041" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-235456" y="152140" z="3607" heading="51041" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-235672" y="152090" z="3607" heading="51041" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-235710" y="152227" z="3607" heading="51041" /> <!-- Embryo Magic Cannon -->
+			<npc id="24042" x="-235480" y="152271" z="3607" heading="51041" /> <!-- Embryo Castle Magic Cannon -->
+		</group>
+		<group name="ELIKIA_2_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-235400" y="152941" z="3607" heading="51041" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-235789" y="152847" z="3607" heading="51041" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-235573" y="152873" z="3607" /> <!-- Custom Sayune -->
+		</group>
+		<group name="ELIKIA_3">
+			<territories>
+				<territory shape="NPoly" minZ="5120" maxZ="5170">
+					<node x="-237505" y="152896" />
+					<node x="-238254" y="152742" />
+					<node x="-237936" y="151213" />
+					<node x="-237920" y="149988" />
+					<node x="-237180" y="150012" />
+					<node x="-237174" y="151233" />
+				</territory>
+				<banned_territory shape="Cuboid" minZ="5120" maxZ="5170">
+					<node x="-237706" y="152726" />
+					<node x="-237928" y="152402" />
+				</banned_territory>
+				<banned_territory shape="Cuboid" minZ="5120" maxZ="5170">
+					<node x="-237449" y="151360" />
+					<node x="-237681" y="151035" />
+				</banned_territory>
+			</territories>
+			<npc id="24016" count="12" /> <!-- Castle Berserker -->
+			<npc id="24018" count="12" /> <!-- Castle High Priest -->
+			<npc id="24020" count="12" /> <!-- Castle Choir -->
+			<npc id="24047" x="-237617" y="152342" z="5144" heading="18721" /> <!-- Castle Executor -->
+			<npc id="24047" x="-237695" y="150914" z="5144" heading="16047" /> <!-- Castle Executor -->
+			<npc id="24049" x="-237927" y="152285" z="5144" heading="18721" /> <!-- Castle Inquisitor -->
+			<npc id="24049" x="-237395" y="150920" z="5144" heading="16047" /> <!-- Castle Inquisitor -->
+			<!-- Raid Boss -->
+			<npc id="24017" x="-237896" y="149289" z="5143" heading="13028" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-237583" y="149241" z="5152" heading="13028" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-237211" y="149193" z="5143" heading="13028" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-238069" y="149074" z="5143" heading="13028" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-237351" y="148949" z="5143" heading="13028" /> <!-- Castle Soul Reaper -->
+			<npc id="24023" x="-237717" y="149009" z="5143" heading="13028" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="ELIKIA_3_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-237905" y="148595" z="5143" heading="13028" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-237573" y="148519" z="5143" heading="13028" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-237759" y="148497" z="5143" /> <!-- Custom Sayune -->
+		</group>
+		<group name="SPORCHA_1">
+			<territories>
+				<territory shape="NPoly" minZ="2050" maxZ="2100">
+					<node x="-244652" y="142612" />
+					<node x="-244529" y="141875" />
+					<node x="-244908" y="141802" />
+					<node x="-246004" y="141796" />
+					<node x="-245999" y="142536" />
+					<node x="-245013" y="142548" />
+				</territory>
+				<banned_territory shape="Cuboid" minZ="2050" maxZ="2100">
+					<node x="-244837" y="142313" />
+					<node x="-245068" y="142025" />
+				</banned_territory>
+			</territories>
+			<npc id="24044" count="12" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="12" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="12" /> <!-- Orc Mercenary Member -->
+			<!-- Raid Boss -->
+			<npc id="24022" x="-246994" y="142563" z="2078" heading="1093" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-246797" y="142522" z="2074" heading="1093" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-246845" y="142218" z="2072" heading="1093" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-246893" y="141941" z="2076" heading="1093" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-247106" y="141980" z="2076" heading="1093" /> <!-- Embryo Magic Cannon -->
+			<npc id="24042" x="-247049" y="142263" z="2072" heading="1093" /> <!-- Embryo Castle Magic Cannon -->
+		</group>
+		<group name="SPORCHA_1_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-247677" y="142536" z="2072" heading="62659" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-247764" y="142231" z="2072" heading="62659" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-247666" y="142354" z="2072" /> <!-- Custom Sayune -->
+		</group>
+		<group name="SPORCHA_2_1">
+			<territories>
+				<territory shape="Cylinder" minZ="2560" maxZ="2610" rad="200">
+					<node x="-250074" y="143717" />
+				</territory>
+			</territories>
+			<npc id="24044" count="1" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="2" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="2" /> <!-- Orc Mercenary Member -->
+		</group>
+		<group name="SPORCHA_2_2">
+			<territories>
+				<territory shape="Cylinder" minZ="2560" maxZ="2610" rad="200">
+					<node x="-250374" y="143284" />
+				</territory>
+			</territories>
+			<npc id="24044" count="1" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="2" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="2" /> <!-- Orc Mercenary Member -->
+		</group>
+		<group name="SPORCHA_2_3">
+			<territories>
+				<territory shape="Cylinder" minZ="2560" maxZ="2610" rad="200">
+					<node x="-250567" y="144030" />
+				</territory>
+			</territories>
+			<npc id="24044" count="1" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="2" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="2" /> <!-- Orc Mercenary Member -->
+		</group>
+		<group name="SPORCHA_2_4">
+			<territories>
+				<territory shape="Cylinder" minZ="2560" maxZ="2610" rad="200">
+					<node x="-250867" y="143611" />
+				</territory>
+			</territories>
+			<npc id="24044" count="1" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="2" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="2" /> <!-- Orc Mercenary Member -->
+		</group>
+		<group name="SPORCHA_2_5">
+			<territories>
+				<territory shape="Cylinder" minZ="2560" maxZ="2610" rad="200">
+					<node x="-250886" y="144324" />
+				</territory>
+			</territories>
+			<npc id="24044" count="1" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="2" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="2" /> <!-- Orc Mercenary Member -->
+		</group>
+		<group name="SPORCHA_2_6">
+			<territories>
+				<territory shape="Cylinder" minZ="2560" maxZ="2610" rad="200">
+					<node x="-251299" y="143961" />
+				</territory>
+			</territories>
+			<npc id="24044" count="1" /> <!-- Orc Mercenary Squad Commander -->
+			<npc id="24045" count="2" /> <!-- Orc Mercenary Warrior -->
+			<npc id="24046" count="2" /> <!-- Orc Mercenary Member -->
+			<!-- Raid Boss -->
+			<npc id="24042" x="-251456" y="144462" z="2584" heading="56870" /> <!-- Embryo Castle Magic Cannon -->
+		</group>
+		<group name="SPORCHA_2_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-251796" y="144894" z="2584" heading="46731" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-252103" y="144977" z="2584" heading="46731" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-251948" y="144828" z="2584" /> <!-- Custom Sayune -->
+		</group>
+		<group name="SPORCHA_3">
+			<territories>
+				<territory shape="Cuboid" minZ="7180" maxZ="7230">
+					<node x="-254284" y="151013" />
+					<node x="-253413" y="152392" />
+				</territory>
+			</territories>
+			<npc id="24016" count="10" /> <!-- Castle Berserker -->
+			<npc id="24018" count="10" /> <!-- Castle High Priest -->
+			<npc id="24020" count="10" /> <!-- Castle Choir -->
+			<!-- Raid Boss -->
+			<npc id="24047" x="-253078" y="153391" z="7198" heading="44458" /> <!-- Castle Executor -->
+			<npc id="24047" x="-253417" y="153384" z="7192" heading="44458" /> <!-- Castle Executor -->
+			<npc id="24047" x="-253639" y="153603" z="7196" heading="44458" /> <!-- Castle Executor -->
+			<npc id="24023" x="-253315" y="153600" z="7192" heading="44458" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="SPORCHA_3_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-252884" y="154185" z="7192" heading="43150" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-253182" y="154354" z="7192" heading="43150" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-253080" y="154168" z="7192" /> <!-- Custom Sayune -->
+		</group>
+		<group name="LEONA_1">
+			<npc id="24014" x="-247352" y="145119" z="3095" heading="30828" /> <!-- Castle Guard -->
+			<npc id="24014" x="-247318" y="145240" z="3095" heading="30828" /> <!-- Castle Guard -->
+			<npc id="24014" x="-247284" y="145362" z="3095" heading="30828" /> <!-- Castle Guard -->
+			<npc id="24014" x="-247253" y="145479" z="3095" heading="30828" /> <!-- Castle Guard -->
+			<npc id="24014" x="-247209" y="145600" z="3095" heading="30828" /> <!-- Castle Guard -->
+			<npc id="24043" x="-247303" y="145169" z="3100" heading="30828" /> <!-- Castle Archer -->
+			<npc id="24043" x="-247262" y="145295" z="3095" heading="30828" /> <!-- Castle Archer -->
+			<npc id="24043" x="-247225" y="145410" z="3095" heading="30828" /> <!-- Castle Archer -->
+			<npc id="24043" x="-247188" y="145529" z="3095" heading="30828" /> <!-- Castle Archer -->
+			<npc id="24047" x="-246275" y="145163" z="3095" heading="32173" /> <!-- Castle Executor -->
+			<npc id="24014" x="-245378" y="144912" z="3095" heading="33184" /> <!-- Castle Guard -->
+			<npc id="24014" x="-245386" y="145034" z="3095" heading="33184" /> <!-- Castle Guard -->
+			<npc id="24014" x="-245391" y="145158" z="3095" heading="33184" /> <!-- Castle Guard -->
+			<npc id="24014" x="-245402" y="145281" z="3095" heading="33184" /> <!-- Castle Guard -->
+			<npc id="24014" x="-245410" y="145408" z="3095" heading="33184" /> <!-- Castle Guard -->
+			<npc id="24043" x="-245300" y="144983" z="3095" heading="33184" /> <!-- Castle Archer -->
+			<npc id="24043" x="-245309" y="145097" z="3095" heading="33184" /> <!-- Castle Archer -->
+			<npc id="24043" x="-245325" y="145221" z="3095" heading="33184" /> <!-- Castle Archer -->
+			<npc id="24043" x="-245331" y="145333" z="3095" heading="33184" /> <!-- Castle Archer -->
+			<!-- Raid Boss -->
+			<npc id="24022" x="-244540" y="145070" z="3099" heading="34869" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-244404" y="145097" z="3099" heading="34869" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-244455" y="145317" z="3099" heading="34869" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-244518" y="145532" z="3099" heading="34869" /> <!-- Embryo Magic Cannon -->
+			<npc id="24022" x="-244660" y="145508" z="3099" heading="34869" /> <!-- Embryo Magic Cannon -->
+			<npc id="24023" x="-244597" y="145288" z="3099" heading="34869" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="LEONA_1_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-243858" y="145326" z="3097" heading="36011" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-243979" y="145659" z="3095" heading="36011" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-243921" y="145482" z="3095" /> <!-- Custom Sayune -->
+		</group>
+		<group name="LEONA_2">
+			<npc id="24047" x="-241523" y="148260" z="4631" heading="44641" /> <!-- Castle Executor -->
+			<npc id="24047" x="-240774" y="148444" z="4631" heading="44641" /> <!-- Castle Executor -->
+			<npc id="24047" x="-241194" y="149109" z="4631" heading="46741" /> <!-- Castle Executor -->
+			<npc id="24049" x="-240971" y="147973" z="4631" heading="44641" /> <!-- Castle Inquisitor -->
+			<npc id="24049" x="-241355" y="148667" z="4631" heading="44641" /> <!-- Castle Inquisitor -->
+			<npc id="24049" x="-240590" y="148944" z="4631" heading="46741" /> <!-- Castle Inquisitor -->
+			<!-- Raid Boss -->
+			<npc id="24017" x="-240481" y="149326" z="4631" heading="46894" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-240820" y="149396" z="4631" heading="46894" /> <!-- Castle Soul Reaper -->
+			<npc id="24017" x="-241163" y="149460" z="4631" heading="46894" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-240403" y="149664" z="4631" heading="46894" /> <!-- Castle Soul Reaper -->
+			<npc id="24021" x="-241100" y="149771" z="4631" heading="46894" /> <!-- Castle Soul Reaper -->
+			<npc id="24042" x="-240751" y="149704" z="4631" heading="46894" /> <!-- Embryo Castle Magic Cannon -->
+		</group>
+		<group name="LEONA_2_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-240351" y="150439" z="4631" heading="48298" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-240722" y="150438" z="4631" heading="48298" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-240568" y="150205" z="4631" /> <!-- Custom Sayune -->
+		</group>
+		<group name="LEONA_3_1">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-240982" y="152915" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_2">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-241504" y="152009" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_3">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-241601" y="151337" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_4">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-242089" y="151236" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_5">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-242835" y="151326" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_6">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-242157" y="152001" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_7">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-242905" y="152115" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_8">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-243360" y="151954" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_9">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-243108" y="152787" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+		</group>
+		<group name="LEONA_3_10">
+			<territories>
+				<territory shape="Cylinder" minZ="5120" maxZ="5170" rad="200">
+					<node x="-242037" y="152858" />
+				</territory>
+			</territories>
+			<npc id="24016" count="1" /> <!-- Castle Berserker -->
+			<npc id="24018" count="2" /> <!-- Castle High Priest -->
+			<npc id="24020" count="2" /> <!-- Castle Choir -->
+			<!-- Raid Boss -->
+			<npc id="24049" x="-241615" y="153701" z="5143" heading="45713" /> <!-- Castle Inquisitor -->
+			<npc id="24049" x="-242285" y="153732" z="5143" heading="45713" /> <!-- Castle Inquisitor -->
+			<npc id="24023" x="-241955" y="153714" z="5143" heading="45713" /> <!-- Embryo Castle Siege Tank -->
+		</group>
+		<group name="LEONA_3_SAYUNE" spawnByDefault="false">
+			<npc id="34300" x="-243286" y="151959" z="5143" heading="4911" /> <!-- Blackbird Clan Soldier -->
+			<npc id="34300" x="-243213" y="151510" z="5143" heading="4911" /> <!-- Blackbird Clan Soldier -->
+			<npc id="19480" x="-243251" y="151748" z="5143" /> <!-- Custom Sayune -->
+		</group>
+	</spawnlist>
+</instance>

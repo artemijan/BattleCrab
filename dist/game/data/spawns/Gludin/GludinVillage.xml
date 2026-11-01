@@ -32,23 +32,47 @@
 			<npc id="30383" x="-78621" y="152517" z="-3168" respawnTime="60sec" /> <!-- Scott -->
 			<npc id="30384" x="-78621" y="152973" z="-3160" respawnTime="60sec" /> <!-- Linus -->
 			<npc id="30385" x="-77291" y="155983" z="-3192" heading="19190" respawnTime="60sec" /> <!-- Weisz -->
-			<npc id="30386" x="-77989" y="156475" z="-3184" heading="60458" respawnTime="60sec" /> <!-- Luis -->
+			<npc id="30386" x="-77989" y="156475" z="-3192" heading="60458" respawnTime="60sec" /> <!-- Luis -->
 			<npc id="30391" x="-80430" y="150694" z="-3040" heading="24576" respawnTime="60sec" /> <!-- Parina -->
 			<npc id="30417" x="-82437" y="150282" z="-3120" heading="16384" respawnTime="60sec" /> <!-- Sir Klaus Vasper -->
-			<npc id="30422" x="-84400" y="149872" z="-3129" heading="49152" respawnTime="60sec" /> <!-- Kalinta -->
+			<npc id="30422" x="-84400" y="149872" z="-3029" heading="49152" respawnTime="60sec" /> <!-- Kalinta -->
 			<npc id="30425" x="-83414" y="151924" z="-3120" heading="57344" respawnTime="60sec" /> <!-- Neti -->
 			<npc id="30435" x="-79705" y="155131" z="-3168" heading="49152" respawnTime="60sec" /> <!-- Leopold -->
 			<npc id="30498" x="-81913" y="153545" z="-3168" heading="49152" respawnTime="60sec" /> <!-- Moke -->
 			<npc id="30499" x="-82954" y="155618" z="-3176" heading="47152" respawnTime="60sec" /> <!-- Tapoy -->
 			<npc id="30500" x="-80386" y="153282" z="-3176" heading="32000" respawnTime="60sec" /> <!-- Osborn -->
-			<npc id="30501" x="-80456" y="153400" z="-3186" heading="32000" respawnTime="60sec" /> <!-- Kasman -->
-			<npc id="30502" x="-80448" y="153208" z="-3176" heading="32000" respawnTime="60sec" /> <!-- Umos -->
+			<npc id="30501" x="-80448" y="153408" z="-3076" heading="32000" respawnTime="60sec" /> <!-- Kasman -->
+			<npc id="30502" x="-80448" y="153208" z="-3076" heading="32000" respawnTime="60sec" /> <!-- Umos -->
 			<npc id="30634" x="-81199" y="151904" z="-3120" heading="27000" respawnTime="60sec" /> <!-- Galatea -->
-			<npc id="31031" x="-81280" y="154369" z="-3165" heading="16384" respawnTime="5sec" /> <!-- Broadcasting Tower -->
+			<npc id="30731" x="-84624" y="150832" z="-3120" respawnTime="60sec" /> <!-- Martin -->
+			<npc id="30767" x="-81424" y="151699" z="-3120" heading="49152" respawnTime="60sec"> <!-- Auctioneer -->
+				<parameters>
+					<param name="fnAgitMap" value="gludin" />
+				</parameters>
+			</npc>
+			<!-- <npc id="30990" x="-80785" y="149735" z="-3040" heading="23000" respawnTime="60sec" /> --> <!-- Lottery Ticket Seller -->
+			<npc id="31031" x="-81280" y="154369" z="-3168" heading="16384" respawnTime="5sec" /> <!-- Broadcasting Tower -->
 			<npc id="31046" x="-81520" y="152256" z="-3120" heading="49376" respawnTime="60sec" /> <!-- Marsden -->
+			<npc id="31092" x="-84745" y="151732" z="-3128" heading="50000" respawnTime="60sec" /> <!-- Black Marketeer of Mammon -->
+			<npc id="31202" x="-84594" y="150862" z="-3120" respawnTime="60sec" /> <!-- Maximus -->
+			<npc id="31439" x="-83197" y="155347" z="-3176" respawnTime="60sec" /> <!-- Rogen -->
+			<npc id="31567" x="-79369" y="153318" z="-3160" heading="26000" respawnTime="60sec" /> <!-- Bleaker -->
 			<npc id="31688" x="-84816" y="151056" z="-3120" respawnTime="60sec" /> <!-- Olympiad Manager -->
 			<npc id="31690" x="-84816" y="151008" z="-3120" respawnTime="60sec" /> <!-- Monument of Heroes -->
+			<npc id="32193" x="-84734" y="153122" z="-3160" heading="16384" respawnTime="60sec" /> <!-- Yeniche -->
+			<npc id="32194" x="-84773" y="153134" z="-3160" heading="16384" respawnTime="60sec" /> <!-- Shubain -->
+			<npc id="32195" x="-84697" y="153134" z="-3160" heading="16384" respawnTime="60sec" /> <!-- Sione -->
+			<npc id="32327" x="-80850" y="149556" z="-3040" heading="4504" respawnTime="60sec" /> <!-- Adventurers' Guide -->
 			<npc id="32478" x="-82368" y="153664" z="-3168" heading="16500" respawnTime="60sec" /> <!-- Dimensional Merchant -->
+			<npc id="32497" x="-80570" y="151298" z="-3040" heading="20480" respawnTime="60sec" /> <!-- Inspector Adler -->
+			<npc id="32874" x="-82930" y="155352" z="-3176" heading="33306" respawnTime="60sec" /> <!-- Lyann -->
+			<npc id="33359" x="-81332" y="151708" z="-3120" heading="49152" respawnTime="60sec" /> <!-- Kerry -->
+			<npc id="33493" x="-81490" y="152254" z="-3120" heading="48074" respawnTime="60sec" /> <!-- Raminya -->
+			<npc id="33528" x="-81376" y="151715" z="-3120" heading="49152" respawnTime="60sec" /> <!-- Shurna -->
+			<npc id="33587" x="-80926" y="149502" z="-3040" heading="9914" respawnTime="60sec" /> <!-- Mentor Guide -->
+			<npc id="33685" x="-84817" y="151093" z="-3120" heading="64246" respawnTime="60sec" /> <!-- Mysterious Butler -->
+			<npc id="35103" x="-81824" y="155264" z="-3168" heading="48460" respawnTime="60sec" /> <!-- Manor Manager -->
+			<npc id="35103" x="-82640" y="150016" z="-3120" heading="15012" respawnTime="60sec" /> <!-- Manor Manager -->
 			<npc id="35392" x="-84596" y="152253" z="-3120" heading="53248" respawnTime="60sec" /> <!-- Bremmer -->
 			<npc id="35393" x="-83954" y="151814" z="-3120" heading="49152" respawnTime="60sec" /> <!-- Faolan -->
 			<npc id="35394" x="-84276" y="153321" z="-3160" respawnTime="60sec" /> <!-- Kalis -->
@@ -59,6 +83,7 @@
 			<npc id="35399" x="-79803" y="150032" z="-3040" heading="32768" respawnTime="60sec" /> <!-- Luce -->
 			<npc id="35400" x="-79587" y="151436" z="-3040" heading="8192" respawnTime="60sec" /> <!-- Horner -->
 			<npc id="35401" x="-79800" y="151598" z="-3040" heading="32768" respawnTime="60sec" /> <!-- Amiel -->
+			<npc id="33946" x="-80772" y="149513" z="-3045" heading="15640" respawnTime="60sec" /> <!-- Adventure Guildsman -->
 		</group>
 	</spawn>
 </list>

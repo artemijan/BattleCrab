@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47200" name="Apherus Sample" type="EtcItem">
 		<!-- A sample of Apherus. The Mother Tree Guardians need this sample. -->
@@ -131,7 +131,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="47214" name="Ring of Creation" type="Armor">
-		<!-- MP +42, Stun/Paralysis/Knock Back Atk. Rate +15%, Stun/Paralysis/Knock Back Resistance +15%, Additional Damage to the Giants +5%, P./M. Critical Damage +15%, P./M. Atk. +3%. Effect does not stack with identical ones. -->
+		<!-- MP +42, Stun/ Paralysis/ Knock Back Atk. Rate +15%, Stun/ Paralysis/ Knock Back Resistance +15%, Additional Damage to the Giants +5%, P./ M. Critical Damage +15%, P./ M. Atk. +3%. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_ring_of_helios_Black" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -141,16 +141,16 @@
 		<set name="weight" val="150" />
 		<set name="price" val="46311000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16747" level="1" /> <!-- Ring of the Beginning -->
-		</skills>
 		<stats>
 			<stat type="mDef">98</stat>
 			<stat type="maxMp">42</stat>
 		</stats>
+		<skills>
+			<skill id="16747" level="1" /> <!-- Ring of the Beginning -->
+		</skills>
 	</item>
 	<item id="47215" name="Ring of Authority" type="Armor">
-		<!-- MP +43, Stun/Paralysis/Knock Back Atk. Rate +25%, Stun/Paralysis/Knock Back Resistance +25%, Additional Damage to the Giants +5%, P. Critical Damage +15%, P. Atk. +4%. Effect does not stack with identical ones. -->
+		<!-- MP +43, Stun/ Paralysis/ Knock Back Atk. Rate +25%, Stun/ Paralysis/ Knock Back Resistance +25%, Additional Damage to the Giants +5%, P. Critical Damage +15%, P. Atk. +4%. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_ring_of_helios_red" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -160,15 +160,15 @@
 		<set name="weight" val="150" />
 		<set name="price" val="151920000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16748" level="1" /> <!-- Ring of Authority -->
-		</skills>
 		<stats>
 			<stat type="mDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="16748" level="1" /> <!-- Ring of Authority -->
+		</skills>
 	</item>
 	<item id="47216" name="Ruler's Ring of Authority" type="Armor">
-		<!-- MP +46, P. Atk. +5%, P. Critical Damage +20%, LUC/CHA +2, Stun/Paralysis/Knock Back Atk./Def. Success Rate +30%, Additional Damage to the Giants +5%, 3-second Paralysis when single P. skill is used. Effect does not stack with identical ones. -->
+		<!-- MP +46, P. Atk. +5%, P. Critical Damage +20%, LUC/ CHA +2, Stun/ Paralysis/ Knock Back Atk./ Def. Success Rate +30%, Additional Damage to the Giants +5%, 3-second Paralysis when single P. skill is used. is used. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_ring_of_helios_enchant_red" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -178,15 +178,15 @@
 		<set name="weight" val="150" />
 		<set name="price" val="192622000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16748" level="2" /> <!-- Ring of Authority -->
-		</skills>
 		<stats>
 			<stat type="mDef">114</stat>
 		</stats>
+		<skills>
+			<skill id="16748" level="2" /> <!-- Ruler's Ring of Authority -->
+		</skills>
 	</item>
 	<item id="47217" name="Ring of the Truth" type="Armor">
-		<!-- MP +43, Stun/Paralysis/Knock Back Atk. Rate +25%, Stun/Paralysis/Knock Back Resistance +25%, Additional Damage to the Giants +5%, M. Critical Damage +15%, M. Atk. +4%. Effect does not stack with identical ones. -->
+		<!-- MP +43, Stun/ Paralysis/ Knock Back Atk. Rate +25%, Stun/ Paralysis/ Knock Back Resistance +25%, Additional Damage to the Giants +5%, M. Critical Damage +15%, M. Atk. +4%. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_ring_of_helios" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -196,15 +196,15 @@
 		<set name="weight" val="150" />
 		<set name="price" val="151920000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16749" level="1" /> <!-- Ring of the Truth -->
-		</skills>
 		<stats>
 			<stat type="mDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="16749" level="1" /> <!-- Ring of the Truth -->
+		</skills>
 	</item>
 	<item id="47218" name="Ring of the Truth-Seeker" type="Armor">
-		<!-- MP +46, M. Atk. +5%, M. Critical Damage +20%, LUC/CHA +2, Stun/Paralysis/Knock Back Atk./Def. Success Rate +30%, Additional Damage to the Giants +5%, 3-second Knock Down when single M. skill is used. Effect does not stack with identical ones. -->
+		<!-- MP +46, M. Atk. +5%, M. Critical Damage +20%, LUC/ CHA +2, Stun/ Paralysis/ Knock Back Atk./ Def. Success Rate +30%, Additional Damage to the Giants +5%, 3-second Knock Down when single M. skill is used. Effect does not stack with identical ones. -->
 		<set name="icon" val="icon.accessory_ring_of_helios_enchant" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -214,12 +214,12 @@
 		<set name="weight" val="150" />
 		<set name="price" val="192622000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16749" level="2" /> <!-- Ring of the Truth -->
-		</skills>
 		<stats>
 			<stat type="mDef">114</stat>
 		</stats>
+		<skills>
+			<skill id="16749" level="2" /> <!-- Ring of the Truth-Seeker -->
+		</skills>
 	</item>
 	<item id="47219" name="Source of the Emperor" type="EtcItem">
 		<!-- Take this to Rafforty to enhance the Ring of the Creation. -->
@@ -407,7 +407,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="2" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="2" /> <!-- Scroll of Escape: Enchanted Valley -->
 		</skills>
 	</item>
 	<item id="47236" name="Scroll of Escape: Giant's Cave" type="EtcItem">
@@ -421,7 +421,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="3" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="3" /> <!-- Scroll of Escape: Giant's Cave -->
 		</skills>
 	</item>
 	<item id="47237" name="Scroll of Escape: Hellbound" type="EtcItem">
@@ -435,7 +435,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="4" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="4" /> <!-- Scroll of Escape: Hellbound -->
 		</skills>
 	</item>
 	<item id="47238" name="Scroll of Escape: Blazing Swamp" type="EtcItem">
@@ -449,7 +449,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="5" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="5" /> <!-- Scroll of Escape: Blazing Swamp -->
 		</skills>
 	</item>
 	<item id="47239" name="Scroll of Escape: Raider's Crossroads" type="EtcItem">
@@ -463,7 +463,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="6" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="6" /> <!-- Scroll of Escape: Raider's Crossroads -->
 		</skills>
 	</item>
 	<item id="47240" name="Scroll of Escape: Land of Chaos" type="EtcItem">
@@ -477,7 +477,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="7" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="7" /> <!-- Scroll of Escape: Land of Chaos -->
 		</skills>
 	</item>
 	<item id="47241" name="Scroll of Escape: Gainak" type="EtcItem">
@@ -491,7 +491,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="8" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="8" /> <!-- Scroll of Escape: Gainak -->
 		</skills>
 	</item>
 	<item id="47242" name="Scroll of Escape: The Cemetery" type="EtcItem">
@@ -505,7 +505,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="9" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="9" /> <!-- Scroll of Escape: The Cemetery -->
 		</skills>
 	</item>
 	<item id="47243" name="Scroll of Escape: Pagan Temple" type="EtcItem">
@@ -519,7 +519,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18618" level="10" /> <!-- Scroll of Escape: Blackbird Campsite -->
+			<skill id="18618" level="10" /> <!-- Scroll of Escape: Pagan Temple -->
 		</skills>
 	</item>
 	<item id="47244" name="Ramona's Fancy Earring" type="Armor">
@@ -533,13 +533,13 @@
 		<set name="weight" val="150" />
 		<set name="price" val="889600" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16750" level="1" /> <!-- Ramonas Fansy Earrings -->
-		</skills>
 		<stats>
 			<stat type="mDef">147</stat>
 			<stat type="maxMp">64</stat>
 		</stats>
+		<skills>
+			<skill id="16750" level="1" /> <!-- Ramona's Fancy Earrings -->
+		</skills>
 	</item>
 	<item id="47245" name="Helios' Majestic Earring" type="Armor">
 		<!-- Take it to Rafforty to exchange for the Source of the Emperor. MP +64, Additional Damage to the Giants +5%, Vampiric Rage +5%. Effect does not stack with identical ones. Enchantment, Augment, Crystallization not possible -->
@@ -552,13 +552,13 @@
 		<set name="weight" val="150" />
 		<set name="price" val="1112000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16751" level="1" /> <!-- Helios Majestic Earrings -->
-		</skills>
 		<stats>
 			<stat type="mDef">147</stat>
 			<stat type="maxMp">64</stat>
 		</stats>
+		<skills>
+			<skill id="16751" level="1" /> <!-- Helios' Majestic Earrings -->
+		</skills>
 	</item>
 	<item id="47246" name="Harnak's Deformed Necklace" type="Armor">
 		<!-- Take it to Rafforty to exchange for the Source of the Emperor Exchange. MP +79, Additional Damage to the Giants +5%, Skill Cooldown -10%. Enchantment, Augment, Crystallization not possible -->
@@ -571,13 +571,13 @@
 		<set name="weight" val="150" />
 		<set name="price" val="556000" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16752" level="1" /> <!-- Harnak's Deformed Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">174</stat>
 			<stat type="maxMp">79</stat>
 		</stats>
+		<skills>
+			<skill id="16752" level="1" /> <!-- Harnak's Deformed Necklace -->
+		</skills>
 	</item>
 	<item id="47247" name="Mimir's Worn Ring" type="Armor">
 		<!-- Take it to Rafforty to exchange for the Source of the Emperor. MP +42, Additional Damage to the Giants +5%, P. Critical Damage +15%. Effect does not stack with identical ones. Enchantment, Augment, Crystallization not possible -->
@@ -590,13 +590,13 @@
 		<set name="weight" val="150" />
 		<set name="price" val="778400" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16753" level="1" /> <!-- Mimir's Worn Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">96</stat>
 			<stat type="maxMp">42</stat>
 		</stats>
+		<skills>
+			<skill id="16753" level="1" /> <!-- Mimir's Worn Ring -->
+		</skills>
 	</item>
 	<item id="47248" name="Forgotten Ring of the Core" type="Armor">
 		<!-- Take it to Rafforty to exchange for the Source of the Emperor. MP +39, Additional Damage to the Giants +5%, M. Critical Damage +15%. Effect does not stack with identical ones. Enchantment, Augment, Crystallization not possible -->
@@ -609,13 +609,13 @@
 		<set name="weight" val="150" />
 		<set name="price" val="1167600" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="16754" level="1" /> <!-- Forgotten Ring of the Core -->
-		</skills>
 		<stats>
 			<stat type="mDef">87</stat>
 			<stat type="maxMp">39</stat>
 		</stats>
+		<skills>
+			<skill id="16754" level="1" /> <!-- Forgotten Ring of the Core -->
+		</skills>
 	</item>
 	<item id="47249" name="Giant Stone" type="EtcItem">
 		<!-- A stone with the power of the Giants. Use to neutralize the effects of the Superion Barrier. -->
@@ -1188,7 +1188,7 @@
 		</skills>
 	</item>
 	<item id="47288" name="Kingdom's Royal Guard Talisman Stage 8" type="Armor">
-		<!-- A Talisman issued by the Kingdom's Royal Guard for the battle against the Embryo. When equipped, damage received from Embryo -8%, P. Atk. against Embryo +3%, P./M. Def +1%. -->
+		<!-- A Talisman issued by the Kingdom's Royal Guard for the battle against the Embryo. When equipped, damage received from Embryo -8%, P. Atk. against Embryo +3%, P./ M. Def +1%. -->
 		<set name="icon" val="icon.etc_royalgurad_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1205,7 +1205,7 @@
 		</skills>
 	</item>
 	<item id="47289" name="Kingdom's Royal Guard Talisman Stage 9" type="Armor">
-		<!-- A Talisman issued by the Kingdom's Royal Guard for the battle against the Embryo. When equipped, damage received from Embryo -9%, P. Atk. against Embryo +4%, P./M. Def +2%. -->
+		<!-- A Talisman issued by the Kingdom's Royal Guard for the battle against the Embryo. When equipped, damage received from Embryo -9%, P. Atk. against Embryo +4%, P./ M. Def +2%. -->
 		<set name="icon" val="icon.etc_royalgurad_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1222,7 +1222,7 @@
 		</skills>
 	</item>
 	<item id="47290" name="Kingdom's Royal Guard Talisman Stage 10" type="Armor">
-		<!-- A Talisman issued by the Kingdom's Royal Guard for the battle against the Embryo. When equipped, damage received from Embryo -10%, P. Atk. against Embryo +5%, P./M. Def +3%. -->
+		<!-- A Talisman issued by the Kingdom's Royal Guard for the battle against the Embryo. When equipped, damage received from Embryo -10%, P. Atk. against Embryo +5%, P./ M. Def +3%. -->
 		<set name="icon" val="icon.etc_royalgurad_talisman" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<!-- Eviscerator -->
+	<skillTree type="classSkillTree" classId="188" parentClassId="186">
+		<skill skillName="Eviscerator Aura" skillId="30602" skillLevel="1" getLevel="85" autoGet="true" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="18" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="6" getLevel="85" levelUpSp="75000" />
+		<skill skillName="Air Light" skillId="30511" skillLevel="2" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="17" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="1" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Fluid Weave" skillId="30514" skillLevel="2" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Summon Eviscerator Fox" skillId="8904" skillLevel="1" getLevel="85" autoGet="true" />
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="4" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="8" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="8" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Eminent Trait Resistance" skillId="30544" skillLevel="2" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="2" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Eminent Ability" skillId="30545" skillLevel="3" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Distortion" skillId="30512" skillLevel="2" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Steel Mind" skillId="30520" skillLevel="1" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Weight Increase" skillId="1572" skillLevel="1" getLevel="85" autoGet="true" />
+		<skill skillName="Inventory Increase" skillId="1571" skillLevel="1" getLevel="85" autoGet="true" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="1" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="4" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="1" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="1" getLevel="85" levelUpSp="15000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="17" getLevel="85" levelUpSp="15000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="6" getLevel="86" levelUpSp="75000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="2" getLevel="86" levelUpSp="75000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="2" getLevel="86" levelUpSp="75000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="15" getLevel="86" levelUpSp="75000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="15" getLevel="86" levelUpSp="75000" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="19" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="7" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="1" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="18" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="2" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="5" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="2" getLevel="87" levelUpSp="90000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="18" getLevel="87" levelUpSp="90000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="7" getLevel="88" levelUpSp="120000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="3" getLevel="88" levelUpSp="120000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="3" getLevel="88" levelUpSp="120000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="16" getLevel="88" levelUpSp="120000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="16" getLevel="88" levelUpSp="120000" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="20" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="8" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="2" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="19" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="3" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="6" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="3" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="19" getLevel="89" levelUpSp="150000" />
+		<skill skillName="Back Step" skillId="30509" skillLevel="2" getLevel="89" levelUpSp="150000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="8" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="4" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="5" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="9" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="9" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="3" getLevel="90" levelUpSp="370000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="4" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="17" getLevel="90" levelUpSp="555000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="17" getLevel="90" levelUpSp="555000" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="21" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="9" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="3" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="20" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="4" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="7" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="4" getLevel="91" levelUpSp="600000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="20" getLevel="91" levelUpSp="600000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="9" getLevel="92" levelUpSp="630000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="5" getLevel="92" levelUpSp="630000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="5" getLevel="92" levelUpSp="630000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="18" getLevel="92" levelUpSp="630000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="18" getLevel="92" levelUpSp="630000" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="22" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="10" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Gravity Barrier" skillId="30516" skillLevel="1" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="4" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="21" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="5" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="8" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="5" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="21" getLevel="93" levelUpSp="660000" />
+		<skill skillName="Back Step" skillId="30509" skillLevel="3" getLevel="93" levelUpSp="660000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="10" getLevel="94" levelUpSp="720000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="6" getLevel="94" levelUpSp="720000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="6" getLevel="94" levelUpSp="720000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="19" getLevel="94" levelUpSp="720000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="19" getLevel="94" levelUpSp="720000" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="23" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="11" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Air Light" skillId="30511" skillLevel="3" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="5" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="22" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="6" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="10" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="10" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="4" getLevel="95" levelUpSp="1000000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="6" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="9" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="6" getLevel="95" levelUpSp="1500000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="22" getLevel="95" levelUpSp="1500000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="11" getLevel="96" levelUpSp="7455000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="7" getLevel="96" levelUpSp="7455000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="7" getLevel="96" levelUpSp="7455000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="20" getLevel="96" levelUpSp="7455000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="20" getLevel="96" levelUpSp="7455000" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="24" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="12" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="6" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="23" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Infighter" skillId="30510" skillLevel="1" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="7" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="10" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="7" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="23" getLevel="97" levelUpSp="7470000" />
+		<skill skillName="Back Step" skillId="30509" skillLevel="4" getLevel="97" levelUpSp="7470000" />
+		
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="12" getLevel="98" levelUpSp="7485000" />
+		<skill skillName="Warped Space" skillId="30519" skillLevel="1" getLevel="98" levelUpSp="7485000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="8" getLevel="98" levelUpSp="7485000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="8" getLevel="98" levelUpSp="7485000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="21" getLevel="98" levelUpSp="7485000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="21" getLevel="98" levelUpSp="7485000" />
+		
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="5" getLevel="99" levelUpSp="5000000" />
+		<skill skillName="Divine Inspiration" skillId="1405" skillLevel="6" getLevel="99" levelUpSp="5000000" />
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="25" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="13" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Air Light" skillId="30511" skillLevel="4" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="7" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="24" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="7" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="11" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="11" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="5" getLevel="99" levelUpSp="5000000" />
+		<skill skillName="Spallation" skillId="30515" skillLevel="1" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Steel Mind" skillId="30520" skillLevel="2" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Stamp Punch" skillId="30547" skillLevel="1" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="8" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="11" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="8" getLevel="99" levelUpSp="7500000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="24" getLevel="99" levelUpSp="7500000" />
+		
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="8" getLevel="100" levelUpSp="88099899" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="12" getLevel="100" levelUpSp="88099899" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="12" getLevel="100" levelUpSp="88099899" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="6" getLevel="100" levelUpSp="88099899" />
+		<skill skillName="Divine Expansion" skillId="10956" skillLevel="1" getLevel="100" levelUpSp="88099899">
+			<item id="39738" count="4" /> <!-- Rune Stone -->
+		</skill>
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="26" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="14" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Air Light" skillId="30511" skillLevel="5" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="8" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="25" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="13" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="9" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Fluid Weave" skillId="30514" skillLevel="3" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Distortion" skillId="30512" skillLevel="3" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Steel Mind" skillId="30520" skillLevel="3" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Stamp Punch" skillId="30547" skillLevel="2" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="9" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="12" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="9" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="22" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="9" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="22" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="25" getLevel="101" levelUpSp="211440000" />
+		<skill skillName="Back Step" skillId="30509" skillLevel="5" getLevel="101" levelUpSp="211440000" />
+		
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="9" getLevel="102" levelUpSp="507455418" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="13" getLevel="102" levelUpSp="507455418" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="13" getLevel="102" levelUpSp="507455418" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="7" getLevel="102" levelUpSp="507455418" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="27" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="15" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Air Light" skillId="30511" skillLevel="6" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="9" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="26" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="14" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="10" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Stamp Punch" skillId="30547" skillLevel="3" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="10" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="13" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="10" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="23" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="10" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="23" getLevel="103" levelUpSp="608946501" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="26" getLevel="103" levelUpSp="608946501" />
+		
+		<skill skillName="Eminent Stability" skillId="30542" skillLevel="10" getLevel="104" levelUpSp="1461471604" />
+		<skill skillName="Eminent Fist Weapon Mastery" skillId="30540" skillLevel="14" getLevel="104" levelUpSp="1461471604" />
+		<skill skillName="Eminent Light Armor Mastery" skillId="30541" skillLevel="14" getLevel="104" levelUpSp="1461471604" />
+		<skill skillName="Eminent Attribute Resistance" skillId="30543" skillLevel="8" getLevel="104" levelUpSp="1461471604" />
+		
+		<skill skillName="Lateral Hit" skillId="30500" skillLevel="28" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Gravity Hit" skillId="30504" skillLevel="16" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Air Light" skillId="30511" skillLevel="7" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Pressure Punch" skillId="30505" skillLevel="10" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Backspin Impact" skillId="30501" skillLevel="27" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Crushing Air" skillId="30530" skillLevel="15" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Reverse Weight" skillId="30518" skillLevel="11" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Stamp Punch" skillId="30547" skillLevel="4" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Flying Knee Kick" skillId="30546" skillLevel="11" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Distant Kick" skillId="30506" skillLevel="14" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Spinning Kick" skillId="30503" skillLevel="11" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Chin Strike" skillId="30502" skillLevel="24" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Heavy Hand" skillId="30517" skillLevel="11" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Left Sidestep" skillId="30507" skillLevel="24" getLevel="105" levelUpSp="1753765925" />
+		<skill skillName="Right Sidestep" skillId="30508" skillLevel="27" getLevel="105" levelUpSp="1753765925" />
+
+		<!-- Dual Maximum HP -->
+		<skill skillName="Dual Maximum HP" skillId="1986" skillLevel="1" getLevel="85" getDualClassLevel="85" levelUpSp="10000" />
+		<skill skillName="Dual Maximum HP" skillId="1986" skillLevel="2" getLevel="90" getDualClassLevel="90" levelUpSp="370000" />
+		<skill skillName="Dual Maximum HP" skillId="1986" skillLevel="3" getLevel="95" getDualClassLevel="95" levelUpSp="1000000" />
+		<skill skillName="Dual Maximum HP" skillId="1986" skillLevel="4" getLevel="99" getDualClassLevel="99" levelUpSp="5000000" />
+	</skillTree>
+</list>

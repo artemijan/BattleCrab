@@ -3,12 +3,12 @@
 
 use commons::network::PacketReader;
 
-/// Port of `clientpackets/MoveBackwardToLocation` (`cddddddd`). `origin_x/y/z`
+/// Port of `clientpackets/MoveToLocation` (`cddddddd`). `origin_x/y/z`
 /// is only used for the same-origin/target "stop" check — not stored as
 /// server-trusted state, per the no-geodata scope (client position is trusted
 /// only insofar as it drives where we start interpolating from; the server's
 /// own `player.x/y/z` is the authoritative start point).
-pub struct MoveBackwardToLocation {
+pub struct MoveToLocation {
     pub target_x: i32,
     pub target_y: i32,
     pub target_z: i32,
@@ -18,7 +18,7 @@ pub struct MoveBackwardToLocation {
     pub movement_mode: i32,
 }
 
-impl MoveBackwardToLocation {
+impl MoveToLocation {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
         let mut r = PacketReader::new(body_after_opcode);
         let target_x = r.read_i32()?;

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance id="269" maxWorlds="20" name="Hatchling Nest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/instance.xsd">
+	<time duration="60" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="179356" y="168028" z="-11232" />
+		</enter>
+		<exit type="FIXED">
+			<location x="178269" y="177020" z="-12104" />
+		</exit>
+	</locations>
+	<parameters>
+		<location name="middlePointRoom" x="179651" y="167277" z="-11232" />
+	</parameters>
+	<spawnlist>
+		<group name="balthus_start_2523_01m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_start_2523_01" minZ="-11075" maxZ="-11275">
+					<node x="179148" y="167885" />
+					<node x="179348" y="167885" />
+					<node x="179348" y="168085" />
+					<node x="179148" y="168085" />
+				</territory>
+			</territories>
+			<npc id="34365" count="1" respawnTime="1min" x="179264" y="168000" z="-11226" heading="0" /> <!-- Tarti -->
+		</group>
+		<group name="balthus_start_2523_02m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_start_2523_02" minZ="-11065" maxZ="-11265">
+					<node x="179480" y="166981" />
+					<node x="179978" y="167082" />
+					<node x="179935" y="167623" />
+					<node x="179468" y="167629" />
+				</territory>
+			</territories>
+			<npc id="24089" count="3" /> <!-- Hatchling -->
+		</group>
+		<group name="balthus_start_2523_03m1" spawnByDefault="false">
+			<territories>
+				<territory name="balthus_start_2523_03" minZ="-10967" maxZ="-11267">
+					<node x="180172" y="167301" />
+					<node x="180698" y="167354" />
+					<node x="180714" y="167576" />
+					<node x="180178" y="167616" />
+				</territory>
+			</territories>
+			<npc id="24089" count="1" x="180543" y="167460" z="-11210" heading="32280" /> <!-- Hatchling -->
+		</group>
+	</spawnlist>
+</instance>

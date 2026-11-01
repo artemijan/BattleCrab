@@ -9,13 +9,22 @@
 //! success, reward or send the failure message. `StoreRecipeShopList = False`,
 //! so manufacture stores are transient (no persistence).
 //!
+//! TODO(salvation): Salvation has no `RecipeManager`; the craft lives in
+//! `RequestRecipeItemMakeSelf` / `RequestRecipeShopMakeItem` and
+//! `RecipeHolder.doCraft` — a `<product>` group drawn by chance, offering
+//! bonuses (`maxOffering`/`maxOfferingBonus`), `CRAFTING_CRITICAL` doubling,
+//! NPC fees and the full `StatusUpdateType` stat costs. This module still runs
+//! the Interlude flow over the Salvation recipe data: it draws the product with
+//! `getRandomProduct`, pays only the `CUR_MP`/`CUR_HP` costs, and has no
+//! masterwork roll or per-recipe `altStatChange` (both gone from the data).
+//!
 //! Deferred (identity in the ported set): `Stat.CRAFT_RATE` (success bonus),
 //! `Stat.CRAFTING_CRITICAL` (double-output crit) — no item/skill grants either,
 //! so they stay `+0`. `Stat.RECIPE_DWARVEN/COMMON` (Expand Dwarven/Common
 //! Craft, G19 `EnlargeSlot`) *is* wired — see `learn_recipe`'s limit lookup.
 
 use crate::data::item_data::ADENA_ID;
-use crate::data::recipe_data::RecipeList;
+use crate::data::recipe_data::RecipeHolder;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{
     is_dead, player_name_or_empty, player_of, send_to_client, send_to_player,
@@ -38,6 +47,19 @@ const SKILL_CREATE_COMMON: i32 = 1320;
 const STORE_TYPE_MANUFACTURE: u8 = 5;
 
 // --- small accessors -------------------------------------------------------
+
+/// The recipe's `<statUse>` `CUR_MP` / `CUR_HP` costs.
+fn mp_use(recipe: &RecipeHolder) -> f64 {
+    recipe.stat_use("CUR_MP")
+}
+fn hp_use(recipe: &RecipeHolder) -> f64 {
+    recipe.stat_use("CUR_HP")
+}
+
+/// The item a failure message names: the first of the product group.
+fn first_product_id(recipe: &RecipeHolder) -> i32 {
+    recipe.product_group.first().map_or(0, |p| p.item_id)
+}
 
 /// The player's level in the relevant create-item skill (0 if not known) — Java
 /// `getDwarvenCraft` / `getCommonCraft`.
@@ -115,7 +137,7 @@ pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: 
     };
     // Java looks the recipe up in RecipeData for its dwarven flag; do the same so
     // we resend the correct book even after removing the id.
-    let Some(is_dwarven) = world.data.recipes.get(recipe_id).map(|r| r.is_dwarven) else {
+    let Some(is_dwarven) = world.data.recipes.get(recipe_id).map(|r| r.is_dwarven()) else {
         return;
     };
     if let Some(book) = world
@@ -179,12 +201,12 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         return;
     }
 
-    let craft_level = craft_skill_level(world, object_id, recipe.is_dwarven);
+    let craft_level = craft_skill_level(world, object_id, recipe.is_dwarven());
     let (limit, book_len) = {
         let book = world
             .objects
             .get_component::<components::commerce::RecipeBook>(&object_id);
-        let (stat, base, len) = if recipe.is_dwarven {
+        let (stat, base, len) = if recipe.is_dwarven() {
             (
                 Stat::RecipeDwarven,
                 world.cfg.character.dwarf_recipe_limit,
@@ -240,14 +262,14 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         .objects
         .get_component_mut::<components::commerce::RecipeBook>(&object_id)
     {
-        if recipe.is_dwarven {
+        if recipe.is_dwarven() {
             book.dwarven.push(recipe.id);
         } else {
             book.common.push(recipe.id);
         }
     } else {
         let mut book = components::commerce::RecipeBook::default();
-        if recipe.is_dwarven {
+        if recipe.is_dwarven() {
             book.dwarven.push(recipe.id);
         } else {
             book.common.push(recipe.id);
@@ -275,7 +297,7 @@ pub(crate) fn handle_make_info(world: &mut World, client_id: u32, id: i32) {
     let Some(oid) = player_of(world, client_id) else {
         return;
     };
-    let Some(is_dwarven) = world.data.recipes.get(id).map(|r| r.is_dwarven) else {
+    let Some(is_dwarven) = world.data.recipes.get(id).map(|r| r.is_dwarven()) else {
         return;
     };
     let (cur_mp, max_mp) = mp_gauge(world, oid);
@@ -569,7 +591,7 @@ fn do_craft(
             customer,
             customer_client,
             recipe_id,
-            recipe.is_dwarven,
+            recipe.is_dwarven(),
             false,
         );
     };
@@ -592,8 +614,8 @@ fn do_craft(
         return;
     }
     // Empty recipe / skill-level gate (crafter's create-item level).
-    if recipe.ingredients.is_empty()
-        || recipe.level > craft_skill_level(world, crafter, recipe.is_dwarven)
+    if recipe.materials.is_empty()
+        || recipe.level > craft_skill_level(world, crafter, recipe.is_dwarven())
     {
         abort(world);
         return;
@@ -605,7 +627,7 @@ fn do_craft(
         return;
     }
     // Materials present on the customer (listItems check).
-    for &(item_id, need) in &recipe.ingredients {
+    for &(item_id, need) in &recipe.materials {
         let have = world
             .objects
             .get_component::<Inventory>(&customer)
@@ -626,12 +648,12 @@ fn do_craft(
     let Some((cur_mp, _, cur_hp)) = vitals(world, crafter) else {
         return;
     };
-    if recipe.mp_use > 0 && cur_mp < recipe.mp_use as f64 {
+    if mp_use(&recipe) > 0.0 && cur_mp < mp_use(&recipe) {
         sm_customer(world, sm_ids::NOT_ENOUGH_MP, &[]);
         abort(world);
         return;
     }
-    if recipe.hp_use > 0 && cur_hp <= recipe.hp_use as f64 {
+    if hp_use(&recipe) > 0.0 && cur_hp <= hp_use(&recipe) {
         sm_customer(world, sm_ids::NOT_ENOUGH_HP, &[]);
         abort(world);
         return;
@@ -657,13 +679,13 @@ fn do_craft(
     }
 
     // Reduce the crafter's MP/HP + StatusUpdate.
-    if recipe.mp_use > 0 || recipe.hp_use > 0 {
+    if mp_use(&recipe) > 0.0 || hp_use(&recipe) > 0.0 {
         if let Some(v) = world
             .objects
             .get_component_mut::<components::stats::Vitals>(&crafter)
         {
-            v.cur_mp = (v.cur_mp - recipe.mp_use as f64).max(0.0);
-            v.cur_hp = (v.cur_hp - recipe.hp_use as f64).max(1.0);
+            v.cur_mp = (v.cur_mp - mp_use(&recipe)).max(0.0);
+            v.cur_hp = (v.cur_hp - hp_use(&recipe)).max(1.0);
         }
         send_crafter_mp(world, crafter);
     }
@@ -710,7 +732,7 @@ fn staged_start(
     customer_client: u32,
     recipe_id: i32,
     price: i64,
-    recipe: &RecipeList,
+    recipe: &RecipeHolder,
 ) {
     // Java refuses a second craft while one runs (`_activeMakers.containsKey`
     // → "You are busy creating").
@@ -725,10 +747,12 @@ fn staged_start(
         );
         return;
     }
-    let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven);
+    let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven());
     // `calculateAltStatChange`: grab = skill level × GIM; passes = ceil.
-    let item_grab = i64::from(skill_level.max(1)) * i64::from(recipe.alt_gim.max(1));
-    let total: i64 = recipe.ingredients.iter().map(|&(_, n)| n).sum();
+    // Salvation's recipes carry no `altStatChange GIM`, so the grab is the
+    // skill level alone.
+    let item_grab = i64::from(skill_level.max(1));
+    let total: i64 = recipe.materials.iter().map(|&(_, n)| n).sum();
     let passes = ((total + item_grab - 1) / item_grab).max(1) as i32;
     world.objects.add_components(
         &crafter,
@@ -737,7 +761,7 @@ fn staged_start(
             customer_client,
             recipe_id,
             price,
-            remaining: recipe.ingredients.clone(),
+            remaining: recipe.materials.clone(),
             passes,
             item_grab,
             delay_ms: 0,
@@ -749,7 +773,7 @@ fn staged_start(
         customer,
         customer_client,
         recipe_id,
-        recipe.is_dwarven,
+        recipe.is_dwarven(),
         true,
     );
     world.scheduler.schedule(
@@ -778,14 +802,15 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
     };
     // `calculateStatUse(isWait = true, isReduce = true)` — per-pass share.
     let (mp_share, hp_share) = (
-        f64::from(recipe.mp_use) / f64::from(session.passes),
-        f64::from(recipe.hp_use) / f64::from(session.passes),
+        mp_use(&recipe) / f64::from(session.passes),
+        hp_use(&recipe) / f64::from(session.passes),
     );
     let Some((cur_mp, _, cur_hp)) = vitals(world, crafter) else {
         world.objects.remove_component::<ActiveCraft>(&crafter);
         return;
     };
-    if (recipe.mp_use > 0 && cur_mp < mp_share) || (recipe.hp_use > 0 && cur_hp <= hp_share) {
+    if (mp_use(&recipe) > 0.0 && cur_mp < mp_share) || (hp_use(&recipe) > 0.0 && cur_hp <= hp_share)
+    {
         // Short on HP/MP: rest — gauge + retry after the same delay, nothing
         // consumed (Java's isWait branch).
         send_to_player(
@@ -835,12 +860,12 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
     }
 
     // Delay = speed × the create skill's reuse (Java `getReuseTime(_skill)`).
-    let skill_id = if recipe.is_dwarven {
+    let skill_id = if recipe.is_dwarven() {
         SKILL_CREATE_DWARVEN
     } else {
         SKILL_CREATE_COMMON
     };
-    let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven);
+    let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven());
     let reuse_ms = world
         .data
         .skill_data
@@ -900,7 +925,7 @@ pub(crate) fn handle_craft_finish(world: &mut World, crafter: i32) {
     };
     // Re-verify the materials are still there (Java's `listItems(true)` after
     // the passes — "handle possible cheaters here").
-    for &(item_id, need) in &recipe.ingredients {
+    for &(item_id, need) in &recipe.materials {
         let have = world
             .objects
             .get_component::<Inventory>(&session.customer)
@@ -938,7 +963,7 @@ fn settle_and_reward(
     customer_client: u32,
     recipe_id: i32,
     price: i64,
-    recipe: &RecipeList,
+    recipe: &RecipeHolder,
 ) {
     let sm_customer = |world: &World, msg: i16, params: &[SmParam]| {
         send_to_client(world, customer_client, sp::system_message_with(msg, params));
@@ -952,7 +977,7 @@ fn settle_and_reward(
     }
 
     // Consume materials from the customer + disappear messages.
-    for &(item_id, need) in &recipe.ingredients {
+    for &(item_id, need) in &recipe.materials {
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&customer) {
             inv.remove_item(item_id, need);
         }
@@ -968,7 +993,7 @@ fn settle_and_reward(
     }
 
     // Roll success (`Rnd.get(100) < successRate`, `CRAFT_RATE` = 0 here).
-    let success = world.roll(100) < recipe.success_rate;
+    let success = f64::from(world.roll(100)) < recipe.success_rate;
     if success {
         reward(world, crafter, customer, customer_client, recipe, price);
     } else if crafter != customer {
@@ -980,7 +1005,7 @@ fn settle_and_reward(
                 sm_ids::YOU_FAILED_TO_CREATE_S2_FOR_C1_AT_THE_PRICE_OF_S3_ADENA,
                 &[
                     SmParam::PlayerName(player_name_or_empty(world, customer)),
-                    SmParam::ItemName(recipe.item_id),
+                    SmParam::ItemName(first_product_id(recipe)),
                     SmParam::Long(price),
                 ],
             ),
@@ -990,7 +1015,7 @@ fn settle_and_reward(
             sm_ids::C1_HAS_FAILED_TO_CREATE_S2_AT_THE_PRICE_OF_S3_ADENA,
             &[
                 SmParam::PlayerName(player_name_or_empty(world, crafter)),
-                SmParam::ItemName(recipe.item_id),
+                SmParam::ItemName(first_product_id(recipe)),
                 SmParam::Long(price),
             ],
         );
@@ -1006,7 +1031,7 @@ fn settle_and_reward(
         customer,
         customer_client,
         recipe_id,
-        recipe.is_dwarven,
+        recipe.is_dwarven(),
         success,
     );
     inventory::send_inventory_item_list(world, customer);
@@ -1022,43 +1047,31 @@ fn reward(
     crafter: i32,
     customer: i32,
     customer_client: u32,
-    recipe: &RecipeList,
+    recipe: &RecipeHolder,
     price: i64,
 ) {
-    let mut item_id = recipe.item_id;
-    let mut count = recipe.count;
-    // Masterwork: `(rareProdId != -1) && (rareProdId == itemId || CRAFT_MASTERWORK)`
-    // then `Rnd.get(100) <= rarity`.
-    if let Some(rare) = recipe.rare
-        && (rare.item_id == item_id || world.cfg.character.craft_masterwork)
-        && world.roll(100) <= rare.rarity
-    {
-        item_id = rare.item_id;
-        count = rare.count;
-    }
+    // `RecipeHolder.getRandomProduct()` — one draw over the product group. A
+    // group whose chances never outnumber the draw yields nothing.
+    let Some(product) = recipe.random_product(f64::from(world.roll(100))) else {
+        return;
+    };
+    let (item_id, count) = (product.item_id, product.count);
 
-    inventory::add_inventory_item(world, customer, item_id, count as i64);
+    inventory::add_inventory_item(world, customer, item_id, count);
     // `rewardPlayer`'s ALT_GAME_CREATION tail: the crafter earns XP/SP scaled
     // by the recipe level, the rare production, and the creation-speed knobs.
     if world.cfg.character.alt_game_creation {
         let cfgc = &world.cfg.character;
-        let mut exp = recipe.alt_exp.unwrap_or_else(|| {
-            let reference = world
-                .data
-                .item_data
-                .get(item_id)
-                .map(|t| t.price)
-                .unwrap_or(0);
-            reference * i64::from(count) / i64::from(recipe.level.max(1))
-        });
-        let mut sp = recipe.alt_sp.unwrap_or(exp / 10);
-        if recipe.rare.is_some_and(|r| r.item_id == item_id) {
-            exp = (exp as f64 * cfgc.alt_game_creation_rare_xpsp_rate) as i64;
-            sp = (sp as f64 * cfgc.alt_game_creation_rare_xpsp_rate) as i64;
-        }
-        let (mut exp, mut sp) = (exp.max(0), sp.max(0));
+        let reference = world
+            .data
+            .item_data
+            .get(item_id)
+            .map(|t| t.price)
+            .unwrap_or(0);
+        let exp = reference * count / i64::from(recipe.level.max(1));
+        let (mut exp, mut sp) = (exp.max(0), (exp / 10).max(0));
         // Crafting under-level recipes decays the reward 4× per level over.
-        let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven);
+        let skill_level = craft_skill_level(world, crafter, recipe.is_dwarven());
         for _ in recipe.level..skill_level {
             exp /= 4;
             sp /= 4;
@@ -1110,7 +1123,7 @@ fn reward(
                     sm_ids::S3_S2_S_HAVE_BEEN_CREATED_FOR_C1_AT_THE_PRICE_OF_S4_ADENA,
                     &[
                         SmParam::PlayerName(customer_name.clone()),
-                        SmParam::Int(count),
+                        SmParam::Int(count as i32),
                         SmParam::ItemName(item_id),
                         SmParam::Long(price),
                     ],
@@ -1123,7 +1136,7 @@ fn reward(
                     sm_ids::C1_CREATED_S3_S2_S_AT_THE_PRICE_OF_S4_ADENA,
                     &[
                         SmParam::PlayerName(crafter_name),
-                        SmParam::Int(count),
+                        SmParam::Int(count as i32),
                         SmParam::ItemName(item_id),
                         SmParam::Long(price),
                     ],
@@ -1139,7 +1152,7 @@ fn reward(
             customer_client,
             sp::system_message_with(
                 sm_ids::YOU_HAVE_EARNED_S2_S1_S,
-                &[SmParam::ItemName(item_id), SmParam::Long(count as i64)],
+                &[SmParam::ItemName(item_id), SmParam::Long(count)],
             ),
         );
     } else {
@@ -1218,7 +1231,7 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
         .items
         .iter()
         .filter(|(id, _)| {
-            world.data.recipes.get(*id).map(|r| r.is_dwarven) == Some(is_dwarven)
+            world.data.recipes.get(*id).map(|r| r.is_dwarven()) == Some(is_dwarven)
                 && world
                     .objects
                     .get_component::<components::commerce::RecipeBook>(&oid)

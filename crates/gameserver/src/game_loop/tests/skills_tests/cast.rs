@@ -128,8 +128,9 @@ fn incoming_magic_damage_can_break_precast() {
     // d100 (PvP accuracy branch, rate 98 → 0 lands, so damage is unreduced),
     // the random-damage d21 (10 is the middle, i.e. a ×1.0 spread — the term
     // `calcMagicDam` multiplies by, added when the formula-parity sweep found
-    // it missing), then the atk-break d100 → 0 always breaks (rate ≥ 1).
-    world.force_rolls([999, 0, 10, 0]);
+    // it missing), the Real Target break d100 (50, none), then the atk-break
+    // d100 → 0 always breaks (rate ≥ 1).
+    world.force_rolls([999, 0, 10, 50, 0]);
 
     advance_ticks(&mut world, 45);
 
@@ -184,7 +185,7 @@ fn cast_discards_inflight_move() {
         .unwrap()
         .running = true;
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
     assert!(world.objects.has_component::<Movement>(&3001));
     drain(&mut a_rx);
 
@@ -212,7 +213,7 @@ fn cast_discards_inflight_move() {
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     drain(&mut a_rx);
     drain(&mut b_rx);
-    handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
     assert!(world.objects.has_component::<Movement>(&3001));
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
@@ -246,7 +247,7 @@ fn broadcast_is_scoped_to_surrounding_regions() {
         .unwrap()
         .run_spd = 100.0;
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
 
     assert_eq!(
         near_rx.try_recv().unwrap()[0],

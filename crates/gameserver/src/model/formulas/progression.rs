@@ -84,7 +84,8 @@ pub fn calc_atk_break(
 ///   so every class multiplier is 1.0 and the slip cannot be observed.
 /// - the raid `*_DEFENCE` terms are read off the **attacker**, not the target.
 ///
-/// Dragon weapons (`DRAGON_WEAPON_DEFENCE`) do not exist in Interlude.
+/// The PvP arm's `dragonDefense` factor and both arms' `Math.max(0.05, …)`
+/// floor are applied by the caller, `effects::pvp_pve_bonus`.
 #[allow(clippy::too_many_arguments)]
 pub fn calculate_pvp_pve_bonus(
     attack_mul: f64,

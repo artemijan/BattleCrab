@@ -1,0 +1,138 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="list">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="arena" maxOccurs="unbounded" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="doorA">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute type="xs:string" name="list" use="optional" />
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="doorB">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute type="xs:string" name="list" use="optional" />
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="waitLocations">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="point" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute type="xs:int" name="x" use="optional" />
+														<xs:attribute type="xs:int" name="y" use="optional" />
+														<xs:attribute type="xs:short" name="z" use="optional" />
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="battleLocations">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="point" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute type="xs:int" name="x" use="optional" />
+														<xs:attribute type="xs:int" name="y" use="optional" />
+														<xs:attribute type="xs:short" name="z" use="optional" />
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="watcherLocations">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="point" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute type="xs:int" name="x" use="optional" />
+														<xs:attribute type="xs:int" name="y" use="optional" />
+														<xs:attribute type="xs:short" name="z" use="optional" />
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="buffs">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="skill" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute type="xs:short" name="id" use="optional" />
+														<xs:attribute type="xs:byte" name="level" use="optional" />
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="rewards">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="item">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute type="xs:short" name="id" use="optional" />
+														<xs:attribute type="xs:byte" name="amount" use="optional" />
+														<xs:attribute type="xs:string" name="useModifers" use="optional" />
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="add_parameters">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="set" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute type="xs:string" name="name" use="optional" />
+														<xs:attribute type="xs:short" name="value" use="optional" />
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute type="xs:byte" name="id" use="optional" />
+						<xs:attribute type="xs:short" name="manager" use="optional" />
+						<xs:attribute type="xs:byte" name="minLevel" use="optional" />
+						<xs:attribute type="xs:byte" name="maxLevel" use="optional" />
+						<xs:attribute type="xs:byte" name="minPlayers" use="optional" />
+						<xs:attribute type="xs:byte" name="maxPlayers" use="optional" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

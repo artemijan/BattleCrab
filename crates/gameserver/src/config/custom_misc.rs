@@ -15,6 +15,8 @@ pub const ONLINE_INFO_CONFIG_FILE: &str = "config/Custom/OnlineInfo.ini";
 pub const PRIVATE_STORE_RANGE_CONFIG_FILE: &str = "config/Custom/PrivateStoreRange.ini";
 pub const WALKER_BOT_PROTECTION_CONFIG_FILE: &str = "config/Custom/WalkerBotProtection.ini";
 pub const CUSTOM_MAIL_MANAGER_CONFIG_FILE: &str = "config/Custom/CustomMailManager.ini";
+pub const SCHEME_BUFFER_CONFIG_FILE: &str = "config/Custom/SchemeBuffer.ini";
+pub const SAYUNE_FOR_ALL_CONFIG_FILE: &str = "config/Custom/SayuneForAll.ini";
 
 /// `Custom/CustomMailManager.ini` — the inbound `custom_mail` table poll.
 #[derive(Debug, Clone)]
@@ -46,20 +48,20 @@ impl CustomMailConfig {
     }
 }
 
-/// `Custom/AllowedPlayerRaces.ini` — which races may be created. All five are
+/// `Custom/AllowedPlayerRaces.ini` — which races may be created. All seven are
 /// `True` on this dist, so the gate is a no-op today; it is ported because an
 /// operator flipping one off is exactly the "explicitly enables" case, and a
 /// missing gate would silently ignore them.
 #[derive(Debug, Clone)]
 pub struct AllowedRacesConfig {
     /// Indexed by Java's `Race` ordinal: 0 human, 1 elf, 2 dark elf, 3 orc,
-    /// 4 dwarf. Java's own defaults are all `true`.
-    allowed: [bool; 5],
+    /// 4 dwarf, 5 kamael, 6 ertheia. Java's own defaults are all `true`.
+    allowed: [bool; 7],
 }
 
 impl Default for AllowedRacesConfig {
     fn default() -> Self {
-        Self { allowed: [true; 5] }
+        Self { allowed: [true; 7] }
     }
 }
 
@@ -79,12 +81,14 @@ impl AllowedRacesConfig {
                 p.get_bool("AllowDarkElf", true),
                 p.get_bool("AllowOrc", true),
                 p.get_bool("AllowDwarf", true),
+                p.get_bool("AllowKamael", true),
+                p.get_bool("AllowErtheia", true),
             ],
         }
     }
 
     /// Test seam: build a config with an explicit allow-list.
-    pub fn with_allowed_for_test(allowed: [bool; 5]) -> Self {
+    pub fn with_allowed_for_test(allowed: [bool; 7]) -> Self {
         Self { allowed }
     }
 
@@ -137,9 +141,18 @@ impl BankingConfig {
     }
 }
 
+/// A comma-separated id list; blank entries are skipped, as Java's
+/// `if (!id.isEmpty()) add(Integer.parseInt(id.trim()))` does.
+fn ids(p: &PropertiesParser, key: &str) -> std::collections::HashSet<i32> {
+    p.get_string(key, "")
+        .split(',')
+        .filter_map(|v| v.trim().parse().ok())
+        .collect()
+}
+
 /// `Custom/BossAnnouncements.ini` — the server-wide "X has spawned!" lines.
-/// Only the two *spawn* flags are on here; the defeat and instance flags ship
-/// `false`, so those arms are parsed and never taken.
+/// Every flag ships `false` on this dist, so the whole feature is off; only
+/// the spawn arm is ported (the defeat arm waits until a flag needs it).
 #[derive(Debug, Clone, Default)]
 pub struct BossAnnouncementsConfig {
     pub raidboss_spawn: bool,
@@ -148,6 +161,11 @@ pub struct BossAnnouncementsConfig {
     pub grandboss_spawn: bool,
     pub grandboss_defeat: bool,
     pub grandboss_instance: bool,
+    /// `RaidbossExcludedFromSpawnAnnouncements` /
+    /// `RaidbossExcludedFromDefeatAnnouncements` — npc ids never announced.
+    /// Both empty here.
+    pub excluded_from_spawn: std::collections::HashSet<i32>,
+    pub excluded_from_defeat: std::collections::HashSet<i32>,
 }
 
 impl BossAnnouncementsConfig {
@@ -166,6 +184,8 @@ impl BossAnnouncementsConfig {
             grandboss_spawn: p.get_bool("GrandBossSpawnAnnouncements", false),
             grandboss_defeat: p.get_bool("GrandBossDefeatAnnouncements", false),
             grandboss_instance: p.get_bool("GrandBossInstanceAnnouncements", false),
+            excluded_from_spawn: ids(p, "RaidbossExcludedFromSpawnAnnouncements"),
+            excluded_from_defeat: ids(p, "RaidbossExcludedFromDefeatAnnouncements"),
         }
     }
 }
@@ -186,6 +206,17 @@ pub struct CustomMiscConfig {
     /// `L2WalkerProtection` — refuse a whisper whose text opens with an
     /// L2Walker bot-client command, and punish the sender.
     pub walker_protection: bool,
+    /// `SchemeBuffer.ini`'s `BufferMaxSchemesPerChar` (4 here) — the
+    /// community board's scheme cap.
+    pub buffer_max_schemes: usize,
+    /// `BufferItemId` (57) / `BufferStaticCostPerBuff` (-1, i.e. per-buff
+    /// prices) — the SchemeBuffer NPC's fee. Read but inert: that NPC's
+    /// dialog is not ported.
+    pub buffer_item_id: i32,
+    pub buffer_static_cost_per_buff: i32,
+    /// `SayuneForAll.ini`'s `FreeJumpsForAll` — Sayune for every class, not
+    /// only the Awakened (`SIXTH_CLASS_GROUP`). False on this dist.
+    pub free_jumps_for_all: bool,
 }
 
 impl Default for CustomMiscConfig {
@@ -196,6 +227,10 @@ impl Default for CustomMiscConfig {
             shop_min_range_from_player: 50,
             shop_min_range_from_npc: 100,
             walker_protection: false,
+            buffer_max_schemes: 4,
+            buffer_item_id: 57,
+            buffer_static_cost_per_buff: -1,
+            free_jumps_for_all: false,
         }
     }
 }
@@ -206,12 +241,21 @@ impl CustomMiscConfig {
         let online = PropertiesParser::load_rel(root, ONLINE_INFO_CONFIG_FILE);
         let shop = PropertiesParser::load_rel(root, PRIVATE_STORE_RANGE_CONFIG_FILE);
         let walker = PropertiesParser::load_rel(root, WALKER_BOT_PROTECTION_CONFIG_FILE);
+        let buffer = PropertiesParser::load_rel(root, SCHEME_BUFFER_CONFIG_FILE);
+        let sayune = PropertiesParser::load_rel(root, SAYUNE_FOR_ALL_CONFIG_FILE);
         Self {
             online_command: online.get_bool("EnableOnlineCommand", d.online_command),
             shop_min_range_from_player: shop
                 .get_int("ShopMinRangeFromPlayer", d.shop_min_range_from_player),
             shop_min_range_from_npc: shop.get_int("ShopMinRangeFromNpc", d.shop_min_range_from_npc),
             walker_protection: walker.get_bool("L2WalkerProtection", d.walker_protection),
+            buffer_max_schemes: buffer
+                .get_int("BufferMaxSchemesPerChar", d.buffer_max_schemes as i32)
+                .max(0) as usize,
+            buffer_item_id: buffer.get_int("BufferItemId", d.buffer_item_id),
+            buffer_static_cost_per_buff: buffer
+                .get_int("BufferStaticCostPerBuff", d.buffer_static_cost_per_buff),
+            free_jumps_for_all: sayune.get_bool("FreeJumpsForAll", d.free_jumps_for_all),
         }
     }
 }
@@ -229,30 +273,31 @@ mod tests {
 
     const DIST: &str = crate::data::DIST_GAME;
 
-    /// The dist's values, which are the specification. `BankingEnabled` and
-    /// `EnableOnlineCommand` both differ from Java's code default, so reading
-    /// the file is what makes them true.
+    /// The dist's values, which are the specification.
     #[test]
     fn dist_values_load() {
         let banking = BankingConfig::load_from(DIST);
-        assert!(banking.enabled, "BankingEnabled = True");
+        assert!(!banking.enabled, "BankingEnabled = False");
         assert_eq!(banking.goldbars, 1);
-        assert_eq!(banking.adena, 1_000_000_000);
+        assert_eq!(banking.adena, 500_000_000);
 
         let misc = CustomMiscConfig::load_from(DIST);
-        assert!(misc.online_command, "EnableOnlineCommand = True");
-        assert!(misc.walker_protection, "L2WalkerProtection = True");
+        assert!(!misc.online_command, "EnableOnlineCommand = False");
+        assert!(!misc.walker_protection, "L2WalkerProtection = False");
         assert_eq!(misc.shop_min_range_from_player, 50);
         assert_eq!(misc.shop_min_range_from_npc, 100);
+        assert_eq!(misc.buffer_max_schemes, 4, "BufferMaxSchemesPerChar = 4");
+        assert_eq!(misc.buffer_item_id, 57);
+        assert_eq!(misc.buffer_static_cost_per_buff, -1);
 
         let boss = BossAnnouncementsConfig::load_from(DIST);
         assert!(
-            boss.raidboss_spawn && boss.grandboss_spawn,
-            "spawn lines on"
+            !boss.raidboss_spawn && !boss.grandboss_spawn,
+            "spawn lines off"
         );
         assert!(
             !boss.raidboss_defeat && !boss.grandboss_defeat,
-            "defeat lines off — those arms are parsed and never taken"
+            "defeat lines off"
         );
 
         let races = AllowedRacesConfig::load_from(DIST);
@@ -267,7 +312,7 @@ mod tests {
     #[test]
     fn an_unknown_race_is_allowed() {
         let races = AllowedRacesConfig {
-            allowed: [false; 5],
+            allowed: [false; 7],
         };
         assert!(!races.allows(0));
         assert!(races.allows(9), "no arm for it in Java either");

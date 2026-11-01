@@ -117,7 +117,7 @@ fn inventory_under_80(ctx: &QuestCtx) -> bool {
 }
 
 /// `calculatePointsDone`: convert the banked points to Marks of Battle
-/// (`AltOlyMarkPerPoint` each) and clear the variable — refused while the
+/// (`OlympiadMarkPerPoint` each) and clear the variable — refused while the
 /// inventory is over 80 % full.
 fn calculate_points_done(ctx: &mut QuestCtx) {
     use crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR;
@@ -132,7 +132,7 @@ fn calculate_points_done(ctx: &mut QuestCtx) {
     let points = unclaimed_points(ctx);
     if points > 0 {
         ctx.unset_player_var(UNCLAIMED_POINTS_VAR);
-        // `AltOlyCompRewItem` × `AltOlyMarkPerPoint`.
+        // `OlympiadCompRewItem` × `OlympiadMarkPerPoint`.
         let (item, per_point) = (
             ctx.world.cfg.olympiad.comp_reward_item,
             ctx.world.cfg.olympiad.mark_per_point,

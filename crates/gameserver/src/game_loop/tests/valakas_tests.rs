@@ -502,7 +502,7 @@ fn the_bypass_reaches_the_entry_through_the_router() {
         .objects
         .add_components(&PLAYER, LastFolkNpc(heart_oid));
 
-    handle_request_bypass_to_server(&mut world, CID, &bypass_body("Quest ValakasTeleporters"));
+    handle_request_bypass_to_server(&mut world, CID, &bypass_body("Script ValakasTeleporters"));
 
     assert_eq!(
         world.valakas_entry_count, 1,

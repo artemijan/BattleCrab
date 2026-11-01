@@ -1,7 +1,6 @@
 //! The scheme buffer: create/delete/apply named buff schemes and their
 //! rendering.
 
-use super::MAX_SCHEMES;
 use super::charge;
 use super::serve_page;
 use crate::game_loop::skills::skill_by_id;
@@ -54,7 +53,7 @@ pub(super) fn run_scheme_command(
     if command_name == "_bbs_buff_scheme_create"
         && let Some(schemes) = world.buffer_schemes.get(&object_id)
     {
-        if schemes.len() >= MAX_SCHEMES {
+        if schemes.len() >= world.cfg.custom_misc.buffer_max_schemes {
             return Err("Maximum schemes amount is already reached.".to_string());
         }
         if schemes

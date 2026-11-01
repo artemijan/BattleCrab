@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17100" toLevel="1" name="Transform: Merchant ParaPara Cat">
-		<!-- Transforms into Merchant ParaPara Cat. -->
+		<!-- For 1 hr., transforms into Merchant ParaPara Cat. -->
 		<icon>icon.skilltransform1</icon>
 		<operateType>A2</operateType>
 		<effectPoint>1</effectPoint>
@@ -19,10 +19,10 @@
 		<!-- For 3 hr., you change into a Santa Outfit. All stats +1. Buff remains even after death. -->
 		<icon>BranchSys.icon.br_xmas_present_fun_i00</icon>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<reuseDelay>10800000</reuseDelay>
 		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
 		<isMagic>4</isMagic>
+		<reuseDelay>10800000</reuseDelay>
 	</skill>
 	<skill id="17104" toLevel="1" name="Bae Kisung Teleport - Town of Aden">
 		<!-- Teleport to the Town of Aden. Usable only when Agathion's Seal is released. -->
@@ -49,36 +49,36 @@
 		<!-- Snowman's gift. Cannot receive again until it's expired. -->
 		<icon>icon.weapon_snowman_stick_i00</icon>
 		<operateType>A2</operateType>
-		<isMagic>1</isMagic>
 		<effectPoint>-2</effectPoint>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 	</skill>
 	<skill id="17108" toLevel="1" name="Snowman's Buff">
 		<!-- Vitality is replenished in peace zones. -->
 		<icon>icon.weapon_snowman_stick_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>30000</reuseDelay>
 		<effectPoint>100</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="17109" toLevel="1" name="-">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17110" toLevel="1" name="Snowy Squash Nectar">
+	<skill id="17110" toLevel="1" name="Nectar">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>200</castRange>
 		<effectPoint>-150</effectPoint>
 		<reuseDelay>2000</reuseDelay>
 	</skill>
-	<skill id="17111" toLevel="1" name="Snowy Squash Seed">
+	<skill id="17111" toLevel="1" name="Wintermelon Seed">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<hitTime>1500</hitTime>
 		<reuseDelay>10000</reuseDelay>
 	</skill>
-	<skill id="17112" toLevel="1" name="Large Snowy Squash Seed">
+	<skill id="17112" toLevel="1" name="Large Wintermelon Seed">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<hitTime>1500</hitTime>
@@ -101,7 +101,8 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17117" toLevel="2" name="Rune of Bountiful Growth">
-		<!-- Increases acquired XP and SP by 20%. -->
+		<!-- Level 1: Increases acquired XP and SP by 20%. -->
+		<!-- Level 2: Increases acquired XP and SP by 30%. -->
 		<icon>
 			<value level="1">icon.ev_charge_run</value>
 			<value level="2">br_cashtex.item.br_cash_rune_of_feather_i00</value>
@@ -123,25 +124,26 @@
 		</effects>
 	</skill>
 	<skill id="17118" toLevel="1" name="Emperor's Growth Scroll">
-		<!-- XP/SP +30% for 1 hour. -->
+		<!-- XP/ SP +30% for 1 hour. -->
 		<icon>icon.etc_recall_exp_scroll</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="17119" toLevel="1" name="Emperor's Vitality Tonic">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37560</itemConsumeId> <!-- Emperor's Vitality Tonic -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 		</conditions>
@@ -153,16 +155,18 @@
 	</skill>
 	<skill id="17120" toLevel="1" name="Emperor's Vitality Tonic (Medium)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>37561</itemConsumeId> <!-- Emperor's Vitality Tonic -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<staticReuse>true</staticReuse>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37561</itemConsumeId> <!-- Emperor's Vitality Tonic -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 		</conditions>
@@ -174,16 +178,18 @@
 	</skill>
 	<skill id="17121" toLevel="1" name="Emperor's Special Vitality Tonic (3 bars)">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>37562</itemConsumeId> <!-- Emperor's Vitality Tonic -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<staticReuse>true</staticReuse>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37562</itemConsumeId> <!-- Emperor's Vitality Tonic -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 		</conditions>
@@ -205,7 +211,30 @@
 		<isMagic>4</isMagic>
 	</skill>
 	<skill id="17124" toLevel="24" name="Snake's Blessing - Stage 1">
-		<!-- Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 1: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 2: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 3: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 4: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 5: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 6: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 7: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 8: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 9: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 10: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 11: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 12: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 13: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 14: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 15: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 16: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 17: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 18: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 19: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 20: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 21: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 22: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 23: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. Return to Snake for another buff when the buff wears out. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
+		<!-- Level 24: Happy 2013! You can obtain a card in 1 hr. There are 23 stages, so you can acquire up to 23 cards. <Note:> If you are dead while the item is given, you cannot acquire the Snake's Blessing buff or the cards. You also cannot acquire the cards if your inventory is full. -->
 		<icon>icon.card_event_everyday_gift</icon>
 		<operateType>A2</operateType>
 		<castRange>
@@ -280,29 +309,29 @@
 		<!-- CON +5, MEN +5, damage reflect +20% for 30 minutes. -->
 		<icon>icon.card_dragon_gold</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17128" toLevel="1" name="Successors of Destiny">
 		<!-- STR +5, INT +5, P. Def. +10% for 30 minutes. -->
 		<icon>icon.card_hero_red</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17129" toLevel="1" name="Dragon Rising">
 		<!-- STR +5, INT +5, M. Def. +10% for 30 minutes. -->
 		<icon>icon.card_devil_black</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17130" toLevel="1" name="Awakening Darkness">
 		<!-- STR +5, INT +5, resistance to 6 attributes +100 for 30 minutes. -->
 		<icon>icon.card_angel_blue</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17131" toLevel="1" name="Treasure Chest">
 		<icon>icon.skill0000</icon>
@@ -389,18 +418,18 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17152" toLevel="1" name="Mysterious Healthy Juice">
-		<!-- Instantly recovers your HP/CP by 30000. -->
+		<!-- Instantly recovers your HP/ CP by 30000. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37659</itemConsumeId> <!-- Mysterious Healthy Juice (HP/CP) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>300000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="Hp">
 				<amount>30000</amount>
@@ -415,14 +444,14 @@
 	<skill id="17153" toLevel="1" name="Heavenly Recovery Potion">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<itemConsumeId>37671</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37671</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>2500</power>
@@ -430,31 +459,31 @@
 		</effects>
 	</skill>
 	<skill id="17154" toLevel="1" name="Love Potion">
-		<!-- A strange sensation fogs your brain. Your heart is racing. Your weapon seems to be changing shape. Is that a lady orc? Her muscles are mesmerizing... For 2 minutes, P. Atk. / M. Atk. / Atk. Spd. / Casting Spd. x 2. Effect disappears upon logout. -->
+		<!-- A strange sensation fogs your brain. Your heart is racing. Your weapon seems to be changing shape. Is that a lady orc? Her muscles are mesmerizing... For 2 minutes, P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. x 2. Effect disappears upon logout. -->
 		<icon>icon.etc_whiteday_herb</icon>
-		<itemConsumeId>37704</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
 		<abnormalVisualEffect>CHANGE_VALENTINE</abnormalVisualEffect>
-		<magicCriticalRate>5</magicCriticalRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37704</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100.0</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>100.0</amount>
 				<mode>PER</mode>
 			</effect>
@@ -472,21 +501,21 @@
 		<!-- Equipped weapon changes shape. Is it the sweet magic Coco emits? The effect disappears upon logout. -->
 		<icon>icon.etc_whiteday_herb</icon>
 		<operateType>A2</operateType>
-		<hitTime>100</hitTime>
-		<effectPoint>100</effectPoint>
+		<targetType>TARGET</targetType>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
 		<abnormalVisualEffect>CHANGE_VALENTINE</abnormalVisualEffect>
-		<hitCancelTime>0</hitCancelTime>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>100</hitTime>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100.0</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>100.0</amount>
 				<mode>PER</mode>
 			</effect>
@@ -501,24 +530,24 @@
 		</effects>
 	</skill>
 	<skill id="17156" toLevel="1" name="Decadence">
-		<!-- A deliciously dark flavor surrounds you. For 2 hours, STR + 2, INT + 2, and Attribute Resistance +20. -->
+		<!-- A deliciously dark flavor surrounds you. For 2 hours, STR +2, INT +2, and Attribute Resistance +20. -->
 		<icon>icon.etc_whiteday_choco</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>7200</abnormalTime>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
-		<effectPoint>100</effectPoint>
+		<effectPoint>0</effectPoint>
 		<hitTime>700</hitTime>
 		<isMagic>4</isMagic> <!-- Item Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37705</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="StatUp">
 				<amount>2</amount>
@@ -560,22 +589,22 @@
 	<skill id="17157" toLevel="1" name="Sugar Rush">
 		<!-- An exhilarating thrill of sweet energy. For 2 hours, STR +2, INT +2, DEX +2, and WIT +2. -->
 		<icon>icon.etc_whiteday_candy</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>7200</abnormalTime>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
-		<effectPoint>100</effectPoint>
+		<effectPoint>0</effectPoint>
 		<hitTime>700</hitTime>
 		<isMagic>4</isMagic> <!-- Item Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37706</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="StatUp">
 				<amount>2</amount>
@@ -598,22 +627,22 @@
 	<skill id="17158" toLevel="1" name="Forever Alone">
 		<!-- Activating shield of self-built perfection. For 2 hours, STR +2, INT +2, CON +2, and MEN +2. -->
 		<icon>icon.etc_whiteday_cookie</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>7200</abnormalTime>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
-		<effectPoint>100</effectPoint>
+		<effectPoint>0</effectPoint>
 		<hitTime>700</hitTime>
 		<isMagic>4</isMagic> <!-- Item Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37707</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="StatUp">
 				<amount>2</amount>
@@ -636,23 +665,23 @@
 	<skill id="17159" toLevel="1" name="Transformation Skill">
 		<!-- For 60 minutes, you can transform into one of the following: Snow Man, Scarecrow Jack, Tin Golem, Makeshift Bat, Lady Tow, Angry tow, and Sleepy Tow. -->
 		<icon>icon.skill11540</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>5000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>115</transformId>
@@ -667,17 +696,17 @@
 	<skill id="17160" toLevel="1" name="Summon Friend">
 		<!-- You can summon a selected target. Only possible while in a party. Cooldown is 30 minutes. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>OTHERS</targetType>
+		<affectScope>SINGLE</affectScope>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>1000</effectPoint>
 		<effectRange>-2</effectRange>
 		<hitTime>5000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1800000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>OTHERS</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<conditions>
 			<condition name="OpCallPc" />
 			<condition name="TargetMyParty">
@@ -695,15 +724,15 @@
 		<!-- Vitality is replenished in peace zones. -->
 		<icon>icon.etc_whiteday_choco_long</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>BR_EVENT_BUF2</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="RecoverVitalityInPeaceZone">
 				<amount>100</amount>
@@ -715,15 +744,15 @@
 		<!-- Vitality is replenished in peace zones. -->
 		<icon>icon.etc_whiteday_candy_long</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>BR_EVENT_BUF2</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="RecoverVitalityInPeaceZone">
 				<amount>100</amount>
@@ -735,15 +764,15 @@
 		<!-- Vitality is replenished in peace zones. -->
 		<icon>icon.etc_whiteday_cookie_long</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>BR_EVENT_BUF2</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="RecoverVitalityInPeaceZone">
 				<amount>100</amount>
@@ -754,37 +783,37 @@
 	<skill id="17164" toLevel="1" name="Demonic Sword Zariche Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="17165" toLevel="1" name="Blood Sword Akamanah Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="17166" toLevel="1" name="GM's Blessing - Knight's Harmony">
-		<!-- The GM is always with you. For 1 hour, P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Defense Rate +30%, and Shield Defense +50%. -->
+	<skill id="17166" toLevel="1" name="Knight's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Def +45%, M. Def +15%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. -->
 		<icon>icon.skill11523</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -824,20 +853,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17167" toLevel="1" name="GM's Blessing - Warrior's Harmony">
-		<!-- The GM is always with you. For 1 hour, P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, Speed +8. -->
+	<skill id="17167" toLevel="1" name="Warrior's Harmony - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, P. Atk. +22%, P. Critical Damage +100%, P. Critical Rate +70%, Atk. Spd. +10%, Movement Speed +10. -->
 		<icon>icon.skill11524</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -847,7 +876,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
@@ -867,7 +896,7 @@
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<chance>99</chance>
 				<isCritical>false</isCritical>
@@ -879,20 +908,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17168" toLevel="1" name="GM's Blessing - Wizard's Harmony">
-		<!-- The GM is always with you. For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Spd. +8, M. Def. +14%, and MP Recovery Bonus +20%. Also, M. Skill MP Consumption - 15%, P. Skill MP Consumption - 5%, and Skill Cooldown - 20%. -->
+	<skill id="17168" toLevel="1" name="Wizard's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +15%, Skill Cooldown -20%, and Skill MP Consumption -15%. -->
 		<icon>icon.skill11525</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<castRange>400</castRange>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -902,7 +931,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>45</amount>
 				<mode>PER</mode>
 			</effect>
@@ -965,20 +994,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17169" toLevel="1" name="GM's Blessing - Horn Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Atk. +23%, P. Def. +15%, M. Atk. +91%, and M. Def. +30%. -->
+	<skill id="17169" toLevel="1" name="Horn Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Atk. +23%, M. Atk. +88%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -988,11 +1017,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1006,28 +1035,28 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17170" toLevel="1" name="GM's Blessing - Drum Melody">
-		<!-- The GM is always with you. For 1 hour, Max MP +20%, HP Recovery Bonus +20%, M. Critical Rate +20, Critical Damage during a standard attack +20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, and Debuff Resistance +10%. Decreases critical damage - 30%. Additionally increases Critical Damage during a standard attack when receiving more than a certain amount of damage while equipped with a melee weapon, bow, or crossbow. -->
+	<skill id="17170" toLevel="1" name="Drum Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Critical Rate +30%, P. Critical Damage +30%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
-		<abnormalLevel>5</abnormalLevel>
-		<abnormalTime>3600</abnormalTime>
-		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>5</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>BUFF_SPECIAL_DEFENCE</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
 				<targetType>SELF</targetType>
 				<minDamage>300</minDamage>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -1050,25 +1079,25 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-50</amount>
+				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17171" toLevel="1" name="GM's Blessing - Pipe Organ Melody">
-		<!-- The GM is always with you. For 1 hour, increases Max HP +43%, Max MP +43%, Max CP +43%, and HP recovery bonus +20%. -->
+	<skill id="17171" toLevel="1" name="Pipe Organ Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Max HP +37%, Max MP +62%, and Max CP +37%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<operateType>A2</operateType>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -1100,20 +1129,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17172" toLevel="1" name="GM's Blessing - Guitar Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Critical Rate +38%, P. Critical Damage +35%, and M. Critical Rate +20. Decreases MP consumption for physical skills - 20% and magic skills - 10%. Decreases MP consumption for Iss Enchanter's enchant skills - 20%. -->
+	<skill id="17172" toLevel="1" name="Guitar Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Atk. Spd. +63%, Casting Spd. +61%, and Speed +25, and decreases Skill MP Consumption by 10%. -->
 		<icon>icon.skill11520</icon>
-		<abnormalLevel>5</abnormalLevel>
-		<abnormalTime>3600</abnormalTime>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>5</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -1157,34 +1186,36 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17173" toLevel="1" name="GM's Blessing - Harp Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Accuracy +8, physical and magic evasion +8, and speed +37. Decreases received critical damage - 30%. -->
+	<skill id="17173" toLevel="1" name="Harp Melody - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, P. Accuracy +8, physical and magic evasion +8, and speed +37. Received critical damage -30%. -->
 		<icon>icon.skill11521</icon>
 		<operateType>A2</operateType>
+		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
 		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="17174" toLevel="1" name="GM's Blessing - Lute Melody">
-		<!-- The GM is always with you. For 1 hour, increases Atk. Spd. +37% and Casting Spd. +34%. Applies Vampiric Rage effect +9% with a certain probability. -->
+	<skill id="17174" toLevel="1" name="Lute Melody - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, Atk. Spd. +37% and Casting Spd. +34%. Applies Vampiric Rage effect +9% with a certain probability. -->
 		<icon>icon.skill11518</icon>
 		<operateType>A2</operateType>
+		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="17175" toLevel="1" name="GM's Blessing - Prevailing Sonata">
-		<!-- The GM is always with you. For 1 hour, increases Atk. Spd. by 15%, Casting Spd. by 30%, Max HP by 30%, MP recovery bonus by 20% and decreases MP Consumption for magic skill by 10% and the magic cancel rate. -->
+		<!-- The GM is always by your side. For 1 hour, Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
 		<icon>icon.skill11529</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
-		<abnormalTime>3600</abnormalTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
@@ -1198,11 +1229,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1216,20 +1247,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17176" toLevel="1" name="GM's Blessing - Daring Sonata">
-		<!-- The GM is always with you. For 1 hour, increases P. Atk. by 8%, M. Atk. by 16%, Atk. Spd. and Casting Spd. by 8% and decreases P. Def. by 3%, M. Def. by 11% and P. Evasion by 4. Also bestows a chance of applying 8% Vampiric Rage effect and reflects 10% of received damage back to the enemy. -->
+	<skill id="17176" toLevel="1" name="Daring Sonata - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
 		<icon>icon.skill11530</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>ENCHANTER_MOD</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<abnormalTime>3600</abnormalTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -1271,20 +1302,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17177" toLevel="1" name="GM's Blessing - Refreshing Sonata">
-		<!-- The GM is always with you. For 1 hour, increases HP Recovery Bonus by 20%, P.?Accuracy by 4, P.?Evasion by 3, Speed by 20, and decreases MP Consumption for skills by 20% and skill Cooldown by 10%. -->
+	<skill id="17177" toLevel="1" name="Refreshing Sonata - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, HP Recovery Bonus +75%, MP Recovery Bonus +50%, P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
 		<icon>icon.skill11532</icon>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>SYNERGY_IS</abnormalType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<abnormalTime>3600</abnormalTime>
+		<effectPoint>1</effectPoint>
 		<effectRange>900</effectRange>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<magicLevel>1</magicLevel>
-		<effectPoint>1</effectPoint>
 		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
@@ -1363,20 +1394,20 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17186" toLevel="1" name="Dandy's Cheers">
-		<!-- For 2 hours, increases P. Atk. +5%, Atk. Spd. +5%, P. Critical Rate +30, M. Atk. +10%, Casting Spd. +5%, M. Critical Rate +20. MP consumption - 3%, Cooldown - 3%. Does not apply at the same time as the Dandy's Passion and Dandy's Faith buffs. Armor's appearance changes to that of the NC Dinos Uniform. -->
+		<!-- For 2 hours, increases P. Atk. +5%, Atk. Spd. +5%, P. Critical Rate +30, M. Atk. +10%, Casting Spd. +5%, M. Critical Rate +20. MP consumption -3%, Cooldown -3%. Does not apply at the same time as the Dandy's Passion and Dandy's Faith buffs. Armor's appearance changes to that of the NC Dinos Uniform. -->
 		<icon>BranchSys2.icon.br_worldcup_stick_i04</icon>
 		<operateType>A2</operateType>
-		<isMagic>4</isMagic>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
 		<abnormalVisualEffect>CHANGE_DINOS</abnormalVisualEffect>
-		<hitCancelTime>0</hitCancelTime>
-		<specialLevel>-1</specialLevel>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>4</isMagic>
+		<specialLevel>-1</specialLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1388,7 +1419,7 @@
 				<amount>30</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1441,19 +1472,19 @@
 		<!-- For 60 minutes, increases acquired XP and SP by 30%. Does not apply at the same time as Scroll: Energy of Glory. -->
 		<icon>BranchSys.icon.br_xmas_scroll_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>4</isMagic>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PREMIUM_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37731</itemConsumeId> <!-- Dandy's Scroll: Challenge -->
-		<effectPoint>1</effectPoint>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>30</amount>
@@ -1464,24 +1495,24 @@
 		</effects>
 	</skill>
 	<skill id="17188" toLevel="1" name="Dandy's Faith">
-		<!-- For 60 minutes, increases P. Atk. +5%, Atk. Spd. +5%, P. Critical Rate +30, M. Atk. +10%, Casting Spd. +5%, M. Critical Rate +20. MP consumption - 3%, Cooldown - 3%. Does not apply at the same time as the Dandy's Cheer and Dandy's Faith buffs. -->
+		<!-- For 60 minutes, increases P. Atk. +5%, Atk. Spd. +5%, P. Critical Rate +30, M. Atk. +10%, Casting Spd. +5%, M. Critical Rate +20. MP consumption -3%, Cooldown -3%. Does not apply at the same time as the Dandy's Cheer and Dandy's Faith buffs. -->
 		<icon>BranchSys.icon.br_xmas_scroll_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>4</isMagic>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PREMIUM_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37729</itemConsumeId> <!-- Dandy's Scroll: Faith -->
-		<effectPoint>1</effectPoint>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1493,7 +1524,7 @@
 				<amount>30</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1543,22 +1574,22 @@
 		</effects>
 	</skill>
 	<skill id="17189" toLevel="1" name="Dandy's Passion">
-		<!-- For 60 minutes, decreases all received damage - 10%. Does not apply at the same time as Dandy's Cheer and Dandy's Faith buffs. -->
+		<!-- For 60 minutes, decreases all received damage -10%. Does not apply at the same time as Dandy's Cheer and Dandy's Faith buffs. -->
 		<icon>BranchSys.icon.br_xmas_scroll_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>4</isMagic>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PREMIUM_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>4</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37730</itemConsumeId> <!-- Dandy's Scroll: Passion -->
-		<effectPoint>1</effectPoint>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="PveMagicalSkillDefenceBonus">
 				<amount>10</amount>
@@ -1597,12 +1628,11 @@
 	<skill id="17192" toLevel="1" name="Change Hair Accessory">
 		<!-- Change hair accessories. -->
 		<icon>icon.skill0810</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
 		<operateType>A1</operateType>
-		<reuseDelay>180000</reuseDelay>
-		<effectPoint>1</effectPoint>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<isMagic>2</isMagic> <!-- Static Skill -->
 		<effects>
 			<effect name="HairAccessorySet" />
 		</effects>
@@ -1621,18 +1651,18 @@
 		<!-- Use this to increase the defense rate against Stun by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i01</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37792</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37792</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>5</SHOCK>
@@ -1643,18 +1673,18 @@
 		<!-- Use this to increase the defense rate against Hold by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i06</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37793</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37793</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>5</HOLD>
@@ -1665,18 +1695,18 @@
 		<!-- Use this to increase the defense rate against Bleed by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i00</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37794</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37794</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>5</BLEED>
@@ -1687,18 +1717,18 @@
 		<!-- Use this to increase the defense rate against Paralyze by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i07</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37795</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37795</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>5</PARALYZE>
@@ -1709,18 +1739,18 @@
 		<!-- Use this to increase the defense rate against Mental by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i04</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37796</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37796</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>5</DERANGEMENT>

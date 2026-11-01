@@ -23,16 +23,15 @@ import org.l2jmobius.gameserver.model.events.EventType;
 import org.l2jmobius.gameserver.model.events.ListenerRegisterType;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.OnDayNightChange;
+import org.l2jmobius.gameserver.model.events.holders.OnDayNightChange;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.spawns.SpawnTemplate;
-import org.l2jmobius.gameserver.taskmanager.GameTimeTaskManager;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.taskmanagers.GameTimeTaskManager;
 
 /**
  * @author UnAfraid
  */
-public class DayNightSpawns extends AbstractNpcAI
+public class DayNightSpawns extends Script
 {
 	private static final String NIGHT_GROUP_NAME = "nightTime";
 	private static final String DAY_GROUP_NAME = "dayTime";

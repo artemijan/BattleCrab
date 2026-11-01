@@ -28,7 +28,7 @@ pub fn calc_resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
 /// `Formulas.calcEffectSuccess` — a continuous skill's landing chance in percent.
 ///
 /// ```java
-/// if (activateRate == -1) return true;
+/// if ((activateRate == -1) || (activateRate > 99)) return true;
 /// int magicLevel = skill.getMagicLevel();
 /// if (magicLevel <= -1) magicLevel = target.getLevel() + 3;
 /// final double targetBasicProperty = getAbnormalResist(skill.getBasicProperty(), target);
@@ -45,7 +45,7 @@ pub fn calc_resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
 /// STATE_SUCCESS_RATE` and are overridden by no skill this dist can reach — the
 /// 15 that declare their own bounds are all id ≥ 11537 and none is learnable —
 /// so [`LandRateBounds`] carries the config pair alone.
-/// `Character.ini`'s `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate`
+/// `Player.ini`'s `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate`
 /// — the `constrain(rate, minChance, maxChance)` bounds in
 /// `Formulas.calcEffectLandRate`. Carried as a struct for the same reason
 /// [`crate::model::npc_stats::NpcStatMods`] is: the formula stays a pure function of its
@@ -105,7 +105,9 @@ pub fn calc_effect_land_rate(
     // `Config.MIN_/MAX_ABNORMAL_STATE_SUCCESS_RATE`, the `constrain` bounds.
     bounds: LandRateBounds,
 ) -> f64 {
-    if activate_rate == -1 {
+    // Salvation also lets anything above 99 through unrolled: an
+    // `activateRate` of 100 used to be clamped down to `MaxAbnormalStateSuccessRate`.
+    if activate_rate == -1 || activate_rate > 99 {
         return 100.0;
     }
     let magic_level = if magic_level <= -1 {
@@ -176,6 +178,14 @@ mod tests {
         // activateRate -1 → guaranteed.
         assert!(
             (calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
+                - 100.0)
+                .abs()
+                < 1e-9
+        );
+        // So is anything above 99, which the 90 cap would otherwise clip, even
+        // against a target 75 levels up.
+        assert!(
+            (calc_effect_land_rate(5, 100, 30, 80, 1.0, 1.0, 1.0, 0.0, 1.0, Default::default())
                 - 100.0)
                 .abs()
                 < 1e-9

@@ -3354,7 +3354,7 @@ async fn create_custom_mail(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
 }
 
 /// `custom_teleport`
-async fn create_custom_teleport(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
+pub(crate) async fn create_custom_teleport(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
     manager
         .create_table(
             Table::create()
@@ -3877,7 +3877,7 @@ async fn create_forums(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
 }
 
 /// `global_tasks`
-async fn create_global_tasks(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
+pub(crate) async fn create_global_tasks(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
     manager
         .create_table(
             Table::create()
@@ -4582,7 +4582,7 @@ async fn create_itemsonground(manager: &SchemaManager<'_>) -> Result<(), DbErr> 
 }
 
 /// `lottery`
-async fn create_lottery(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
+pub(crate) async fn create_lottery(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
     manager
         .create_table(
             Table::create()

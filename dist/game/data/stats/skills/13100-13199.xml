@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13100" toLevel="4" name="R3 2 set">
 		<icon>icon.armor_t401_u_i00</icon>
@@ -67,7 +67,7 @@
 			<value level="5">99</value>
 		</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">288</value>
 					<value level="2">332</value>
@@ -172,22 +172,22 @@
 		<!-- Momentarily immobile due to the Stun effect. -->
 		<icon>icon.skill0100</icon>
 		<operateType>A2</operateType>
-		<effectPoint>-100</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<lvlBonusRate>20</lvlBonusRate>
-		<activateRate>43</activateRate>
-		<magicLevel>85</magicLevel>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
-		<trait>SHOCK</trait>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<activateRate>43</activateRate>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<effectPoint>-100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<trait>SHOCK</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -198,22 +198,22 @@
 		<!-- Temporarily decreases Speed. -->
 		<icon>icon.skill1160</icon>
 		<operateType>A2</operateType>
-		<castRange>1000</castRange>
-		<effectPoint>-100</effectPoint>
-		<abnormalType>SPEED_DOWN</abnormalType>
-		<basicProperty>MAGIC</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1500</effectRange>
-		<lvlBonusRate>20</lvlBonusRate>
-		<activateRate>16</activateRate>
-		<magicLevel>85</magicLevel>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<abnormalType>SPEED_DOWN</abnormalType>
+		<activateRate>16</activateRate>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="Speed">
 				<amount>-30</amount>
@@ -225,24 +225,24 @@
 		<!-- Momentarily inflicted with hold and unable to move. -->
 		<icon>icon.skill1201</icon>
 		<operateType>A2</operateType>
-		<castRange>1000</castRange>
-		<isMagic>1</isMagic>
-		<effectPoint>-100</effectPoint>
-		<abnormalType>ROOT_MAGICALLY</abnormalType>
-		<basicProperty>MAGIC</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1500</effectRange>
-		<lvlBonusRate>20</lvlBonusRate>
-		<activateRate>80</activateRate>
-		<magicLevel>85</magicLevel>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<trait>HOLD</trait>
+		<abnormalType>ROOT_MAGICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
+		<activateRate>80</activateRate>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="Root" />
 		</effects>
@@ -250,9 +250,9 @@
 	<skill id="13115" toLevel="1" name="Polearm Multi-attack">
 		<!-- Enables the character to attack multiple opponents. -->
 		<icon>icon.skill0216</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="HitNumber">
 				<amount>4</amount>
@@ -385,71 +385,89 @@
 		<magicLevel>55</magicLevel>
 	</skill>
 	<skill id="13129" toLevel="4" name="Set Effect - Twilight Heavy Armor 2 Piece (Defense Type)">
-		<!-- CON + 2, STR - 1, Atk. Spd. + 15%. HP + 487. -->
+		<!-- Level 1: CON +2, STR -1, Atk. Spd. +15%. HP +487. -->
+		<!-- Level 2: CON +2, STR -1. Increases Attack Speed by 15%, HP by 487, MP by 202, and Stun Resistance by 7. -->
+		<!-- Level 3: CON +2, STR -1. Increases Attack Speed by 15%, MP by 202, HP by 487, Stun Resistance by 7, and M. Defense by 44. -->
+		<!-- Level 4: CON +2, STR -1. Increases Attack by 6%, Attack Speed by 15%, HP by 487, MP by 202, Stun Resistance by 7, M. Defense by 44, P. Defense by 87, and 20 Attribute Resistance by 21. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="13130" toLevel="4" name="Set Effect - Twilight Heavy Armor 2 Piece (Attack Type)">
-		<!-- STR + 2, CON - 1, Atk. Spd. + 18%. -->
+		<!-- Level 1: STR +2, CON -1, Atk. Spd. +18%. -->
+		<!-- Level 2: STR +2, CON -1, Atk. Spd. +18%. Critical damage +242, Hold Resistance +7. -->
+		<!-- Level 3: STR +2, CON -1, Atk. Spd. +18%. Critical damage +242, Hold Resistance +7. MP Consumption -4% upon skill use. -->
+		<!-- Level 4: STR +2, CON -1, Atk. Spd. +18%. Critical damage +242, Hold Resistance +7. P. Atk. +180. P. Atk. +6% and MP Consumption -4% upon skill use. Resistance to 4 attributes +20. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="13131" toLevel="4" name="Set Effect - Twilight Light Armor 2 Piece (Assassin Type)">
-		<!-- DEX + 2, STR -1, Atk. Spd. + 18%. -->
+		<!-- Level 1: DEX +2, STR -1, Atk. Spd. +18%. -->
+		<!-- Level 2: DEX +2, STR -1. Atk. Spd. +18%. -->
+		<!-- Level 3: DEX +2, STR -1, Atk. Spd. +18%, Evasion +2.3, Sleep Resistance +7. P. Atk. +180. -->
+		<!-- Level 4: DEX +2, STR -1. Atk. Spd. +18%, Evasion +2.3, Sleep Resistance +7. P. Atk. +6% and additionally +180. Critical rate +3.3%. Resistance to 4 attributes +20. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="13132" toLevel="4" name="Set Effect - Twilight Light Armor 2 Piece (Enchant Type)">
-		<!-- STR + 2, CON - 1, P. Atk. + 180. P. Atk. Spd. + 15%. -->
+		<!-- Level 1: STR +2, CON -1, P. Atk. +180. P. Atk. Spd. +15%. -->
+		<!-- Level 2: STR +2, CON -1, P. Atk. +180. P. Atk. Spd. +15%. Hold Resistance +7. Skill MP Consumption -10%. -->
+		<!-- Level 3: STR +2, CON -1, P. Atk. +180. P. Atk. Spd. +15%. Hold Resistance +7. HP +487/ Skill MP Consumption -10%. -->
+		<!-- Level 4: STR +2, CON -1, P. Atk. +180. P. Atk. +6%, P. Atk. Spd. +15%. Hold Resistance +7. HP +487. Critical damage +242. Resistance to 4 attributes +20. Skill MP Consumption -21. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="13133" toLevel="4" name="Set Effect - Twilight Robe 2 Piece (Magic Type)">
-		<!-- INT + 2. MEN - 1. Casting Spd. + 25%. -->
+		<!-- Level 1: INT +2. MEN -1. Casting Spd. +25%. -->
+		<!-- Level 2: INT +2, MEN -1. Casting Spd. +25%. MP +202. Sleep Resistance +7. -->
+		<!-- Level 3: INT +2, MEN -1. Casting Spd. +25%. MP +202. Sleep Resistance +7. M. Atk. +184. -->
+		<!-- Level 4: INT +2, MEN -1. Casting Spd. +25%. MP +202. Sleep Resistance +7. M. Atk. +40% and additionally +184. M. Critical Rate +40. Resistance to 4 attributes +20. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="13134" toLevel="4" name="Set Effect - Twilight Robe 2 Piece (Recovery Type)">
-		<!-- WIT+ 2. MEN - 1. Casting Spd. + 25%. -->
+		<!-- Level 1: WIT +2. MEN -1. Casting Spd. +25%. -->
+		<!-- Level 2: WIT +2, MEN -1. Increases M. Casting Speed by 25%, MP by 202, and Stun Resistance by 7. -->
+		<!-- Level 3: WIT +2, MEN -1. Increases M. Casting Speed by 25%, MP by 202, Stun Resistance by 7, and MP Recovery Bonus by 0.7. -->
+		<!-- Level 4: WIT +2, MEN -1. Increases M. Casting Speed by 25%, MP by 202, M. Atk. by 40%, Stun Resistance by 7, MP Recovery Bonus by 0.7, and Heal by 85, and 4 Attribute Resistance by 20. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="13135" toLevel="1" name="Servitor Share">
-		<!-- Extends the summoner's abilities to the servitor. Using the summoner's abilities as the basis, extends to the servitor P. Atk./P. Def. by 50%, M. Atk./M. Def. by 25%, Max HP/MP by 10%, Critical Rate by 20%, Atk. Spd. by 10%, and Casting Spd. by 3%. -->
+		<!-- Extends the summoner's abilities to the servitor. Using the summoner's abilities as the basis, extends to the servitor P. Atk./ P. Def. by 50%, M. Atk./ M. Def. by 25%, Max HP/ MP by 10%, Critical Rate by 20%, Atk. Spd. by 10%, and Casting Spd. by 3%. -->
 		<icon>icon.skill1557</icon>
 		<operateType>A2</operateType>
-		<mpConsume>35</mpConsume>
-		<hitTime>1000</hitTime>
-		<reuseDelay>60000</reuseDelay>
-		<effectPoint>669</effectPoint>
-		<abnormalType>ABILITY_CHANGE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>ABILITY_CHANGE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>669</effectPoint>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<mpConsume>35</mpConsume>
+		<reuseDelay>60000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="OpHaveSummon" />
 		</conditions>
 	</skill>
 	<skill id="13136" toLevel="1" name="Hero's Cloak">
-		<!-- Increases STR/DEX/CON/INT/WIT/MEN +3, and decreases received PvP damage by 15%. -->
+		<!-- Increases STR/ DEX/ CON/ INT/ WIT/ MEN by 3, and decreases received PvP damage by 15%. -->
 		<icon>icon.vesper_cloack_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -494,7 +512,7 @@
 		</effects>
 	</skill>
 	<skill id="13137" toLevel="1" name="Glorious Cloak">
-		<!-- Increases STR/DEX/CON/INT/WIT/MEN +2, and decreases received PvP damage by 5%. -->
+		<!-- Increases STR/ DEX/ CON/ INT/ WIT/ MEN +2, and decreases received PvP damage by 5%. -->
 		<icon>icon.vesper_cloack_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -558,7 +576,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>2</amount>
 				<mode>PER</mode>
 			</effect>
@@ -610,14 +628,14 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13144" toLevel="1" name="Chic Silver Chapeau">
-		<!-- STR+1, INT+1 -->
+		<!-- STR +1, INT+1. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -634,7 +652,7 @@
 		</effects>
 	</skill>
 	<skill id="13145" toLevel="1" name="Demon's Circlet">
-		<!-- CON+1, MEN+1 -->
+		<!-- CON +1, MEN +1. -->
 		<icon>icon.armor_t94_u_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -651,7 +669,7 @@
 		</effects>
 	</skill>
 	<skill id="13146" toLevel="1" name="Special Ability: Infinity Shaper">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Skill Critical Damage + 10%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Skill Critical Damage +10%. -->
 		<icon>icon.weapon_the_dagger_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -696,7 +714,7 @@
 		</effects>
 	</skill>
 	<skill id="13147" toLevel="1" name="Special Ability: Infinity Cutter">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, Skill Cooldown - 5%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, Skill Cooldown -5%. -->
 		<icon>icon.weapon_the_sword_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -752,7 +770,7 @@
 		</effects>
 	</skill>
 	<skill id="13148" toLevel="1" name="Special Ability: Infinity Slasher">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Critical Damage +7%. -->
 		<icon>icon.weapon_the_two_handed_sword_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -797,7 +815,7 @@
 		</effects>
 	</skill>
 	<skill id="13149" toLevel="1" name="Special Ability: Infinity Avenger">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, Skill Cooldown - 5%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, Skill Cooldown -5%. -->
 		<icon>icon.weapon_the_axe_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -853,7 +871,7 @@
 		</effects>
 	</skill>
 	<skill id="13150" toLevel="1" name="Special Ability: Infinity Fighter">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Critical Damage +7%. -->
 		<icon>icon.weapon_the_fist_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -898,7 +916,7 @@
 		</effects>
 	</skill>
 	<skill id="13151" toLevel="1" name="Special Ability: Infinity Stormer">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Critical Damage +7%. -->
 		<icon>icon.weapon_the_pole_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -943,7 +961,7 @@
 		</effects>
 	</skill>
 	<skill id="13152" toLevel="1" name="Special Ability: Infinity Thrower">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Skill Critical Damage + 10%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Skill Critical Damage +10%. -->
 		<icon>icon.weapon_the_bow_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -988,7 +1006,7 @@
 		</effects>
 	</skill>
 	<skill id="13153" toLevel="1" name="Special Ability: Infinity Shooter">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Skill Critical Damage + 10%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Skill Critical Damage +10%. -->
 		<icon>icon.weapon_infinity_shooter_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1033,7 +1051,7 @@
 		</effects>
 	</skill>
 	<skill id="13154" toLevel="1" name="Special Ability: Infinity Buster">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Casting Spd. + 15%, M. Skill Power + 10%, M. Skill Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Casting Spd. +15%, M. Skill Power +10%, M. Skill Critical Damage +7%. -->
 		<icon>icon.weapon_infinity_sword_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1078,7 +1096,7 @@
 		</effects>
 	</skill>
 	<skill id="13155" toLevel="1" name="Special Ability: Infinity Caster">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Casting Spd. + 15%, M. Skill Power + 10%, M. Skill Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Casting Spd. +15%, M. Skill Power +10%, M. Skill Critical Damage +7%. -->
 		<icon>icon.weapon_the_mace_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1123,7 +1141,7 @@
 		</effects>
 	</skill>
 	<skill id="13156" toLevel="1" name="Special Ability: Infinity Retributer">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk./Casting Spd. + 15%, M. Skill Power + 10%, M. Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk./ Casting Spd. +15%, M. Skill Power +10%, M. Critical Damage +7%. -->
 		<icon>icon.weapon_the_staff_of_hero_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1167,8 +1185,8 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13157" toLevel="1" name="Special Ability: Infinity Dualsword">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Critical Damage + 7%. -->
+	<skill id="13157" toLevel="1" name="Special Ability: Infinity Dual Sword">
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Critical Damage +7%. -->
 		<icon>icon.weapon_r_dualsword_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1213,7 +1231,7 @@
 		</effects>
 	</skill>
 	<skill id="13158" toLevel="1" name="Special Ability: Infinity Dual Dagger">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Skill Critical Damage + 10%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Skill Critical Damage +10%. -->
 		<icon>icon.weapon_r_dualdagger_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1258,7 +1276,7 @@
 		</effects>
 	</skill>
 	<skill id="13159" toLevel="1" name="Special Ability: Infinity Dual Blunt Weapon">
-		<!-- Increases PvP Damage by 30%. Max HP/MP/CP + 30%, Atk. Spd. + 15%, P. Skill Power + 10%, P. Critical Damage + 7%. -->
+		<!-- Increases PvP Damage by 30%. Max HP/ MP/ CP +30%, Atk. Spd. +15%, P. Skill Power +10%, P. Critical Damage +7%. -->
 		<icon>icon.weapon_r_dualblunt_i01</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1499,7 +1517,7 @@
 		</effects>
 	</skill>
 	<skill id="13172" toLevel="1" name="Low-grade Magic Ornament Immortal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1516,7 +1534,7 @@
 		</effects>
 	</skill>
 	<skill id="13173" toLevel="2" name="Standard Magic Ornament Immortal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1533,7 +1551,7 @@
 		</effects>
 	</skill>
 	<skill id="13174" toLevel="3" name="High-grade Magic Ornament Immortal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1550,7 +1568,7 @@
 		</effects>
 	</skill>
 	<skill id="13175" toLevel="4" name="Top-grade Magic Ornament Immortal Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1847,7 +1865,7 @@
 		</effects>
 	</skill>
 	<skill id="13192" toLevel="1" name="Low-grade Magic Ornament Twilight Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1864,7 +1882,7 @@
 		</effects>
 	</skill>
 	<skill id="13193" toLevel="2" name="Standard Magic Ornament Twilight Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1881,7 +1899,7 @@
 		</effects>
 	</skill>
 	<skill id="13194" toLevel="3" name="High-grade Magic Ornament Twilight Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1898,7 +1916,7 @@
 		</effects>
 	</skill>
 	<skill id="13195" toLevel="4" name="Top-grade Magic Ornament Twilight Belt">
-		<!-- Increases skill/magic damage during PvP when equipped. -->
+		<!-- Increases skill/ magic damage during PvP when equipped. -->
 		<icon>icon.skill0332</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>

@@ -1,4 +1,4 @@
-//! `Character.ini`'s caps and clamps (row 14).
+//! `Player.ini`'s caps and clamps (row 14).
 //!
 //! Ten keys that were hardcoded to this dist's value — several inside a
 //! comment quoting the key, which is exactly the shape the audit's "Effect in
@@ -9,7 +9,6 @@
 
 use super::*;
 use crate::config::character::CharacterConfig;
-use crate::data::item_data::kinds::CrystalType;
 
 /// The parse, against the shipped file.
 #[test]
@@ -24,11 +23,6 @@ fn the_cap_keys_parse_to_the_shipped_values() {
     assert_eq!(c.warehouse_slots_no_dwarf, 100);
     assert_eq!(c.max_num_of_clans_in_ally, 3);
     assert_eq!(c.clan_members_for_war, 15);
-    assert_eq!(
-        c.max_equipable_item_grade,
-        CrystalType::S,
-        "MaxEquipableItemGrade — the value that makes the shop filter bite"
-    );
 }
 
 /// Java: `getLong("MaxSp", …) >= 0 ? value : Long.MAX_VALUE`. A negative value
@@ -42,74 +36,6 @@ fn a_negative_max_sp_means_unlimited_not_zero() {
     assert_eq!(c.sp_ceiling(), i64::MAX, "negative MaxSp lifts the ceiling");
     c.max_sp = 0;
     assert_eq!(c.sp_ceiling(), 0, "…but zero really is zero");
-}
-
-/// `Enum.valueOf(CrystalType.class, …)`. Java throws on an unknown name; the
-/// port keeps the permissive end (EVENT = no filter), because the failure mode
-/// of guessing `None` would be an empty shop catalogue server-wide.
-#[test]
-fn the_grade_name_parses_and_fails_open() {
-    assert_eq!(CrystalType::from_config_name("S"), CrystalType::S);
-    assert_eq!(CrystalType::from_config_name("  s  "), CrystalType::S);
-    assert_eq!(CrystalType::from_config_name("EVENT"), CrystalType::Event);
-    assert_eq!(CrystalType::from_config_name("NONE"), CrystalType::None);
-    assert_eq!(
-        CrystalType::from_config_name("nonsense"),
-        CrystalType::Event,
-        "an unreadable grade must not filter the whole catalogue away"
-    );
-}
-
-/// `MaxEquipableItemGrade` filters products out of every buy list at load.
-/// Lowering it to A must drop the S-grade lines the shipped S keeps.
-///
-/// This exercises the loader, not the config plumbing: it calls
-/// `BuyListData::load_from` directly, because going through
-/// `GameData::load_from_with` would re-parse the whole datapack twice. The
-/// plumbing above it is one call site each (`main.rs` and `//reload buylist`),
-/// both of which read `cfg.character.max_equipable_item_grade`.
-#[test]
-fn the_grade_filter_follows_the_config_key() {
-    use crate::data::BuyListData;
-    let items = dist::items();
-    let count_above = |lists: &BuyListData, limit: i32| {
-        lists
-            .lists()
-            .flat_map(|l| l.products.iter())
-            .filter(|p| {
-                items
-                    .get(p.item_id)
-                    .is_some_and(|t| t.crystal_type.level() > limit)
-            })
-            .count()
-    };
-    let at_s = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::S, true, true);
-    let at_a = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::A, true, true);
-
-    // At S the catalogue carries S-grade lines…
-    let s_lines = count_above(&at_s, CrystalType::A.level());
-    assert!(s_lines > 0, "the dist sells S-grade goods at MaxGrade=S");
-    // …and at A they are gone, while the A-and-below stock is untouched.
-    assert_eq!(
-        count_above(&at_a, CrystalType::A.level()),
-        0,
-        "MaxEquipableItemGrade=A must drop every S line"
-    );
-    let below = |l: &BuyListData| {
-        l.lists()
-            .flat_map(|x| x.products.iter())
-            .filter(|p| {
-                items
-                    .get(p.item_id)
-                    .is_some_and(|t| t.crystal_type.level() <= CrystalType::A.level())
-            })
-            .count()
-    };
-    assert_eq!(
-        below(&at_a),
-        below(&at_s),
-        "lowering the grade must not disturb anything at or below it"
-    );
 }
 
 /// `Formulas.calcEffectLandRate`'s `constrain(rate, minChance, maxChance)`.
@@ -156,12 +82,26 @@ fn player_max_hp_is_capped_by_the_config_key() {
 
     // Uncapped: raise the ceiling far above anything a level-80 can reach.
     data.combat_caps.max_hp = 10_000_000.0;
-    let uncapped = model::max_vitals::calc_max_hp(&data, &t, 80, None, &mods);
+    let uncapped = model::max_vitals::calc_max_hp(
+        &data,
+        &t,
+        &crate::model::components::stats::BaseStats::from_template(&t),
+        80,
+        None,
+        &mods,
+    );
     assert!(uncapped > 0.0);
 
     // Now drop the ceiling under it and the total lands exactly on the cap.
     data.combat_caps.max_hp = uncapped / 2.0;
-    let capped = model::max_vitals::calc_max_hp(&data, &t, 80, None, &mods);
+    let capped = model::max_vitals::calc_max_hp(
+        &data,
+        &t,
+        &crate::model::components::stats::BaseStats::from_template(&t),
+        80,
+        None,
+        &mods,
+    );
     assert_eq!(
         capped,
         uncapped / 2.0,
@@ -292,7 +232,7 @@ fn the_enchant_and_augment_keys_parse_to_the_shipped_values() {
     assert!(c.over_enchant_protection);
     assert_eq!(c.over_enchant_punishment, IllegalActionPunishment::Jail);
     assert!(!c.alt_allow_augment_pvp_items);
-    assert!(c.alt_allow_augment_trade);
+    assert!(!c.alt_allow_augment_trade);
     assert!(c.alt_allow_augment_destroy);
     assert!(
         c.enchant_black_list.len() >= 19,
@@ -396,10 +336,7 @@ fn the_clan_and_ally_keys_parse_to_the_shipped_values() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(c.alt_clan_join_days, 1, "DaysBeforeJoinAClan");
     assert_eq!(c.alt_clan_create_days, 10, "DaysBeforeCreateAClan");
-    assert_eq!(
-        c.alt_clan_dissolve_days, 1,
-        "DaysToPassToDissolveAClan — the port hardcoded 7"
-    );
+    assert_eq!(c.alt_clan_dissolve_days, 7, "DaysToPassToDissolveAClan");
     assert_eq!(c.alt_ally_join_days_when_leaved, 1);
     assert_eq!(c.alt_ally_join_days_when_dismissed, 1);
     assert_eq!(c.alt_accept_clan_days_when_dismissed, 1);
@@ -414,22 +351,20 @@ fn the_clan_and_ally_keys_parse_to_the_shipped_values() {
         30 * 60 * 1000,
         "`30mins` parsed as a duration"
     );
-    assert!(c.alt_command_channel_friends);
+    assert!(!c.alt_command_channel_friends);
     assert!(c.life_crystal_needed);
 }
 
-/// **The bug this cluster found.** The port's `CLAN_DISSOLVE_DELAY_MS` was
-/// `7 * 86_400_000`, and its doc comment claimed *"`DaysToPassToDissolveAClan`
-/// = 7 on this dist"*. The dist ships **1**, so dissolving a clan took seven
-/// times as long as configured.
+/// The port once hardcoded `CLAN_DISSOLVE_DELAY_MS`; the delay must follow
+/// `DaysToPassToDissolveAClan` (7 on this dist).
 #[test]
-fn the_clan_dissolve_delay_follows_the_config_and_is_not_seven_days() {
+fn the_clan_dissolve_delay_follows_the_config() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let day = crate::game_loop::time::MILLIS_PER_DAY;
     assert_eq!(
         crate::game_loop::clans::clan_dissolve_delay_ms(&world),
-        day,
-        "the shipped DaysToPassToDissolveAClan is 1, not 7"
+        7 * day,
+        "the shipped DaysToPassToDissolveAClan is 7"
     );
     world.cfg.character.alt_clan_dissolve_days = 3;
     assert_eq!(
@@ -574,11 +509,10 @@ fn the_interruption_keys_parse_to_the_shipped_values() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
     assert!(c.alt_game_cancel_cast, "`cast` enables the cast branch");
     assert!(!c.alt_game_cancel_bow, "…and leaves the bow branch off");
-    assert!(
-        c.alt_game_stun_break,
-        "BreakStun — Java's own default is false"
-    );
-    assert!(c.fake_death_damage_stand);
+    assert!(!c.alt_game_stun_break, "BreakStun");
+    assert!(!c.fake_death_damage_stand);
+    // Shipped as `FakeDeathUntarget = True ` (trailing space), which
+    // `Boolean.parseBoolean` reads as false.
     assert!(!c.fake_death_untarget);
     assert_eq!(c.player_fake_death_up_protection, 0, "never arms");
     assert_eq!(c.effect_tick_ratio_ms, 666);
@@ -677,7 +611,7 @@ fn the_cooldown_and_persistence_keys_parse_to_the_shipped_values() {
     assert!(c.store_ui_settings);
     assert!(!c.enable_modify_skill_reuse, "the override map is off…");
     assert!(c.skill_reuse_list.is_empty(), "…and empty besides");
-    assert!(c.subclass_store_skill_cooltime);
+    assert!(!c.subclass_store_skill_cooltime);
     assert!(c.summon_store_skill_cooltime);
     assert!(
         !c.store_recipe_shop_list,
@@ -768,7 +702,6 @@ fn the_creation_and_loot_keys_parse_to_the_shipped_values() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(c.starting_level, 1, "Java's `> 1` guard never fires");
     assert_eq!(c.starting_sp, 0, "…nor its `> 0`");
-    assert!(c.initial_equipment_event);
     assert!(
         c.forbidden_names.contains(&"annou".to_string()),
         "the announcement lookalikes ship: {:?}",
@@ -776,10 +709,7 @@ fn the_creation_and_loot_keys_parse_to_the_shipped_values() {
     );
     assert!(!c.auto_loot_herbs, "herbs fall to the ground here");
     assert!(c.auto_loot_slot_limit);
-    assert!(
-        !c.auto_loot_item_ids.contains(&57),
-        "the list ships as `0`, which is not an item id"
-    );
+    assert!(c.auto_loot_item_ids.contains(&57), "AutoLootItemIds = 57");
 }
 
 /// **The divergence.** Java's ordinary auto-loot arm carries
@@ -905,9 +835,8 @@ fn the_subclass_keys_parse_to_the_shipped_values() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(c.base_subclass_level, 40);
     assert_eq!(c.max_subclass_level, 80);
-    assert_eq!(c.base_dualclass_level, 80, "Ertheia, unreachable here");
-    assert!(c.alt_game_subclass_everywhere);
-    assert!(c.auto_learn_fs_skills);
+    assert_eq!(c.base_dualclass_level, 85);
+    assert!(!c.auto_learn_fs_skills);
     assert!(!c.allow_transform_without_quest);
 }
 
@@ -960,30 +889,25 @@ fn a_subclass_stops_at_its_own_ceiling_and_the_base_class_does_not() {
 }
 
 // ---------------------------------------------------------------------------
-// Cluster 9 — the last of Character.ini
+// Cluster 9 — the last of Player.ini
 // ---------------------------------------------------------------------------
 
 #[test]
 fn the_last_character_keys_parse_to_the_shipped_values() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
-    assert_eq!(
-        c.max_personal_fame_points, 0,
-        "0 disables fame — it is not a 'no limit' sentinel"
-    );
+    assert_eq!(c.max_personal_fame_points, 100_000);
     assert_eq!(c.fortress_zone_fame_task_frequency, 300);
-    assert_eq!(c.fortress_zone_fame_acquire_points, 0);
+    assert_eq!(c.fortress_zone_fame_acquire_points, 31);
     assert_eq!(c.max_bonus_exp, 0.0, "Java's `> 0` guard never fires");
     assert_eq!(c.max_bonus_sp, 0.0);
     assert_eq!(c.player_movement_block_time_ms, 0, "seconds x 1000");
     assert!(!c.silence_mode_exclude);
 }
 
-/// `Player.setFame` clamps every write to `[0, MaxPersonalFamePoints]`, and
-/// this dist ships **0** — Java's own default is 100000, so the 0 is a
-/// deliberate override that disables fame. The port added the castle-zone
-/// award unclamped, so players banked fame Java would have zeroed on the spot
-/// (and again on the next login, since even the DB restore goes through
-/// `setFame`).
+/// `Player.setFame` clamps every write to `[0, MaxPersonalFamePoints]`
+/// (100000 on this dist; 0 disables fame). The port once added the
+/// castle-zone award unclamped, past the ceiling (and again on the next login,
+/// since even the DB restore goes through `setFame`).
 #[test]
 fn fame_is_clamped_to_max_personal_fame_points() {
     use crate::game_loop::siege::set_fame_clamped;
@@ -997,8 +921,8 @@ fn fame_is_clamped_to_max_personal_fame_points() {
             .fame
     };
 
-    // Shipped: the award is clamped straight back to zero.
-    assert_eq!(world.cfg.character.max_personal_fame_points, 0);
+    // A 0 ceiling: the award is clamped straight back to zero.
+    world.cfg.character.max_personal_fame_points = 0;
     set_fame_clamped(&mut world, 3001, |cur| cur + 125);
     assert_eq!(fame(&world), 0, "a 0 ceiling disables fame entirely");
 
@@ -1028,13 +952,13 @@ fn capped_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
 
 /// Java reads the key and increments it on the very next line
 /// (`PLAYER_MAXIMUM_LEVEL++`), and every comparison in the tree is written
-/// against the incremented value — so the field carries 81 for a shipped 80.
+/// against the incremented value — so the field carries 111 for a shipped 110.
 #[test]
 fn maximum_player_level_is_stored_incremented_as_java_stores_it() {
     let c = CharacterConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(
-        c.maximum_player_level, 81,
-        "`MaximumPlayerLevel = 80` in Character.ini, plus Java's `++`"
+        c.maximum_player_level, 111,
+        "`MaximumPlayerLevel = 110` in Player.ini, plus Java's `++`"
     );
 }
 

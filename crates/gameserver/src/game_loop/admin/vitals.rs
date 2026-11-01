@@ -330,7 +330,7 @@ pub(super) fn admin_kill(
 /// what Java does too — its `reduceCurrentHp` refuses on `isInvul` and only the
 /// non-player branch clears the flag first.
 fn kill_creature(world: &mut World, target: i32, killer_oid: i32) {
-    use crate::game_loop::combat::apply_physical_damage;
+    use crate::game_loop::combat::{DamageHit, apply_physical_damage};
 
     if world.objects.has_component::<Player>(&target) {
         // `if (!target.isGM()) target.stopAllEffects();` — the invincibility
@@ -355,7 +355,7 @@ fn kill_creature(world: &mut World, target: i32, killer_oid: i32) {
             .get_component::<PlayerVitals>(&target)
             .map_or(0, |v| v.max_cp);
         let lethal = f64::from(max_hp) + f64::from(max_cp) + 1.0;
-        apply_physical_damage(world, killer_oid, target, lethal, false, false);
+        apply_physical_damage(world, killer_oid, target, lethal, DamageHit::default());
     } else if world.objects.has_component::<Npc>(&target) {
         let Some(max_hp) = world
             .objects
@@ -374,6 +374,6 @@ fn kill_creature(world: &mut World, target: i32, killer_oid: i32) {
         } else {
             f64::from(max_hp) + 1.0
         };
-        apply_physical_damage(world, killer_oid, target, lethal, false, false);
+        apply_physical_damage(world, killer_oid, target, lethal, DamageHit::default());
     }
 }

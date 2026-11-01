@@ -43,9 +43,7 @@ pub(crate) use queries::clans::{
 };
 pub use queries::commerce::OfflineTraderRow;
 pub(crate) use queries::commerce::{load_buy_list_stock, load_item_auctions, load_offline_traders};
-pub(crate) use queries::minigames::{
-    load_lottery, load_lottery_draws, load_mdt_bets, load_mdt_history,
-};
+pub(crate) use queries::minigames::{load_mdt_bets, load_mdt_history};
 pub(crate) use queries::olympiad::{load_hero_diary, load_heroes, load_olympiad};
 pub(crate) use queries::residences::{
     load_castles, load_clan_hall_bidders, load_clan_hall_owners, load_cursed_weapons,
@@ -72,10 +70,29 @@ pub use types::rows::{
 pub use types::save::{NewCharacter, NewItem, NewShortcut, PlayerSaveData, PlayerSnapshot};
 pub use types::{CmdTx, CreateResult};
 
-/// First object id handed out by `IdManager` (Java `FIRST_OID`). Shared by
-/// every world-object type (characters, items, …) — Java's `IdManager` is a
-/// single pool, not one per type.
-pub(crate) const FIRST_OID: i64 = 0x10000000;
+/// The `IdManager.ini` half the DB thread owns: the boot clean-up and the
+/// object-id range. One pool for every world-object type (characters, items,
+/// …), as Java's `IdManager` is.
+#[derive(Debug, Clone, Copy)]
+pub struct IdManagerBoot {
+    /// `DatabaseCleanUp`.
+    pub clean_up: bool,
+    /// `FirstObjectId`.
+    pub first_object_id: i64,
+    /// `LastObjectId`, inclusive.
+    pub last_object_id: i64,
+}
+
+impl IdManagerBoot {
+    /// The dist range, with or without the clean-up.
+    pub fn dist(clean_up: bool) -> Self {
+        Self {
+            clean_up,
+            first_object_id: 0x1000_0000,
+            last_object_id: i64::from(i32::MAX),
+        }
+    }
+}
 
 /// How many object ids each `IdBlock` reservation hands the game thread.
 pub const ID_BLOCK_SIZE: i64 = 5000;
@@ -103,7 +120,7 @@ pub fn spawn(
     url: String,
     max_connections: u32,
     max_characters: i32,
-    clean_up: bool,
+    ids: IdManagerBoot,
     ground_items: GroundItemBootConfig,
     cmd_rx: CmdRx,
     event_tx: EventTx,
@@ -119,7 +136,7 @@ pub fn spawn(
                 url,
                 max_connections,
                 max_characters,
-                clean_up,
+                ids,
                 ground_items,
                 cmd_rx,
                 event_tx,

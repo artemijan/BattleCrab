@@ -1091,4 +1091,68 @@
 		<!-- Dualsword Craft Stamp -->
 		<production count="1" id="5126" />
 	</item>
+	<item>
+		<!-- Mature Desert Codran -->
+		<ingredient count="500" id="5120" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Desert Codran -->
+		<ingredient count="500" id="5857" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Red Coba -->
+		<ingredient count="333" id="6556" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Red Coba -->
+		<ingredient count="333" id="6563" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Desert Coba -->
+		<ingredient count="250" id="6558" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Desert Coba -->
+		<ingredient count="250" id="6565" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Twin Coba -->
+		<ingredient count="200" id="6560" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Twin Coba -->
+		<ingredient count="200" id="6567" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
 </list>

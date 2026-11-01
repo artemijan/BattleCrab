@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37800" name="Potion of Protection: Aerial Yoke" additionalName="Low-grade" type="EtcItem">
 		<!-- When used, increases Resistance to Aerial Attacks by 5%. Cannot be used in the Olympiad. Does not stack when used with other Potions of Protection. -->
@@ -12,7 +12,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="17203" level="1" /> <!-- Potion of Protection: Aerial Yoke -->
+			<skill id="17203" level="1" /> <!-- Potion of Protection: Aerial Yoke (Low-grade) -->
 		</skills>
 	</item>
 	<item id="37801" name="Bloody Eternal Enhancement Stone Fragment" type="EtcItem">
@@ -45,9 +45,6 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13772" level="1" /> <!-- Replica Tiara -->
-		</skills>
 		<stats>
 			<stat type="fireRes">15</stat>
 			<stat type="waterRes">15</stat>
@@ -56,6 +53,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="13772" level="1" /> <!-- Replica Tiara -->
+		</skills>
 	</item>
 	<item id="37805" name="Master Yogi's Staff" type="Weapon">
 		<!-- Test your luck! A good reward is waiting. -->
@@ -72,7 +72,7 @@
 			<stat type="mAtk">12</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -92,7 +92,7 @@
 			<stat type="mAtk">12</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -112,7 +112,7 @@
 			<stat type="mAtk">12</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -132,7 +132,7 @@
 			<stat type="mAtk">12</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -504,8 +504,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37843" name="Valentine Appearance Stone: Dualsword" additionalName="15-day" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of a Valentine's Day weapon.15-day. -->
+	<item id="37843" name="Valentine Appearance Stone: Dual Sword" additionalName="15-day" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of a Valentine's Day weapon.15-day. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -696,8 +696,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37859" name="Valentine Appearance Stone: Dualsword" additionalName="30-day" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of a Valentine's Day weapon. 30-day. -->
+	<item id="37859" name="Valentine Appearance Stone: Dual Sword" additionalName="30-day" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of a Valentine's Day weapon. 30-day. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -761,8 +761,8 @@
 		<set name="icon" val="icon.etc_sp_scroll1_i00" />
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -771,8 +771,8 @@
 		<set name="icon" val="icon.etc_sp_scroll2_i00" />
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -781,8 +781,8 @@
 		<set name="icon" val="icon.etc_sp_scroll3_i00" />
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -802,7 +802,7 @@
 		</skills>
 	</item>
 	<item id="37868" name="Hero's Weapon: Dagger" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_dagger_of_hero" />
 		<set name="weapon_type" val="DAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -818,21 +818,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13570" level="1" /> <!-- Hero's Weapon: Dagger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">881</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13570" level="1" /> <!-- Hero's Weapon: Dagger -->
+		</skills>
 	</item>
 	<item id="37869" name="Hero's Weapon: One-handed Sword" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_sword_of_hero" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -848,20 +848,20 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13571" level="1" /> <!-- Hero's Weapon: One-handed Sword -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13571" level="1" /> <!-- Hero's Weapon: One-handed Sword -->
+		</skills>
 	</item>
 	<item id="37870" name="Hero's Weapon: Two-handed Sword" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_two_handed_sword_of_hero" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -877,20 +877,20 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13572" level="1" /> <!-- Hero's Weapon: Two-handed Sword -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13572" level="1" /> <!-- Hero's Weapon: Two-handed Sword -->
+		</skills>
 	</item>
 	<item id="37871" name="Hero's Weapon: One-handed Blunt Weapon" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_axe_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -906,21 +906,21 @@
 		<set name="bodypart" val="rhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13573" level="1" /> <!-- Hero's Weapon: One-handed Blunt Weapon -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13573" level="1" /> <!-- Hero's Weapon: One-handed Blunt Weapon -->
+		</skills>
 	</item>
 	<item id="37872" name="Hero's Weapon: Fist Weapon" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_fist_of_hero" />
 		<set name="weapon_type" val="DUALFIST" />
 		<set name="default_action" val="EQUIP" />
@@ -936,21 +936,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13574" level="1" /> <!-- Hero's Weapon: Fist Weapon -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13574" level="1" /> <!-- Hero's Weapon: Fist Weapon -->
+		</skills>
 	</item>
 	<item id="37873" name="Hero's Weapon: Spear" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_pole_of_hero" />
 		<set name="weapon_type" val="POLE" />
 		<set name="default_action" val="EQUIP" />
@@ -966,22 +966,22 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13575" level="1" /> <!-- Hero's Weapon: Spear -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13575" level="1" /> <!-- Hero's Weapon: Spear -->
+		</skills>
 	</item>
 	<item id="37874" name="Hero's Weapon: Bow" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_bow_of_hero" />
 		<set name="weapon_type" val="BOW" />
 		<set name="default_action" val="EQUIP" />
@@ -998,21 +998,21 @@
 		<set name="time" val="21600" />
 		<set name="reuse_delay" val="1500" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13576" level="1" /> <!-- Hero's Weapon: Bow -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1983</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13576" level="1" /> <!-- Hero's Weapon: Bow -->
+		</skills>
 	</item>
 	<item id="37875" name="Hero's Weapon: Crossbow" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_infinity_shooter" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
 		<set name="default_action" val="EQUIP" />
@@ -1029,21 +1029,21 @@
 		<set name="time" val="21600" />
 		<set name="reuse_delay" val="1350" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13577" level="1" /> <!-- Hero's Weapon: Crossbow -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1786</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13577" level="1" /> <!-- Hero's Weapon: Crossbow -->
+		</skills>
 	</item>
 	<item id="37876" name="Hero's Weapon: One-handed Magic Sword" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_infinity_sword" />
 		<set name="weapon_type" val="SWORD" />
 		<set name="default_action" val="EQUIP" />
@@ -1060,20 +1060,20 @@
 		<set name="time" val="21600" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13578" level="1" /> <!-- Hero's Weapon: One-handed Magic Sword -->
-		</skills>
 		<stats>
 			<stat type="pAtk">805</stat>
 			<stat type="mAtk">696</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13578" level="1" /> <!-- Hero's Weapon: One-handed Magic Sword -->
+		</skills>
 	</item>
 	<item id="37877" name="Hero's Weapon: One-handed Magic Blunt Weapon" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_mace_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1090,21 +1090,21 @@
 		<set name="time" val="21600" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13579" level="1" /> <!-- Hero's Weapon: One-handed Magic Blunt Weapon -->
-		</skills>
 		<stats>
 			<stat type="pAtk">805</stat>
 			<stat type="mAtk">696</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13579" level="1" /> <!-- Hero's Weapon: One-handed Magic Blunt Weapon -->
+		</skills>
 	</item>
 	<item id="37878" name="Hero's Weapon: Two-handed Magic Blunt Weapon" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_the_staff_of_hero" />
 		<set name="weapon_type" val="BLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1121,21 +1121,21 @@
 		<set name="time" val="21600" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="13580" level="1" /> <!-- Hero's Weapon: Two-handed Magic Blunt Weapon -->
-		</skills>
 		<stats>
 			<stat type="pAtk">981</stat>
 			<stat type="mAtk">765</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13580" level="1" /> <!-- Hero's Weapon: Two-handed Magic Blunt Weapon -->
+		</skills>
 	</item>
-	<item id="37879" name="Hero's Weapon: Dualsword" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+	<item id="37879" name="Hero's Weapon: Dual Sword" additionalName="15-day" type="Weapon">
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualsword" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -1151,20 +1151,20 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13581" level="1" /> <!-- Hero's Weapon: Dualsword -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13581" level="1" /> <!-- Hero's Weapon: Dual Sword -->
+		</skills>
 	</item>
 	<item id="37880" name="Hero's Weapon: Dual Dagger" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualdagger" />
 		<set name="weapon_type" val="DUALDAGGER" />
 		<set name="default_action" val="EQUIP" />
@@ -1180,21 +1180,21 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13582" level="1" /> <!-- Hero's Weapon: Dual Dagger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13582" level="1" /> <!-- Hero's Weapon: Dual Dagger -->
+		</skills>
 	</item>
 	<item id="37881" name="Hero's Weapon: Dual Blunt Weapon" additionalName="15-day" type="Weapon">
-		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/Spiritshot/Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
+		<!-- Weapon infused with heroes' power. Must use No-grade Soulshot/ Spiritshot/ Blessed Spiritshot. All levels. 15-day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.bm_r_dualblunt" />
 		<set name="weapon_type" val="DUALBLUNT" />
 		<set name="default_action" val="EQUIP" />
@@ -1210,18 +1210,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="time" val="21600" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13583" level="1" /> <!-- Hero's Weapon: Dual Blunt Weapon -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1225</stat>
 			<stat type="mAtk">521</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
+		<skills>
+			<skill id="13583" level="1" /> <!-- Hero's Weapon: Dual Blunt Weapon -->
+		</skills>
 	</item>
 	<item id="37882" name="Hero's Weapon Coupon" additionalName="15-day" type="EtcItem">
 		<!-- Item that can be exchanged for a hero's weapon (15-day). The exchange can be done through the Adventurers' Guide. Cannot be used in the Olympiad. -->
@@ -1266,8 +1266,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1290,7 +1290,7 @@
 		<set name="bodypart" val="hairall" />
 	</item>
 	<item id="37889" name="Herb of Growth" type="EtcItem">
-		<!-- For 10 min., XP/SP obtained through hunting +50%. -->
+		<!-- For 10 min., XP/ SP obtained through hunting +50%. -->
 		<set name="icon" val="BranchSys.icon.br_herb_of_baguette_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="ex_immediate_effect" val="true" />
@@ -1299,11 +1299,11 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
 		<skills>
-			<skill id="16174" level="1" /> <!-- Superior Herb of Growth -->
+			<skill id="16174" level="1" /> <!-- Herb of Growth -->
 		</skills>
 	</item>
 	<item id="37890" name="Major Herb of Growth" type="EtcItem">
-		<!-- For 10 min., XP/SP obtained through hunting +100%. -->
+		<!-- For 10 min., XP/ SP obtained through hunting +100%. -->
 		<set name="icon" val="BranchSys.icon.br_herb_of_baguette_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="ex_immediate_effect" val="true" />
@@ -1316,7 +1316,7 @@
 		</skills>
 	</item>
 	<item id="37891" name="Superior Herb of Growth" type="EtcItem">
-		<!-- For 5 min., XP/SP obtained through hunting +200%. -->
+		<!-- For 5 min., XP/ SP obtained through hunting +200%. -->
 		<set name="icon" val="BranchSys.icon.br_herb_of_baguette_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="ex_immediate_effect" val="true" />
@@ -1358,9 +1358,9 @@
 		<set name="material" val="LIQUID" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="17913" level="1" /> <!-- Supreme Windy Quick Healing Potion -->
 		</skills>

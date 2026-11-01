@@ -128,6 +128,9 @@ impl AuthLogin {
 /// Port of `clientpackets/CharacterCreate` (`cSdddddddddddd`).
 pub struct CharacterCreate {
     pub name: String,
+    /// The race the client claims. Java checks it (range, `AllowedPlayerRaces`,
+    /// Ertheia female-only); the stored race comes from the class template.
+    pub race: i32,
     pub is_female: bool,
     pub class_id: i32,
     pub hair_style: i32,
@@ -139,7 +142,7 @@ impl CharacterCreate {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
         let mut r = PacketReader::new(body_after_opcode);
         let name = r.read_string()?;
-        r.read_i32()?; // race (ignored; derived from class)
+        let race = r.read_i32()?;
         let is_female = r.read_i32()? != 0;
         let class_id = r.read_i32()?;
         for _ in 0..6 {
@@ -150,6 +153,7 @@ impl CharacterCreate {
         let face = r.read_i32()? & 0xff;
         Some(Self {
             name,
+            race,
             is_female,
             class_id,
             hair_style,
@@ -160,9 +164,8 @@ impl CharacterCreate {
 }
 
 /// `clientpackets/CharacterDelete` / `CharacterRestore` — both carry a char
-/// slot. `RequestUnEquipItem`'s single `int` field (a body-part bitmask, not a
-/// slot index — see `Inventory::unequip_slot`) has the same shape, so it
-/// reuses this reader too.
+/// slot. `RequestUnEquipItem`'s single `int` field (a paperdoll index in
+/// protocol 140) has the same shape, so it reuses this reader too.
 pub fn read_char_slot(body_after_opcode: &[u8]) -> Option<i32> {
     PacketReader::new(body_after_opcode).read_i32()
 }

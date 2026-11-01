@@ -129,7 +129,7 @@ fn admin_tele_opens_the_additional_movement_options_window() {
 }
 
 /// The "Move:" row of `move.htm` arms `Player.setTeleMode(...)`; the click that
-/// follows is consumed by `MoveBackwardToLocation`. Each of the three armed
+/// follows is consumed by `MoveToLocation`. Each of the three armed
 /// modes announces itself with Java's exact line; "Normal mode" (`//teleto
 /// end`) disarms silently.
 #[test]
@@ -248,7 +248,7 @@ fn debug_panel_movement_toggle_draws_walk_line() {
     on_packet(&mut world, 1, build_admin("debug movement on"));
     drain(&mut gm_rx);
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
     // The test world doesn't interpolate movement — walk the position
     // forward by hand so the beat sees >15 units from its anchor.
     world

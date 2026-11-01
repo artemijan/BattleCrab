@@ -1,18 +1,106 @@
-630 Pirate Treasure Hunt
-657 Monster Arena: Trial for Warriors
-658 Monster Arena: Trial for Elite Warriors
-664 Quarrels Time
-910 Request from the Red Libra Guild - Basic
-911 Request from the Red Libra Guild - Intermediate
-912 Request from the Red Libra Guild - Advanced
-913 Request from the Red Libra Guild - Super Advanced
+504 Competition for the Bandit Stronghold
+575 Special Mission: Fortuna
+655 A Grand Plan for Taming Wild Beasts
+676 Hunter Guild Request – Wasteland West
+677 Hunter Guild Request – Wasteland East
+678 Hunter Guild Request – Forest of the Dead
+679 Hunter Guild Request – Swamp of Screams
+690 |Attack| Begin Alliance Base Defense - 1
+691 |Attack| Begin Alliance Base Defense - 2
+692 |Attack| Begin Alliance Base Defense - 3
+693 |Defense| Protecting Military Power - 1
+694 |Defense| Protecting Military Power - 2
+695 |Defense| Protecting Military Power - 3
+696 |Support| Defense Battery Crafting Support - 1
+697 |Support| Defense Battery Crafting Support - 2
+698 |Support| Defense Battery Crafting Support - 3
+699 |Attack| Sabotage Embryo Solider - 1
+700 |Attack| Sabotage Embryo Solider - 2
+701 |Attack| Sabotage Embryo Solider - 3
+702 |Defense| Gracian Soldier Support - 1
+703 |Defense| Gracian Soldier Support - 2
+704 |Defense| Gracian Soldier Support - 3
+705 |Support| Defense Battery Cannonball Crafting - 1
+706 |Support| Defense Battery Cannonball Crafting - 2
+707 |Support| Defense Battery Cannonball Crafting - 3
+708 |Attack| Neutralize Embryo - 1
+709 |Attack| Neutralize Embryo - 2
+710 |Attack| Neutralize Embryo - 3
+711 |Defense| All-out Battle - 1
+712 |Defense| All-out Battle - 2
+713 |Defense| Join the battle - 3
+714 |Support| Installing Defense Battery - 1
+715 |Support| Installing Defense Battery - 2
+716 |Support| Installing Defense Battery - 3
+717 |Attack| Eliminate Embryo Captain - 1
+718 |Attack| Eliminate Embryo Captain - 2
+719 |Attack| Eliminate Embryo Captain - 3
+720 |Defense| Eliminate Embryo Captain - 1
+721 |Defense| Eliminate Embryo Captain - 2
+722 |Defense| Eliminate Embryo Captain - 3
+723 |Support| Eliminate Enemy with Defense Battery - 1
+724 |Support| Defeat enemies with the defense artillery - 2
+725 |Support| Eliminate Enemy with Defense Battery - 3
+729 |Attack| Impede Kain
+730 |Defense| Impede Kain
+731 |Support| Impede Kain
+732 Red Libra's Request - Kartia's Labyrinth
+733 Red Libra's Request - Crystal Prison (Baylor)
+734 Red Libra Request - Nightmare Kamaloka
+735 Red Libra Request - Embryo Command Post
+736 Red Libra Request - Altar of Shilen
+750 Seven Flowers
+788 Red Libra Request - Altar of Evil
+791 Red Libra Request - Fairy Settlement
+800 Hunter Guild Request - Altar of Evil
+801 Hunter Guild Request - Gludio Territory
+802 Hunter Guild Request - Turek Orc Campsite
+803 Hunter Guild Request - Elven Forest
+804 Hunter Guild Request - Fairy Settlement
+805 Hunter Guild Request - Garden of Beasts
+806 Hunter Guild Request - North of the Town of Giran
+807 Hunter Guild Request - Cruma Marshlands
+808 Hunter Guild Request - The Fields
+809 Hunter Guild Request - The Immortal Plateau
+810 Hunter Guild Request - Isle of Souls
+811 Hunter Guild Request - Cemetery
+825 Hunter Guild Request - Valley of Saints
+832 Hunter Guild Request - Southern Region, Isle of Prayer
+834 Against Dragonclaw
+836 Request from the Blackbird Clan
+837 Request from the Giant Trackers
+838 Request from the Mother Tree Guardians
+839 Request from the Unworldly Visitors
+840 Request from the Kingdom's Royal Guard
+861 Kain's Choice
+910 Red Libra Request - Isle of Souls
+911 Red Libra's Request - Seal of Shilen
+912 Red Libra Request - Monsters from Three Areas
+913 Red Libra Request - Raider's Crossroads
+914 Red Libra Request - Hellbound
+915 Red Libra Request - Enchanted Valley
+916 Red Libra Request - Giant's Cave
+917 Red Libra Request - Garden of Spirits
+918 Red Libra Request - Atelia Fortress
+919 Red Libra Request - Superion
+922 Hunter Guild Request - Northern Region, Isle of Prayer
+925 Hunter Guild Request - Garden of Spirits
+929 Seeker Rescue
+940 Hunter Guild Request - Atelia Fortress
+986 Adventure Guild's Special Request - Lv. 2
+987 Adventure Guild's Special Request - Lv. 3
+988 Adventure Guild's Special Request - Lv. 4
+989 Adventure Guild's Special Request - Lv. 5
+10298 Wasteland Queen
+10396 Witch of Spores
+10423 Embryo Stronghold Ambush
 10506 Diana's Request
-10861 Monster Arena - The Birth of a Warrior
-10862 Monster Arena - Challenge: 10 battles
-10863 Monster Arena - New Challenge: 15 battles
-10864 Monster Arena - Brave Warrior: 25 battles
-10865 Monster Arena - Last Call: 40 battles
-10867 Gone Missing
-10868 The Dark Side of Power
-10870 Unfinished Device
-10871 Death to the Pirate King!
+10558 Hidden in Chaos
+10570 Hurrah for Kamael's Independence
+10572 To Expel the Embryo's Forces
+10574 Special Mission: Fortuna
+10580 Special Mission: Defeat Spezion
+10595 The Dimensional Warp, Part 8
+10596 The Dimensional Warp, Part 9
+10726 The Minstrel's Song, Part 5
+10731 The Minstrel's Song, Part 6

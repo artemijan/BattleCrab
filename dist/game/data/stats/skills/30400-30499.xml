@@ -1,13 +1,11 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="30400" toLevel="2" name="Divine Wind">
-		<!-- Wind/Holy Resistance + 10. -->
+		<!-- Level 1: Wind/ Holy Resistance +10. -->
+		<!-- Level 2: Wind/ Holy Resistance +20. -->
 		<icon>icon.skill30400</icon>
 		<operateType>P</operateType>
-		<magicLevel>
-			<value level="1">85</value>
-			<value level="2">85</value>
-		</magicLevel>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>
@@ -26,13 +24,11 @@
 		</effects>
 	</skill>
 	<skill id="30401" toLevel="2" name="Tenacity">
-		<!-- Max. HP + 1%, Speed + 4. -->
+		<!-- Level 1: Max. HP +1%, Speed +4. -->
+		<!-- Level 2: Max. HP +2%, Speed +7. -->
 		<icon>icon.skill30401</icon>
-		<magicLevel>
-			<value level="1">85</value>
-			<value level="2">85</value>
-		</magicLevel>
 		<operateType>P</operateType>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
@@ -51,7 +47,8 @@
 		</effects>
 	</skill>
 	<skill id="30402" toLevel="2" name="Efficacy">
-		<!-- MP Consumption - 1%. -->
+		<!-- Level 1: MP Consumption -1%. -->
+		<!-- Level 2: MP Consumption -2%. -->
 		<icon>icon.skill30402</icon>
 		<operateType>P</operateType>
 		<effects>

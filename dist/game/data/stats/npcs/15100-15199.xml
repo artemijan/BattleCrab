@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="15100" level="89" type="Servitor" name="Wynn Spectral Lord">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9261" hpRegen="9.5" mp="1043" mpRegen="3.3" />
 			<speed>
 				<walk ground="160" />
@@ -30,7 +30,7 @@
 	<npc id="15101" level="91" type="Servitor" name="Wynn Spectral Lord">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9479" hpRegen="10.5" mp="1080" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -57,7 +57,7 @@
 	<npc id="15102" level="93" type="Servitor" name="Wynn Spectral Lord">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9701" hpRegen="10.5" mp="1119" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -84,7 +84,7 @@
 	<npc id="15103" level="95" type="Servitor" name="Wynn Spectral Lord">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12220" hpRegen="10.5" mp="1157" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -111,7 +111,7 @@
 	<npc id="15104" level="97" type="Servitor" name="Wynn Spectral Lord">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12945" hpRegen="10.5" mp="1197" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -138,7 +138,7 @@
 	<npc id="15105" level="99" type="Servitor" name="Wynn Spectral Lord">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13073" hpRegen="10.5" mp="1236" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -166,7 +166,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6317" hpRegen="9.5" mp="692" mpRegen="3.3" />
 			<speed>
 				<walk ground="48" />
@@ -194,7 +194,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6464" hpRegen="9.5" mp="718" mpRegen="3.3" />
 			<speed>
 				<walk ground="48" />
@@ -222,7 +222,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6615" hpRegen="9.5" mp="745" mpRegen="3.3" />
 			<speed>
 				<walk ground="48" />
@@ -250,7 +250,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6771" hpRegen="10.5" mp="772" mpRegen="3.6" />
 			<speed>
 				<walk ground="48" />
@@ -278,7 +278,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6929" hpRegen="10.5" mp="799" mpRegen="3.6" />
 			<speed>
 				<walk ground="48" />
@@ -306,7 +306,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8729" hpRegen="10.5" mp="827" mpRegen="3.6" />
 			<speed>
 				<walk ground="48" />
@@ -334,7 +334,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9246" hpRegen="10.5" mp="855" mpRegen="3.6" />
 			<speed>
 				<walk ground="48" />
@@ -362,7 +362,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9338" hpRegen="10.5" mp="883" mpRegen="3.6" />
 			<speed>
 				<walk ground="48" />
@@ -389,7 +389,7 @@
 	<npc id="15114" level="85" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12634" hpRegen="9.5" mp="1384" mpRegen="3.3" />
 			<speed>
 				<walk ground="160" />
@@ -416,7 +416,7 @@
 	<npc id="15115" level="87" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12929" hpRegen="9.5" mp="1437" mpRegen="3.3" />
 			<speed>
 				<walk ground="160" />
@@ -443,7 +443,7 @@
 	<npc id="15116" level="89" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13231" hpRegen="9.5" mp="1491" mpRegen="3.3" />
 			<speed>
 				<walk ground="160" />
@@ -470,7 +470,7 @@
 	<npc id="15117" level="91" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13542" hpRegen="10.5" mp="1544" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -497,7 +497,7 @@
 	<npc id="15118" level="93" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13859" hpRegen="10.5" mp="1599" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -524,7 +524,7 @@
 	<npc id="15119" level="95" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="17458" hpRegen="10.5" mp="1654" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -551,7 +551,7 @@
 	<npc id="15120" level="97" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="18493" hpRegen="10.5" mp="1710" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -578,7 +578,7 @@
 	<npc id="15121" level="99" type="Servitor" name="Wynn Merrow">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="18677" hpRegen="10.5" mp="1766" mpRegen="3.6" />
 			<speed>
 				<walk ground="160" />
@@ -605,7 +605,7 @@
 	<npc id="15122" level="85" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8843" hpRegen="9.5" mp="968" mpRegen="3.3" />
 			<speed>
 				<walk ground="50" />
@@ -632,7 +632,7 @@
 	<npc id="15123" level="87" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9050" hpRegen="9.5" mp="1005" mpRegen="3.3" />
 			<speed>
 				<walk ground="50" />
@@ -659,7 +659,7 @@
 	<npc id="15124" level="89" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9261" hpRegen="9.5" mp="1043" mpRegen="3.3" />
 			<speed>
 				<walk ground="50" />
@@ -686,7 +686,7 @@
 	<npc id="15125" level="91" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9479" hpRegen="10.5" mp="1080" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -713,7 +713,7 @@
 	<npc id="15126" level="93" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9701" hpRegen="10.5" mp="1119" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -740,7 +740,7 @@
 	<npc id="15127" level="95" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12220" hpRegen="10.5" mp="1157" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -767,7 +767,7 @@
 	<npc id="15128" level="97" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12945" hpRegen="10.5" mp="1197" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -794,7 +794,7 @@
 	<npc id="15129" level="99" type="Servitor" name="Wynn Magnus">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13073" hpRegen="10.5" mp="1236" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -822,7 +822,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6317" hpRegen="9.5" mp="692" mpRegen="3.3" />
 			<speed>
 				<walk ground="27" />
@@ -850,7 +850,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6464" hpRegen="9.5" mp="718" mpRegen="3.3" />
 			<speed>
 				<walk ground="27" />
@@ -878,7 +878,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6615" hpRegen="9.5" mp="745" mpRegen="3.3" />
 			<speed>
 				<walk ground="27" />
@@ -906,7 +906,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6771" hpRegen="10.5" mp="772" mpRegen="3.6" />
 			<speed>
 				<walk ground="27" />
@@ -934,7 +934,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6929" hpRegen="10.5" mp="799" mpRegen="3.6" />
 			<speed>
 				<walk ground="27" />
@@ -962,7 +962,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8729" hpRegen="10.5" mp="827" mpRegen="3.6" />
 			<speed>
 				<walk ground="27" />
@@ -990,7 +990,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9246" hpRegen="10.5" mp="855" mpRegen="3.6" />
 			<speed>
 				<walk ground="27" />
@@ -1018,7 +1018,7 @@
 		<race>ETC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9338" hpRegen="10.5" mp="883" mpRegen="3.6" />
 			<speed>
 				<walk ground="27" />
@@ -1049,7 +1049,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8843" hpRegen="9.5" mp="968" mpRegen="3.3" />
 			<speed>
 				<walk ground="50" />
@@ -1080,7 +1080,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9479" hpRegen="9.5" mp="1080" mpRegen="3.3" />
 			<speed>
 				<walk ground="50" />
@@ -1111,7 +1111,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12220" hpRegen="10.5" mp="1157" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1142,7 +1142,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13073" hpRegen="10.5" mp="1236" mpRegen="3.6" />
 			<speed>
 				<walk ground="50" />
@@ -1173,7 +1173,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2985" hpRegen="8.5" mp="1777" mpRegen="3" />
 			<speed>
 				<walk ground="80" />
@@ -1203,7 +1203,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3067" hpRegen="8.5" mp="1870" mpRegen="3" />
 			<speed>
 				<walk ground="80" />
@@ -1233,7 +1233,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7859" hpRegen="9.5" mp="1936" mpRegen="3.3" />
 			<speed>
 				<walk ground="80" />
@@ -1263,7 +1263,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8531" hpRegen="9.5" mp="2160" mpRegen="3.3" />
 			<speed>
 				<walk ground="80" />
@@ -1293,7 +1293,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10999" hpRegen="10.5" mp="2314" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
@@ -1323,7 +1323,7 @@
 		</parameters>
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="11766" hpRegen="10.5" mp="2472" mpRegen="3.6" />
 			<speed>
 				<walk ground="80" />
@@ -1349,7 +1349,7 @@
 	<npc id="15148" level="80" type="Servitor" name="Reanimated Man">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2985" hpRegen="8.5" mp="1777" mpRegen="3" />
 			<speed>
 				<walk ground="60" />
@@ -1375,7 +1375,7 @@
 	<npc id="15149" level="83" type="Servitor" name="Reanimated Man">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3067" hpRegen="9.5" mp="1870" mpRegen="3.3" />
 			<speed>
 				<walk ground="60" />
@@ -1401,7 +1401,7 @@
 	<npc id="15150" level="85" type="Servitor" name="Reanimated Man">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8843" hpRegen="9.5" mp="1870" mpRegen="3.3" />
 			<speed>
 				<walk ground="60" />
@@ -1427,7 +1427,7 @@
 	<npc id="15151" level="90" type="Servitor" name="Reanimated Man">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9479" hpRegen="9.5" mp="1870" mpRegen="3.3" />
 			<speed>
 				<walk ground="60" />
@@ -1453,7 +1453,7 @@
 	<npc id="15152" level="95" type="Servitor" name="Reanimated Man">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="12220" hpRegen="10.5" mp="1870" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -1479,7 +1479,7 @@
 	<npc id="15153" level="99" type="Servitor" name="Reanimated Man">
 		<race>ETC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13073" hpRegen="10.5" mp="1870" mpRegen="3.6" />
 			<speed>
 				<walk ground="60" />
@@ -1508,7 +1508,7 @@
 		</parameters>
 		<race>PLANT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="36700" hpRegen="9" mp="1794" mpRegen="6.5" />
 			<speed>
 				<walk ground="50" />
@@ -1541,7 +1541,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13890" hpRegen="7.5" mp="1255" mpRegen="2.7" />
 			<attack physical="2822.6" magical="1164.3" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1043.7" magical="729.3" />
@@ -1572,7 +1572,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14027" hpRegen="7.5" mp="1275" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -1603,7 +1603,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14164" hpRegen="7.5" mp="1295" mpRegen="2.7" />
 			<attack physical="3571.59375" magical="1473.5671875" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1227.845675" magical="890.4935325" />
@@ -1634,7 +1634,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14301" hpRegen="7.5" mp="1316" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -1665,7 +1665,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14443" hpRegen="7.5" mp="1336" mpRegen="2.7" />
 			<attack physical="4520.29833984375" magical="1864.983471679688" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1445.450624751875" magical="1087.314865520813" />
@@ -1696,7 +1696,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14583" hpRegen="7.5" mp="1356" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -1728,7 +1728,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37014" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9921" hpRegen="7.5" mp="897" mpRegen="2.7" />
 			<attack physical="2822.6" magical="1164.3" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1043.7" magical="729.3" />
@@ -1760,7 +1760,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37014" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10019" hpRegen="7.5" mp="911" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -1792,7 +1792,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37014" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10117" hpRegen="7.5" mp="925" mpRegen="2.7" />
 			<attack physical="3571.59375" magical="1473.5671875" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1227.845675" magical="890.4935325" />
@@ -1824,7 +1824,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37014" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10215" hpRegen="7.5" mp="940" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -1856,7 +1856,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37014" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10317" hpRegen="7.5" mp="954" mpRegen="2.7" />
 			<attack physical="4520.29833984375" magical="1864.983471679688" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1445.450624751875" magical="1087.314865520813" />
@@ -1888,7 +1888,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37014" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10417" hpRegen="7.5" mp="969" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -1919,7 +1919,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13890" hpRegen="7.5" mp="1255" mpRegen="2.7" />
 			<attack physical="2822.6" magical="1164.3" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1043.7" magical="729.3" />
@@ -1950,7 +1950,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14027" hpRegen="7.5" mp="1275" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -1981,7 +1981,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14164" hpRegen="7.5" mp="1295" mpRegen="2.7" />
 			<attack physical="3571.59375" magical="1473.5671875" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1227.845675" magical="890.4935325" />
@@ -2012,7 +2012,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14301" hpRegen="7.5" mp="1316" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2043,7 +2043,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14443" hpRegen="7.5" mp="1336" mpRegen="2.7" />
 			<attack physical="4520.29833984375" magical="1864.983471679688" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1445.450624751875" magical="1087.314865520813" />
@@ -2074,7 +2074,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14583" hpRegen="7.5" mp="1356" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -2106,7 +2106,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9921" hpRegen="7.5" mp="897" mpRegen="2.7" />
 			<attack physical="2822.6" magical="1164.3" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1043.7" magical="729.3" />
@@ -2138,7 +2138,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10019" hpRegen="7.5" mp="911" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -2170,7 +2170,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10117" hpRegen="7.5" mp="925" mpRegen="2.7" />
 			<attack physical="3571.59375" magical="1473.5671875" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1227.845675" magical="890.4935325" />
@@ -2202,7 +2202,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10215" hpRegen="7.5" mp="940" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2234,7 +2234,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10317" hpRegen="7.5" mp="954" mpRegen="2.7" />
 			<attack physical="4520.29833984375" magical="1864.983471679688" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1445.450624751875" magical="1087.314865520813" />
@@ -2266,7 +2266,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37015" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10417" hpRegen="7.5" mp="969" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="283" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -2297,7 +2297,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13890" hpRegen="7.5" mp="1255" mpRegen="2.7" />
 			<attack physical="2822.6" magical="1164.3" critical="4" attackSpeed="343" range="40" distance="80" width="120" />
 			<defence physical="1043.7" magical="729.3" />
@@ -2328,7 +2328,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14027" hpRegen="7.5" mp="1275" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="343" range="40" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -2359,7 +2359,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14164" hpRegen="7.5" mp="1295" mpRegen="2.7" />
 			<attack physical="3571.59375" magical="1473.5671875" critical="4" attackSpeed="343" range="40" distance="80" width="120" />
 			<defence physical="1227.845675" magical="890.4935325" />
@@ -2390,7 +2390,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14301" hpRegen="7.5" mp="1316" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="343" range="40" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2421,7 +2421,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14443" hpRegen="7.5" mp="1336" mpRegen="2.7" />
 			<attack physical="4520.29833984375" magical="1864.983471679688" critical="4" attackSpeed="343" range="40" distance="80" width="120" />
 			<defence physical="1445.450624751875" magical="1087.314865520813" />
@@ -2452,7 +2452,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14583" hpRegen="7.5" mp="1356" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="343" range="40" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -2484,7 +2484,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="9921" hpRegen="7.5" mp="897" mpRegen="2.7" />
 			<attack physical="2822.6" magical="1164.3" critical="4" attackSpeed="343" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1043.7" magical="729.3" />
@@ -2516,7 +2516,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10019" hpRegen="7.5" mp="911" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="343" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -2548,7 +2548,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10117" hpRegen="7.5" mp="925" mpRegen="2.7" />
 			<attack physical="3571.59375" magical="1473.5671875" critical="4" attackSpeed="343" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1227.845675" magical="890.4935325" />
@@ -2580,7 +2580,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10215" hpRegen="7.5" mp="940" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="343" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2612,7 +2612,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10317" hpRegen="7.5" mp="954" mpRegen="2.7" />
 			<attack physical="4520.29833984375" magical="1864.983471679688" critical="4" attackSpeed="343" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1445.450624751875" magical="1087.314865520813" />
@@ -2644,7 +2644,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="37016" />
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="10417" hpRegen="7.5" mp="969" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="343" range="900" type="BOW" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -2675,7 +2675,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14027" hpRegen="7.5" mp="1275" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="360" range="40" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -2705,7 +2705,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14301" hpRegen="7.5" mp="1316" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="360" range="40" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2735,7 +2735,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14583" hpRegen="7.5" mp="1356" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="360" range="40" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -2765,7 +2765,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14027" hpRegen="7.5" mp="1275" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -2795,7 +2795,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14301" hpRegen="7.5" mp="1316" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2825,7 +2825,7 @@
 		</parameters>
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14583" hpRegen="7.5" mp="1356" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="283" range="40" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />
@@ -2851,7 +2851,7 @@
 	<npc id="15197" level="101" type="Servitor" name="Reanimated Man">
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14027" hpRegen="7.5" mp="1275" mpRegen="2.7" />
 			<attack physical="3174.75" magical="1309.8375" critical="4" attackSpeed="283" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="1131.655" magical="805.8765" />
@@ -2877,7 +2877,7 @@
 	<npc id="15198" level="103" type="Servitor" name="Reanimated Man">
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14301" hpRegen="7.5" mp="1316" mpRegen="2.7" />
 			<attack physical="4018.04296875" magical="1657.7630859375" critical="4" attackSpeed="283" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="1332.212557375" magical="983.9953534125" />
@@ -2903,7 +2903,7 @@
 	<npc id="15199" level="105" type="Servitor" name="Reanimated Man">
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="14583" hpRegen="7.5" mp="1356" mpRegen="2.7" />
 			<attack physical="5085.335632324219" magical="2098.106405639648" critical="4" attackSpeed="283" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="1568.313927855784" magical="1201.482926400498" />

@@ -336,14 +336,14 @@ fn a_worn_set_survives_a_relog() {
 }
 
 /// Pin what the dist actually loads. `armor_set_world`'s `is_empty` check would
-/// pass on a parser that read one set out of 317; these numbers are the ones
+/// pass on a parser that read one set out of 312; these numbers are the ones
 /// the reachability census was computed against, so a change here means the
 /// census needs redoing, not just the assertion.
 #[test]
 fn the_dist_armor_sets_load_as_censused() {
     let (world, _db, _l) = armor_set_world();
     let sets = &world.data.armor_sets;
-    assert_eq!(sets.len(), 317, "every <set> in data/stats/armorsets");
+    assert_eq!(sets.len(), 312, "every <set> in data/stats/armorsets");
 
     let mithril = sets.get(1).expect("set 1");
     assert_eq!(mithril.minimum_pieces, 3);

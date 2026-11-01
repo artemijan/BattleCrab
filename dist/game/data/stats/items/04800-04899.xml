@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="4800" name="Knuckle Duster" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 7%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_knuckle_dust_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -18,21 +18,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3037" level="2" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">148</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3037" level="2" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="4801" name="Arthro Nail" additionalName="Critical Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 14% chance of casting Poison on the target during a standard Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_arthro_nail_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -49,21 +51,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">213</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3040" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">213</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4802" name="Arthro Nail" additionalName="Rsk. Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 6 when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_arthro_nail_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -80,21 +84,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">213</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3030" level="5" /> <!-- Special Ability: Rsk. Evasion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">213</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4803" name="Arthro Nail" additionalName="Rsk. Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by 10% when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_arthro_nail_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -111,21 +117,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
-		<skills>
-			<skill id="3034" level="5" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3034" level="5" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="4804" name="Bellion Cestus" additionalName="Critical Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a chance to absorb 14 HP from the target during a critical attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bellion_cestus_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -142,21 +150,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">236</stat>
+			<stat type="mAtk">99</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3039" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
 		</skills>
-		<stats>
-			<stat type="pAtk">236</stat>
-			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4805" name="Bellion Cestus" additionalName="Critical Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 12% chance of casting Poison on the target during a standard Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bellion_cestus_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -173,21 +183,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">236</stat>
+			<stat type="mAtk">99</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3040" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">236</stat>
-			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4806" name="Bellion Cestus" additionalName="Rsk. Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by 9% when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bellion_cestus_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -204,21 +216,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
-		<skills>
-			<skill id="3034" level="6" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3034" level="6" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
-	<item id="4807" name="Blood Tornado" additionalName="Critical Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Absorbs the target's HP during a Critical Attack. -->
+	<item id="4807" name="Blood Tornado - Critical Drain" type="Weapon">
+		<!-- <Special Option>. Absorbs the target's HP during a Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_blood_tornado_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -238,15 +252,15 @@
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="4808" name="Blood Tornado" additionalName="Rsk. Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion when HP drops to 60% or below. -->
+	<item id="4808" name="Blood Tornado - Rsk. Evasion" type="Weapon">
+		<!-- <Special Option>. Increases Evasion when HP drops to 60% or below. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_blood_tornado_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -266,15 +280,15 @@
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="4809" name="Blood Tornado" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. -->
+	<item id="4809" name="Blood Tornado - Haste" type="Weapon">
+		<!-- <Special Option>. Increases Atk. Spd. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_blood_tornado_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -294,7 +308,7 @@
 		<stats>
 			<stat type="pAtk">259</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -302,7 +316,7 @@
 		</stats>
 	</item>
 	<item id="4810" name="Crystallized Ice Bow" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 5. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystallized_ice_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -322,21 +336,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3008" level="1" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">220</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3008" level="1" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4811" name="Crystallized Ice Bow" additionalName="Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 2. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystallized_ice_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -356,21 +372,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3009" level="1" /> <!-- Special Ability: Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">220</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3009" level="1" /> <!-- Special Ability: Evasion -->
+		</skills>
 	</item>
 	<item id="4812" name="Crystallized Ice Bow" additionalName="Quick Recovery" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Decreases cooldown by about 17%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystallized_ice_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -390,10 +408,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reuse_delay" val="1248" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">220</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -401,7 +421,7 @@
 		</stats>
 	</item>
 	<item id="4813" name="Elemental Bow" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 5. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_elemental_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -421,21 +441,23 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3008" level="2" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">277</stat>
 			<stat type="mAtk">75</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3008" level="2" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4814" name="Elemental Bow" additionalName="Miser" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 59% chance of reducing the number of soulshots consumed to 7. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_elemental_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -456,10 +478,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_soulshot" val="59,7" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">277</stat>
 			<stat type="mAtk">75</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
@@ -467,7 +491,7 @@
 		</stats>
 	</item>
 	<item id="4815" name="Elemental Bow" additionalName="Quick Recovery" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Decreases cooldown by about 20%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_elemental_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -487,10 +511,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reuse_delay" val="639" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">277</stat>
 			<stat type="mAtk">75</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
@@ -498,7 +524,7 @@
 		</stats>
 	</item>
 	<item id="4816" name="Noble Elven Bow" additionalName="Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 2. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_noble_elven_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -518,21 +544,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3009" level="2" /> <!-- Special Ability: Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">252</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3009" level="2" /> <!-- Special Ability: Evasion -->
+		</skills>
 	</item>
 	<item id="4817" name="Noble Elven Bow" additionalName="Miser" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 59% chance of reducing the number of soulshots consumed to 7. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_noble_elven_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -553,10 +581,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_soulshot" val="59,7" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">252</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -564,7 +594,7 @@
 		</stats>
 	</item>
 	<item id="4818" name="Noble Elven Bow" additionalName="Cheap Shot" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 47% chance of decreasing MP consumption to 1 during a standard attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_noble_elven_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -585,10 +615,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_mp_consume" val="47,1" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">252</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -596,7 +628,7 @@
 		</stats>
 	</item>
 	<item id="4819" name="Akat Longbow" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by about 4. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_akat_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -616,21 +648,23 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3008" level="3" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">316</stat>
 			<stat type="mAtk">84</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3008" level="3" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4820" name="Akat Longbow" additionalName="Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 2. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_akat_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -650,21 +684,23 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3009" level="3" /> <!-- Special Ability: Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">316</stat>
 			<stat type="mAtk">84</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3009" level="3" /> <!-- Special Ability: Evasion -->
+		</skills>
 	</item>
 	<item id="4821" name="Akat Longbow" additionalName="Miser" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 60% chance of reducing the number of soulshots consumed to 8. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_akat_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -685,10 +721,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_soulshot" val="60,8" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">316</stat>
 			<stat type="mAtk">84</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
@@ -696,7 +734,7 @@
 		</stats>
 	</item>
 	<item id="4822" name="Eminence Bow" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by about 4. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_eminence_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -716,21 +754,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
-		<skills>
-			<skill id="3008" level="4" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">323</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3008" level="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4823" name="Eminence Bow" additionalName="Miser" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 61% chance of reducing the number of soulshots consumed to 9. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_eminence_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -751,10 +791,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_soulshot" val="61,9" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">323</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -762,7 +804,7 @@
 		</stats>
 	</item>
 	<item id="4824" name="Eminence Bow" additionalName="Cheap Shot" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 42% chance of decreasing MP consumption to 1 during a standard attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_eminence_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -783,10 +825,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_mp_consume" val="42,1" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">323</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -794,7 +838,7 @@
 		</stats>
 	</item>
 	<item id="4825" name="Dark Elven Longbow" additionalName="Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 2. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -814,21 +858,23 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3009" level="5" /> <!-- Special Ability: Evasion -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3009" level="5" /> <!-- Special Ability: Evasion -->
+		</skills>
 	</item>
 	<item id="4826" name="Dark Elven Longbow" additionalName="Critical Bleed" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 41% chance of casting Bleed on the target during a standard Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -848,21 +894,23 @@
 		<set name="reuse_delay" val="820" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3021" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3021" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
 	<item id="4827" name="Dark Elven Longbow" additionalName="Miser" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 19% chance of reducing the number of soulshots consumed to 2. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dark_elven_long_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -883,10 +931,12 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_soulshot" val="19,2" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">397</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
@@ -894,7 +944,7 @@
 		</stats>
 	</item>
 	<item id="4828" name="Bow of Peril" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by 3. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -914,21 +964,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
-		<skills>
-			<skill id="3008" level="6" /> <!-- Special Ability: Guidance -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3008" level="6" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="4829" name="Bow of Peril" additionalName="Quick Recovery" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Decreases cooldown by about 13%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -948,10 +1000,12 @@
 		<set name="reuse_delay" val="1310" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -959,7 +1013,7 @@
 		</stats>
 	</item>
 	<item id="4830" name="Bow of Peril" additionalName="Cheap Shot" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 42% chance of decreasing MP consumption to 1 during a standard attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -980,18 +1034,20 @@
 		<set name="reduced_mp_consume" val="42,1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="4831" name="Carnage Bow" additionalName="Critical Bleed" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 30% chance of casting Bleed on the target during a standard Critical Attack. -->
+	<item id="4831" name="Carnage Bow - Critical Bleed" type="Weapon">
+		<!-- <Special Option>. Has a 30% chance of casting Bleed on the target during a standard Critical Attack. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_carnium_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1013,15 +1069,15 @@
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="4832" name="Carnage Bow" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30% -->
+	<item id="4832" name="Carnage Bow - Mana Up" type="Weapon">
+		<!-- <Special Option>. Increases Max MP by 30%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_carnium_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1043,15 +1099,15 @@
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="4833" name="Carnage Bow" additionalName="Quick Recovery" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Decreases cooldown by about 10%. -->
+	<item id="4833" name="Carnage Bow - Quick Recovery" type="Weapon">
+		<!-- <Special Option>. Decreases cooldown by about 10%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_carnium_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1073,7 +1129,7 @@
 		<stats>
 			<stat type="pAtk">440</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -1081,7 +1137,7 @@
 		</stats>
 	</item>
 	<item id="4834" name="Scythe" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 20 and decreases Max HP by 15%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_scythe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1098,21 +1154,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3600" level="1" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3600" level="1" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 	<item id="4835" name="Scythe" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 34% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_scythe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1129,22 +1187,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3016" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4836" name="Scythe" additionalName="Light Armor" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Weight Gauge by 20%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_scythe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1161,22 +1221,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4837" name="Orcish Glaive" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 20 and decreases Max HP by 15%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_orcish_glaive_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1193,21 +1255,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">61</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3600" level="1" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4838" name="Orcish Glaive" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 34% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_orcish_glaive_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1224,22 +1288,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="3016" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="3016" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
+		</skills>
 	</item>
 	<item id="4839" name="Orcish Glaive" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_orcish_glaive_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1256,21 +1322,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4840" name="Body Slasher" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 34% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_body_slasher_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1287,22 +1355,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="3016" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="3016" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
+		</skills>
 	</item>
 	<item id="4841" name="Body Slasher" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_body_slasher_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1319,21 +1389,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4842" name="Body Slasher" additionalName="Wide Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Broadens the angle of attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_body_slasher_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1350,21 +1422,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4843" name="Bec de Corbin" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 32% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bech_de_corbin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1381,22 +1455,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">122</stat>
+			<stat type="mAtk">68</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3016" level="2" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">122</stat>
-			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4844" name="Bec de Corbin" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bech_de_corbin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1413,21 +1489,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4845" name="Bec de Corbin" additionalName="Light Armor" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Weight Gauge by 20%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_bech_de_corbin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1444,22 +1522,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">122</stat>
+			<stat type="mAtk">68</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">122</stat>
-			<stat type="mAtk">68</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4846" name="scorpion" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 24 and decreases Max HP by 15%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_scorpion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1476,21 +1556,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">144</stat>
+			<stat type="mAtk">78</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3600" level="3" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">144</stat>
-			<stat type="mAtk">78</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4847" name="scorpion" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 31% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_scorpion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1507,22 +1589,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="3016" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">144</stat>
 			<stat type="mAtk">78</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="3016" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
+		</skills>
 	</item>
 	<item id="4848" name="scorpion" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_scorpion_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1539,21 +1623,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">144</stat>
 			<stat type="mAtk">78</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4849" name="Widow Maker" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 31% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_widow_maker_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1570,22 +1656,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="3016" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">144</stat>
 			<stat type="mAtk">78</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="3016" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
+		</skills>
 	</item>
 	<item id="4850" name="Widow Maker" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_widow_maker_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1602,21 +1690,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">144</stat>
 			<stat type="mAtk">78</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4851" name="Widow Maker" additionalName="Wide Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Broadens the angle of attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_widow_maker_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1633,21 +1723,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">144</stat>
 			<stat type="mAtk">78</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4852" name="Orcish Poleaxe" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 29% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_orcish_poleaxe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1664,22 +1756,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">156</stat>
+			<stat type="mAtk">83</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3016" level="4" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">156</stat>
-			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4853" name="Orcish Poleaxe" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_orcish_poleaxe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1696,21 +1790,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4854" name="Orcish Poleaxe" additionalName="Wide Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Broadens the angle of attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_orcish_poleaxe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1727,21 +1823,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4855" name="Great Axe" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 28 and decreases Max HP by 15%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1758,21 +1856,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3600" level="5" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">175</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3600" level="5" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 	<item id="4856" name="Great Axe" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 27% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1789,22 +1889,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">175</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3016" level="5" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">175</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4857" name="Great Axe" additionalName="Light Armor" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Weight Gauge by 20%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_great_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1821,22 +1923,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">175</stat>
+			<stat type="mAtk">91</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3498" level="1" /> <!-- Special Ability: Light -->
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">175</stat>
-			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4858" name="Lance" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 30 and decreases Max HP by 15%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_lancia_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1853,21 +1957,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3600" level="6" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3600" level="6" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 	<item id="4859" name="Lance" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 25% chance of casting Stun on the target during a Critical Attack. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_lancia_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1884,22 +1990,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">194</stat>
+			<stat type="mAtk">99</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 			<skill id="3016" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">194</stat>
-			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="4860" name="Lance" additionalName="Long Blow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_lancia_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1916,18 +2024,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4861" name="Halberd" additionalName="Critical Stun" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has about a 15% chance of casting Stun on the target during a Critical Attack. -->
@@ -1947,18 +2057,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4862" name="Halberd" additionalName="Long Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases the attack range. -->
@@ -1978,18 +2090,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4863" name="Halberd" additionalName="Wide Blow" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Broadens the angle of attack. -->
@@ -2009,21 +2123,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="4864" name="Heavy Doom Hammer" additionalName="Magic Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 30% chance of casting Regeneration on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavy_doom_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2039,23 +2155,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1044" level="1" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="4865" name="Heavy Doom Hammer" additionalName="Magic Mental Shield" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 50% chance of casting Mental Shield on the target during magic use. -->
+	<item id="4865" name="Heavy Doom Hammer" additionalName="Mental Shield" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavy_doom_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2071,23 +2189,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1035" level="2" type_chance="50" type="ON_MAGIC_SKILL" /> <!-- Mental Shield -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4866" name="Heavy Doom Hammer" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavy_doom_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2103,23 +2223,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1201" level="16" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4867" name="Crystal Staff" additionalName="Rsk. Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 7 when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystal_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2135,23 +2257,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3031" level="1" /> <!-- Special Ability: Rsk. Evasion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4868" name="Crystal Staff" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. This bonus does not apply to MP gained through passive skills. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystal_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2167,23 +2291,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4869" name="Crystal Staff" additionalName="Blessed Body" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Blessed Body on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_crystal_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2199,23 +2325,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1045" level="2" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Blessed Body -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4870" name="Heavy Doom Axe" additionalName="Magic Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has an 8% chance of casting Curse Poison on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavy_doom_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2231,23 +2359,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1168" level="6" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4871" name="Heavy Doom Axe" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has an 8% chance of casting Curse Weakness on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavy_doom_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2263,23 +2393,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">103</stat>
+			<stat type="mAtk">89</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1164" level="7" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
 		</skills>
-		<stats>
-			<stat type="pAtk">103</stat>
-			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4872" name="Heavy Doom Axe" additionalName="Magic Chaos" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has an 8% chance of casting Curse Chaos on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavy_doom_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2295,23 +2427,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1222" level="4" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
-		</skills>
 		<stats>
 			<stat type="pAtk">103</stat>
 			<stat type="mAtk">89</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1222" level="4" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
+		</skills>
 	</item>
 	<item id="4873" name="Cursed Staff" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_cursed_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2327,23 +2461,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">119</stat>
+			<stat type="mAtk">100</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1201" level="18" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
 		</skills>
-		<stats>
-			<stat type="pAtk">119</stat>
-			<stat type="mAtk">100</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4874" name="Cursed Staff" additionalName="Magic Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has an 8% chance of casting Curse Poison on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_cursed_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2359,23 +2495,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">119</stat>
+			<stat type="mAtk">100</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1168" level="6" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">119</stat>
-			<stat type="mAtk">100</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4875" name="Cursed Staff" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has an 8% chance of casting Curse Weakness on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_cursed_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2391,23 +2529,25 @@
 		<set name="spiritshots" val="2" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1164" level="8" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">119</stat>
 			<stat type="mAtk">100</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1164" level="8" type_chance="8" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
 	</item>
 	<item id="4876" name="Paradia Staff" additionalName="Magic Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 30% chance of casting Regeneration on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paradia_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2423,23 +2563,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">135</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1044" level="2" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">135</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="4877" name="Paradia Staff" additionalName="Magic Mental Shield" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 50% chance of casting Mental Shield on the target during magic use. -->
+	<item id="4877" name="Paradia Staff" additionalName="Mental Shield" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paradia_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2455,23 +2597,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">135</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1035" level="3" type_chance="50" type="ON_MAGIC_SKILL" /> <!-- Mental Shield -->
 		</skills>
-		<stats>
-			<stat type="pAtk">135</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4878" name="Paradia Staff" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paradia_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2487,23 +2631,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1201" level="21" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
-		</skills>
 		<stats>
 			<stat type="pAtk">135</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1201" level="21" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
+		</skills>
 	</item>
 	<item id="4879" name="Pa'agrio Hammer" additionalName="Rsk. Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 6 when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paagrio_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2519,23 +2665,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">135</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3031" level="3" /> <!-- Special Ability: Rsk. Evasion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">135</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4880" name="Pa'agrio Hammer" additionalName="Magic Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Poison on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paagrio_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2551,23 +2699,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">135</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1168" level="6" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">135</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4881" name="Pa'agrio Hammer" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Weakness on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paagrio_hammer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2583,23 +2733,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1164" level="9" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">135</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1164" level="9" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
 	</item>
 	<item id="4882" name="Sage's Staff" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sages_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2615,23 +2767,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">135</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1201" level="21" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
 		</skills>
-		<stats>
-			<stat type="pAtk">135</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4883" name="Sage's Staff" additionalName="Magic Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Poison on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sages_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2647,23 +2801,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">135</stat>
+			<stat type="mAtk">111</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1168" level="6" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">135</stat>
-			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4884" name="Sage's Staff" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Weakness on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sages_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2679,87 +2835,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1164" level="9" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">135</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
-	</item>
-	<item id="4885" name="Pa'agrio Axe" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. -->
-		<set name="icon" val="icon.weapon_paagrio_axe_i01" />
-		<set name="default_action" val="EQUIP" />
-		<set name="weapon_type" val="BLUNT" />
-		<set name="bodypart" val="lrhand" />
-		<set name="damage_range" val="0;0;46;120" />
-		<set name="immediate_effect" val="true" />
-		<set name="crystal_count" val="196" />
-		<set name="crystal_type" val="C" />
-		<set name="material" val="BLOOD_STEEL" />
-		<set name="weight" val="990" />
-		<set name="price" val="735540" />
-		<set name="soulshots" val="3" />
-		<set name="spiritshots" val="3" />
-		<set name="enchant_enabled" val="true" />
-		<set name="is_magic_weapon" val="true" />
-		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
-		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
-		</skills>
-		<stats>
-			<stat type="pAtk">141</stat>
-			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
-	</item>
-	<item id="4886" name="Pa'agrio Axe" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Weakness on the target during magic use. -->
-		<set name="icon" val="icon.weapon_paagrio_axe_i01" />
-		<set name="default_action" val="EQUIP" />
-		<set name="weapon_type" val="BLUNT" />
-		<set name="bodypart" val="lrhand" />
-		<set name="damage_range" val="0;0;46;120" />
-		<set name="immediate_effect" val="true" />
-		<set name="crystal_count" val="196" />
-		<set name="crystal_type" val="C" />
-		<set name="material" val="BLOOD_STEEL" />
-		<set name="weight" val="990" />
-		<set name="price" val="735540" />
-		<set name="soulshots" val="3" />
-		<set name="spiritshots" val="3" />
-		<set name="enchant_enabled" val="true" />
-		<set name="is_magic_weapon" val="true" />
-		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
-		<set name="isAppearanceable" val="true" />
 		<skills>
 			<skill id="1164" level="9" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
 		</skills>
-		<stats>
-			<stat type="pAtk">141</stat>
-			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="4887" name="Pa'agrio Axe" additionalName="Magic Chaos" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Chaos on the target during magic use. -->
+	<item id="4885" name="Pa'agrio Axe" additionalName="Mana Up" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_paagrio_axe_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2775,23 +2869,93 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1222" level="5" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
-		</skills>
 		<stats>
 			<stat type="pAtk">141</stat>
 			<stat type="mAtk">114</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
+		</skills>
+	</item>
+	<item id="4886" name="Pa'agrio Axe" additionalName="Magic Weakness" type="Weapon">
+		<!-- Not used -->
+		<set name="icon" val="icon.weapon_paagrio_axe_i01" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="BLUNT" />
+		<set name="bodypart" val="lrhand" />
+		<set name="damage_range" val="0;0;46;120" />
+		<set name="immediate_effect" val="true" />
+		<set name="crystal_count" val="196" />
+		<set name="crystal_type" val="C" />
+		<set name="material" val="BLOOD_STEEL" />
+		<set name="weight" val="990" />
+		<set name="price" val="735540" />
+		<set name="soulshots" val="3" />
+		<set name="spiritshots" val="3" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
+		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">141</stat>
+			<stat type="mAtk">114</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
+		<skills>
+			<skill id="1164" level="9" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
+	</item>
+	<item id="4887" name="Pa'agrio Axe" additionalName="Magic Chaos" type="Weapon">
+		<!-- Not used -->
+		<set name="icon" val="icon.weapon_paagrio_axe_i01" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="BLUNT" />
+		<set name="bodypart" val="lrhand" />
+		<set name="damage_range" val="0;0;46;120" />
+		<set name="immediate_effect" val="true" />
+		<set name="crystal_count" val="196" />
+		<set name="crystal_type" val="C" />
+		<set name="material" val="BLOOD_STEEL" />
+		<set name="weight" val="990" />
+		<set name="price" val="735540" />
+		<set name="soulshots" val="3" />
+		<set name="spiritshots" val="3" />
+		<set name="enchant_enabled" val="true" />
+		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
+		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">141</stat>
+			<stat type="mAtk">114</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
+		<skills>
+			<skill id="1222" level="5" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
+		</skills>
 	</item>
 	<item id="4888" name="Deadman's Staff" additionalName="Magic Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 30% chance of casting Regeneration on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_deadmans_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2807,23 +2971,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1044" level="2" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="4889" name="Deadman's Staff" additionalName="Magic Mental Shield" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 50% chance of casting Mental Shield on the target during magic use. -->
+	<item id="4889" name="Deadman's Staff" additionalName="Mental Shield" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_deadmans_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2839,23 +3005,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1035" level="3" type_chance="50" type="ON_MAGIC_SKILL" /> <!-- Mental Shield -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4890" name="Deadman's Staff" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_deadmans_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2871,23 +3039,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1201" level="23" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4891" name="Ghoul's Staff" additionalName="Rsk. Evasion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Evasion by 6 when HP drops to 60% or below. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_ghouls_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2903,23 +3073,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3031" level="4" /> <!-- Special Ability: Rsk. Evasion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4892" name="Ghoul's Staff" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_ghouls_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2935,23 +3107,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4893" name="Ghoul's Staff" additionalName="Blessed Body" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 20% chance of casting Blessed Body on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_ghouls_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2967,23 +3141,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1045" level="4" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Blessed Body -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4894" name="Demon's Staff" additionalName="Magic Poison" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Poison on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demons_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -2999,23 +3175,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1168" level="6" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Poison -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4895" name="Demon's Staff" additionalName="Magic Weakness" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Weakness on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demons_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -3031,23 +3209,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">152</stat>
+			<stat type="mAtk">122</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1164" level="10" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
 		</skills>
-		<stats>
-			<stat type="pAtk">152</stat>
-			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4896" name="Demon's Staff" additionalName="Magic Chaos" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 7% chance of casting Curse Chaos on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demons_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -3063,23 +3243,25 @@
 		<set name="spiritshots" val="3" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1222" level="5" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
-		</skills>
 		<stats>
 			<stat type="pAtk">152</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1222" level="5" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Chaos -->
+		</skills>
 	</item>
 	<item id="4897" name="Spirit's Staff" additionalName="Magic Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 30% chance of casting Regeneration on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sprites_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -3095,23 +3277,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">170</stat>
+			<stat type="mAtk">134</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1044" level="3" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">170</stat>
-			<stat type="mAtk">134</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="4898" name="Spirit's Staff" additionalName="Magic Mental Shield" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 50% chance of casting Mental Shield on the target during magic use. -->
+	<item id="4898" name="Spirit's Staff" additionalName="Mental Shield" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sprites_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -3127,23 +3311,25 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">170</stat>
+			<stat type="mAtk">134</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="1035" level="4" type_chance="50" type="ON_MAGIC_SKILL" /> <!-- Mental Shield -->
 		</skills>
-		<stats>
-			<stat type="pAtk">170</stat>
-			<stat type="mAtk">134</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="4899" name="Spirit's Staff" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 10% chance of casting Dryad Root on the target during magic use. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_sprites_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -3159,19 +3345,21 @@
 		<set name="spiritshots" val="1" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="1201" level="25" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">134</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1201" level="25" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
+		</skills>
 	</item>
 </list>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="20800" name="Agathion - Red Opera Pack (7-day)" additionalName="Spear of Flames" type="EtcItem">
 		<!-- Wrapped Pack containing Agathion - Red Opera (7-day). -->
@@ -341,7 +341,7 @@
 		<skills>
 			<skill id="21157" level="1" /> <!-- Release Agathion's Seal - Iken -->
 			<skill id="23141" level="1" /> <!-- Lancet Agathion Cute Trick -->
-			<skill id="21172" level="1" /> <!-- Reinforced Authority - CON + 1 / STR + 1 -->
+			<skill id="21172" level="1" /> <!-- Reinforced Authority - CON +1 / STR +1 -->
 			<skill id="21176" level="1" /> <!-- Divine Protection - Holy -->
 			<skill id="21182" level="1" /> <!-- Blessing of Resistance - Hold -->
 			<skill id="21188" level="1" /> <!-- Recovery Ability: HP -->
@@ -387,7 +387,7 @@
 		<skills>
 			<skill id="21158" level="1" /> <!-- Release Agathion's Seal - Lanya -->
 			<skill id="23142" level="1" /> <!-- Liposa Agathion Cute Trick -->
-			<skill id="21173" level="1" /> <!-- Reinforced Authority - WIT + 1 / INT + 1 -->
+			<skill id="21173" level="1" /> <!-- Reinforced Authority - WIT +1 / INT +1 -->
 			<skill id="21176" level="1" /> <!-- Divine Protection - Holy -->
 			<skill id="21182" level="1" /> <!-- Blessing of Resistance - Hold -->
 			<skill id="21189" level="1" /> <!-- Recovery Ability: MP -->
@@ -433,7 +433,7 @@
 		<skills>
 			<skill id="21159" level="1" /> <!-- Release Agathion's Seal - Gnosian -->
 			<skill id="23143" level="1" /> <!-- Velarin Agathion Cute Trick -->
-			<skill id="21175" level="1" /> <!-- Reinforced Authority - CON + 1 / DEX + 1 -->
+			<skill id="21175" level="1" /> <!-- Reinforced Authority - CON +1 / DEX +1 -->
 			<skill id="21177" level="1" /> <!-- Divine Protection - Water -->
 			<skill id="21183" level="1" /> <!-- Blessing of Resistance - Paralysis -->
 			<skill id="21188" level="1" /> <!-- Recovery Ability: HP -->
@@ -479,7 +479,7 @@
 		<skills>
 			<skill id="21160" level="1" /> <!-- Release Agathion's Seal - Orodriel -->
 			<skill id="23144" level="1" /> <!-- Dulcinel Agathion Cute Trick -->
-			<skill id="21174" level="1" /> <!-- Reinforced Authority - WIT + 1 / MEN + 1 -->
+			<skill id="21174" level="1" /> <!-- Reinforced Authority - WIT +1 / MEN +1 -->
 			<skill id="21177" level="1" /> <!-- Divine Protection - Water -->
 			<skill id="21183" level="1" /> <!-- Blessing of Resistance - Paralysis -->
 			<skill id="21189" level="1" /> <!-- Recovery Ability: MP -->
@@ -525,7 +525,7 @@
 		<skills>
 			<skill id="21161" level="1" /> <!-- Release Agathion's Seal - Lakinos -->
 			<skill id="23145" level="1" /> <!-- Chimeros Agathion Cute Trick -->
-			<skill id="21172" level="1" /> <!-- Reinforced Authority - CON + 1 / STR + 1 -->
+			<skill id="21172" level="1" /> <!-- Reinforced Authority - CON +1 / STR +1 -->
 			<skill id="21179" level="1" /> <!-- Divine Protection - Wind -->
 			<skill id="21184" level="1" /> <!-- Blessing of Resistance - Sleep -->
 			<skill id="21188" level="1" /> <!-- Recovery Ability: HP -->
@@ -571,7 +571,7 @@
 		<skills>
 			<skill id="21162" level="1" /> <!-- Release Agathion's Seal - Mortia -->
 			<skill id="23146" level="1" /> <!-- Niveri Agathion Cute Trick -->
-			<skill id="21173" level="1" /> <!-- Reinforced Authority - WIT + 1 / INT + 1 -->
+			<skill id="21173" level="1" /> <!-- Reinforced Authority - WIT +1 / INT +1 -->
 			<skill id="21179" level="1" /> <!-- Divine Protection - Wind -->
 			<skill id="21184" level="1" /> <!-- Blessing of Resistance - Sleep -->
 			<skill id="21189" level="1" /> <!-- Recovery Ability: MP -->
@@ -617,7 +617,7 @@
 		<skills>
 			<skill id="21163" level="1" /> <!-- Release Agathion's Seal - Heintz -->
 			<skill id="23147" level="1" /> <!-- Hamell Agathion Cute Trick -->
-			<skill id="21175" level="1" /> <!-- Reinforced Authority - CON + 1 / DEX + 1 -->
+			<skill id="21175" level="1" /> <!-- Reinforced Authority - CON +1 / DEX +1 -->
 			<skill id="21180" level="1" /> <!-- Divine Protection - Earth -->
 			<skill id="21185" level="1" /> <!-- Blessing of Resistance - Decrease Speed -->
 			<skill id="21188" level="1" /> <!-- Recovery Ability: HP -->
@@ -663,7 +663,7 @@
 		<skills>
 			<skill id="21164" level="1" /> <!-- Release Agathion's Seal - Meruril -->
 			<skill id="23148" level="1" /> <!-- Joriya Agathion Cute Trick -->
-			<skill id="21174" level="1" /> <!-- Reinforced Authority - WIT + 1 / MEN + 1 -->
+			<skill id="21174" level="1" /> <!-- Reinforced Authority - WIT +1 / MEN +1 -->
 			<skill id="21180" level="1" /> <!-- Divine Protection - Earth -->
 			<skill id="21185" level="1" /> <!-- Blessing of Resistance - Decrease Speed -->
 			<skill id="21189" level="1" /> <!-- Recovery Ability: MP -->
@@ -709,7 +709,7 @@
 		<skills>
 			<skill id="21165" level="1" /> <!-- Release Agathion's Seal - Taman Zu Rapatui -->
 			<skill id="23149" level="1" /> <!-- Ralmak Agathion Cute Trick -->
-			<skill id="21172" level="1" /> <!-- Reinforced Authority - CON + 1 / STR + 1 -->
+			<skill id="21172" level="1" /> <!-- Reinforced Authority - CON +1 / STR +1 -->
 			<skill id="21178" level="1" /> <!-- Divine Protection - Fire -->
 			<skill id="21186" level="1" /> <!-- Blessing of Resistance - Bleed -->
 			<skill id="21188" level="1" /> <!-- Recovery Ability: HP -->
@@ -755,7 +755,7 @@
 		<skills>
 			<skill id="21166" level="1" /> <!-- Release Agathion's Seal - Kaurin -->
 			<skill id="23150" level="1" /> <!-- Goras Agathion Cute Trick -->
-			<skill id="21173" level="1" /> <!-- Reinforced Authority - WIT + 1 / INT + 1 -->
+			<skill id="21173" level="1" /> <!-- Reinforced Authority - WIT +1 / INT +1 -->
 			<skill id="21178" level="1" /> <!-- Divine Protection - Fire -->
 			<skill id="21186" level="1" /> <!-- Blessing of Resistance - Bleed -->
 			<skill id="21189" level="1" /> <!-- Recovery Ability: MP -->
@@ -801,7 +801,7 @@
 		<skills>
 			<skill id="21167" level="1" /> <!-- Release Agathion's Seal - Ahertbein -->
 			<skill id="23151" level="1" /> <!-- Vensar Agathion Cute Trick -->
-			<skill id="21175" level="1" /> <!-- Reinforced Authority - CON + 1 / DEX + 1 -->
+			<skill id="21175" level="1" /> <!-- Reinforced Authority - CON +1 / DEX +1 -->
 			<skill id="21181" level="1" /> <!-- Divine Protection - Dark -->
 			<skill id="21187" level="1" /> <!-- Blessing of Resistance - Stun -->
 			<skill id="21188" level="1" /> <!-- Recovery Ability: HP -->
@@ -847,7 +847,7 @@
 		<skills>
 			<skill id="21168" level="1" /> <!-- Release Agathion's Seal - Naonin -->
 			<skill id="23152" level="1" /> <!-- Kiela Agathion Cute Trick -->
-			<skill id="21174" level="1" /> <!-- Reinforced Authority - WIT + 1 / MEN + 1 -->
+			<skill id="21174" level="1" /> <!-- Reinforced Authority - WIT +1 / MEN +1 -->
 			<skill id="21181" level="1" /> <!-- Divine Protection - Dark -->
 			<skill id="21187" level="1" /> <!-- Blessing of Resistance - Stun -->
 			<skill id="21189" level="1" /> <!-- Recovery Ability: MP -->
@@ -1375,21 +1375,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="21169" level="1" /> <!-- Transform Kadomas -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="21169" level="1" /> <!-- Transform Kadomas -->
+		</skills>
 	</item>
 	<item id="20868" name="Kotatz" type="EtcItem">
-		<!-- Summons Kotatz, who increases HP Recovery Rate by 40% and MP Recovery Rate by 20%. The Recovery Bonus effect occurs only when summoned at a certain distance away from the village. -->
+		<!-- Summons Kotatz, who increases HP Recovery Bonus Rate by 40% and MP Recovery Bonus Rate by 20%. The Recovery Bonus effect occurs only when summoned at a certain distance away from the village. -->
 		<set name="icon" val="BranchSys.icon.br_kotatsu_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -1628,7 +1628,7 @@
 		</skills>
 	</item>
 	<item id="20880" name="Chinese Feast" additionalName="Clarity, Acumen, Blessed Soul" type="EtcItem">
-		<!-- For 1 hour, decreases physical skill MP consumption by 20%, magic skill's MP consumption by 10%, and song/dance skill's MP consumption by 20%. Increases Casting Spd. by 30% and Max MP by 35%. -->
+		<!-- For 1 hour, decreases physical skill MP consumption by 20%, magic skill's MP consumption by 10%, and song/ dance skill's MP consumption by 20%. Increases Casting Spd. by 30% and Max MP by 35%. -->
 		<set name="icon" val="BranchSys.icon.br_taiwan_newyear_food_e_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />

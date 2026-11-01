@@ -651,11 +651,12 @@ fn relog_destroys_a_stray_cursed_weapon() {
     );
 }
 
-/// The curse is not something you can take off: `RequestUnEquipItem` on the
-/// two-hand slot is refused outright while cursed (Java tests the requested
-/// slot, not the item).
+/// Salvation's `RequestUnEquipItem` cannot keep a cursed weapon in hand: its
+/// guard tests the body part for `LR_HAND`, but the client sends a paperdoll
+/// index and `BodyPart.fromPaperdollSlot` answers `R_HAND` for the right hand.
+/// Zariche is not `isForceEquip` either, so the drag takes it off, as in Java.
 #[test]
-fn cursed_wielder_cannot_unequip_the_weapon() {
+fn salvation_lets_a_cursed_wielder_drag_the_weapon_off() {
     let (mut world, _db, _db_rx, _l) = test_world();
     load_curse_data(&mut world);
     world.id_pool = 0x3000_0000..0x3000_0100;
@@ -667,13 +668,12 @@ fn cursed_wielder_cannot_unequip_the_weapon() {
         "activate equipped the weapon"
     );
 
-    let mut body = Vec::new();
-    body.extend_from_slice(&crate::data::item_data::SLOT_LR_HAND.to_le_bytes());
+    let body = (crate::model::inventory::PaperdollSlot::RHand as i32).to_le_bytes();
     items::handle_request_un_equip_item(&mut world, 1, &body);
 
     assert!(
-        equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
-        "the cursed weapon stays in hand"
+        equipped_oid(&world, PICKER_OID, ZARICHE).is_none(),
+        "the cursed weapon comes off"
     );
 }
 
@@ -1138,59 +1138,6 @@ fn gm_grant_starts_a_fresh_life() {
             .iter()
             .any(|t| matches!(t, crate::scheduler::ScheduledTask::CursedWeaponExpiry { item_id } if *item_id == ZARICHE)),
         "and its removal task is armed against that deadline"
-    );
-}
-
-/// The character-selection screen shows the demon form for a character who
-/// logged out holding a cursed weapon, so the owner can tell at a glance that
-/// the curse is still on them before entering the world.
-///
-/// This is a **deliberate deviation from Java**, which hard-codes 0 into the
-/// transform field with the comment "on retail when you are on character select
-/// you don't see your transformation". The field itself is the one the client
-/// reads for a polymorphed model — L2J just declines to fill it.
-#[test]
-fn char_selection_shows_the_cursed_transform() {
-    let (mut world, _db, _db_rx, _l) = test_world();
-    load_curse_data(&mut world);
-    let chars = vec![dummy_char(PICKER_OID, "Cursed")];
-
-    let plain =
-        server_packets::char_selection_info("acct", 1, &chars, -1, 7, &world.data.experience, &[]);
-
-    restore_activated_on(&mut world, AKAMANAH, PICKER_OID);
-    let cursed = server_packets::char_selection_info(
-        "acct",
-        1,
-        &chars,
-        -1,
-        7,
-        &world.data.experience,
-        &world.cursed_weapons,
-    );
-
-    assert_eq!(
-        plain.len(),
-        cursed.len(),
-        "only a field value changes, never the layout"
-    );
-    let diffs: Vec<usize> = (0..plain.len())
-        .filter(|&i| plain[i] != cursed[i])
-        .collect();
-    assert!(
-        !diffs.is_empty(),
-        "the cursed character's selection entry must differ — a hard 0 would \
-         make these packets identical and the screen would look un-cursed"
-    );
-    // The differing bytes are one little-endian i32 holding Akamanah's
-    // transform (302); locate it rather than hard-coding a packet offset.
-    let at = diffs[0];
-    let field = i32::from_le_bytes([cursed[at], cursed[at + 1], cursed[at + 2], cursed[at + 3]]);
-    assert_eq!(field, 302, "Akamanah's transform id is sent");
-    assert_eq!(
-        i32::from_le_bytes([plain[at], plain[at + 1], plain[at + 2], plain[at + 3]]),
-        0,
-        "and an un-cursed character still gets 0, as Java always does"
     );
 }
 

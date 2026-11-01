@@ -176,8 +176,8 @@ fn admin_ride_bike_transforms_and_reverts() {
             .get_component::<Speeds>(&8930)
             .unwrap()
             .run_spd,
-        bike_run,
-        "run speed overridden by the transform"
+        bike_run + world.data.combat_caps.run_spd_boost,
+        "the transform's run speed replaces the class base; RunSpeedBoost still adds"
     );
     assert!(
         world

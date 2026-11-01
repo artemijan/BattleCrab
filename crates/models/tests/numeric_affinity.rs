@@ -125,6 +125,11 @@ async fn a_dead_grand_boss_row_still_loads() {
     use models::entity::grandboss_data;
 
     let db = migrated().await;
+    // The Salvation migration seeds every boss; start from an empty table so
+    // the three rows below are the whole of it.
+    db.execute_unprepared("DELETE FROM `grandboss_data`")
+        .await
+        .unwrap();
 
     // Queen Ant, alive and wounded to a fractional HP.
     grandboss_data::ActiveModel {

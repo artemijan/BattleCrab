@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="25400" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Debuff Reflect" type="EtcItem">
 		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Debuff Reflect +10%. -->
@@ -31,7 +31,7 @@
 		</skills>
 	</item>
 	<item id="25402" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -196,7 +196,7 @@
 		</skills>
 	</item>
 	<item id="25413" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +8. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -211,7 +211,7 @@
 		</skills>
 	</item>
 	<item id="25414" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -226,7 +226,7 @@
 		</skills>
 	</item>
 	<item id="25415" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -241,7 +241,7 @@
 		</skills>
 	</item>
 	<item id="25416" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -256,7 +256,7 @@
 		</skills>
 	</item>
 	<item id="25417" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -271,7 +271,7 @@
 		</skills>
 	</item>
 	<item id="25418" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -286,7 +286,7 @@
 		</skills>
 	</item>
 	<item id="25419" name="Appearance Stone: Santa Outfit" additionalName="Top-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of Santa Outfit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -335,7 +335,7 @@
 		</skills>
 	</item>
 	<item id="25422" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -522,7 +522,7 @@
 		</skills>
 	</item>
 	<item id="25433" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +3. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -539,7 +539,7 @@
 		</skills>
 	</item>
 	<item id="25434" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -556,7 +556,7 @@
 		</skills>
 	</item>
 	<item id="25435" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -573,7 +573,7 @@
 		</skills>
 	</item>
 	<item id="25436" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -590,7 +590,7 @@
 		</skills>
 	</item>
 	<item id="25437" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -607,7 +607,7 @@
 		</skills>
 	</item>
 	<item id="25438" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -624,7 +624,7 @@
 		</skills>
 	</item>
 	<item id="25439" name="Beach Swimsuit Appearance Stone" additionalName="Low-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -675,7 +675,7 @@
 		</skills>
 	</item>
 	<item id="25442" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -862,7 +862,7 @@
 		</skills>
 	</item>
 	<item id="25453" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +4. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -879,7 +879,7 @@
 		</skills>
 	</item>
 	<item id="25454" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -896,7 +896,7 @@
 		</skills>
 	</item>
 	<item id="25455" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -913,7 +913,7 @@
 		</skills>
 	</item>
 	<item id="25456" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -930,7 +930,7 @@
 		</skills>
 	</item>
 	<item id="25457" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -947,7 +947,7 @@
 		</skills>
 	</item>
 	<item id="25458" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -964,7 +964,7 @@
 		</skills>
 	</item>
 	<item id="25459" name="Beach Swimsuit Appearance Stone" additionalName="Mid-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1015,7 +1015,7 @@
 		</skills>
 	</item>
 	<item id="25462" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1202,7 +1202,7 @@
 		</skills>
 	</item>
 	<item id="25473" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +8. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1219,7 +1219,7 @@
 		</skills>
 	</item>
 	<item id="25474" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1236,7 +1236,7 @@
 		</skills>
 	</item>
 	<item id="25475" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1253,7 +1253,7 @@
 		</skills>
 	</item>
 	<item id="25476" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1270,7 +1270,7 @@
 		</skills>
 	</item>
 	<item id="25477" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1287,7 +1287,7 @@
 		</skills>
 	</item>
 	<item id="25478" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1304,7 +1304,7 @@
 		</skills>
 	</item>
 	<item id="25479" name="Beach Swimsuit Appearance Stone" additionalName="Top-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of a Beach Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1355,7 +1355,7 @@
 		</skills>
 	</item>
 	<item id="25482" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1542,7 +1542,7 @@
 		</skills>
 	</item>
 	<item id="25493" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./M. Evasion +3. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1559,7 +1559,7 @@
 		</skills>
 	</item>
 	<item id="25494" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Option 15" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +15. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1576,7 +1576,7 @@
 		</skills>
 	</item>
 	<item id="25495" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Option 16" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +16. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1593,7 +1593,7 @@
 		</skills>
 	</item>
 	<item id="25496" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Option 17" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +17. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1610,7 +1610,7 @@
 		</skills>
 	</item>
 	<item id="25497" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Option 18" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +18. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1627,7 +1627,7 @@
 		</skills>
 	</item>
 	<item id="25498" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Option 19" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +19. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1644,7 +1644,7 @@
 		</skills>
 	</item>
 	<item id="25499" name="Alluring Swimsuit Appearance Stone" additionalName="Low-grade / Option 20" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade / Option +20. -->
+		<!-- Changes the appearance of the entire armor into that of an Alluring Swimsuit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />

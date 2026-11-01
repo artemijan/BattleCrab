@@ -228,7 +228,10 @@ mod tests {
         assert_eq!(bait.pick_catch(0).unwrap().item_id, 47550); // Ugly Fish (0..70)
         assert_eq!(bait.pick_catch(95).unwrap().item_id, 47552); // Powerful Fish (95..98)
         // A time-reducing rod.
-        assert_eq!(data.rod(47557).expect("master rod").reduce_fishing_time, 10);
-        assert!((data.xp_rate_min - 0.033).abs() < 1e-9);
+        assert_eq!(
+            data.rod(47557).expect("master rod").reduce_fishing_time,
+            10000
+        );
+        assert!((data.xp_rate_min - 1.0).abs() < 1e-9); // <xpRate min="1" max="1">
     }
 }

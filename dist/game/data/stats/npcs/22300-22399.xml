@@ -1,7 +1,6 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="22300" level="82" type="Monster" name="Dolph's Subordinate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="110" />
 			<param name="MoveAroundSocial1" value="110" />
@@ -15,9 +14,9 @@
 		<sex>MALE</sex>
 		<acquire exp="62009" sp="14" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10982" hpRegen="112.558039826218" mp="1743" mpRegen="3" />
-			<attack physical="6734.49667710476" magical="4598.788195986" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="10982.334384858" hpRegen="112.558039826218" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="9293.85964912281" magical="4283.42737007053" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="560.172360726377" magical="614.675374567806" />
 			<speed>
 				<walk ground="60" />
 				<run ground="210" />
@@ -27,13 +26,8 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
 			<skill id="4412" level="8" /> <!-- Weak P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="5303" level="4" /> <!-- Bleed -->
@@ -50,7 +44,6 @@
 		</collision>
 	</npc>
 	<npc id="22301" level="82" type="Monster" name="Terod">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -63,12 +56,12 @@
 		<sex>MALE</sex>
 		<acquire exp="342560" sp="82" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="65802" hpRegen="112.40520021868" mp="1743" mpRegen="3" />
-			<attack physical="5571.87244121247" magical="3804.86656104545" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="65802.523659306" hpRegen="112.40520021868" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="7689.57115009747" magical="3544.30356983866" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="447.953216374269" magical="723.147499491537" />
 			<attribute>
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="50" />
 				<attack type="WATER" value="100" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="80" />
@@ -79,19 +72,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="5203" level="10" /> <!-- Fear -->
-			<skill id="5283" level="4" /> <!-- NPC(party) - Physical Range Close Range Attack - Water -->
-			<skill id="5317" level="4" /> <!-- NPC(party) -Magic Range Long Range DD - Water -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="5283" level="4" /> <!-- Spinning Slasher -->
+			<skill id="5317" level="4" /> <!-- Mass Hydro Blast -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="700" aggroRange="450">
@@ -105,7 +92,6 @@
 		</collision>
 	</npc>
 	<npc id="22302" level="82" type="Monster" name="Darnel's Guardian">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -128,12 +114,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="328135" sp="78" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="44673" hpRegen="152.624194212594" mp="1743" mpRegen="3" />
-			<attack physical="8134.44098282343" magical="5929.5911226735" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="44673.1861198738" hpRegen="152.624194212594" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="11225.6335282651" magical="5523.05300028029" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="559.649122807018" magical="614.675374567806" />
 			<attribute>
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="50" />
 				<attack type="DARK" value="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="80" />
@@ -144,19 +130,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="13" /> <!-- Fairies -->
-			<skill id="4666" level="10" /> <!-- NPC 100% HP Drain - Slow -->
-			<skill id="5360" level="2" /> <!-- NPC(party) - Physical Range Close Range Attack - Dark -->
-			<skill id="5390" level="4" /> <!-- NPC(party) -Magic Range Long Range DD - Holy -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="4666" level="10" /> <!-- Drain Energy -->
+			<skill id="5360" level="2" /> <!-- Spinning Slasher -->
+			<skill id="5390" level="4" /> <!-- Unholy Blast -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -170,7 +150,6 @@
 		</collision>
 	</npc>
 	<npc id="22303" level="82" type="Monster" name="Guardian of the Square">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -185,12 +164,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="342208" sp="82" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="44673" hpRegen="152.624194212594" mp="1743" mpRegen="3" />
-			<attack physical="8134.44098282343" magical="5929.5911226735" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="44673.1861198738" hpRegen="152.624194212594" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="11225.7984141641" magical="5523.10866018671" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="559.649122807018" magical="614.675374567806" />
 			<attribute>
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="50" />
 				<attack type="DARK" value="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -201,18 +180,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
-			<skill id="5359" level="4" /> <!-- NPC(party) - Physical Single Long Range Attack - Dark -->
+			<skill id="5359" level="4" /> <!-- Power Shot -->
 			<skill id="5365" level="4" /> <!-- Paralysis -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -226,7 +199,6 @@
 		</collision>
 	</npc>
 	<npc id="22304" level="82" type="Monster" name="Guardian of the Emerald">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -241,12 +213,12 @@
 		<sex>MALE</sex>
 		<acquire exp="343659" sp="82" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="44673" hpRegen="152.624194212594" mp="1743" mpRegen="3" />
-			<attack physical="8134.44098282343" magical="5929.5911226735" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="44673.1861198738" hpRegen="152.624194212594" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="11225.6335282651" magical="5523.10866018671" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="559.649122807018" magical="614.432882194102" />
 			<attribute>
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="50" />
 				<attack type="DARK" value="100" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="35" />
@@ -257,18 +229,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="14" /> <!-- Strong M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
 			<skill id="5362" level="4" /> <!-- Stun -->
-			<skill id="5393" level="4" /> <!-- NPC MP Burn -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="5393" level="4" /> <!-- Mana Burn -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -282,7 +248,6 @@
 		</collision>
 	</npc>
 	<npc id="22305" level="82" type="Monster" name="Kechi's Guard Captain">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="40" />
 			<param name="MoveAroundSocial1" value="40" />
@@ -302,12 +267,12 @@
 		<sex>MALE</sex>
 		<acquire exp="62370" sp="14" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10982" hpRegen="112.558039826218" mp="1743" mpRegen="3" />
-			<attack physical="6734.49667710476" magical="4598.788195986" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="10982.334384858" hpRegen="112.558039826218" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="9293.85964912281" magical="4283.65796111143" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="559.649122807018" magical="614.675374567806" />
 			<attribute>
 				<attack type="FIRE" value="100" />
-				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="70" />
@@ -318,17 +283,10 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="5273" level="3" /> <!-- NPC(party) - Physical Single Close Range Attack -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
+			<skill id="5273" level="3" /> <!-- Power Strike -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -342,7 +300,6 @@
 		</collision>
 	</npc>
 	<npc id="22306" level="82" type="Monster" name="Kechi's Guard Captain">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="135" />
 			<param name="MoveAroundSocial1" value="135" />
@@ -372,12 +329,12 @@
 		<sex>MALE</sex>
 		<acquire exp="158527" sp="38" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10982" hpRegen="112.558039826218" mp="1743" mpRegen="3" />
-			<attack physical="6734.49667710476" magical="4598.788195986" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="10982.1240799159" hpRegen="112.558039826218" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="9293.85964912281" magical="4283.65796111143" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="447.953216374269" magical="723.147499491537" />
 			<attribute>
 				<attack type="FIRE" value="100" />
-				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="13" />
@@ -389,17 +346,12 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="11" /> <!-- HP Increase (3x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="5312" level="4" /> <!-- NPC(party) -Magic Single Long Range DD - Fire -->
-			<skill id="5314" level="4" /> <!-- NPC(party) -Magic Range Close Range DD - Fire -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
+			<skill id="5312" level="4" /> <!-- Blaze -->
+			<skill id="5314" level="4" /> <!-- Blazing Circle -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>3</sNpcPropHpRate>
@@ -414,7 +366,6 @@
 		</collision>
 	</npc>
 	<npc id="22307" level="82" type="Monster" name="Kechi's Guard Captain">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -440,12 +391,12 @@
 		<sex>MALE</sex>
 		<acquire exp="343664" sp="82" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="32946" hpRegen="112.558039826218" mp="1743" mpRegen="3" />
-			<attack physical="5793.32235492338" magical="3956.08814418738" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="559.639632" magical="614.28" />
+			<vitals hp="32946.0567823344" hpRegen="112.558039826218" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="7995.12670565302" magical="3685.04361893881" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="671.789667004978" magical="534.500325711136" />
 			<attribute>
 				<attack type="FIRE" value="100" />
-				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -456,17 +407,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="13" /> <!-- Slightly Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4444" level="1" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="5340" level="3" /> <!-- NPC(party) - Physical Range Close Range Attack - Fire -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
+			<skill id="4444" level="1" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="5340" level="3" /> <!-- Spinning Slasher -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>2</sNpcPropHpRate>
@@ -481,7 +428,6 @@
 		</collision>
 	</npc>
 	<npc id="22308" level="82" type="Monster" name="Kechi's Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -500,12 +446,12 @@
 		<sex>MALE</sex>
 		<acquire exp="54703" sp="13" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3643" hpRegen="8.5" mp="1743" mpRegen="3" />
-			<attack physical="1055.28566004965" magical="720.623302603812" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="349.77477" magical="255.95" />
+			<vitals hp="3643.05993690852" hpRegen="8.5" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="1456.62768031189" magical="671.330034207694" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="280.116959064327" magical="301.311458121474" />
 			<attribute>
 				<attack type="FIRE" value="100" />
-				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="90" />
@@ -517,16 +463,11 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="12" /> <!-- HP Increase (4x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4614" level="10" /> <!-- NPC Death Bomb -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
+			<skill id="4614" level="10" /> <!-- Death Bomb -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>4</sNpcPropHpRate>
@@ -541,7 +482,6 @@
 		</collision>
 	</npc>
 	<npc id="22309" level="82" type="Monster" name="Kechi's Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -558,12 +498,12 @@
 		<equipment rhand="148" /> <!-- Sword of Valhalla -->
 		<acquire exp="76173" sp="18" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3643" hpRegen="8.5" mp="1743" mpRegen="3" />
-			<attack physical="1055.28566004965" magical="720.623302603812" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="349.77477" magical="255.95" />
+			<vitals hp="3643.00736067298" hpRegen="8.5" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="1456.62768031189" magical="671.330034207694" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="419.909422679506" magical="222.708469046307" />
 			<attribute>
 				<attack type="FIRE" value="100" />
-				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="25" />
@@ -576,17 +516,13 @@
 		<skillList>
 			<skill id="4085" level="1" /> <!-- Critical Damage -->
 			<skill id="4408" level="14" /> <!-- HP Increase (6x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="14" /> <!-- Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4572" level="10" /> <!-- NPC Triple Sonic Slash -->
+			<skill id="4572" level="10" /> <!-- Triple Sonic Slash -->
 			<skill id="5301" level="3" /> <!-- Stun -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>6</sNpcPropHpRate>
@@ -601,7 +537,6 @@
 		</collision>
 	</npc>
 	<npc id="22310" level="82" type="Monster" name="Kechi's Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -623,12 +558,12 @@
 		<sex>MALE</sex>
 		<acquire exp="71823" sp="17" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="3643" hpRegen="8.5" mp="1743" mpRegen="3" />
-			<attack physical="1055.28566004965" magical="720.623302603812" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="349.77477" magical="255.95" />
+			<vitals hp="3643.00736067298" hpRegen="8.5" mp="1743.71451743715" mpRegen="3" />
+			<attack physical="1456.62768031189" magical="671.364490340242" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="350.292397660819" magical="256.114739403253" />
 			<attribute>
 				<attack type="FIRE" value="100" />
-				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="100" water="50" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="30" />
@@ -639,21 +574,16 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4157" level="10" /> <!-- NPC Blaze - Magic -->
+			<skill id="4157" level="10" /> <!-- Blaze -->
 			<skill id="4408" level="14" /> <!-- HP Increase (6x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
-			<skill id="4439" level="5" /> <!-- Greater Resist Hold -->
-			<skill id="4443" level="1" /> <!-- Greater Resist Blunt Weapons -->
-			<skill id="4444" level="1" /> <!-- Higher Resist Bow/Crossbow Weapons -->
-			<skill id="4561" level="10" /> <!-- NPC Fire Burn - Magic -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
+			<skill id="4439" level="5" /> <!-- Greater Hold Resistance -->
+			<skill id="4443" level="1" /> <!-- Greater Blunt Weapon Resistance -->
+			<skill id="4444" level="1" /> <!-- Greater Bow/Crossbow Resistance -->
+			<skill id="4561" level="10" /> <!-- Fire Burn -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>6</sNpcPropHpRate>
@@ -668,7 +598,6 @@
 		</collision>
 	</npc>
 	<npc id="22311" level="83" type="Monster" name="Parme's Guardian">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="40" />
 			<param name="MoveAroundSocial1" value="40" />
@@ -692,12 +621,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="324426" sp="77" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="32829" hpRegen="111.50705124295" mp="1777" mpRegen="3" />
-			<attack physical="5815.28895362847" magical="3971.08850697278" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="32829.0220820189" hpRegen="111.50705124295" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="8025.19379844961" magical="3694.29013579323" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="453.488372093023" magical="731.248297326163" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="60" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -709,17 +638,14 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="13" /> <!-- Slightly Strong M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="12" /> <!-- Bugs -->
-			<skill id="5317" level="4" /> <!-- NPC(party) -Magic Range Long Range DD - Water -->
-			<skill id="5318" level="4" /> <!-- NPC(party) -Magic Range Close Range DD - Water -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="5317" level="4" /> <!-- Mass Hydro Blast -->
+			<skill id="5318" level="4" /> <!-- Frost Wall -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>2</sNpcPropHpRate>
@@ -734,7 +660,6 @@
 		</collision>
 	</npc>
 	<npc id="22312" level="83" type="Monster" name="Fafurion's Henchman">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="70" />
 			<param name="MoveAroundSocial1" value="70" />
@@ -751,12 +676,12 @@
 		<sex>MALE</sex>
 		<acquire exp="343670" sp="82" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="65569" hpRegen="111.355378460862" mp="1777" mpRegen="3" />
-			<attack physical="5589.57218651355" magical="3816.95321518099" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="65569.0851735016" hpRegen="111.355378460862" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="7713.68829049368" magical="3551.31482667382" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="679.651162790698" magical="540.44296226727" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="60" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -767,18 +692,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="14" /> <!-- Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="9" /> <!-- Slightly Weak M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="12" /> <!-- Bugs -->
-			<skill id="5282" level="4" /> <!-- NPC(party) - Physical Single Long Range Attack - Water -->
-			<skill id="5283" level="4" /> <!-- NPC(party) - Physical Range Close Range Attack - Water -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="5282" level="4" /> <!-- Power Shot -->
+			<skill id="5283" level="4" /> <!-- Spinning Slasher -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -792,7 +713,6 @@
 		</collision>
 	</npc>
 	<npc id="22313" level="83" type="Monster" name="Garden Stakato">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="62" />
 			<param name="MoveAroundSocial1" value="62" />
@@ -813,12 +733,12 @@
 		<equipment rhand="134" /> <!-- Sword of Nightmare -->
 		<acquire exp="109671" sp="26" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10943" hpRegen="111.50705124295" mp="1777" mpRegen="3" />
-			<attack physical="6774.50811945968" magical="4626.11085160169" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="10943.2176656151" hpRegen="111.50705124295" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="9348.83720930232" magical="4303.90827911839" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="453.488372093023" magical="731.147435492049" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="60" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="25" />
@@ -832,16 +752,11 @@
 			<skill id="4072" level="10" /> <!-- Stun -->
 			<skill id="4086" level="1" /> <!-- Critical Chance -->
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="5282" level="4" /> <!-- NPC(party) - Physical Single Long Range Attack - Water -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="5282" level="4" /> <!-- Power Shot -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>2</sNpcPropHpRate>
@@ -856,7 +771,6 @@
 		</collision>
 	</npc>
 	<npc id="22314" level="83" type="Monster" name="Garden Poison Moth">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="150" />
 			<param name="MoveAroundSocial1" value="150" />
@@ -873,12 +787,12 @@
 		<sex>MALE</sex>
 		<acquire exp="107305" sp="25" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10943" hpRegen="111.50705124295" mp="1777" mpRegen="3" />
-			<attack physical="6774.50811945968" magical="4626.11085160169" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="10943.2176656151" hpRegen="111.50705124295" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="9348.83720930232" magical="4303.90827911839" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="566.279069767442" magical="621.475320168242" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="60" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -890,17 +804,11 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="10" /> <!-- HP Increase (2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
-			<skill id="5310" level="4" /> <!-- NPC(party) - Magic Close Range DD - less powerful -->
+			<skill id="5310" level="4" /> <!-- Aura Burn -->
 			<skill id="5333" level="4" /> <!-- Poison -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>2</sNpcPropHpRate>
@@ -915,7 +823,6 @@
 		</collision>
 	</npc>
 	<npc id="22315" level="83" type="Monster" name="Garden Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -931,12 +838,12 @@
 		<equipment rhand="5132" /> <!-- Monster Only (Giant Trident) -->
 		<acquire exp="62811" sp="15" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10943" hpRegen="111.50705124295" mp="1777" mpRegen="3" />
-			<attack physical="6774.50811945968" magical="4626.11085160169" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="10943.2176656151" hpRegen="111.50705124295" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="9349.17355371901" magical="4303.90827911839" random="10" critical="4" accuracy="0" attackSpeed="253" type="POLE" range="80" distance="80" width="120" />
+			<defence physical="679.651162790698" magical="540.585964109494" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="35" />
@@ -947,18 +854,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
 			<skill id="4410" level="13" /> <!-- Slightly Strong P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
 			<skill id="4413" level="8" /> <!-- Weak M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
-			<skill id="4415" level="11" /> <!-- Spears -->
+			<skill id="4415" level="11" /> <!-- Spear -->
 			<skill id="4416" level="11" /> <!-- Giants -->
-			<skill id="5273" level="4" /> <!-- NPC(party) - Physical Single Close Range Attack -->
+			<skill id="5273" level="4" /> <!-- Power Strike -->
 			<skill id="5309" level="4" /> <!-- Bleed -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -970,9 +873,22 @@
 			<radius normal="13" />
 			<height normal="44" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="22316" level="83" type="Monster" name="Garden Guardian Tree">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -988,12 +904,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="181770" sp="43" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="32829" hpRegen="111.50705124295" mp="1777" mpRegen="3" />
-			<attack physical="5815.28895362847" magical="3971.08850697278" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="32829.0220820189" hpRegen="111.50705124295" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="8025.19379844961" magical="3694.34748546367" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="679.618662429583" magical="540.413321885427" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1003,18 +919,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="14" /> <!-- Strong M. Atk. -->
 			<skill id="4412" level="16" /> <!-- Very Strong P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="5" /> <!-- Plants -->
-			<skill id="4463" level="3" /> <!-- Surrender To Water -->
-			<skill id="5273" level="4" /> <!-- NPC(party) - Physical Single Close Range Attack -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="4463" level="3" /> <!-- Surrender to Water -->
+			<skill id="5273" level="4" /> <!-- Power Strike -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai clanHelpRange="500" aggroRange="450">
@@ -1028,7 +940,6 @@
 		</collision>
 	</npc>
 	<npc id="22317" level="83" type="Monster" name="Garden Castalia">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -1059,12 +970,12 @@
 		<equipment rhand="9639" lhand="9639" /> <!-- Tears r2 / Tears r2 -->
 		<acquire exp="26986" sp="6" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="10943" hpRegen="111.50705124295" mp="1777" mpRegen="3" />
-			<attack physical="6774.50811945968" magical="4626.11085160169" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="566.178304" magical="621.45708" />
+			<vitals hp="10943.8485804416" hpRegen="111.50705124295" mp="1777.77777777778" mpRegen="3" />
+			<attack physical="9348.83720930232" magical="4303.66085113402" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="566.279069767442" magical="621.475320168242" />
 			<attribute>
 				<attack type="WATER" value="100" />
-				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" default="50" />
+				<defence fire="50" water="100" wind="100" earth="100" holy="100" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1076,18 +987,13 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
 			<skill id="4411" level="13" /> <!-- Slightly Strong M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
-			<skill id="4613" level="10" /> <!-- NPC Clan Heal -->
-			<skill id="5282" level="4" /> <!-- NPC(party) - Physical Single Long Range Attack - Water -->
-			<skill id="5318" level="4" /> <!-- NPC(party) -Magic Range Close Range DD - Water -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
+			<skill id="4613" level="10" /> <!-- Clan Heal -->
+			<skill id="5282" level="4" /> <!-- Power Shot -->
+			<skill id="5318" level="4" /> <!-- Frost Wall -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>0.5</sNpcPropHpRate>

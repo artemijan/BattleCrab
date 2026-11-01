@@ -1,4 +1,4 @@
-//! Entry points: the `QuestLink` bypass router, the `notify_*` event hooks,
+//! Entry points: the `ScriptLink` bypass router, the `notify_*` event hooks,
 //! the creature-see sweep, quest timers and the list/abort packets.
 
 use super::QuestCtx;
@@ -8,7 +8,7 @@ use super::send_no_quest_html;
 use super::show_result;
 use crate::game_loop::{helpers, npc};
 
-use crate::model::components::player::LastFolkNpc;
+use crate::model::components::player::{LastFolkNpc, LastQuestNpc};
 use crate::model::components::social::QuestTimerSeqs;
 use crate::model::components::social::Quests;
 use crate::model::quest::state;
@@ -18,9 +18,10 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 use std::sync::Arc;
 use tracing::warn;
-/// The `QuestLink` bypass handler: `Quest` (chooser), `Quest <Name>`
-/// (talk), `Quest <Name> <event>` (html-button event). `command` is the
-/// full bypass command starting with `Quest`.
+/// The `ScriptLink` bypass handler: `Script` (chooser), `Script <Name>`
+/// (talk), `Script <Name> <event>` (html-button event, through
+/// [`process_script_event`], which picks its own NPC). `command` is the full
+/// bypass command starting with `Script`; `npc_oid` is the bypass target.
 pub(crate) fn quest_link(
     world: &mut World,
     client_id: u32,
@@ -29,13 +30,13 @@ pub(crate) fn quest_link(
     command: &str,
 ) {
     let rest = command
-        .strip_prefix("Quest")
+        .strip_prefix("Script")
         .map(|r| r.trim())
         .unwrap_or("");
     if rest.is_empty() {
         show_quest_window_all(world, client_id, player, npc_oid);
     } else if let Some((name, event)) = rest.split_once(' ') {
-        process_quest_event(world, client_id, player, npc_oid, name, event.trim());
+        process_script_event(world, client_id, player, name, event.trim());
     } else {
         show_quest_window(world, client_id, player, npc_oid, rest);
     }
@@ -91,10 +92,10 @@ fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid
 /// not listed at all.
 ///
 /// This is not cosmetic. The chooser labels its buttons with the client
-/// strings `<questId>01/02/03`, and the one-time class-change quests only
-/// ship `01` ("Path of the Human Wizard") and `02` ("… (In Progress)") —
-/// there is no `40403` for the completed state. Listing a finished Q404 at
-/// Parina therefore rendered a *blank* grey button that answered
+/// strings `<questId>01/02/03`, and a one-time quest may ship only `01` and
+/// `02` ("… (In Progress)"). Interlude's Q404 had no `40403` for the
+/// completed state, so listing it finished at Parina rendered a *blank*
+/// grey button that answered
 /// `noquest.htm` when clicked. Java never reaches that button because this
 /// filter removes the quest first.
 ///
@@ -160,7 +161,7 @@ fn show_quest_choose_window(
         let button = |sb: &mut String, color: &str, suffix: &str| {
             sb.push_str(&format!(
                 "<font color=\"{color}\"><button icon=\"quest\" align=\"left\" \
-                 action=\"bypass npc_{npc_oid}_Quest {}\"><fstring>{}{suffix}</fstring></button></font>",
+                 action=\"bypass npc_{npc_oid}_Script {}\"><fstring>{}{suffix}</fstring></button></font>",
                 q.name(),
                 q.id(),
             ));
@@ -247,7 +248,7 @@ fn show_quest_window(
         helpers::send_action_failed(world, client_id);
         return;
     };
-    world.objects.add_components(&player, LastFolkNpc(npc_oid));
+    world.objects.add_components(&player, LastQuestNpc(npc_oid));
     let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
@@ -264,7 +265,45 @@ fn show_quest_window(
     show_result(world, client_id, npc_oid, &script, res);
 }
 
-/// `Player.processQuestEvent` → `Quest.notifyEvent` → `onEvent`.
+/// `Player.processScriptEvent`: the event goes to the last folk NPC when it
+/// is within 2D interaction distance, else to the last quest-talk NPC under
+/// the same range check, else nowhere. The bypass's own NPC plays no part.
+pub(crate) fn process_script_event(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    name: &str,
+    event: &str,
+) {
+    if event.is_empty() || world.quests.by_name(name).is_none() {
+        return;
+    }
+    let in_range = |world: &World, npc: i32| {
+        world.objects.has_component::<crate::model::npc::Npc>(&npc)
+            && crate::geo::distance::within_2d(
+                world,
+                player,
+                npc,
+                crate::game_loop::combat::target::INTERACTION_DISTANCE,
+            )
+    };
+    let folk = world
+        .objects
+        .get_component::<LastFolkNpc>(&player)
+        .map(|&LastFolkNpc(npc)| npc);
+    let quest_npc = world
+        .objects
+        .get_component::<LastQuestNpc>(&player)
+        .map(|&LastQuestNpc(npc)| npc);
+    let npc = match (folk, quest_npc) {
+        (Some(npc), _) if in_range(world, npc) => npc,
+        (_, Some(npc)) if npc > 0 && in_range(world, npc) => npc,
+        _ => return,
+    };
+    process_quest_event(world, client_id, player, npc, name, event);
+}
+
+/// `Quest.notifyEvent` → `onEvent`.
 fn process_quest_event(
     world: &mut World,
     client_id: u32,
@@ -285,6 +324,16 @@ fn process_quest_event(
     show_result(world, client_id, npc_oid, &script, res);
 }
 
+/// `ON_PLAYER_BYPASS`: every global-events script sees the raw
+/// `RequestBypassToServer` command before it is routed.
+pub(crate) fn notify_player_bypass(world: &mut World, client_id: u32, player: i32, command: &str) {
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_player_bypass(&mut ctx, command);
+    }
+}
+
 /// `NpcAction`'s first-talk branch: if a script owns this NPC's chat
 /// window, run its `onFirstTalk` and report `true` so the caller skips
 /// `Npc.showChatWindow` entirely.
@@ -296,14 +345,17 @@ pub(crate) fn notify_first_talk(
     npc_id: i32,
 ) -> bool {
     let registry = world.quests.clone();
-    let Some(script) = registry.first_talk_quest(npc_id) else {
+    let scripts = registry.first_talk_quests(npc_id);
+    if scripts.is_empty() {
         return false;
-    };
-    let res = {
-        let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
-        script.on_first_talk(&mut ctx)
-    };
-    show_result(world, client_id, npc_oid, &script, res);
+    }
+    for script in scripts {
+        let res = {
+            let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+            script.on_first_talk(&mut ctx)
+        };
+        show_result(world, client_id, npc_oid, &script, res);
+    }
     true
 }
 
@@ -387,6 +439,16 @@ pub(crate) fn notify_kill(
         // blow rather than on its owner.
         ctx.attack_is_summon = is_summon;
         script.on_kill(&mut ctx);
+        // `addKillId`'s tail: `sendNpcLogList(killer)` while the list is
+        // non-empty and the killer holds the quest. A fresh context, since
+        // `on_kill` may have re-targeted its own at a party member.
+        let mut ctx = QuestCtx::new(world, client_id, killer_oid, npc_oid, script.clone());
+        if ctx.has_qs() {
+            let log = script.npc_log_list(&mut ctx);
+            if !log.is_empty() {
+                ctx.send(server_packets::ex_quest_npc_log_list(script.id(), &log));
+            }
+        }
     }
 }
 
@@ -421,8 +483,7 @@ pub(crate) fn notify_attack(
 }
 
 /// The `onSkillSee` notification: a registered NPC witnessed a skill cast by
-/// `caster_oid`. Fired from the skill-finish path per affected NPC target
-/// (quest 350's Soul Crystal absorb is a self-targeted read of the mob).
+/// `caster_oid`. Fired from the skill-finish path per affected NPC target.
 pub(crate) fn notify_skill_see(
     world: &mut World,
     caster_oid: i32,
@@ -615,6 +676,102 @@ pub(crate) fn notify_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
     for script in scripts {
         let mut ctx = QuestCtx::new(world, 0, 0, npc_oid, script.clone());
         script.on_spawn(&mut ctx);
+    }
+}
+
+/// `ON_NPC_MOVE_FINISHED` (`CreatureAI.onActionArrived`): a registered NPC
+/// reached its move-to destination. No player is involved.
+pub(crate) fn notify_move_finished(world: &mut World, npc_oid: i32, npc_id: i32) {
+    let registry = world.quests.clone();
+    for script in registry.move_finished_quests(npc_id) {
+        let mut ctx = QuestCtx::new(world, 0, 0, npc_oid, script.clone());
+        script.on_move_finished(&mut ctx);
+    }
+}
+
+/// The in-context player for a creature notification: the creature itself when
+/// it is a player.
+fn ctx_player_of(world: &World, creature: i32) -> (i32, u32) {
+    match helpers::client_for_player(world, creature) {
+        Some(client_id) => (creature, client_id),
+        None if world
+            .objects
+            .has_component::<crate::model::Player>(&creature) =>
+        {
+            (creature, 0)
+        }
+        None => (0, 0),
+    }
+}
+
+/// `ON_CREATURE_ZONE_ENTER` on a script-listened zone.
+pub(crate) fn notify_enter_zone(world: &mut World, creature: i32, zone_id: i32) {
+    let registry = world.quests.clone();
+    let (player, client_id) = ctx_player_of(world, creature);
+    for script in registry.enter_zone_quests(zone_id) {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_enter_zone(&mut ctx, creature, zone_id);
+    }
+}
+
+/// `ON_CREATURE_ZONE_EXIT` on a script-listened zone.
+pub(crate) fn notify_exit_zone(world: &mut World, creature: i32, zone_id: i32) {
+    let registry = world.quests.clone();
+    let (player, client_id) = ctx_player_of(world, creature);
+    for script in registry.exit_zone_quests(zone_id) {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_exit_zone(&mut ctx, creature, zone_id);
+    }
+}
+
+/// `ON_CREATURE_DEATH` on an NPC (`Creature.doDie`, right after the dead
+/// flag is set), whatever the killer. The killer is the in-context player
+/// when it is one.
+pub(crate) fn notify_creature_death(world: &mut World, npc_oid: i32, npc_id: i32, killer: i32) {
+    let registry = world.quests.clone();
+    let scripts = registry.creature_death_quests(npc_id);
+    if scripts.is_empty() {
+        return;
+    }
+    let (player, client_id) = ctx_player_of(world, killer);
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+        script.on_creature_death(&mut ctx, killer);
+    }
+}
+
+/// `ON_PLAYER_LEVEL_CHANGED` (`PlayerStat.addLevel`, either direction).
+pub(crate) fn notify_level_changed(world: &mut World, player: i32, old_level: i32, new_level: i32) {
+    let client_id = helpers::client_for_player(world, player).unwrap_or(0);
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_level_changed(&mut ctx, old_level, new_level);
+    }
+}
+
+/// `RequestChangeToAwakenedClass` (ex 0xA2): an accepted awakening fires
+/// `ON_PLAYER_CHANGE_TO_AWAKENED_CLASS` at the global listeners, a refusal
+/// answers `ActionFailed`.
+pub(crate) fn handle_request_change_to_awakened_class(
+    world: &mut World,
+    client_id: u32,
+    body: &[u8],
+) {
+    let Some(change) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(player) = world.player_oid(client_id) else {
+        return;
+    };
+    if change != 1 {
+        helpers::send_action_failed(world, client_id);
+        return;
+    }
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_change_to_awakened_class(&mut ctx);
     }
 }
 

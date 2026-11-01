@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="23400" name="Transformation Scroll: Saber Tooth Tiger" type="EtcItem">
 		<!-- Transforms you into a Saber Tooth Tiger for 30 min. No effect if used while transformed. -->
@@ -8,11 +8,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22727" level="1" /> <!-- Transformation Scroll: Saber Tooth Tiger -->
@@ -26,11 +26,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22728" level="1" /> <!-- Transformation Scroll: Oel Mahum -->
@@ -44,11 +44,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22729" level="1" /> <!-- Transformation Scroll: Doll Blader -->
@@ -62,11 +62,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22730" level="1" /> <!-- Transformation Scroll: Zaken -->
@@ -80,11 +80,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22731" level="1" /> <!-- Transformation Scroll: Anakim -->
@@ -98,11 +98,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22732" level="1" /> <!-- Transformation Scroll: Venom -->
@@ -116,11 +116,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22733" level="1" /> <!-- Transformation Scroll: Gordon -->
@@ -134,11 +134,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22734" level="1" /> <!-- Transformation Scroll: Ranku -->
@@ -152,11 +152,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22735" level="1" /> <!-- Transformation Scroll: Kechi -->
@@ -170,455 +170,455 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22736" level="1" /> <!-- Transformation Scroll: Demon Prince -->
 		</skills>
 	</item>
 	<item id="23410" name="Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/blunt/fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/ blunt/ fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. -->
 		<set name="icon" val="icon.scroll_of_enchant_weapon_i06" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9185" level="1" /> <!-- Scroll: Enchant Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="23411" name="Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (S-grade) +5, and two-handed sword/blunt/fist, and dagger +6. P. Atk. for bows +10. M. Atk. for all weapons +4. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (S-grade) +5, and two-handed sword/ blunt/ fist, and dagger +6. P. Atk. for bows +10. M. Atk. for all weapons +4. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i05" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2021" level="1" /> <!-- Scroll: Enchant Weapon (S-grade) -->
 		</skills>
 	</item>
 	<item id="23412" name="Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (A-grade) +4, and two-handed sword/blunt/fist, and dagger +5. P. Atk. for bows +8. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (A-grade) +4, and two-handed sword/ blunt/ fist, and dagger +5. P. Atk. for bows +8. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i04" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2006" level="1" /> <!-- Scroll: Enchant Weapon (A-grade) -->
 		</skills>
 	</item>
 	<item id="23413" name="Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (B-grade) +3, and two-handed sword/blunt/fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (B-grade) +3, and two-handed sword/ blunt/ fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i03" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2015" level="1" /> <!-- Scroll: Enchant Weapon (B-grade) -->
 		</skills>
 	</item>
 	<item id="23414" name="Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (C-grade) +3, and two-handed sword/blunt/fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (C-grade) +3, and two-handed sword/ blunt/ fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i02" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2017" level="1" /> <!-- Scroll: Enchant Weapon (C-grade) -->
 		</skills>
 	</item>
 	<item id="23415" name="Scroll: Enchant Weapon (D-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc., two-handed sword/blunt/fist, and dagger (D-grade) +2. P. Atk. for bows +4. M. Atk. for all weapons +2. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc., two-handed sword/ blunt/ fist, and dagger (D-grade) +2. P. Atk. for bows +4. M. Atk. for all weapons +2. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i01" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2019" level="1" /> <!-- Scroll: Enchant Weapon (D-grade) -->
 		</skills>
 	</item>
 	<item id="23416" name="Scroll: Enchant Armor (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="icon.scroll_of_enchant_armor_i06" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9186" level="1" /> <!-- Scroll: Enchant Armor (R-grade) -->
 		</skills>
 	</item>
 	<item id="23417" name="Scroll: Enchant Armor (S-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (S-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (S-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_armor_i05" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2022" level="1" /> <!-- Scroll: Enchant Armor (S-grade) -->
 		</skills>
 	</item>
 	<item id="23418" name="Scroll: Enchant Armor (A-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (A-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (A-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_armor_i04" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2007" level="1" /> <!-- Scroll: Enchant Armor (A-grade) -->
 		</skills>
 	</item>
 	<item id="23419" name="Scroll: Enchant Armor (B-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (B-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (B-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_armor_i03" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2016" level="1" /> <!-- Scroll: Enchant Armor (B-grade) -->
 		</skills>
 	</item>
 	<item id="23420" name="Scroll: Enchant Armor (C-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (C-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (C-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_armor_i02" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2018" level="1" /> <!-- Scroll: Enchant Armor (C-grade) -->
 		</skills>
 	</item>
 	<item id="23421" name="Scroll: Enchant Armor (D-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (D-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (D-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_armor_i01" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2020" level="1" /> <!-- Scroll: Enchant Armor (D-grade) -->
 		</skills>
 	</item>
 	<item id="23422" name="Blessed Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/blunt/fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/ blunt/ fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.blessed_scroll_of_enchant_weapon_i06" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9187" level="1" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="23423" name="Blessed Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (S-grade) +5, and two-handed sword/blunt/fist, and dagger +6. P. Atk. for bows +10. M. Atk. for all weapons +4. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (S-grade) +5, and two-handed sword/ blunt/ fist, and dagger +6. P. Atk. for bows +10. M. Atk. for all weapons +4. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_s_i05" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2026" level="1" /> <!-- Blessed Scroll: Enchant Weapon (S-grade) -->
 		</skills>
 	</item>
 	<item id="23424" name="Blessed Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (A-grade) +4, and two-handed sword/blunt/fist, and dagger +5. P. Atk. for bows +8. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (A-grade) +4, and two-handed sword/ blunt/ fist, and dagger +5. P. Atk. for bows +8. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_a_i04" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2027" level="1" /> <!-- Blessed Scroll: Enchant Weapon (A-grade) -->
 		</skills>
 	</item>
 	<item id="23425" name="Blessed Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (B-grade) +3, and two-handed sword/blunt/fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (B-grade) +3, and two-handed sword/ blunt/ fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_b_i03" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2028" level="1" /> <!-- Blessed Scroll: Enchant Weapon (B-grade) -->
 		</skills>
 	</item>
 	<item id="23426" name="Blessed Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (C-grade) +3, and two-handed sword/blunt/fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (C-grade) +3, and two-handed sword/ blunt/ fist, and dagger +4. P. Atk. for bows +6. M. Atk. for all weapons +3. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_c_i02" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2029" level="1" /> <!-- Blessed Scroll: Enchant Weapon (C-grade) -->
 		</skills>
 	</item>
 	<item id="23427" name="Blessed Scroll: Enchant Weapon (D-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc., two-handed sword/blunt/fist, and dagger (D-grade) +2. P. Atk. for bows +4. M. Atk. for all weapons +2. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc., two-handed sword/ blunt/ fist, and dagger (D-grade) +2. P. Atk. for bows +4. M. Atk. for all weapons +2. When enchanted to +4 or above, P. Atk. and M. Atk. Increase twofold. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_d_i01" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2030" level="1" /> <!-- Blessed Scroll: Enchant Weapon (D-grade) -->
 		</skills>
 	</item>
 	<item id="23428" name="Blessed Scroll: Enchant Armor (R-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.blessed_scroll_of_enchant_armor_i06" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9196" level="1" /> <!-- Blessed Scroll: Enchant Armor (R-grade) -->
 		</skills>
 	</item>
 	<item id="23429" name="Blessed Scroll: Enchant Armor (S-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (S-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (S-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_am_s_i05" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2208" level="1" /> <!-- Blessed Scroll: Enchant Armor (S-grade) -->
 		</skills>
 	</item>
 	<item id="23430" name="Blessed Scroll: Enchant Armor (A-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (A-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (A-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_am_a_i04" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2209" level="1" /> <!-- Blessed Scroll: Enchant Armor (A-grade) -->
 		</skills>
 	</item>
 	<item id="23431" name="Blessed Scroll: Enchant Armor (B-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (B-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (B-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_am_b_i03" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2210" level="1" /> <!-- Blessed Scroll: Enchant Armor (B-grade) -->
 		</skills>
 	</item>
 	<item id="23432" name="Blessed Scroll: Enchant Armor (C-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (C-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (C-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_am_c_i02" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2211" level="1" /> <!-- Blessed Scroll: Enchant Armor (C-grade) -->
 		</skills>
 	</item>
 	<item id="23433" name="Blessed Scroll: Enchant Armor (D-grade)" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (D-grade) +1. When enchanted to +4 or above, P. Def. increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (D-grade) +1. When enchanted to +4 or above, P. Def. Increases by 3. Can be safely enchanted up to +3, and one-piece armor can be safely enchanted up to +4. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_am_d_i01" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="2212" level="1" /> <!-- Blessed Scroll: Enchant Armor (D-grade) -->
@@ -629,10 +629,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -644,10 +644,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -659,10 +659,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -674,10 +674,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -689,10 +689,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -704,10 +704,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -719,9 +719,9 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="default_action" val="PEEL" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -733,9 +733,9 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="default_action" val="PEEL" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -785,12 +785,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">25</stat>
 			<stat type="fireRes">7</stat>
@@ -838,12 +838,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">25</stat>
 			<stat type="fireRes">7</stat>
@@ -1040,16 +1040,16 @@
 		<!-- Invitation for Aden's celebrities to attend the Fantasy Isle Festival, entrusted to you by Small Bard. -->
 		<set name="icon" val="BranchSys3.icon1.g_ev_invite_invitation" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="23463" name="Fantasy Isle VIP Invitation" additionalName="Event" type="EtcItem">
 		<!-- VIP Invitation for Aden's celebrities to attend the Fantasy Isle Festival, entrusted to you by Small Bard. -->
 		<set name="icon" val="BranchSys3.icon1.g_ev_invite_vip_invitation" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="23464" name="RSVP Notice" additionalName="Event" type="EtcItem">
@@ -1058,8 +1058,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="23465" name="Declining Letter" additionalName="Event" type="EtcItem">
@@ -1068,8 +1068,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="23466" name="Fantasy Gift Box" additionalName="Event" type="EtcItem">
@@ -1090,6 +1090,7 @@
 		<set name="icon" val="BranchSys3.icon1.g_ev_invite_red_potion" />
 		<set name="weight" val="10" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="500" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="is_event_restricted" val="true" />
@@ -1097,7 +1098,6 @@
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="22742" level="1" /> <!-- Fantasy Health Potion -->
@@ -1128,31 +1128,31 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22744" level="1" /> <!-- Fantasy Cookie -->
 		</skills>
 	</item>
 	<item id="23470" name="Fantasy Homemade Cookie" additionalName="Event" type="EtcItem">
-		<!-- Homemade cookie made for the Fantasy Isle Festival. For 60 min., with the help of a powerful spirit, Max MP +20%, HP Recovery Bonus +20%, M. Critical Rate +2, P. Critical Damage 20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, Debuff Resistance +10%, and P. Def. Increases when receiving a critical attack. Speed - 15%. Party members equipped with melee and ranged weapons have increased Critical Damage after receiving an amount of damage. -->
+		<!-- Homemade cookie made for the Fantasy Isle Festival. For 60 min., with the help of a powerful spirit, Max MP +20%, HP Recovery Bonus +20%, M. Critical Rate +2, P. Critical Damage 20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, Debuff Resistance +10%, and P. Def. Increases when receiving a critical attack. Speed -15%. Party members equipped with melee and ranged weapons have increased Critical Damage after receiving an amount of damage. -->
 		<set name="icon" val="BranchSys3.Icon.ev_halloween_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22745" level="1" /> <!-- Fantasy Homemade Cookie -->
 		</skills>
 	</item>
 	<item id="23471" name="Fantasy Special Cookie" additionalName="Event" type="EtcItem">
-		<!-- Special cookie made for the Fantasy Isle Festival. For 60 min., SP/XP obtained through hunt +100% for characters Lv.1-95. -->
+		<!-- Special cookie made for the Fantasy Isle Festival. For 60 min., SP/ XP obtained through hunt +100% for characters Lv.1-95. -->
 		<set name="icon" val="BranchSys3.Icon.ev_halloween_cookie" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
@@ -1194,10 +1194,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22747" level="1" /> <!-- Fantasy Isle Medal of Glory -->
@@ -1211,15 +1211,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="60025, 60026, 60027" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22748" level="1" /> <!-- Scroll: PK (Low-grade) -->
 		</skills>
@@ -1232,15 +1232,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="60025, 60026, 60027" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22749" level="1" /> <!-- Scroll: PK (Mid-grade) -->
 		</skills>
@@ -1253,15 +1253,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="60025, 60026, 60027" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22750" level="1" /> <!-- Scroll: PK (High-grade) -->
 		</skills>
@@ -1274,15 +1274,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player insideZoneId="60025, 60026, 60027" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22751" level="1" /> <!-- Scroll: PK (Top-grade) -->
 		</skills>
@@ -1295,11 +1295,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22752" level="1" /> <!-- Scroll: Reputation (Low-grade) -->
@@ -1313,11 +1313,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22753" level="1" /> <!-- Scroll: Reputation (Mid-grade) -->
@@ -1331,11 +1331,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22754" level="1" /> <!-- Scroll: Reputation (High-grade) -->
@@ -1349,11 +1349,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22755" level="1" /> <!-- Scroll: Reputation (Top-grade) -->
@@ -1444,9 +1444,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_event_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22764" level="1" /> <!-- Santa Outfit Appearance Stone -->
@@ -1459,10 +1459,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1476,10 +1476,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1494,15 +1494,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="107" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
-			<skill id="22765" level="1" /> <!-- PC Vitality -->
+			<skill id="22765" level="1" /> <!-- PA Vitality -->
 		</skills>
 	</item>
 	<item id="23491" name="Vitality Maintaining Potion (10-minute) (Event)" type="EtcItem">
@@ -1512,10 +1512,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="1800000" />
 		<skills>
@@ -1529,10 +1529,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -1548,9 +1548,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22768" level="1" /> <!-- Metal Suit Top Appearance Stone -->
@@ -1565,9 +1565,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22769" level="1" /> <!-- Metal Suit Pants Appearance Stone -->
@@ -1582,9 +1582,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22770" level="1" /> <!-- Metal Suit Gloves Appearance Stone -->
@@ -1599,9 +1599,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22771" level="1" /> <!-- Metal Suit Shoes Appearance Stone -->
@@ -1616,9 +1616,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22772" level="1" /> <!-- Metal Suit Hair Accessory Appearance Stone -->

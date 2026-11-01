@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="21700" name="Power Shirt Pack" type="EtcItem">
 		<!-- Wrapped Pack containing Power Shirt. -->
@@ -92,8 +92,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="21704" min="3" max="3" chance="100" /> <!-- Honey Rice Cakes -->
@@ -107,6 +107,7 @@
 		<set name="material" val="CRYSTAL" />
 		<set name="weight" val="130" />
 		<set name="enchant_enabled" val="true" />
+		<set name="enchant_limit" val="10" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -140,10 +141,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<skills>
 			<skill id="22255" level="1" /> <!-- Honey Rice Cakes -->
@@ -188,13 +189,13 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="5" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22256" level="1" /> <!-- Might -->
 			<skill id="22257" level="1" /> <!-- Wind Walk -->
@@ -214,7 +215,7 @@
 		</skills>
 	</item>
 	<item id="21712" name="Blessed Zaken's Earring" type="Armor">
-		<!-- MP+37, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount +15%, Vampiric Rage Effect, Stun/Mental Attack Resistance +30%, Stun/Mental Atk. Rate +30%, and Dark Resistance +15. Only one effect is applied even when the same two earrings are worn. If it is equipped together with a standard Zaken's Earring, only the effect of Blessed Zaken's Earring will be applied. -->
+		<!-- MP +37, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount +15%, Vampiric Rage Effect, Stun/ Mental Attack Resistance +30%, Stun/ Mental Atk. Rate +30%, and Dark Resistance +15. Only one effect is applied even when the same two earrings are worn. If it is equipped together with a standard Zaken's Earring, only the effect of Blessed Zaken's Earring will be applied. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -226,13 +227,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="price" val="11394000" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3559" level="2" /> <!-- Blessed Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="2" /> <!-- Blessed Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="21713" name="Zaken's Sealed Cloak" type="EtcItem">
 		<!-- When the seal is released, P. Def. and attribute resistance increase, and special skills can be used. It can be equipped only after releasing the seal through the weavers Olf Kanore in Aden or Olf Adams in Rune. Cannot be enchanted, augmented, or assigned an attribute. -->
@@ -275,9 +276,12 @@
 		<set name="price" val="29674485" />
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
-		<skills>
-			<skill id="21242" level="1" /> <!-- Zaken's Call -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="darkRes">15</stat>
 			<stat type="earthRes">5</stat>
@@ -287,6 +291,9 @@
 			<stat type="windRes">15</stat>
 			<stat type="pDef">20</stat>
 		</stats>
+		<skills>
+			<skill id="21242" level="1" /> <!-- Zaken's Call -->
+		</skills>
 	</item>
 	<item id="21717" name="Cloak of Freya" type="Armor">
 		<!-- Cloak that makes you feel Freya's chill. Increases P. Def. and attribute resistance. Unlocks a skill to move to the boss area. Can only be equipped when the cloak slot is open. Cannot be enchanted, augmented, or assigned an attribute. -->
@@ -299,15 +306,12 @@
 		<set name="price" val="32971650" />
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="21243" level="1" /> <!-- Freya's Call -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="darkRes">10</stat>
 			<stat type="earthRes">10</stat>
@@ -317,6 +321,9 @@
 			<stat type="windRes">20</stat>
 			<stat type="pDef">30</stat>
 		</stats>
+		<skills>
+			<skill id="21243" level="1" /> <!-- Freya's Call -->
+		</skills>
 	</item>
 	<item id="21718" name="Frintezza's Cloak" type="Armor">
 		<!-- Cloak that plays Frintezza's melody over and over in your head. Increases P. Def. and attribute resistance. Unlocks a skill to move to the boss area. Can only be equipped when the cloak slot is open. -->
@@ -329,9 +336,12 @@
 		<set name="price" val="29674485" />
 		<set name="weight" val="220" />
 		<set name="commissionItemType" val="CLOAK" />
-		<skills>
-			<skill id="21244" level="1" /> <!-- Frintezza's Call -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="darkRes">15</stat>
 			<stat type="earthRes">15</stat>
@@ -341,6 +351,9 @@
 			<stat type="windRes">5</stat>
 			<stat type="pDef">20</stat>
 		</stats>
+		<skills>
+			<skill id="21244" level="1" /> <!-- Frintezza's Call -->
+		</skills>
 	</item>
 	<item id="21719" name="Zaken's Soul Cloak" type="Armor">
 		<!-- Cloak embroidered with Zaken's soul. Increases P. Def. and attribute resistance. Unlocks a skill to move to the boss area. Can only be equipped when the cloak slot is open. Cannot be enchanted, augmented, or assigned an attribute. -->
@@ -354,9 +367,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="21242" level="1" /> <!-- Zaken's Call -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="darkRes">10</stat>
 			<stat type="earthRes">5</stat>
@@ -366,6 +382,9 @@
 			<stat type="windRes">10</stat>
 			<stat type="pDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="21242" level="1" /> <!-- Zaken's Call -->
+		</skills>
 	</item>
 	<item id="21720" name="Freya's Soul Cloak" type="Armor">
 		<!-- Cloak embroidered with Freya's soul. Increases P. Def. and attribute resistance. Unlocks a skill to move to the boss area. Can only be equipped when the cloak slot is open. Cannot be enchanted, augmented, or assigned an attribute. -->
@@ -379,9 +398,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="21243" level="1" /> <!-- Freya's Call -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="darkRes">5</stat>
 			<stat type="earthRes">5</stat>
@@ -391,6 +413,9 @@
 			<stat type="windRes">15</stat>
 			<stat type="pDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="21243" level="1" /> <!-- Freya's Call -->
+		</skills>
 	</item>
 	<item id="21721" name="Frintezza's Soul Cloak" type="Armor">
 		<!-- Cloak embroidered with Frintezza's soul. Increases P. Def. and attribute resistance. Unlocks a skill to move to the boss area. Can only be equipped when the cloak slot is open. Enchantment, attribute, augmenting, exchange, and drop are impossible. -->
@@ -404,9 +429,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="21244" level="1" /> <!-- Frintezza's Call -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="darkRes">10</stat>
 			<stat type="earthRes">10</stat>
@@ -416,6 +444,9 @@
 			<stat type="windRes">5</stat>
 			<stat type="pDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="21244" level="1" /> <!-- Frintezza's Call -->
+		</skills>
 	</item>
 	<item id="21722" name="Zaken's Soul Fragment" type="EtcItem">
 		<!-- Small fragment that contains a part of Zaken's soul. See weaver Olf Adams to find out what use it Has. -->
@@ -474,12 +505,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22256" level="1" /> <!-- Might -->
 			<skill id="22257" level="1" /> <!-- Wind Walk -->
@@ -499,7 +530,7 @@
 		</skills>
 	</item>
 	<item id="21727" name="Agathion - Zinyanzi (3-day)" additionalName="3-day" type="Armor">
-		<!-- Bracelet skill that lets you summon Zinyanzi for 3 days. Upon using the skill name, instantly recovers XP, HP, MP, and CP, and makes you invincible for 5 seconds. (But can only be used when HP is below 30%.). Cooldown is 12 hours. -->
+		<!-- Bracelet skill that lets you summon Zinyanzi for 3 days. Upon using the skill name, instantly recovers HP, MP, and CP, and makes you invincible for 5 seconds. (But can only be used when HP is below 30%.). Cooldown is 12 hours. -->
 		<set name="icon" val="BranchSys2.Icon.br_aga_jinjiayan_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -520,7 +551,7 @@
 		</skills>
 	</item>
 	<item id="21728" name="Agathion - Zinyanzi (7-day)" additionalName="7-day" type="Armor">
-		<!-- Bracelet skill that lets you summon Zinyanzi for 3 days. Upon using the skill name, instantly recovers XP, HP, MP, and CP, and makes you invincible for 5 seconds. (But can only be used when HP is below 31%.). Cooldown is 12 hours. -->
+		<!-- Bracelet skill that lets you summon Zinyanzi for 7 days. Upon using the skill name, instantly recovers HP, MP, and CP, and makes you invincible for 5 seconds. (But can only be used when HP is below 30%.). Cooldown is 12 hours. -->
 		<set name="icon" val="BranchSys2.Icon.br_aga_jinjiayan_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -595,7 +626,7 @@
 		<stats>
 			<stat type="pAtk">69</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">433</stat>
@@ -623,7 +654,7 @@
 		<stats>
 			<stat type="pAtk">79</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -649,7 +680,7 @@
 		<stats>
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -676,7 +707,7 @@
 		<stats>
 			<stat type="pAtk">63</stat>
 			<stat type="mAtk">63</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">379</stat>
@@ -704,7 +735,7 @@
 		<stats>
 			<stat type="pAtk">79</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">379</stat>
@@ -733,7 +764,7 @@
 		<stats>
 			<stat type="pAtk">77</stat>
 			<stat type="mAtk">69</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">325</stat>
@@ -761,7 +792,7 @@
 		<stats>
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">325</stat>
@@ -786,19 +817,19 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">79</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="21739" name="Reinforced Longbow" additionalName="Event" type="Weapon">
 		<!-- Letter Collector's Strengthened Low Bow of Memory -->
@@ -822,7 +853,7 @@
 		<stats>
 			<stat type="pAtk">179</stat>
 			<stat type="mAtk">51</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">227</stat>
@@ -847,19 +878,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">72</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="21741" name="Sword of Magic Fog" additionalName="Event" type="Weapon">
 		<!-- Letter Collector's Sword of Magic Fog of Memory -->
@@ -882,7 +913,7 @@
 		<stats>
 			<stat type="pAtk">63</stat>
 			<stat type="mAtk">63</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -908,7 +939,7 @@
 		<stats>
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -934,7 +965,7 @@
 		<stats>
 			<stat type="pAtk">96</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">325</stat>
@@ -959,13 +990,13 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">86</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">350</stat>
@@ -994,7 +1025,7 @@
 		<stats>
 			<stat type="pAtk">100</stat>
 			<stat type="mAtk">47</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">303</stat>
@@ -1012,9 +1043,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<target levelRange="21;85" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22271" level="1" /> <!-- Maestro's Key -->
 		</skills>
@@ -1062,10 +1093,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
 	<item id="21751" name="Rune Jewelry Box - Crystal" type="EtcItem">
@@ -1121,19 +1152,19 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3</stat>
 			<!-- Truncated value. -->
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="21755" name="Manor Scholar's Hat" type="Armor">
 		<!-- Scholar's hat showing knowledge. Gold tassel is attached. -->

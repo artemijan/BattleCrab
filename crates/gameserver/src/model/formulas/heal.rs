@@ -38,7 +38,7 @@ pub enum HealCaster {
 /// }
 /// else
 /// {
-///     if (weaponInst != null) mAtkMul = S84 ? 4 : S80 ? 2 : 1;
+///     if (weaponInst != null) mAtkMul = getCrystalTypePlus() == R ? 4 : getCrystalTypePlus() == S ? 2 : 1;
 ///     mAtkMul = bss ? mAtkMul * 4 : mAtkMul + 1;
 /// }
 /// amount += staticShotBonus + Math.sqrt(mAtkMul * effector.getMAtk());
@@ -51,10 +51,12 @@ pub enum HealCaster {
 ///   Java's comment calls it "always blessed spiritshots";
 /// * the **summon** arm fires with **no shot charged at all**, so a servitor's
 ///   heal always takes the static bonus;
-/// * the `else` arm reaches the same 4/2 by the *grade* road (no Interlude
-///   weapon is S80/S84, so its `mAtkMul` starts at 1) and takes **no**
-///   `shotsBonus` — which is what made it look interchangeable with the mage
-///   arm for as long as `SHOTS_BONUS` was hard-coded to 1.
+/// * the `else` arm starts `mAtkMul` at the caster's weapon grade
+///   ([`weapon_grade_mul`]) and takes **no** `shotsBonus`.
+///
+/// Unlike the damage formulas, Salvation kept `Heal`'s shot terms
+/// multiplicative (`4 * shotsBonus`).
+#[allow(clippy::too_many_arguments)]
 pub fn calc_heal(
     power: f64,
     m_atk: f64,
@@ -64,6 +66,8 @@ pub fn calc_heal(
     mp_consume: i32,
     caster: HealCaster,
     shots_bonus: f64,
+    // [`weapon_grade_mul`] of the caster's active weapon.
+    grade_mul: f64,
 ) -> f64 {
     let shot = sps || bss;
     let (static_bonus, m_atk_mul) =
@@ -75,12 +79,29 @@ pub fn calc_heal(
         } else if shot && caster == HealCaster::Npc {
             (2.4 * mp_consume as f64, 4.0 * shots_bonus)
         } else {
-            // `mAtkMul` starts at the weapon's crystal grade, which is 1 for
-            // everything this chronicle ships (S80/S84 are post-Interlude), so
-            // `bss ? 1 * 4 : 1 + 1`.
-            (0.0, if bss { 4.0 } else { 2.0 })
+            (
+                0.0,
+                if bss {
+                    grade_mul * 4.0
+                } else {
+                    grade_mul + 1.0
+                },
+            )
         };
     (power + static_bonus + (m_atk_mul * m_atk).sqrt()) * if mcrit { 3.0 } else { 1.0 }
+}
+
+/// `Heal`'s grade start for the `else` arm: `getCrystalTypePlus() == R ? 4 :
+/// == S ? 2 : 1`, and 1 with no weapon. `plus()` folds S80/S84 into S and
+/// R95/R99 into R, so every S-grade weapon counts, not only the S80/S84 ones
+/// Interlude's handler named.
+pub fn weapon_grade_mul(crystal: Option<crate::data::item_data::kinds::CrystalType>) -> f64 {
+    use crate::data::item_data::kinds::CrystalType;
+    match crystal.map(CrystalType::plus) {
+        Some(CrystalType::R) => 4.0,
+        Some(CrystalType::S) => 2.0,
+        _ => 1.0,
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -97,25 +118,29 @@ pub fn calc_heal(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::item_data::kinds::CrystalType;
 
     /// Heal: power 83, mAtk 50 → 83 + √100 = 93; crit triples.
     #[test]
     fn heal_matches_java_formula() {
         use HealCaster::{Npc, PlayerFighter, PlayerMage, Summon};
         assert!(
-            (calc_heal(83.0, 50.0, false, false, false, 0, PlayerMage, 1.0) - 93.0).abs() < 1e-9
+            (calc_heal(83.0, 50.0, false, false, false, 0, PlayerMage, 1.0, 1.0) - 93.0).abs()
+                < 1e-9
         );
         assert!(
-            (calc_heal(83.0, 50.0, true, false, false, 0, PlayerMage, 1.0) - 279.0).abs() < 1e-9
+            (calc_heal(83.0, 50.0, true, false, false, 0, PlayerMage, 1.0, 1.0) - 279.0).abs()
+                < 1e-9
         );
         // Spiritshot on a mage caster adds the MP-consume static bonus (sqrt
         // term unchanged at ×2): 83 + 40 + √100 = 133.
         assert!(
-            (calc_heal(83.0, 50.0, false, true, false, 40, PlayerMage, 1.0) - 133.0).abs() < 1e-9
+            (calc_heal(83.0, 50.0, false, true, false, 40, PlayerMage, 1.0, 1.0) - 133.0).abs()
+                < 1e-9
         );
         // Blessed spiritshot: sqrt term ×4 (√200) and static ×2.4: 83 + 96 + √200.
         assert!(
-            (calc_heal(83.0, 50.0, false, false, true, 40, PlayerMage, 1.0)
+            (calc_heal(83.0, 50.0, false, false, true, 40, PlayerMage, 1.0, 1.0)
                 - (83.0 + 96.0 + 200.0_f64.sqrt()))
             .abs()
                 < 1e-9
@@ -123,23 +148,42 @@ mod tests {
 
         // The three arms Java keeps apart, on the same inputs (plain
         // spiritshot, mpConsume 40, `SHOTS_BONUS` 1.03):
-        // - a **fighter** falls through to the grade arm: no static bonus, ×2,
-        //   and no shots bonus at all;
+        // - a **fighter** falls through to the grade arm: no static bonus, ×2
+        //   with an ungraded weapon (`grade + 1`), and no shots bonus at all;
         let grade_arm = 83.0 + (2.0 * 50.0f64).sqrt();
         assert!(
-            (calc_heal(83.0, 50.0, false, true, false, 40, PlayerFighter, 1.03) - grade_arm).abs()
+            (calc_heal(83.0, 50.0, false, true, false, 40, PlayerFighter, 1.03, 1.0) - grade_arm)
+                .abs()
                 < 1e-9
         );
+        //   An S-grade weapon starts the arm at 2: ×3 on a plain shot, ×8
+        //   blessed; R starts at 4.
+        assert!(
+            (calc_heal(83.0, 50.0, false, true, false, 40, PlayerFighter, 1.03, 2.0)
+                - (83.0 + 150.0f64.sqrt()))
+            .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_heal(83.0, 50.0, false, false, true, 40, PlayerFighter, 1.03, 2.0)
+                - (83.0 + 400.0f64.sqrt()))
+            .abs()
+                < 1e-9
+        );
+        assert_eq!(weapon_grade_mul(None), 1.0);
+        assert_eq!(weapon_grade_mul(Some(CrystalType::A)), 1.0);
+        assert_eq!(weapon_grade_mul(Some(CrystalType::S84)), 2.0);
+        assert_eq!(weapon_grade_mul(Some(CrystalType::R99)), 4.0);
         // - an **NPC** gets `2.4 × mpConsume` and ×4 even on a *plain* shot;
         assert!(
-            (calc_heal(83.0, 50.0, false, true, false, 40, Npc, 1.03)
+            (calc_heal(83.0, 50.0, false, true, false, 40, Npc, 1.03, 1.0)
                 - (83.0 + 96.0 + (4.0 * 1.03 * 50.0f64).sqrt()))
             .abs()
                 < 1e-9
         );
         // - a **summon** takes the mage arm **with no shot charged**.
         assert!(
-            (calc_heal(83.0, 50.0, false, false, false, 40, Summon, 1.03)
+            (calc_heal(83.0, 50.0, false, false, false, 40, Summon, 1.03, 1.0)
                 - (83.0 + 40.0 + (2.0 * 1.03 * 50.0f64).sqrt()))
             .abs()
                 < 1e-9

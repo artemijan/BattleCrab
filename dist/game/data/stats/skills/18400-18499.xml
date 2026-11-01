@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="18400" toLevel="1" name="Beora's Treasure Chest">
 		<icon>icon.skill0000</icon>
@@ -19,234 +19,234 @@
 	<skill id="18404" toLevel="1" name="Drake Maul Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18405" toLevel="1" name="Freya's Staff Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18406" toLevel="1" name="Spezion's Claw Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18407" toLevel="1" name="Maliss Stormer Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18408" toLevel="1" name="Steregos' Dagger Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18409" toLevel="1" name="Ron's Dual Blunt Weapon Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18410" toLevel="1" name="Little Girls' Hat Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18411" toLevel="1" name="Little Boy's Hat Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18412" toLevel="1" name="Little Girls' Hat Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18413" toLevel="1" name="Little Boy's Hat Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18414" toLevel="1" name="Uniform Hat Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18415" toLevel="1" name="Afro - Gold Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18416" toLevel="1" name="Afro - Pink Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18417" toLevel="1" name="Uniform Hat Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18418" toLevel="1" name="Afro - Gold Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18419" toLevel="1" name="Afro - Pink Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18420" toLevel="1" name="Drake Maul Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18421" toLevel="1" name="Freya's Staff Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18422" toLevel="1" name="Spezion's Claw Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18423" toLevel="1" name="Maliss Stormer Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18424" toLevel="1" name="Steregos' Dagger Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18425" toLevel="1" name="Ron's Dual Blunt Weapon Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18426" toLevel="1" name="Scroll of Escape: Blackbird Campsite">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>46158</itemConsumeId> <!-- Scroll of Escape: Blackbird Campsite -->
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>46158</itemConsumeId> <!-- Scroll of Escape: Blackbird Campsite -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -289,42 +289,42 @@
 	<skill id="18433" toLevel="1" name="Male Swimsuit No.1 Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18434" toLevel="1" name="Male Swimsuit No.2 Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18435" toLevel="1" name="Bikini No.1 Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18436" toLevel="1" name="Bikini No.2 Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18437" toLevel="1" name="Joyful Birthday Pack">
 		<icon>icon.skill0000</icon>
@@ -333,15 +333,15 @@
 	</skill>
 	<skill id="18438" toLevel="1" name="Agathion - Anakim Holy Barrier Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>46188</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>46188</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -368,25 +368,25 @@
 	<skill id="18440" toLevel="1" name="Vampiric Style Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18441" toLevel="1" name="Vampiric Style Appearance Stone (30-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18442" toLevel="1" name="Anakim Blessing">
-		<!-- Acquired XP/SP + 3% when equipped. -->
+		<!-- Acquired XP/ SP +3% when equipped. -->
 		<icon>icon.bracelet_tersi_agathion</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -398,16 +398,16 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18443" toLevel="1" name="Release Agathion's Seal - Anakaim Holy Barrier">
-		<!-- Releases Agathion's seal. -->
+	<skill id="18443" toLevel="1" name="Agathion Summon - Anakim Holy Barrier">
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>8550</npcId> <!-- Anakim Agathion -->
@@ -415,11 +415,16 @@
 		</effects>
 	</skill>
 	<skill id="18444" toLevel="6" name="Physical Reflect Shirt Enchant Effect">
-		<!-- P. Def. + 5%. -->
+		<!-- Level 1: P. Def. +5%. -->
+		<!-- Level 2: P. Def. +6%. Received Physical Critical Damage -8%. -->
+		<!-- Level 3: P. Def. +8%. Received Physical Critical Damage -12%, 7% chance of reflecting physical abnormal states. -->
+		<!-- Level 4: P. Def. +10%. Received Physical Critical Damage -16%, 9% chance of reflecting physical abnormal states. -->
+		<!-- Level 5: P. Def. +12%. Received Physical Critical Damage -20%, 12% chance of reflecting physical abnormal states. -->
+		<!-- Level 6: P. Def. +15%. Received Physical Critical Damage -25%, 15% chance of reflecting physical abnormal states. -->
 		<icon>icon.reflect_attack_shirt</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="DefenceMagicCriticalDamage">
+			<effect name="DefenceCriticalDamage">
 				<amount>
 					<value level="2">8</value>
 					<value level="3">12</value>
@@ -452,11 +457,16 @@
 		</effects>
 	</skill>
 	<skill id="18445" toLevel="6" name="Magical Reflect Shirt Enchant Effect">
-		<!-- M. Def. + 5%. -->
+		<!-- Level 1: M. Def. +5%. -->
+		<!-- Level 2: M. Def. +6%. Received Magic Critical Damage -8%. -->
+		<!-- Level 3: M. Def. +8%. Received Magic Critical Damage -12%, 7% chance of reflecting magical abnormal states. -->
+		<!-- Level 4: M. Def. +10%. Received Magic Critical Damage -16%, 9% chance of reflecting magical abnormal states. -->
+		<!-- Level 5: M. Def. +12%. Received Magic Critical Damage -20%, 12% chance of reflecting magical abnormal states. -->
+		<!-- Level 6: M. Def. +15%. Received Magic Critical Damage -25%, 15% chance of reflecting magical abnormal states. -->
 		<icon>icon.reflect_magic_shirt</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="DefenceCriticalDamage">
+			<effect name="DefenceMagicCriticalDamage">
 				<amount>
 					<value level="2">8</value>
 					<value level="3">12</value>
@@ -502,7 +512,16 @@
 		</effects>
 	</skill>
 	<skill id="18447" toLevel="10" name="Reflect Shirt Basic Effect">
-		<!-- M. Def. + 9. -->
+		<!-- Level 1: M. Def. +9. -->
+		<!-- Level 2: M. Def. +10. -->
+		<!-- Level 3: M. Def. +11. -->
+		<!-- Level 4: M. Def. +12, Speed +7, Max HP +510, Max MP +510. Attribute Resistance +6. STR +1, DEX +1, CON +1, INT +1, WIT +120, MEN +121. -->
+		<!-- Level 5: M. Def. +13, Speed +7, Max HP +520, Max MP +520. Attribute Resistance +12. STR +2, DEX +2, CON +2, INT +2, WIT +130, MEN +131. -->
+		<!-- Level 6: M. Def. +14, Speed +7, Max HP +531, Max MP +531. Attribute Resistance +18. STR +3, DEX +3, CON +2, INT +3, WIT +140, MEN +141. -->
+		<!-- Level 7: M. Def. +15, Speed +7, Max HP +536, Max MP +536. Attribute Resistance +24. STR +3, DEX +3, CON +3, INT +3, WIT +150, MEN +151. -->
+		<!-- Level 8: M. Def. +16, Speed +7, Max HP +541, Max MP +541. Attribute Resistance +30. STR +4, DEX +4, CON +3, INT +4, WIT +160, MEN +161. -->
+		<!-- Level 9: M. Def. +17, Speed +7, Max HP +547, Max MP +547. Attribute Resistance +36. STR +4, DEX +4, CON +4, INT +4, WIT +170, MEN +171. -->
+		<!-- Level 10: M. Def. +18, Speed +7, Max HP +552, Max MP +552. Attribute Resistance +42. STR +4, DEX +4, CON +4, INT +4, WIT +180, MEN +181. -->
 		<icon>BranchSys2.icon.etc_scroll_of_enchant_shirt_i00</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -697,15 +716,15 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="18448" toLevel="1" name="Summon Piero">
-		<!-- Scroll: Summon Piero. -->
+	<skill id="18448" toLevel="1" name="Scroll: Summon Piero">
+		<!-- Summon Piero. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>46219</itemConsumeId> <!-- Summon Scroll: Piero -->
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>46219</itemConsumeId> <!-- Summon Scroll: Piero -->
 		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="SummonNpc">
@@ -724,26 +743,32 @@
 		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="18450" toLevel="6" name="Check Giveaway Number">
-		<!-- Shows number 1. -->
+		<!-- Level 1: Shows number 1. -->
+		<!-- Level 2: Shows number 2. -->
+		<!-- Level 3: Shows number 3. -->
+		<!-- Level 4: Shows number 4. -->
+		<!-- Level 5: Shows number 5. -->
+		<!-- Level 6: Shows number 6. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>75</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>3000</hitTime>
 		<effectPoint>204</effectPoint>
+		<hitTime>3000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>75</mpConsume>
 	</skill>
-	<skill id="18451" toLevel="2" name="5th Anniversary Buff">
-		<!-- Receive an additional 50% XP/SP when hunting. Receive a 5th Anniversary Coins once the buff ends. Note: Cannot receive item if you are dead or don't have space in your inventory. -->
+	<skill id="18451" toLevel="2" name="11th Anniversary Buff">
+		<!-- Level 1: Receive an additional 11% XP/ SP when hunting. Receive a 5th Anniversary Coins once the buff ends. Note: Cannot receive item if you are dead or don't have space in your inventory. -->
+		<!-- Level 2: Receive an additional 100% XP/ SP when hunting. -->
 		<icon>icon.ev_buff_11th</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>
 			<value level="1">3600</value>
 			<value level="2">7200</value>
 		</abnormalTime>
-		<canBeDispelled>false</canBeDispelled>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<canBeDispelled>false</canBeDispelled>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
@@ -760,48 +785,48 @@
 		<!-- Replenishes 1 bar of Vitality. -->
 		<icon>icon.etc_11th_cake</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
 		<castRange>500</castRange>
+		<effectPoint>1</effectPoint>
 	</skill>
 	<skill id="18453" toLevel="1" name="Halloween Outfit Appearance Stone (7-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18454" toLevel="1" name="Halloween Outfit Appearance Stone (90-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18455" toLevel="1" name="Halloween Weapon Appearance Stone (7-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18456" toLevel="1" name="Halloween Weapon Appearance Stone (90-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18457" toLevel="1" name="L2 Market R99 Armor Enhancement Stone Pack">
 		<!-- 1st place prize for the L2 Market giveaway. Get a Bloody or Dark Eternal Enhancement Stone. -->
@@ -874,45 +899,45 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18471" toLevel="1" name="Dandy's Golden Ball">
-		<!-- For 1 hr., XP/SP gain +100%, and changes the appearance of your armor into that of an NC Dinos uniform. Cannot be stacked with the Fall of the Dragon or XP Buff 50%. -->
-		<icon>icon.ev_dinos_baseball_gold</icon>
+		<!-- For 1 hr., XP/ SP gain +100%, and changes the appearance of your armor into that of an NC Dinos uniform. Cannot be stacked with the Fall of the Dragon or XP Buff 50%. -->
+		<icon>BranchIcon.icon.g_ev_goldenball</icon>
 		<operateType>A2</operateType>
-    <effectPoint>1</effectPoint>
-    <abnormalType>CHANGEBODY</abnormalType>
-    <abnormalVisualEffect>CHANGE_DINOS</abnormalVisualEffect>
-    <itemConsumeCount>1</itemConsumeCount>
-    <itemConsumeId>46254</itemConsumeId> <!-- Dandy's Home Run Ball -->
-    <basicProperty>NONE</basicProperty>
-    <magicCriticalRate>5</magicCriticalRate>
-    <magicLevel>-3</magicLevel>
-    <abnormalLevel>2</abnormalLevel>
-    <abnormalTime>3600</abnormalTime>
-		<reuseDelay>15000</reuseDelay>
-    <irreplacableBuff>true</irreplacableBuff>
-    <stayAfterDeath>true</stayAfterDeath>
+		<targetType>SELF</targetType>
+		<abnormalLevel>2</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>CHANGEBODY</abnormalType>
+		<abnormalVisualEffect>CHANGE_DINOS</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>0</effectPoint>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic>
-    <targetType>SELF</targetType>
-    <affectScope>SINGLE</affectScope>
-    <effects>
-      <effect name="ExpModify">
-        <amount>100</amount>
-      </effect>
-      <effect name="SpModify">
-        <amount>100</amount>
-      </effect>
-    </effects>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>46254</itemConsumeId> <!-- Dandy's Home Run Ball -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-3</magicLevel>
+		<reuseDelay>15000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
+		<effects>
+			<effect name="ExpModify">
+				<amount>100</amount>
+			</effect>
+			<effect name="SpModify">
+				<amount>100</amount>
+			</effect>
+		</effects>
 	</skill>
 	<skill id="18472" toLevel="6" name="Giveaway Number 1">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18473" toLevel="1" name="Venezia Rune">
-		<!-- Keep this in your inventory to gain XP/SP +22% when hunting. The effect only applies to characters below Lv. 99. -->
+		<!-- Keep this in your inventory to gain XP/ SP +22% when hunting. The effect only applies to characters below Lv. 99. -->
 		<icon>icon.skill19226</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="18474" toLevel="1" name="Blessed Venezia Rune">
-		<!-- Keep this in your inventory to gain XP/SP +11% when hunting. All levels. -->
+		<!-- Keep this in your inventory to gain XP/ SP +11% when hunting. All levels. -->
 		<icon>icon.skill19226</icon>
 		<operateType>P</operateType>
 	</skill>
@@ -928,21 +953,21 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18477" toLevel="1" name="Freya's Art of Seduction">
-		<!-- For 30 min., Max HP/MP/CP + 30%, P./M. Def. + 30%, Speed + 20, P. Atk. + 10%, M. Atk. + 20%, Skill MP Consumption - 15%. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in the Olympiad. Can be used in the Ceremony of Chaos. Cooldown is 5 min. -->
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 10%, M. Atk. by 20%, P. Defense/ M. Defense by 30%, and Speed by 20 with decreased MP consumption by skills by 15%. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in the Olympiad. Can be used in the Ceremony of Chaos. Cooldown is 5 min. This buff remains effective even when you are dead. -->
 		<icon>icon.bm_freya_rose_red_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>2</isMagic>
-		<stayAfterDeath>true</stayAfterDeath>
 		<blockedInOlympiad>true</blockedInOlympiad> <!-- Unconfirmed -->
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -964,11 +989,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -992,29 +1017,36 @@
 		<!-- Double-click to get 1 Freya's Frozen Scroll and 1 Freya's Art of Seduction. Has a chance of obtaining one of the following items: Freya's Wish Box, Sirra's Wish Box, or a Snowman's Wish Box. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18479" toLevel="1" name="Freya's Wish-filled Gift">
 		<!-- Double-click to get 1 random rare item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18480" toLevel="1" name="Sirra's Wish-filled Gift">
-		<!-- Double-click to get one of the following: La Vie En Rose's Jewelry Box, various Enchant Stones and Dark/Bloody Enhancement Stones. -->
+		<!-- Double-click to get one of the following: La Vie En Rose's Jewelry Box, various Enchant Stones and Dark/ Bloody Enhancement Stones. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
-	<skill id="18481" toLevel="5" name="Snowman's Wish-filled Gift">
-		<!-- Double-click to get one of the following: Wind Vitality Tonic, or items that will help with enchanting skills. -->
+	<skill id="18481" toLevel="8" name="Snowman's Wish-filled Gift">
+		<!-- Level 1: Double-click to get one of the following: Wind Vitality Tonic, or items that will help with enchanting skills. -->
+		<!-- Level 2: Double click the chest to receive 1 random rare item, such as a rare accessory. -->
+		<!-- Level 3: Double click the chest to receive 1 random item relating to enchantment of items. -->
+		<!-- Level 4: Double click the chest to receive 1 random item relating to the growth and enchantment of your character. -->
+		<!-- Level 5: Double click to obtain one of the following rare items: Freya's Scroll of Storm, Freya's Bloody Rune (2 hr). -->
+		<!-- Level 6: Double-click to randomly obtain an item from a selection of rare items including rare accessories. -->
+		<!-- Level 7: Double-click to randomly obtain an item from a selection of various equipment enchantment items. -->
+		<!-- Level 8: Double-click to randomly obtain an item from a selection of various character growth and enhancement items. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18482" toLevel="1" name="Frozen Weapon Appearance Stone (90-day)">
 		<icon>icon.skill0000</icon>
@@ -1028,76 +1060,94 @@
 	<skill id="18484" toLevel="1" name="Wind Vitality Tonic">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>60000</reuseDelay>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>46274</itemConsumeId> <!-- Wind Vitality Tonic -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
+		<conditions>
+			<condition name="CanUseVitalityIncreaseItem" />
+		</conditions>
+		<effects>
+			<effect name="VitalityPointUp">
+				<value>70000</value>
+			</effect>
+		</effects>
 	</skill>
 	<skill id="18485" toLevel="1" name="Dark Knight Suit Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18486" toLevel="1" name="Ninja Outfit Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18487" toLevel="1" name="Metal Suit Appearance Stone Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18488" toLevel="1" name="Vampiric Hair Accessory Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18489" toLevel="1" name="Ninja Hair Accessory Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18490" toLevel="1" name="Metal Suit Hair Accessory Appearance Stone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18491" toLevel="1" name="Emergency Whistle - Adolph">
 		<!-- Requests help to Adolph and obtains Shillien's protection for all party members. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<effectPoint>-100</effectPoint>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18492" toLevel="1" name="Emergency Whistle - Barton">
@@ -1105,9 +1155,9 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<effectPoint>-100</effectPoint>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18493" toLevel="1" name="Emergency Whistle - Hayuk">
@@ -1115,9 +1165,9 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<effectPoint>-100</effectPoint>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18494" toLevel="1" name="Emergency Whistle - Elise">
@@ -1125,9 +1175,9 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<effectPoint>-100</effectPoint>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18495" toLevel="1" name="Emergency Whistle - Eliyah">
@@ -1135,22 +1185,22 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<effectPoint>-100</effectPoint>
+		<effectPoint>0</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18496" toLevel="1" name="Gludin Hero's Reward Box">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>46375</itemConsumeId> <!-- Gludin Hero's Reward Box -->
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -1275,7 +1325,9 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18498" toLevel="3" name="Holiday Blessing">
-		<!-- For 2 hours XP/SP + 10% and Vitality Consumption - 20%. Additionaly, recovers 1 bar of Vitality and changes the appearance into that of Santa Claus. -->
+		<!-- Level 1: For 2 hours XP/ SP +10% and Vitality Consumption -20%. Additionaly, recovers 1 bar of Vitality and changes the appearance into that of Santa Claus. -->
+		<!-- Level 2: For 1 hours Vitality Consumption -20%. -->
+		<!-- Level 3: For 1 hours Vitality Consumption -60%. -->
 		<icon>
 			<value level="1">BranchSys.icon.br_xmas_miracle_i00</value>
 			<value level="2">icon.etc_scroll_white_i00</value>
@@ -1285,7 +1337,7 @@
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="18499" toLevel="1" name="Miraculous Christmas Gift Box">
-		<!-- Random prize/reward item. -->
+		<!-- Random prize/ reward item. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>

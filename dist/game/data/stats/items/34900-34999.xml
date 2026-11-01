@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="34900" name="Mysterious Mark" type="EtcItem">
 		<!-- A weak Power of Darkness can be felt. Marks of Battle can be exchanged through the Olympiad Manager Mysterious Butler located in each village. -->
@@ -8,30 +8,30 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34901" name="Proof of Alliance" type="EtcItem">
-		<!-- Item needed for a clan leader to raise his/her clan level to 4. Can only be used by the clan leader. -->
+		<!-- Can be exchanged for Marks of Battle with Mulia in the Town of Rune. -->
 		<set name="icon" val="icon.etc_paper_white_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34902" name="Proof of Aspiration" type="EtcItem">
-		<!-- Item needed for a clan leader to raise his/her clan level to 5. Can only be used by the clan leader. -->
+		<!-- Can be exchanged for Marks of Battle with Mulia in the Town of Rune. -->
 		<set name="icon" val="icon.etc_paper_blue_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34903" name="Mysterious Shadow" type="EtcItem">
@@ -41,28 +41,28 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 		<skills>
 			<skill id="15105" level="1" /> <!-- Mysterious Shadow -->
 		</skills>
 	</item>
 	<item id="34904" name="Mysterious Power" type="EtcItem">
-		<!-- Item that can only be used in the Ceremony of Chaos Arena. Your MP and CP are all reduced to 1 but 1/3 of your HP is maintained. Has a 50% chance of inflicting a lethal strike on the target. -->
+		<!-- Item that can only be used in the Ceremony of Chaos Arena. Your MP and CP are all reduced to 1 but 1/ 3 of your HP is maintained. Has a 50% chance of inflicting a lethal strike on the target. -->
 		<set name="icon" val="icon.weapon_apprentices_spellbook_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 		<skills>
 			<skill id="15106" level="1" /> <!-- Mysterious Power -->
@@ -79,9 +79,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="material" val="LEATHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7102" level="1" /> <!-- Summon Clan Pet -->
 		</skills>
@@ -97,9 +97,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="material" val="LEATHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7102" level="1" /> <!-- Summon Clan Pet -->
 		</skills>
@@ -115,9 +115,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="material" val="LEATHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7102" level="1" /> <!-- Summon Clan Pet -->
 		</skills>
@@ -135,9 +135,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="material" val="LEATHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="7102" level="1" /> <!-- Summon Clan Pet -->
 		</skills>
@@ -150,8 +150,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="LEATHER" />
 	</item>
@@ -163,20 +163,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34911" name="Ruler's Authority" additionalName="Not in Use" type="EtcItem">
-		<!-- Item given to the winner of the tournament held in the Mysterious Mansion. Increases Max HP/MP/CP by 500, Weight Gauge by 12000, damage inflicted during PvP by 5%, Damage Reflect Resistance by 5, and Attribute Resistance by 10. Also increases HP/MP Recovery Rate and Inventory Slot numbers. Decreases damage received during PvP by 6%. You can use these item skills only during the week of victory. -->
+		<!-- Item given to the winner of the tournament held in the Mysterious Mansion. Increases Max HP/ MP/ CP by 500, Weight Gauge by 12000, damage inflicted during PvP by 5%, Damage Reflect Resistance by 5, and Attribute Resistance by 10. Also increases HP/ MP Recovery Bonus Rate and Inventory Slot numbers. Decreases damage received during PvP by 6%. You can use these item skills only during the week of victory. -->
 		<set name="icon" val="icon.etc_spell_books_red_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="34912" name="Summoning Stone" type="EtcItem">
@@ -204,8 +204,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="34914" name="Transport Goods - Aden" type="EtcItem">
@@ -216,9 +216,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9465" level="1" /> <!-- Bundle -->
@@ -232,9 +232,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9465" level="1" /> <!-- Bundle -->
@@ -248,8 +248,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="34917" name="Greater Transport Box" type="EtcItem">
@@ -260,8 +260,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="34918" name="Treasure Chest of the King of Aden" type="EtcItem">
@@ -272,9 +272,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9464" level="1" /> <!-- Treasure Chest of the King of Aden -->
@@ -288,8 +288,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="34920" name="Treasure Chest of the King of Rune" type="EtcItem">
@@ -300,9 +300,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9466" level="1" /> <!-- Treasure Chest of the King of Rune -->
@@ -326,20 +326,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1520" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1</stat>
+			<stat type="mAtk">1</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="19020" level="1" /> <!-- Revolution Eruption -->
 			<skill id="19021" level="1" /> <!-- Revolution Strike -->
 			<skill id="19028" level="1" /> <!-- Revolution Spirit -->
 			<skill id="19019" level="1" /> <!-- Revolution Blade -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1</stat>
-			<stat type="mAtk">1</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="34922" name="Revolutionary's Bow" type="Weapon">
 		<!-- Item used by the revolutionaries during an attack on the transportation unit. It can use powerful skills. Can only be used on the siege battlefield. Can only be used by characters who are above level 40. -->
@@ -359,21 +359,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1520" />
 		<set name="material" val="STEEL" />
+		<stats>
+			<stat type="pAtk">1</stat>
+			<stat type="mAtk">1</stat>
+			<stat type="pAtkSpd">293</stat>
+			<stat type="critRate">12</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkRange">500</stat>
+		</stats>
 		<skills>
 			<skill id="19023" level="1" /> <!-- Revolution Multi-Shot -->
 			<skill id="19024" level="1" /> <!-- Revolution Tornado Shot -->
 			<skill id="19028" level="1" /> <!-- Revolution Spirit -->
 			<skill id="19022" level="1" /> <!-- Revolution Shot -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1</stat>
-			<stat type="mAtk">1</stat>
-			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkRange">500</stat>
-		</stats>
 	</item>
 	<item id="34923" name="Revolutionary's Staff" type="Weapon">
 		<!-- Item used by the revolutionaries during an attack on the transportation unit. It can use powerful skills. Can only be used on the siege battlefield. Can only be used by characters who are above level 40. -->
@@ -394,21 +394,21 @@
 		<set name="weight" val="1080" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">1</stat>
+			<stat type="mAtk">1</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="19026" level="1" /> <!-- Revolution Blast -->
 			<skill id="19027" level="1" /> <!-- Revolution Destruction -->
 			<skill id="19028" level="2" /> <!-- Revolution Spirit -->
 			<skill id="19025" level="1" /> <!-- Revolution Spike -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1</stat>
-			<stat type="mAtk">1</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="34924" name="Revolutionary's Wand" type="Weapon">
 		<!-- Item used by the revolutionaries during an attack on the transportation unit. It can use powerful skills. Can only be used on the siege battlefield. Can only be used by characters who are above level 40. -->
@@ -429,24 +429,24 @@
 		<set name="weight" val="1080" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">1</stat>
+			<stat type="mAtk">1</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="19029" level="1" /> <!-- Revolution Self CP Recovery -->
 			<skill id="19030" level="1" /> <!-- Revolution CP Recovery -->
 			<skill id="19031" level="1" /> <!-- Revolution Party CP Recovery -->
 			<skill id="19028" level="2" /> <!-- Revolution Spirit -->
 		</skills>
-		<stats>
-			<stat type="pAtk">1</stat>
-			<stat type="mAtk">1</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="34925" name="Cloak of Light" type="Armor">
-		<!-- Cloak that symbolizes glory and light. STR/MEN/DEX/WIT/INT/CON +2, and Damage Received - 5%. Can use Escape: Castle skill. Cannot be used while in a chaotic state. Can only be equipped by marquis or higher. Cannot be transferred between servers. -->
+		<!-- Cloak that symbolizes glory and light. STR/ MEN/ DEX/ WIT/ INT/ CON +2, and Damage Received -5%. Can use Escape:Castle skill. Cannot be used while in a chaotic state. Can only be equipped by marquis or higher. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.amor_goodness_cloak" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -455,23 +455,19 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_dropable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player castle="-1" />
-				<player pledgeClass="8" /> <!-- Marquis or higher -->
+				<player pledgeClass="100" /> <!-- Elite member -->
 				<player isOnSide="LIGHT" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="19041" level="1" /> <!-- King's Call -->
-			<skill id="19039" level="1" /> <!-- Cloak of Light -->
-		</skills>
+		</conditions>
 		<stats>
-			<stat type="pDef">50</stat>
+			<stat type="pDef">80</stat>
 			<stat type="mDef">40</stat>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -480,9 +476,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="19041" level="1" /> <!-- King's Call -->
+			<skill id="19039" level="1" /> <!-- Cloak of Light -->
+		</skills>
 	</item>
 	<item id="34926" name="Cloak of Darkness" type="Armor">
-		<!-- Cloak that symbolizes avarice and darkness. STR/MEN/DEX/WIT/INT/CON +2, and Damage Received - 5%. Can use Escape: Castle skill. Can only be equipped by marquis or higher. Cannot be transferred between servers. -->
+		<!-- Cloak that symbolizes avarice and darkness. STR/ MEN/ DEX/ WIT/ INT/ CON +2, and Damage Received -5%. Can use Escape: Castle skill. Can only be equipped by marquis or higher. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.amor_evilness_cloak" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -491,23 +491,19 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_dropable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player castle="-1" />
-				<player pledgeClass="8" /> <!-- Marquis or higher -->
+				<player pledgeClass="100" /> <!-- Elite member -->
 				<player isOnSide="DARK" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="19041" level="1" /> <!-- King's Call -->
-			<skill id="19040" level="1" /> <!-- Cloak of Darkness -->
-		</skills>
+		</conditions>
 		<stats>
-			<stat type="pDef">50</stat>
+			<stat type="pDef">80</stat>
 			<stat type="mDef">40</stat>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -516,6 +512,10 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="19041" level="1" /> <!-- King's Call -->
+			<skill id="19040" level="1" /> <!-- Cloak of Darkness -->
+		</skills>
 	</item>
 	<item id="34927" name="Dimension Keeper's Blue Box" type="EtcItem">
 		<!-- Blue-colored box bestowed by the kingdom of Aden as a reward for defeating the dimension demons in Kartia's Labyrinth. Double-click on it to see its contents. -->
@@ -525,9 +525,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -542,9 +542,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -559,9 +559,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -576,9 +576,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -593,9 +593,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -610,9 +610,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -627,9 +627,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9423" level="1" /> <!-- Campaign Reward Pouch -->
@@ -643,16 +643,16 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9424" level="1" /> <!-- Campaign Reward Pouch -->
 		</skills>
 	</item>
 	<item id="34935" name="Star Agathion - Heejin Jang" additionalName="7-day" type="Armor">
-		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/MP/CP by 300, M. Def. by 5%, Max HP by 5%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
+		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/ MP/ CP by 300, M. Def. by 5%, Max HP by 5%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -665,6 +665,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="fireRes">10</stat>
+			<stat type="waterRes">10</stat>
+			<stat type="windRes">10</stat>
+			<stat type="earthRes">10</stat>
+			<stat type="holyRes">10</stat>
+			<stat type="darkRes">10</stat>
+		</stats>
 		<skills>
 			<skill id="9407" level="1" /> <!-- Release Agathion's Seal - Jang Heejin -->
 			<skill id="9412" level="1" /> <!-- Agathion Cute Trick - Jang Heejin -->
@@ -672,17 +680,9 @@
 			<skill id="9531" level="1" /> <!-- Jang Heejin Agathion's Blessed Escape -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
-		<stats>
-			<stat type="fireRes">10</stat>
-			<stat type="waterRes">10</stat>
-			<stat type="windRes">10</stat>
-			<stat type="earthRes">10</stat>
-			<stat type="holyRes">10</stat>
-			<stat type="darkRes">10</stat>
-		</stats>
 	</item>
 	<item id="34936" name="Star Agathion - Hyuk Jang" additionalName="7-day" type="Armor">
-		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/MP/CP by 300, P. Atk. by 5%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
+		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/ MP/ CP by 300, P. Atk. by 5%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -695,6 +695,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="fireRes">10</stat>
+			<stat type="waterRes">10</stat>
+			<stat type="windRes">10</stat>
+			<stat type="earthRes">10</stat>
+			<stat type="holyRes">10</stat>
+			<stat type="darkRes">10</stat>
+		</stats>
 		<skills>
 			<skill id="9408" level="1" /> <!-- Release Agathion's Seal - Jang Hyuk -->
 			<skill id="9413" level="1" /> <!-- Agathion Cute Trick - Jang Hyuk -->
@@ -702,17 +710,9 @@
 			<skill id="9533" level="1" /> <!-- Jang Hyuk Agathion's Blessed Escape -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
-		<stats>
-			<stat type="fireRes">10</stat>
-			<stat type="waterRes">10</stat>
-			<stat type="windRes">10</stat>
-			<stat type="earthRes">10</stat>
-			<stat type="holyRes">10</stat>
-			<stat type="darkRes">10</stat>
-		</stats>
 	</item>
 	<item id="34937" name="Star Agathion - Sooro Kim" additionalName="7-day" type="Armor">
-		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/MP/CP by 300, P. Def. by 5%, Max HP by 5%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
+		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/ MP/ CP by 300, P. Def. by 5%, Max HP by 5%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -725,6 +725,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="fireRes">10</stat>
+			<stat type="waterRes">10</stat>
+			<stat type="windRes">10</stat>
+			<stat type="earthRes">10</stat>
+			<stat type="holyRes">10</stat>
+			<stat type="darkRes">10</stat>
+		</stats>
 		<skills>
 			<skill id="9409" level="1" /> <!-- Release Agathion's Seal - Kim Sooro -->
 			<skill id="9414" level="1" /> <!-- Agathion Cute Trick - Kim Sooro -->
@@ -732,17 +740,9 @@
 			<skill id="9535" level="1" /> <!-- Kim Sooro Agathion's Blessed Escape -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
-		<stats>
-			<stat type="fireRes">10</stat>
-			<stat type="waterRes">10</stat>
-			<stat type="windRes">10</stat>
-			<stat type="earthRes">10</stat>
-			<stat type="holyRes">10</stat>
-			<stat type="darkRes">10</stat>
-		</stats>
 	</item>
 	<item id="34938" name="Star Agathion - Jaebum Park" additionalName="7-day" type="Armor">
-		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/MP/CP by 300, M. Atk. By 6%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
+		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/ MP/ CP by 300, M. Atk. By 6%, and Attribute Resistance by 10. Usable Skill: Blessed Escape. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -755,6 +755,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="fireRes">10</stat>
+			<stat type="waterRes">10</stat>
+			<stat type="windRes">10</stat>
+			<stat type="earthRes">10</stat>
+			<stat type="holyRes">10</stat>
+			<stat type="darkRes">10</stat>
+		</stats>
 		<skills>
 			<skill id="9410" level="1" /> <!-- Release Agathion's Seal - Park Jaebum -->
 			<skill id="9415" level="1" /> <!-- Agathion Cute Trick - Park Jaebum -->
@@ -762,17 +770,9 @@
 			<skill id="9537" level="1" /> <!-- Park Jaebum Agathion's Blessed Escape -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
-		<stats>
-			<stat type="fireRes">10</stat>
-			<stat type="waterRes">10</stat>
-			<stat type="windRes">10</stat>
-			<stat type="earthRes">10</stat>
-			<stat type="holyRes">10</stat>
-			<stat type="darkRes">10</stat>
-		</stats>
 	</item>
 	<item id="34939" name="Star Agathion - Shin-young Kim" additionalName="7-day" type="Armor">
-		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/MP/CP by 300, and Attribute Resistance by 10. Decreases skill cooldown and MP consumed during skill use by 3%. Usable Skill: Blessed Escape. -->
+		<!-- 7-day. Increases CON +3, MEN +3, Weight Gauge by 10000, Max HP/ MP/ CP by 300, and Attribute Resistance by 10. Decreases skill cooldown and MP consumed during skill use by 3%. Usable Skill: Blessed Escape. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -785,13 +785,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9411" level="1" /> <!-- Release Agathion's Seal - Kim Shinyoung -->
-			<skill id="9416" level="1" /> <!-- Agathion Cute Trick - Kim Shinyoung -->
-			<skill id="9538" level="1" /> <!-- Kim Shinyoung Agathion's Effect -->
-			<skill id="9539" level="1" /> <!-- Kim Shinyoung Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -800,6 +793,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9411" level="1" /> <!-- Release Agathion's Seal - Kim Shinyoung -->
+			<skill id="9416" level="1" /> <!-- Agathion Cute Trick - Kim Shinyoung -->
+			<skill id="9538" level="1" /> <!-- Kim Shinyoung Agathion's Effect -->
+			<skill id="9539" level="1" /> <!-- Kim Shinyoung Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="34940" name="Scroll: Enchant Hair Accessory" additionalName="Event" type="EtcItem">
 		<!-- Increases M. Def. of hair accessories by 2. It is greatly increased starting at +4. Can be safely enchanted to +3. -->
@@ -824,9 +824,9 @@
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="WOOD" />
 	</item>
 	<item id="34942" name="Lv. 2 Giant Dye Pack" additionalName="Event" type="EtcItem">
@@ -835,11 +835,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9425" level="1" /> <!-- Lv. 2 Giant Dye Pack -->
@@ -851,11 +851,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9426" level="1" /> <!-- Lv. 2 Legendary Dye Pack -->
@@ -867,11 +867,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9427" level="1" /> <!-- Lv. 2 Ancient Dye Pack -->
@@ -883,11 +883,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9428" level="1" /> <!-- Lv. 3 Giant Dye Pack -->
@@ -899,11 +899,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9429" level="1" /> <!-- Lv. 3 Legendary Dye Pack -->
@@ -915,11 +915,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9430" level="1" /> <!-- Lv. 3 Ancient Dye Pack -->
@@ -931,11 +931,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9437" level="1" /> <!-- Scroll of Escape Pack: Village -->
@@ -946,11 +946,11 @@
 		<set name="icon" val="icon.shield_bread_i02" />
 		<set name="weight" val="5" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="9438" level="1" /> <!-- Letter Collector's Gift (9th Anniversary) -->
@@ -962,11 +962,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9431" level="1" /> <!-- Lv. 4 Giant Dye Pack -->
@@ -978,11 +978,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9432" level="1" /> <!-- Lv. 4 Legendary Dye Pack -->
@@ -994,11 +994,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9433" level="1" /> <!-- Lv. 4 Ancient Dye Pack -->
@@ -1010,11 +1010,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9434" level="1" /> <!-- Lv. 5 Giant Dye Pack -->
@@ -1026,11 +1026,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9435" level="1" /> <!-- Lv. 5 Legendary Dye Pack -->
@@ -1042,11 +1042,11 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9436" level="1" /> <!-- Lv. 5 Ancient Dye Pack -->
@@ -1056,9 +1056,9 @@
 		<!-- Item for the Lineage II 8th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_m_i00" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34957" name="Kbaldir's Letter" type="EtcItem">
@@ -1070,9 +1070,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34958" name="Unstable Petra" type="EtcItem">
@@ -1083,9 +1083,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34959" name="Petra" type="EtcItem">
@@ -1096,9 +1096,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34960" name="Tauti's Shard" type="EtcItem">
@@ -1109,9 +1109,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34961" name="Helping Seed" type="EtcItem">
@@ -1122,10 +1122,10 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="9444" level="1" /> <!-- Helping Seed -->
@@ -1138,9 +1138,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34963" name="Mysterious Seed" type="EtcItem">
@@ -1150,8 +1150,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34964" name="White Chrysanthemum" type="EtcItem">
@@ -1161,9 +1161,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34965" name="Daylily" type="EtcItem">
@@ -1173,9 +1173,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34966" name="Peony" type="EtcItem">
@@ -1185,9 +1185,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34967" name="Petunia" type="EtcItem">
@@ -1197,9 +1197,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34968" name="Pansy" type="EtcItem">
@@ -1209,9 +1209,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34969" name="Iris" type="EtcItem">
@@ -1221,9 +1221,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34970" name="Kuon" type="EtcItem">
@@ -1233,9 +1233,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34971" name="Deadman's Flesh" type="EtcItem">
@@ -1245,9 +1245,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34972" name="Harlan's Orders" type="EtcItem">
@@ -1257,9 +1257,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SHOW_HTML" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="34973" name="Endrigo's Report" type="EtcItem">
@@ -1269,9 +1269,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SHOW_HTML" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="34974" name="Mandragora Stem" type="EtcItem">
@@ -1281,9 +1281,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34975" name="Mandragora Root" type="EtcItem">
@@ -1293,9 +1293,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34976" name="Disabled Petra" type="EtcItem">
@@ -1307,9 +1307,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34977" name="Saw-toothed Wheel of Hellfire" type="EtcItem">
@@ -1320,9 +1320,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34978" name="Scroll of Escape: Hot Springs" type="EtcItem">
@@ -1334,15 +1334,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9446" level="1" /> <!-- Scroll of Escape: Hot Springs -->
 		</skills>
@@ -1356,15 +1356,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9447" level="1" /> <!-- Scroll of Escape: Forge of the Gods -->
 		</skills>
@@ -1378,15 +1378,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9448" level="1" /> <!-- Scroll of Escape: Isle of Prayer -->
 		</skills>
@@ -1400,15 +1400,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9449" level="1" /> <!-- Scroll of Escape: Aden Battlefield -->
 		</skills>
@@ -1422,15 +1422,15 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9450" level="1" /> <!-- Scroll of Escape: Rune Battlefield -->
 		</skills>
@@ -1441,13 +1441,13 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34984" name="Talisman - Infinity" type="Armor">
-		<!-- Increases Max HP/MP/CP by 100, P. Accuracy and M. Accuracy by 1, P. Evasion and M. Evasion by 1 Vampiric Rage Effect by 2%, and Atk. Spd. and Casting Spd. by 10. -->
+		<!-- Increases Max HP/ MP/ CP by 100, P. Accuracy and M. Accuracy by 1, P. Evasion and M. Evasion by 1 Vampiric Rage Effect by 2%, and Atk. Spd. and Casting Spd. by 10. -->
 		<set name="icon" val="icon.accessory_immortal_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1465,7 +1465,7 @@
 		</skills>
 	</item>
 	<item id="34985" name="Talisman - Destruction" type="Armor">
-		<!-- Increases Max HP/MP/CP by 100, P. Accuracy and M. Accuracy by 2, P. Evasion and M. Evasion by 2, Vampiric Rage Effect by 2%, Atk. Spd. and Casting Spd. by 10, P. Critical Rate by 30, and M. Critical Rate by 10. -->
+		<!-- Increases Max HP/ MP/ CP by 100, P. Accuracy and M. Accuracy by 2, P. Evasion and M. Evasion by 2, Vampiric Rage Effect by 2%, Atk. Spd. and Casting Spd. by 10, P. Critical Rate by 30, and M. Critical Rate by 10. -->
 		<set name="icon" val="icon.accessory_destruction_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1483,7 +1483,7 @@
 		</skills>
 	</item>
 	<item id="34986" name="Talisman - Annihilation" type="Armor">
-		<!-- Increases Max HP/MP/CP by 300, P. Accuracy and M. Accuracy by 2, P. Evasion and M. Evasion by 2, Vampiric Rage Effect by 3%, Atk. Spd. and Casting Spd. by 20, P. Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 103, and M. Atk. by 156. -->
+		<!-- Increases Max HP/ MP/ CP by 300, P. Accuracy and M. Accuracy by 2, P. Evasion and M. Evasion by 2, Vampiric Rage Effect by 3%, Atk. Spd. and Casting Spd. by 20, P. Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 103, and M. Atk. by 156. -->
 		<set name="icon" val="icon.accessory_extermination_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1537,7 +1537,7 @@
 		</skills>
 	</item>
 	<item id="34989" name="Talisman - Longing" type="Armor">
-		<!-- When equipped, increases Max HP, MP, and CP by 600, P. and M. Accuracy by 2, P. and M. Evasion by 2, Vampiric Rage 3% effect, Atk. Spd. and Casting Spd. by 50, Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 303, M. Atk. by 356, Skill Power by 4%, Damage Reflect Resistance by 30, and P. M. Def. by 60, and STR/INT/CON/MEN/DEX/WIT by 2. MP consumption decreases by 3%. -->
+		<!-- When equipped, increases Max HP, MP, and CP by 600, P. and M. Accuracy by 2, P. and M. Evasion by 2, Vampiric Rage 3% effect, Atk. Spd. and Casting Spd. by 50, Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 303, M. Atk. by 356, Skill Power by 4%, Damage Reflect Resistance by 30, and P. M. Def. by 60, and STR/ INT/ CON/ MEN/ DEX/ WIT by 2. MP consumption decreases by 3%. -->
 		<set name="icon" val="icon.accessory_longing_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1554,37 +1554,37 @@
 			<skill id="8864" level="6" /> <!-- Talisman - Longing -->
 		</skills>
 	</item>
-	<item id="34990" name="Weapon Fragment" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="34990" name="Corroded Weapon Fragment" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_r_weapon_piece_i01" />
 		<set name="price" val="2500" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="34991" name="Armor Fragment" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="34991" name="Corroded Armor Fragment" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_r_armor_piece_i01" />
 		<set name="price" val="1000" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="34992" name="Accessory Gem" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="34992" name="Corroded Accessory Gem" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_r_acc_piece_i01" />
 		<set name="price" val="1000" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="34993" name="Greater Cokes" type="EtcItem">
@@ -1592,33 +1592,33 @@
 		<set name="icon" val="icon.etc_synthetic_cokes_i00" />
 		<set name="price" val="22500" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="34994" name="Gemstone" type="EtcItem">
 		<set name="icon" val="icon.etc_crystal_ball_silver_i00" />
 		<set name="price" val="100" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="GEMSTONE" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="34995" name="Hair Accessory Exchange Certificate" type="EtcItem">
 		<!-- Certificate that can be exchanged with the Aden Reconstruction Society Member or Leader for Rabbit Ears, Raccoon Ears, Cat Ears, Romantic Chapeau, Angel Circlet, Demon Circlet, Pirate's Eyepatch, Outlaw's Eyepatch, Eyepatch, Party Hat, Refined Angel Ring, or Refined Devil Horns. -->
 		<set name="icon" val="icon.etc_piece_of_paper_white_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="34996" name="Cloak of Radiant Light" type="Armor">
-		<!-- Cloak that symbolizes glory and light. STR/MEN/DEX/WIT/INT/CON/LUC/CHA +3, and Damage Received - 15%. Can use Escape: Castle skill. Cannot be used while in a chaotic state. Can only be equipped by a lord. Cannot be transferred between servers. -->
+		<!-- Cloak that symbolizes glory and light. STR/ MEN/ DEX/ WIT/ INT/ CON/ LUC/ CHA +3, and Damage Received -15%. Can use Escape: Castle skill. Cannot be used while in a chaotic state. Can only be equipped by a lord. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.amor_goodness_cloak" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -1628,21 +1628,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="is_dropable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player castle="-1" />
 				<player isClanLeader="true" />
 				<player isOnSide="LIGHT" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="19042" level="1" /> <!-- King's Summon -->
-			<skill id="19037" level="1" /> <!-- Cloak of Radiant Light -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">100</stat>
 			<stat type="mDef">80</stat>
@@ -1653,9 +1649,13 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="19042" level="1" /> <!-- King's Summon -->
+			<skill id="19037" level="1" /> <!-- Cloak of Radiant Light -->
+		</skills>
 	</item>
 	<item id="34997" name="Cloak of Cold Darkness" type="Armor">
-		<!-- Cloak that symbolizes avarice and darkness. STR/MEN/DEX/WIT/INT/CON/LUC/CHA +3, and Damage Received - 15%. Can use Escape: Castle skill. Can only be equipped by a lord. Cannot be transferred between servers. -->
+		<!-- Cloak that symbolizes avarice and darkness. STR/ MEN/ DEX/ WIT/ INT/ CON/ LUC/ CHA +3, and Damage Received -15%. Can use Escape: Castle skill. Can only be equipped by a lord. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.amor_evilness_cloak" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -1665,21 +1665,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="commissionItemType" val="CLOAK" />
 		<set name="is_dropable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player castle="-1" />
 				<player isClanLeader="true" />
 				<player isOnSide="DARK" />
 				<player cloakStatus="true" />
 			</and>
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="19042" level="1" /> <!-- King's Summon -->
-			<skill id="19038" level="1" /> <!-- Cold Cloak of Darkness -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">100</stat>
 			<stat type="mDef">80</stat>
@@ -1690,6 +1686,10 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="19042" level="1" /> <!-- King's Summon -->
+			<skill id="19038" level="1" /> <!-- Cold Cloak of Darkness -->
+		</skills>
 	</item>
 	<item id="34998" name="Tauti's One-handed Axe" type="Weapon">
 		<!-- A weapon made using Tauti's Fragment Augment. When equipped, increases PVP Damage by 15%, Max HP by 25%, P. Atk. by 10%, Atk. Spd. by 15%, and P. Critical Rate by 150. In addition, the Active Skill ‘Tauti's Wrath' can be used. Enchantment, Augment, Appearance Modification, Crystallization, Attribute Assignment are not allowed. 1 special Soul Crystal can be used. -->
@@ -1702,24 +1702,25 @@
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="8878" level="1" /> <!-- Tauti's Special Ability: One-handed Axe -->
-			<skill id="9459" level="1" /> <!-- Tauti's Wrath -->
-		</skills>
 		<stats>
 			<stat type="pAtk">698</stat>
 			<stat type="mAtk">303</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="8878" level="1" /> <!-- Tauti's One-handed Axe -->
+			<skill id="9459" level="1" /> <!-- Tauti's Rage -->
+		</skills>
 	</item>
 	<item id="34999" name="Tauti's Two-handed Axe" type="Weapon">
 		<!-- A weapon made using Tauti's Fragment Augment. When equipped, increases PVP Damage by 15%, Max HP by 25%, P. Atk. by 10%, Atk. Spd. by 15%, and P. Critical Rate by 150. In addition, the Active Skill ‘Tauti's Wrath' can be used. Enchantment, Augment, Appearance Modification, Crystallization, Attribute Assignment are not allowed. 1 special Soul Crystal can be used. -->
@@ -1732,23 +1733,24 @@
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="8879" level="1" /> <!-- Tauti's Special Ability: Axe -->
-			<skill id="9459" level="1" /> <!-- Tauti's Wrath -->
-		</skills>
 		<stats>
 			<stat type="pAtk">849</stat>
 			<stat type="mAtk">303</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="darkPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="8879" level="1" /> <!-- Tauti's Two-handed Axe -->
+			<skill id="9459" level="1" /> <!-- Tauti's Rage -->
+		</skills>
 	</item>
 </list>

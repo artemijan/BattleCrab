@@ -1,4 +1,5 @@
-//! `Character.ini` — port of the `CHARACTER_CONFIG_FILE` block of `Config.java`.
+//! `Player.ini` — Java's `PlayerConfig` (Interlude's `Character.ini`; the
+//! struct keeps that name).
 //!
 //! **Every key this file ships is read or accounted for**: into a field below,
 //! or listed as dead in Java just under this note. `MaximumPlayerLevel` was the
@@ -28,8 +29,8 @@ use crate::config::common::parse_tuples_separated_by_semicolon;
 use crate::model::MAX_VITALITY_POINTS;
 use commons::config::PropertiesParser;
 
-pub const CHARACTER_CONFIG_FILE: &str = "config/Character.ini";
-/// `CharacterDataStoreInterval` lives in Java's `General.ini`, not `Character.ini`.
+pub const CHARACTER_CONFIG_FILE: &str = "config/Player.ini";
+/// `CharacterDataStoreInterval` lives in Java's `General.ini`, not `Player.ini`.
 const GENERAL_CONFIG_FILE: &str = "config/General.ini";
 
 #[derive(Debug, Clone)]
@@ -184,9 +185,9 @@ pub struct CharacterConfig {
     /// animates per pass, materials are "equipped" in grabs, and the finish
     /// awards XP/SP. `False` on this dist (crafts finish inline).
     pub alt_game_creation: bool,
-    /// `AltSubClassWithoutQuests` — skip the Fate's Whisper + Mimir's Elixir
-    /// completion gate on adding a subclass. **True on this dist**, so the
-    /// quest gate is ported but inert.
+    /// `AltSubClassWithoutQuests`. Salvation still loads it, but nothing reads
+    /// it: the Interlude village-master subclass menu whose quest gate it
+    /// skipped is gone.
     pub alt_sub_class_without_quests: bool,
     /// `AltGameCreationSpeed` — per-pass delay multiplier (1 here).
     pub alt_game_creation_speed: f64,
@@ -225,16 +226,6 @@ pub struct CharacterConfig {
     /// is downgraded to the highest still-reachable level, or removed if none
     /// remains (Java `Player.checkPlayerSkills`).
     pub decrease_skill_level: bool,
-    /// `StrictDelevelSkillRemoval`: drop the 9-level grace Java's
-    /// `checkPlayerSkills` normally applies, so a skill is downgraded/removed
-    /// the moment the character's level falls below its learn level (level-exact
-    /// matching, same rule Java uses for Expertise).
-    ///
-    /// **Ships and defaults to `false`, i.e. the Java-faithful grace.** A port
-    /// extension with no upstream key, so the default deliberately sits on the
-    /// retail branch: an operator who has never heard of this knob gets the
-    /// reference behaviour, and turning it on is the explicit choice.
-    pub strict_delevel_skill_removal: bool,
     /// `CharacterDataStoreInterval` (General.ini, minutes → game ticks): the
     /// period of the staggered per-player autosave flush (Java
     /// `PlayerAutoSaveTaskManager` / `CHAR_DATA_STORE_INTERVAL`). Character state
@@ -242,20 +233,22 @@ pub struct CharacterConfig {
     /// crash can lose. Expressed in 100 ms ticks (`minutes * 600`).
     pub character_data_store_interval_ticks: u64,
     /// Stat finalizer ceilings + the flat `RunSpeedBoost` (`MaxPAtk`,
-    /// `MaxMAtk`, `MaxPCritRate`, `MaxMCritRate`, `MaxPAtkSpeed`,
+    /// `MaxMAtk`, `MaxPCritRate`, `MaxMCritRate`, `MaxPSkillCritRate`, `MaxPAtkSpeed`,
     /// `MaxMAtkSpeed`, `MaxEvasion`, `RunSpeedBoost`). Consumed at boot into
     /// `GameData::combat_caps`, which the stat engine clamps/offsets with.
-    /// Defaults are this dist's Character.ini values.
+    /// Defaults are this dist's Player.ini values.
     pub run_spd_boost: f64,
     pub max_p_atk: f64,
     pub max_m_atk: f64,
     pub max_p_crit_rate: f64,
     pub max_m_crit_rate: f64,
+    pub max_p_skill_crit_rate: f64,
     pub max_p_atk_speed: f64,
     pub max_m_atk_speed: f64,
     pub max_evasion: f64,
     /// `MaxRunSpeed`: `SpeedFinalizer`'s player move-speed ceiling (300 on
-    /// this dist); GMs bypass it via the MAX_STATS_VALUE cond override.
+    /// this dist); a GM's ceiling is 10000 instead (`SpeedFinalizer`'s
+    /// `isGM()` arm).
     pub max_run_speed: f64,
     /// `MaxRunSpeedSummon`: `SummonStat`'s own ceiling, separate from the
     /// player's — Java's comment at the site: *"In retail maximum run speed is
@@ -287,11 +280,6 @@ pub struct CharacterConfig {
     /// `AltClanMembersForWar` — the member count both sides need before a clan
     /// war may be declared (alongside clan level 3).
     pub clan_members_for_war: usize,
-    /// `MaxEquipableItemGrade` — the highest crystal grade a shop, multisell
-    /// or recipe list will offer. Java parses it as a `CrystalType` name and
-    /// defaults to `EVENT` (i.e. no filtering); this dist ships **S**, which
-    /// is what makes the filter bite at all.
-    pub max_equipable_item_grade: crate::data::item_data::kinds::CrystalType,
     /// `MaxBuffAmount`: the good-buff slot cap (Java `Config.BUFFS_MAX_AMOUNT` →
     /// `getMaxBuffCount`; 24 on this dist). When exceeded the oldest buff is
     /// dropped (`EffectList.addActive`).
@@ -306,7 +294,7 @@ pub struct CharacterConfig {
     /// gates it as `skill == null || VAMPIRIC_ATTACK_WORKS_WITH_SKILLS`, so with
     /// it off Vampiric Rage only feeds off auto-attacks.
     pub vampiric_attack_works_with_skills: bool,
-    /// `VampiricAttackAffectsPvP` — lives in **PVP.ini**, not Character.ini
+    /// `VampiricAttackAffectsPvP` — lives in **PVP.ini**, not Player.ini
     /// (**True** here). With it off, `isPlayable()` attacker + playable target
     /// absorbs nothing.
     pub vampiric_attack_affects_pvp: bool,
@@ -337,11 +325,11 @@ pub struct CharacterConfig {
     pub store_skill_cooltime: bool,
     /// `AltStoreDances`: whether dances/songs survive a relog. Off in retail
     /// (and Java's default) — `storeEffect` drops them at logout; this dist's
-    /// Character.ini turns them on.
+    /// Player.ini turns them on.
     pub alt_store_dances: bool,
     /// `DanceCancelBuff`: whether a dance/song may be stripped by the client's
     /// alt+click buff-cancel (`RequestDispel`). Java default False; this dist's
-    /// Character.ini sets it True.
+    /// Player.ini sets it True.
     pub dance_cancel_buff: bool,
     /// `MaxFreeTeleportLevel`: gatekeeper NORMAL/HUNTING teleports are free at
     /// or below this level (40 on this dist, Java default 99).
@@ -564,12 +552,6 @@ pub struct CharacterConfig {
     /// neutral 1 and 0, so neither add fires.
     pub starting_level: i32,
     pub starting_sp: i64,
-    /// `InitialEquipmentEvent` — picks `initialEquipmentEvent.xml` over
-    /// `initialEquipment.xml` for a new character's gear. **True** here, and
-    /// the two files are byte-identical on this dist, so it changes nothing
-    /// today; wired anyway, because editing the event file is the whole point
-    /// of having it.
-    pub initial_equipment_event: bool,
     /// `ForbiddenNames` — substrings a character name may not contain, matched
     /// case-insensitively. The shipped list is announcement lookalikes
     /// (`annou`, `ammou`, …), which stop a player naming themselves something
@@ -618,11 +600,6 @@ pub struct CharacterConfig {
     /// `BaseDualclassLevel` — the dual-class starting level. Dual class is an
     /// Ertheia system with no Interlude counterpart, so nothing reaches this.
     pub base_dualclass_level: i32,
-    /// `AltSubclassEverywhere` — **True**, so `VillageMaster.checkVillageMaster`
-    /// returns `true` outright and *any* master will add a subclass, rather
-    /// than only one matching the class's race and teach type. The port has no
-    /// such gate, which is the same behaviour.
-    pub alt_game_subclass_everywhere: bool,
     /// `AutoLearnForgottenScrollSkills` — whether the `AutoLearnSkills` grant
     /// also hands out Forgotten Scroll skills. Reachable here (`AutoLearnSkills`
     /// is **True**) but empty-handed: this dist's base-class trees carry no
@@ -634,7 +611,7 @@ pub struct CharacterConfig {
     /// transformation skill is learnable and the gate has nothing to guard.
     pub allow_transform_without_quest: bool,
 
-    // --- The last of Character.ini ----------------------------------------
+    // --- The last of Player.ini ----------------------------------------
     /// `MaxPersonalFamePoints` — the ceiling `Player.setFame` clamps to
     /// (`[0, max]`). **0 on this dist**, which does not mean "no limit": it
     /// means fame is *disabled*, because every award is clamped straight back
@@ -763,7 +740,7 @@ impl Default for CharacterConfig {
             crafting_enabled: true,
             dwarf_recipe_limit: 100,
             common_recipe_limit: 100,
-            craft_masterwork: true,
+            craft_masterwork: false,
             alt_game_creation: false,
             alt_sub_class_without_quests: false,
             alt_game_creation_speed: 1.0,
@@ -779,13 +756,13 @@ impl Default for CharacterConfig {
             decrease_skill_level: true,
             // The retail branch — see the field doc. Flipping this default is a
             // behaviour change for every test world, not just a fallback tweak.
-            strict_delevel_skill_removal: false,
             character_data_store_interval_ticks: 15 * 600,
             run_spd_boost: 35.0,
             max_p_atk: 999_999.0,
             max_m_atk: 999_999.0,
             max_p_crit_rate: 500.0,
             max_m_crit_rate: 200.0,
+            max_p_skill_crit_rate: 2000.0,
             max_p_atk_speed: 1500.0,
             max_m_atk_speed: 1999.0,
             max_evasion: 250.0,
@@ -799,7 +776,6 @@ impl Default for CharacterConfig {
             warehouse_slots_no_dwarf: 100,
             max_num_of_clans_in_ally: 3,
             clan_members_for_war: 15,
-            max_equipable_item_grade: crate::data::item_data::kinds::CrystalType::S,
             max_buff_count: 24,
             max_subclass: 5,
             max_dance_count: 12,
@@ -834,7 +810,7 @@ impl Default for CharacterConfig {
             alt_allow_augment_destroy: true,
             alt_clan_join_days: 1,
             alt_clan_create_days: 10,
-            alt_clan_dissolve_days: 1,
+            alt_clan_dissolve_days: 7,
             alt_ally_join_days_when_leaved: 1,
             alt_ally_join_days_when_dismissed: 1,
             alt_accept_clan_days_when_dismissed: 1,
@@ -862,7 +838,6 @@ impl Default for CharacterConfig {
             store_recipe_shop_list: false,
             starting_level: 1,
             starting_sp: 0,
-            initial_equipment_event: true,
             forbidden_names: Vec::new(),
             auto_loot_herbs: false,
             auto_loot_item_ids: std::collections::HashSet::new(),
@@ -872,10 +847,9 @@ impl Default for CharacterConfig {
             base_subclass_level: 40,
             max_subclass_level: 80,
             base_dualclass_level: 80,
-            alt_game_subclass_everywhere: true,
             auto_learn_fs_skills: true,
             allow_transform_without_quest: false,
-            max_personal_fame_points: 0,
+            max_personal_fame_points: 100_000,
             fortress_zone_fame_task_frequency: 300,
             fortress_zone_fame_acquire_points: 0,
             max_bonus_exp: 0.0,
@@ -973,7 +947,7 @@ impl CharacterConfig {
     /// ```
     ///
     /// Every place that *reports* or *enforces* the bag size goes through this
-    /// so raising a `MaximumSlotsFor…` key in `Character.ini` moves all of them
+    /// so raising a `MaximumSlotsFor…` key in `Player.ini` moves all of them
     /// together; the `Stat::InventoryNormal` bonus (`EnlargeSlot`) is added on
     /// top by the caller, as Java does with `getValue(Stat.INVENTORY_NORMAL, 0)`.
     pub fn inventory_limit_for(&self, race: i32, is_gm: bool) -> i32 {
@@ -1073,17 +1047,17 @@ impl CharacterConfig {
             crafting_enabled: p.get_bool("CraftingEnabled", d.crafting_enabled),
             dwarf_recipe_limit: p.get_int("DwarfRecipeLimit", d.dwarf_recipe_limit),
             common_recipe_limit: p.get_int("CommonRecipeLimit", d.common_recipe_limit),
-            craft_masterwork: p.get_bool("CraftMasterwork", d.craft_masterwork),
-            alt_game_creation: p.get_bool("AltGameCreation", d.alt_game_creation),
+            // Salvation dropped `CraftMasterwork` / `AltGameCreation*`; the
+            // Interlude crafting paths stay inert until the S10 rewrite.
+            craft_masterwork: false,
+            alt_game_creation: false,
             alt_sub_class_without_quests: p
                 .get_bool("AltSubClassWithoutQuests", d.alt_sub_class_without_quests),
-            alt_game_creation_speed: f64::from(p.get_float("AltGameCreationSpeed", 1.0)),
-            alt_game_creation_xp_rate: f64::from(p.get_float("AltGameCreationXpRate", 1.0)),
-            alt_game_creation_sp_rate: f64::from(p.get_float("AltGameCreationSpRate", 1.0)),
-            alt_game_creation_rare_xpsp_rate: f64::from(
-                p.get_float("AltGameCreationRareXpSpRate", 1.0),
-            ),
-            craft_masterwork_chance: p.get_int("CraftMasterworkChance", d.craft_masterwork_chance),
+            alt_game_creation_speed: d.alt_game_creation_speed,
+            alt_game_creation_xp_rate: d.alt_game_creation_xp_rate,
+            alt_game_creation_sp_rate: d.alt_game_creation_sp_rate,
+            alt_game_creation_rare_xpsp_rate: d.alt_game_creation_rare_xpsp_rate,
+            craft_masterwork_chance: d.craft_masterwork_chance,
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
             auto_learn_skills_without_items: p.get_bool(
                 "AutoLearnSkillsWithoutItems",
@@ -1099,8 +1073,6 @@ impl CharacterConfig {
             ),
             expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
             decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),
-            strict_delevel_skill_removal: p
-                .get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),
             character_data_store_interval_ticks: general
                 .get_int("CharacterDataStoreInterval", 15)
                 .max(1) as u64
@@ -1110,6 +1082,7 @@ impl CharacterConfig {
             max_m_atk: p.get_float("MaxMAtk", 999_999.0) as f64,
             max_p_crit_rate: p.get_float("MaxPCritRate", 500.0) as f64,
             max_m_crit_rate: p.get_float("MaxMCritRate", 200.0) as f64,
+            max_p_skill_crit_rate: f64::from(p.get_int("MaxPSkillCritRate", 2000)),
             max_p_atk_speed: p.get_float("MaxPAtkSpeed", 1500.0) as f64,
             max_m_atk_speed: p.get_float("MaxMAtkSpeed", 1999.0) as f64,
             max_evasion: p.get_float("MaxEvasion", 250.0) as f64,
@@ -1128,10 +1101,6 @@ impl CharacterConfig {
             warehouse_slots_no_dwarf: p.get_int("MaximumWarehouseSlotsForNoDwarf", 100),
             max_num_of_clans_in_ally: p.get_int("AltMaxNumOfClansInAlly", 3).max(0) as usize,
             clan_members_for_war: p.get_int("AltClanMembersForWar", 15).max(0) as usize,
-            // Java's default is `EVENT` — the top of the enum, i.e. no filter.
-            max_equipable_item_grade: crate::data::item_data::kinds::CrystalType::from_config_name(
-                p.get_string("MaxEquipableItemGrade", "EVENT").as_str(),
-            ),
             max_buff_count: p.get_int("MaxBuffAmount", 24),
             max_subclass: p.get_int("MaxSubclass", 5),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
@@ -1269,7 +1238,6 @@ impl CharacterConfig {
             store_recipe_shop_list: p.get_bool("StoreRecipeShopList", d.store_recipe_shop_list),
             starting_level: p.get_int("StartingLevel", d.starting_level),
             starting_sp: p.get_long("StartingSP", d.starting_sp),
-            initial_equipment_event: p.get_bool("InitialEquipmentEvent", d.initial_equipment_event),
             forbidden_names: p
                 .get_string("ForbiddenNames", "")
                 .split(',')
@@ -1289,8 +1257,6 @@ impl CharacterConfig {
             base_subclass_level: p.get_int("BaseSubclassLevel", d.base_subclass_level),
             max_subclass_level: p.get_int("MaxSubclassLevel", d.max_subclass_level),
             base_dualclass_level: p.get_int("BaseDualclassLevel", d.base_dualclass_level),
-            alt_game_subclass_everywhere: p
-                .get_bool("AltSubclassEverywhere", d.alt_game_subclass_everywhere),
             auto_learn_fs_skills: p
                 .get_bool("AutoLearnForgottenScrollSkills", d.auto_learn_fs_skills),
             allow_transform_without_quest: p.get_bool(

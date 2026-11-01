@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="13300" toLevel="3" name="Magic One-handed Blunt Special Ability">
 		<!-- M. Critical Damage +381 and M. Accuracy +1. -->
 		<icon>icon.weapon_vesper_caster_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicCriticalDamage">
 				<amount>381</amount>
@@ -22,11 +22,11 @@
 		<!-- M. Atk. +44, M. Critical Damage +381, and Casting Spd. +1%. -->
 		<icon>icon.weapon_grangkaz_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>44</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -44,11 +44,11 @@
 		<!-- M. Atk. +44, M. Critical Damage +381, and Casting Spd. +1%. -->
 		<icon>icon.weapon_herencia_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>44</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -66,11 +66,11 @@
 		<!-- M. Atk. +44, M. Critical Damage +381, and Casting Spd. +1%. -->
 		<icon>icon.weapon_rupe_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>44</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -88,11 +88,11 @@
 		<!-- M. Atk. +44, M. Critical Damage +381, and Casting Spd. +1%. -->
 		<icon>icon.weapon_shaelon_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>44</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -110,11 +110,11 @@
 		<!-- M. Atk. +44, M. Critical Damage +381, and Casting Spd. +1%. -->
 		<icon>icon.weapon_vesper_singer_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>44</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -129,102 +129,102 @@
 		</effects>
 	</skill>
 	<skill id="13306" toLevel="3" name="Heavy Armor Top Special Ability">
-		<!-- P. Def. +34 and received P. Critical Damage by - 4.3%. -->
+		<!-- P. Def. +34 and received P. Critical Damage by -4.3%. -->
 		<icon>icon.armor_t501_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>34</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-4.3</amount>
+				<amount>4.3</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13307" toLevel="3" name="Heavy Armor Top Special Ability">
-		<!-- P. Def. +34 and received P. Critical Damage by - 4.3%. -->
+		<!-- P. Def. +34 and received P. Critical Damage by -4.3%. -->
 		<icon>icon.armor_t601_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>34</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-4.3</amount>
+				<amount>4.3</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13308" toLevel="3" name="Heavy Armor Top Special Ability">
-		<!-- P. Def. +34 and received P. Critical Damage by - 4.3%. -->
+		<!-- P. Def. +34 and received P. Critical Damage by -4.3%. -->
 		<icon>icon.armor_t401_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>34</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-4.3</amount>
+				<amount>4.3</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13309" toLevel="3" name="Heavy Armor Top Special Ability">
-		<!-- P. Def. +34 and received P. Critical Damage by - 4.3%. -->
+		<!-- P. Def. +34 and received P. Critical Damage by -4.3%. -->
 		<icon>icon.armor_t701_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>34</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-4.3</amount>
+				<amount>4.3</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13310" toLevel="3" name="Heavy Armor Top Special Ability">
-		<!-- P. Def. +34 and received P. Critical Damage by - 4.3%. -->
+		<!-- P. Def. +34 and received P. Critical Damage by -4.3%. -->
 		<icon>icon.armor_t501_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>34</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-4.3</amount>
+				<amount>4.3</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13311" toLevel="3" name="Light Armor Top Special Ability">
-		<!-- P. Evasion +2, Speed +3, and P. Atk. Resistance +5. The chance of receiving P. Critical Hit - 3.4%. -->
+		<!-- P. Evasion +2, Speed +3, and P. Debuff Resistance +5. The chance of receiving P. Critical Attack -3.4%. -->
 		<icon>icon.armor_t502_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>2</amount>
@@ -239,18 +239,18 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalRate">
-				<amount>-3.4</amount>
+				<amount>3.4</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13312" toLevel="3" name="Robe Upper Special Ability">
-		<!-- M. Evasion +3, and Mental Attack Resistance +9. Received P. Critical Damage - 2.1%, and the chance of receiving P. Critical Hit - 1.7%. -->
+		<!-- M. Evasion +3, and M. Debuff Resistance +9. Received P. Critical Damage -2.1%, and the chance of receiving P. Critical Attack -1.7%. -->
 		<icon>icon.armor_t503_u_i00</icon>
 		<operateType>P</operateType>
+		<isDebuff>false</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<isDebuff>false</isDebuff>
 		<effects>
 			<effect name="MagicalEvasion">
 				<amount>3</amount>
@@ -261,17 +261,17 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-2.1</amount>
+				<amount>2.1</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DefenceCriticalRate">
-				<amount>-1.7</amount>
+				<amount>1.7</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="13313" toLevel="1" name="Blessed Antharas' Earring">
-		<!-- P. Def./M. Def. +15%, CON/MEN+3, Earth/Holy Defense +30, Bleed attack and defense success rate +50%, Stun/Mental attack and defense success rate +40%, Healing received +10%, MP consumption by skills -5%, Vampiric Rage +4% -->
+		<!-- P./ M. Def. +15%, CON/ MEN +3, Earth/ Holy Attribute Def. +30, Bleed Atk./ Def. Success Rate +50%, Stun/ Mental Atk./ Def. Success Rate +40%, Heal Received +10%, Skill MP Consumption -5%, Vampiric Rage +4%. -->
 		<icon>icon.accessory_earring_of_antaras_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -334,18 +334,18 @@
 	<skill id="13314" toLevel="1" name="Blessed Antharas' Earring">
 		<!-- Using it instantly cancels the Stun effect and activates Stun Resistance for 5 seconds. -->
 		<icon>icon.accessory_earring_of_antaras_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>STUN</abnormalType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>200</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>0</mpConsume>
 		<mpInitialConsume>0</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>7200000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>STUN,9</dispel>
@@ -356,7 +356,7 @@
 		</effects>
 	</skill>
 	<skill id="13315" toLevel="1" name="Blessed Valakas' Necklace">
-		<!-- Max HP +625, P. Atk. +10%, M. Atk. +20%, M. Critical Rate +20, STR/INT +3, Fire Attribute Def. +30, Dark Attribute Def. +20, Sleep Atk./Def. Success Rate +50%, P. Skill Power +5%, Skill Cooldown -10%, Damage Reflection 5% -->
+		<!-- Max HP +625, P. Atk. +10%, M. Atk. +20%, M. Critical Rate +20, STR/ INT +3, Fire Attribute Def. +30, Dark Attribute Def. +20, Sleep Atk./ Def. Success Rate +50%, P. Skill Power +5%, Skill Cooldown -10%, Damage Reflection 5% -->
 		<icon>icon.accessory_necklace_of_valakas_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -374,11 +374,11 @@
 			<effect name="DefenceTrait">
 				<SLEEP>50</SLEEP>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -423,20 +423,20 @@
 		</effects>
 	</skill>
 	<skill id="13316" toLevel="1" name="Blessed Valakas' Necklace">
-		<!-- Immediately cancels out Hold effect when used -->
+		<!-- Immediately cancels out Hold effect when used; gives 5-second Hold Resistance. -->
 		<icon>icon.accessory_necklace_of_valakas_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>RESIST_DERANGEMENT</abnormalType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>200</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>0</mpConsume>
 		<mpInitialConsume>0</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>7200000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>ROOT_MAGICALLY,9;ROOT_PHYSICALLY,9</dispel>
@@ -447,7 +447,7 @@
 		</effects>
 	</skill>
 	<skill id="13317" toLevel="1" name="Earth Wyrm Heart Ring">
-		<!-- Increases Wind/Water Resistance, Physical/Mental/Poison Resistance, Knock Back/Knock Down/Pulling/Danger Zone Resistance, poison attack bonus, Critical Damage, Accuracy/Atk. Spd./Casting Spd./and MP recovery speed. -->
+		<!-- Increases Wind/ Water Resistance, Physical/ Mental/ Poison Resistance, Knock Back/ Knock Down/ Pulling/ Danger Zone Resistance, poison attack bonus, Critical Damage, Accuracy/ Atk. Spd./ Casting Spd./ and MP Recovery Bonus speed. -->
 		<icon>icon.ring_earthworm_heart</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -509,16 +509,16 @@
 		</effects>
 	</skill>
 	<skill id="13318" toLevel="1" name="Earth Wyrm Heart Ring - Heartbeat Accelerate">
-		<!-- Increases party member's Atk. Spd./Casting Spd. by 5% for 5 minutes. Additionally, the Vampiric Rage effect applies by 2% at a certain probability. -->
+		<!-- Increases party member's attack speed/ casting speed by 5% for 5 minutes. Additionally, the Vampiric Rage effect applies by 2% at a certain probability. -->
 		<icon>icon.ring_earthworm_heart</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>300</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>300</abnormalTime>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>41</mpConsume>
+		<effectPoint>0</effectPoint>
 		<hitTime>200</hitTime>
-		<effectPoint>687</effectPoint>
+		<mpConsume>41</mpConsume>
 		<reuseDelay>7200000</reuseDelay>
 		<effects>
 			<effect name="VampiricAttack">
@@ -538,16 +538,16 @@
 	<skill id="13319" toLevel="1" name="Earth Wyrm Heart Ring - Blue Blood">
 		<!-- Removes poison effect. -->
 		<icon>icon.ring_earthworm_heart</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>200</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>0</mpConsume>
 		<mpInitialConsume>0</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>7200000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>POISON,9</dispel>
@@ -580,7 +580,7 @@
 		</effects>
 	</skill>
 	<skill id="13321" toLevel="1" name="Istina's Earring">
-		<!-- Wind Resistance +30, Stun Resistance +30%, Stun Atk. Rate +30%, and additional 5% vampiric rage with a certain probability. -->
+		<!-- Wind Resistance +30, Stun Resistance +30%, Stun Atk. Rate +30%. Additionally, the Vampiric Rage effect becomes available by 5% at a certain probability. -->
 		<icon>icon.istina_earring_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -607,7 +607,7 @@
 		</effects>
 	</skill>
 	<skill id="13322" toLevel="1" name="Istina's Necklace">
-		<!-- Holy Resistance +35 and skill delay - 10%. Additionally, damage is incurred, 3% is reflected. -->
+		<!-- Holy Resistance +35 and skill delay -10%. Additionally, damage is incurred, 3% is reflected. -->
 		<icon>icon.istina_necklace_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -631,7 +631,7 @@
 		</effects>
 	</skill>
 	<skill id="13323" toLevel="1" name="Istina's Belt">
-		<!-- HP recovery speed +3.48 and item slot +6. -->
+		<!-- HP Recovery Bonus speed +3.48 and item slot +6. -->
 		<icon>icon.istina_belt_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -708,7 +708,7 @@
 		</effects>
 	</skill>
 	<skill id="13326" toLevel="1" name="Octavis' Earring">
-		<!-- Earth Resistance +30, Hold/Sleep Resistance +40%, hold/sleep attack bonus +40%. -->
+		<!-- Earth Resistance +30, Hold/ Sleep Resistance +40%, hold/ sleep attack bonus +40%. -->
 		<icon>icon.octavis_earring_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -760,7 +760,7 @@
 		</effects>
 	</skill>
 	<skill id="13328" toLevel="1" name="Octavis' Belt">
-		<!-- MP Recovery Rate +2.3 and weight limit +13000. -->
+		<!-- MP Recovery Bonus Rate +2.3 and weight limit +13000. -->
 		<icon>icon.octavis_belt_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -854,7 +854,7 @@
 		</effects>
 	</skill>
 	<skill id="13335" toLevel="1" name="Bestow Fire/Wind/Darkness Armor">
-		<!-- Bestow Fire/Wind/Dark Resistance by 120. -->
+		<!-- Bestow Fire/ Wind/ Dark Resistance by 120. -->
 		<icon>icon.skill4337</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -875,7 +875,7 @@
 		</effects>
 	</skill>
 	<skill id="13336" toLevel="1" name="Bestow Water/Earth/Holy Armor">
-		<!-- Bestow Water/Earth/Holy Resistance by 120. -->
+		<!-- Bestow Water/ Earth/ Holy Resistance by 120. -->
 		<icon>icon.skill4333</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -899,20 +899,20 @@
 		<!-- For 10 seconds, increases M. Def. +50% through the power of the talisman. -->
 		<icon>icon.r_talisman_mm_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>120000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>120000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>50</amount>
@@ -921,32 +921,37 @@
 		</effects>
 	</skill>
 	<skill id="13338" toLevel="1" name="Talisman (R-grade) - Ranged P. Def. (Active)">
-		<!-- For 10 seconds, increases Bow/Crossbow Resistance +80% through the power of Talisman. -->
+		<!-- For 10 seconds, increases Bow/ Crossbow Resistance +80% through the power of Talisman. -->
 		<icon>icon.r85_sp_talisman_ad_ex_passive</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>120000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>120000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceTrait">
 				<BOW>80</BOW>
 				<CROSSBOW>80</CROSSBOW>
+				<TWOHANDCROSSBOW>80</TWOHANDCROSSBOW>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13339" toLevel="5" name="Enchant Heavy Armor Set + 6 (R-grade)">
-		<!-- Set item is enchanted. P. Def. + 93, and MP Recovery Bonus + 32 when standing/ sitting. -->
+	<skill id="13339" toLevel="5" name="Enchant Heavy Armor Set +6 (R-grade)">
+		<!-- Level 1: Set item is enchanted. P. Def. +93, and MP Recovery Bonus +32 when standing/ sitting. -->
+		<!-- Level 2: Set item is enchanted. P. Def. +93, MP Recovery Bonus +32 when standing/ sitting/ running, and P. Skill MP consumption -7%. -->
+		<!-- Level 3: Set item is enchanted. P. Def. +93 and additional +11%, MP Recovery Bonus +32 when standing/ sitting/ running, P. Skill MP consumption -7%. Reflects debuffs with a certain rate. -->
+		<!-- Level 4: Set item is enchanted. P. Def. +93 and additional +11%, MP Recovery Bonus +32 when standing/ sitting/ running, Fixed Damage Resistance +10%, Reflected Damage Resistance +10%, P. Skill MP Consumption -7%. Reflects debuffs with a certain rate. -->
+		<!-- Level 5: Set item is enchanted. P. Def. +93 and additional +21%, MP Recovery Bonus +32 when standing/ sitting/ running, Fixed Damage Resistance +10%, Reflected Damage Resistance +10%, P. Skill MP Consumption -7%. Reflects debuffs with a certain rate. LUC +1, CHA +1. -->
 		<icon>icon.skill0231</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1061,8 +1066,12 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13340" toLevel="5" name="Enchant Light Armor Set + 6 (R-grade)">
-		<!-- Set item is enchanted. M. Def. + 55, P. Evasion + 2, and Debuff Resistance + 10%. MP Recovery Bonus + 8 when standing/ sitting. -->
+	<skill id="13340" toLevel="5" name="Enchant Light Armor Set +6 (R-grade)">
+		<!-- Level 1: Set item is enchanted. M. Def. +55, P. Evasion +2, and Debuff Resistance +8. MP Recovery Bonus +10% when standing/ sitting. -->
+		<!-- Level 2: Set item is enchanted. Increase M. Def. +55, P. Evasion +2, MP Recovery Bonus +8 in sit/ stand status, debuff resistance +10%, Skill Mastery Rate +14%, and chance of restoring 4% of damage as HP. -->
+		<!-- Level 3: Set item is enchanted. Increase M. Def. +55, P. Evasion +2, Speed +7, MP Recovery Bonus +8 in sit/ stand status, debuff resistance +10%, Skill Mastery Rate +14%, decrease skill Cooldown by 10%, and chance of restoring 4% of damage as HP. -->
+		<!-- Level 4: Set item is enchanted. M. Def. +55, P. Evasion +2, Speed +7, MP Recovery Bonus +8 when standing/ sitting, Debuff Resistance +10%, Skill Mastery Rate +14%, Fixed Damage Resistance +10%, Reflected Damage Resistance +10%, decrease skill cooldown by 10%, and chance of restoring 550 of damage as HP. -->
+		<!-- Level 5: Set item is enchanted. M. Def. +55, P. Evasion +2, Speed +7, MP Recovery Bonus +8 when standing/ sitting, Debuff Resistance +10%, Skill Mastery Rate +14%, Fixed Damage Resistance +10%, Reflected Damage Resistance +10%, decrease skill cooldown by 10%, and chance of restoring 550 of damage as HP. Additionally, P. Def. +551, LUC +552, CHA +553. -->
 		<icon>icon.skill0233</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1210,8 +1219,12 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13341" toLevel="5" name="Enchant Robe Set + 6 (R-grade)">
-		<!-- Set item is enchanted. P. Def. + 60, Weight Limit + 30%, and Skill Cooldown - 3%. MP Recovery Bonus + 8 when standing/ sitting. -->
+	<skill id="13341" toLevel="5" name="Enchant Robe Set +6 (R-grade)">
+		<!-- Level 1: Set item is enchanted. P. Def. +60, Weight Limit +30%, and Skill Cooldown -3%. MP Recovery Bonus +8 when standing/ sitting. -->
+		<!-- Level 2: Set item is enchanted. Max HP +4890, P. Def. +60, MP Recovery Bonus +8 when standing/ sitting, Weight Limit +30%, and Skill Cooldown -3%. -->
+		<!-- Level 3: Set item is enchanted; Max HP +4890, P.Def. +60, Sit/ Stand state MP Recovery Bonus +8, Debuff Resistance +11%, Weight Limit +30%, Dagger/ Dual Dagger/ Bow/ Crossbow Resistance +10%, and Skill Cooldown -3%. -->
+		<!-- Level 4: Set item is enchanted; Max HP +4890, P.Def. +60, Sit/ Stand state MP Recovery Bonus +8, Debuff Resistance +11%, Weight Limit +30%, Dagger/ Dual Dagger/ Bow/ Crossbow Resistance +10%, Fixed Damage Resistance +10%, Reflected Damage Resistance +10%, and Skill Cooldown -3%. -->
+		<!-- Level 5: Set item is enchanted; Max HP +4890, P.Def. +60, Sit/ Stand state MP Recovery Bonus +8, Debuff Resistance +11%, Weight Limit +30%, Dagger/ Dual Dagger/ Bow/ Crossbow Resistance +10%, Fixed Damage Resistance +10%, Reflected Damage Resistance +10%, and Skill Cooldown -3%. Additionally, P. Def. +48900, LUC +48901, CHA +48902. -->
 		<icon>icon.skill0234</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1288,6 +1301,13 @@
 					<value level="4">10</value>
 					<value level="5">10</value>
 				</CROSSBOW>
+				<TWOHANDCROSSBOW>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">10</value>
+					<value level="4">10</value>
+					<value level="5">10</value>
+				</TWOHANDCROSSBOW>
 				<DAGGER>
 					<value level="1">0</value>
 					<value level="2">0</value>
@@ -1355,7 +1375,7 @@
 		</effects>
 	</skill>
 	<skill id="13342" toLevel="1" name="T-shirt of Destiny">
-		<!-- STR +1, INT +1 -->
+		<!-- STR +1, INT +1. -->
 		<icon>BranchSys2.icon.7anni_shirt_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1399,46 +1419,46 @@
 		<!-- Removes the Agathion's seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="13346" toLevel="1" name="Seal Agathion - Tersi's Light">
 		<!-- Dismisses a summoned Agathion. -->
 		<icon>icon.etc_unsummon_aga_agit_i01</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 	</skill>
 	<skill id="13347" toLevel="1" name="Tersi's Hand">
 		<!-- Pushes back a shard of light with Tersi's Hand. -->
 		<icon>icon.skill13347</icon>
 		<operateType>A2</operateType>
-		<castRange>100</castRange>
-		<hitTime>700</hitTime>
-		<coolTime>200</coolTime>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>-1</effectPoint>
-		<abnormalType>SIGNAL_A</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>400</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1</abnormalTime>
+		<abnormalType>SIGNAL_A</abnormalType>
 		<abnormalVisualEffect>KNOCKBACK</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>100</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>700</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<conditions>
 			<condition name="OpPeacezone" />
 			<condition name="OpTargetNpc">
@@ -1451,17 +1471,17 @@
 	<skill id="13348" toLevel="1" name="Hand">
 		<icon>icon.skill13347</icon>
 		<operateType>A1</operateType>
-		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>99</magicLevel>
-		<isMagic>2</isMagic>
-		<coolTime>200</coolTime>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>600</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>100</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="OpPeacezone" />
 		</conditions>
@@ -1470,20 +1490,20 @@
 		<!-- For 30 seconds, increases Damage Reflect Resistance by 10 through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_passive</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DamageShieldResist">
 				<amount>10</amount>
@@ -1494,20 +1514,20 @@
 		<!-- For 15 seconds, increases lethal strike resistance by 30 through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_passive</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="InstantKillResist">
 				<amount>90</amount>
@@ -1518,13 +1538,13 @@
 		<!-- When used, it informs of the number of currently received gifts and number of remaining gifts. The gift delivery time will reset every day at 6:30 AM. -->
 		<icon>icon.skill5239</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>15000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>15000</reuseDelay>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1546,20 +1566,20 @@
 		<!-- Increases M. Def. by 63 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>63</amount>
@@ -1567,7 +1587,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13354" toLevel="1" name="Player Commendation - Talisman - M. Def.">
+	<skill id="13354" toLevel="1" name="PA - Talisman - M. Def.">
 		<!-- Increases M. Def. by 21 when equipped. -->
 		<icon>icon.r85_talisman_md_up_passive</icon>
 		<operateType>P</operateType>
@@ -1580,101 +1600,101 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13355" toLevel="1" name="Player Commendation - Talisman - M. Atk. (Active)">
+	<skill id="13355" toLevel="1" name="PA - Talisman - M. Atk. (Active)">
 		<!-- Increases M. Atk. by 111 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ma_up_active</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>TALISMAN</abnormalType>
-		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<hitCancelTime>500</hitCancelTime>
-		<effectPoint>532</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitCancelTime>500</hitCancelTime>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
+		<mpConsume>50</mpConsume>
 		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>111</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13356" toLevel="1" name="Player Commendation - Talisman - M. Atk.">
+	<skill id="13356" toLevel="1" name="PA - Talisman - M. Atk.">
 		<!-- Increases M. Atk. by 37 when equipped. -->
 		<icon>icon.r85_talisman_ma_up_passive</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>37</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13357" toLevel="1" name="Player Commendation - Talisman - P. Atk. (Active)">
+	<skill id="13357" toLevel="1" name="PA - Talisman - P. Atk. (Active)">
 		<!-- Increases P. Atk. by 111 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pa_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>111</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13358" toLevel="1" name="Player Commendation - Talisman - P. Atk.">
+	<skill id="13358" toLevel="1" name="PA - Talisman - P. Atk.">
 		<!-- Increases P. Atk by 37 when equipped. -->
 		<icon>icon.r85_talisman_pa_up_passive</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>37</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13359" toLevel="1" name="Player Commendation - Talisman - P. Def. (Active)">
+	<skill id="13359" toLevel="1" name="PA - Talisman - P. Def. (Active)">
 		<!-- Increases P. Def. by 114 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>114</amount>
@@ -1682,7 +1702,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13360" toLevel="1" name="Player Commendation - Talisman - P. Def.">
+	<skill id="13360" toLevel="1" name="PA - Talisman - P. Def.">
 		<!-- Increases P. Def. by 38 when equipped. -->
 		<icon>icon.r85_talisman_pd_up_passive</icon>
 		<operateType>P</operateType>
@@ -1695,24 +1715,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13361" toLevel="1" name="Player Commendation - Talisman - Max CP (Active)">
+	<skill id="13361" toLevel="1" name="PA - Talisman - Max CP (Active)">
 		<!-- Increases Max CP by 297 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_cp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxCp">
 				<amount>279</amount>
@@ -1720,7 +1740,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13362" toLevel="1" name="Player Commendation - Talisman - Max CP">
+	<skill id="13362" toLevel="1" name="PA - Talisman - Max CP">
 		<!-- Increases Max CP by 99 when equipped. -->
 		<icon>icon.r85_talisman_cp_up_passive</icon>
 		<operateType>P</operateType>
@@ -1733,24 +1753,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13363" toLevel="1" name="Player Commendation - Talisman - Max HP (Active)">
+	<skill id="13363" toLevel="1" name="PA - Talisman - Max HP (Active)">
 		<!-- Increases Max HP by 657 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_hp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxHp">
 				<amount>657</amount>
@@ -1758,7 +1778,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13364" toLevel="1" name="Player Commendation - Talisman - Max HP">
+	<skill id="13364" toLevel="1" name="PA - Talisman - Max HP">
 		<!-- Increases Max HP by 219 when equipped. -->
 		<icon>icon.r85_talisman_hp_up_passive</icon>
 		<operateType>P</operateType>
@@ -1771,24 +1791,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13365" toLevel="1" name="Player Commendation - Talisman - Max MP (Active)">
+	<skill id="13365" toLevel="1" name="PA - Talisman - Max MP (Active)">
 		<!-- Increases Max MP by 327 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_mp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxMp">
 				<amount>327</amount>
@@ -1796,7 +1816,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="13366" toLevel="1" name="Player Commendation - Talisman - Max MP">
+	<skill id="13366" toLevel="1" name="PA - Talisman - Max MP">
 		<!-- Increases Max MP by 119 when equipped. -->
 		<icon>icon.r85_talisman_mp_up_passive</icon>
 		<operateType>P</operateType>
@@ -1810,23 +1830,23 @@
 		</effects>
 	</skill>
 	<skill id="13367" toLevel="1" name="Talisman (R-grade) - Half-kill/Lethal Strike Resistance (Active)">
-		<!-- Momentarily increases Half-kill/Lethal Strike Resistance by 30 through the power of the talisman. -->
+		<!-- Momentarily increases Half-kill/ Lethal Strike Resistance by 30 through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_passive</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="InstantKillResist">
 				<amount>30</amount>
@@ -1834,7 +1854,7 @@
 		</effects>
 	</skill>
 	<skill id="13368" toLevel="1" name="Talisman (R-grade) - Half-kill/Lethal Strike Resistance">
-		<!-- Increases Half-kill/Lethal Strike Resistance by 10 when a talisman is equipped. -->
+		<!-- Increases Half-kill/ Lethal Strike Resistance by 10 when a talisman is equipped. -->
 		<icon>icon.r85_talisman_md_up_passive</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1914,7 +1934,7 @@
 		</effects>
 	</skill>
 	<skill id="13373" toLevel="1" name="Squash Necklace">
-		<!-- Increases Sleep/Paralyze/Stun/Poison/Bleed Resistance by 20%, Sleep/Paralyze/Stun/Poison/Bleed attack rate by 20%, and decreases skill cooldown and MP consumption by skills by 5%, each. -->
+		<!-- Increases Sleep/ Paralyze/ Stun/ Poison/ Bleed Resistance by 20%, Sleep/ Paralyze/ Stun/ Poison/ Bleed attack rate by 20%, and decreases skill cooldown and MP consumption by skills by 5%, each. -->
 		<icon>icon.accessory_necklace_of_gourd_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -1976,14 +1996,14 @@
 		<!-- Removes the seal on an Agathion - XP Bottle. Consumes 10 MP upon use. Can be used by main classes Lv. 85 or above. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>5000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>85</minLevel>
@@ -1995,29 +2015,29 @@
 		<!-- When XP is acquired while receiving divine power, you can obtain an Agathion's gift. -->
 		<icon>icon.exp_bottle_agathion</icon>
 		<operateType>A2</operateType>
-		<abnormalType>EXP_BOTTLE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>EXP_BOTTLE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="13377" toLevel="1" name="Scroll: XP">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>5000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>76</minLevel>
@@ -2081,14 +2101,14 @@
 		<!-- Seals the Agathion - XP Bottle. Decreases remaining magic by 5 upon skill use. -->
 		<icon>icon.etc_unsummon_aga_agit_i01</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>5000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="13381" toLevel="1" name="Hair Accessory Rabbit Ears: Campaign">
 		<!-- STR +3, DEX +1, CON +1, P. Evasion +1, and M. Evasion +1 when the hair accessory is equipped. -->
@@ -2108,144 +2128,144 @@
 		<!-- When the Agathion Bracelet is un-equipped, the summoned Agathion is sealed, and for 10 seconds, cannot receive the XP Bottle's Divine Power. -->
 		<icon>icon.exp_bottle_agathion</icon>
 		<operateType>A2</operateType>
-		<abnormalType>EXP_BOTTLE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>EXP_BOTTLE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="13384" toLevel="1" name="Equip Talisman - Infinity">
 		<!-- Talisman - Infinity burns with power. -->
 		<icon>icon.accessory_immortal_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
-		<abnormalVisualEffect>SEED_TALISMAN1</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN1</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="13385" toLevel="1" name="Equip Talisman - Destruction">
 		<!-- Talisman - Destruction burns with power. -->
 		<icon>icon.accessory_destruction_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
-		<abnormalVisualEffect>SEED_TALISMAN2</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN2</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="13386" toLevel="1" name="Equip Talisman - Annihilation">
 		<!-- Talisman - Annihilation burns with power. -->
 		<icon>icon.accessory_extermination_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
-		<abnormalVisualEffect>SEED_TALISMAN3</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN3</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="13387" toLevel="1" name="Equip Talisman - Hellfire">
 		<!-- Talisman - Hellfire burns with power. -->
 		<icon>icon.accessory_hellfire_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
-		<abnormalVisualEffect>SEED_TALISMAN4</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN4</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="13388" toLevel="1" name="Equip Talisman - Desire">
 		<!-- Talisman - Desire burns with power. -->
 		<icon>icon.accessory_ocean_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
-		<abnormalVisualEffect>SEED_TALISMAN5</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN5</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="13389" toLevel="1" name="Equip Talisman - Longing">
 		<!-- Talisman - Longing burns with power. -->
 		<icon>icon.accessory_longing_talisman_i01</icon>
 		<operateType>A2</operateType>
-		<abnormalType>SEED_TALISMAN1</abnormalType>
-		<abnormalVisualEffect>SEED_TALISMAN6</abnormalVisualEffect>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>-1</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<blockActionUseSkill>true</blockActionUseSkill>
-		<isMagic>3</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>SEED_TALISMAN1</abnormalType>
+		<abnormalVisualEffect>SEED_TALISMAN6</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<blockActionUseSkill>true</blockActionUseSkill>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>3</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="13390" toLevel="1" name="Unequip Talisman - Infinity">
 		<!-- Talisman - Infinity fades in power. -->
 		<icon>icon.accessory_immortal_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -2256,14 +2276,14 @@
 		<!-- Talisman - Destruction fades in power. -->
 		<icon>icon.accessory_destruction_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -2274,14 +2294,14 @@
 		<!-- Talisman - Annihilation fades in power. -->
 		<icon>icon.accessory_extermination_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -2292,14 +2312,14 @@
 		<!-- Talisman - Hellfire fades in power. -->
 		<icon>icon.accessory_hellfire_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -2310,14 +2330,14 @@
 		<!-- Talisman - Desire fades in power. -->
 		<icon>icon.accessory_ocean_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -2328,14 +2348,14 @@
 		<!-- Talisman - Longing fades in power. -->
 		<icon>icon.accessory_longing_talisman_i01</icon>
 		<operateType>A1</operateType>
-		<effectPoint>1</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>99</magicLevel>
-		<trait>HOLD</trait>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<trait>HOLD</trait>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>SEED_TALISMAN1,-1</dispel>
@@ -2343,7 +2363,7 @@
 		</effects>
 	</skill>
 	<skill id="13396" toLevel="1" name="Rabbit Ears: STR">
-		<!-- STR +1 -->
+		<!-- STR +1. -->
 		<icon>icon.accessory_rabbit_ear_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2356,7 +2376,7 @@
 		</effects>
 	</skill>
 	<skill id="13397" toLevel="1" name="Rabbit Ears: DEX">
-		<!-- DEX +1 -->
+		<!-- DEX +1. -->
 		<icon>icon.accessory_rabbit_ear_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2369,7 +2389,7 @@
 		</effects>
 	</skill>
 	<skill id="13398" toLevel="1" name="Rabbit Ears: WIT">
-		<!-- WIT +1 -->
+		<!-- WIT +1. -->
 		<icon>icon.accessory_rabbit_ear_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -2382,7 +2402,7 @@
 		</effects>
 	</skill>
 	<skill id="13399" toLevel="1" name="Rabbit Ears: INT">
-		<!-- INT +1 -->
+		<!-- INT +1. -->
 		<icon>icon.accessory_rabbit_ear_i00</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>

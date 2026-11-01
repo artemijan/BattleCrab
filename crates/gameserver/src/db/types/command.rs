@@ -669,8 +669,6 @@ pub enum DbCommand {
     DeletePremium {
         account_name: String,
     },
-    /// Insert a fresh Lucky Lottery round (Java `Lottery.INSERT_LOTTERY`, G26.5).
-    /// `newprize` starts equal to `prize`.
     /// Persist a whole mail message (Java `Message.getStatement` INSERT) —
     /// G30. Attachments are separate `items` rows, written by `StoreMailItems`.
     StoreMail {
@@ -704,32 +702,6 @@ pub enum DbCommand {
         owner_id: i32,
         items: Vec<ItemRow>,
     },
-    StoreLottery {
-        idnr: i32,
-        enddate: i64,
-        prize: i64,
-    },
-    /// Mark a lottery round drawn (Java `Lottery.UPDATE_LOTTERY`): winning
-    /// numbers + per-tier prizes + the pot carried to the next round.
-    FinishLottery {
-        idnr: i32,
-        prize: i64,
-        newprize: i64,
-        number1: i32,
-        number2: i32,
-        prize1: i64,
-        prize2: i64,
-        prize3: i64,
-    },
-    /// Grow the current round's pot after a ticket sale (Java
-    /// `Lottery.UPDATE_PRICE`).
-    IncreaseLotteryPrize {
-        idnr: i32,
-        prize: i64,
-    },
-    /// Query the sold tickets of a round for the draw (Java
-    /// `Lottery.SELECT_LOTTERY_ITEM`): the persisted item 4442 rows. Replies with
-    /// [`super::event::DbEvent::LotteryTicketsLoaded`].
     /// `CustomMailManager`'s poll: read every pending `custom_mail` row. The
     /// rows an operator (or a web shop) writes straight into the table are the
     /// whole interface — the game server only ever reads and deletes them.
@@ -746,9 +718,6 @@ pub enum DbCommand {
     DeleteCustomMail {
         date: String,
         receiver: i32,
-    },
-    LoadLotteryTickets {
-        round: i32,
     },
     /// Upsert a finished Monster Race result (Java `MonsterRace.saveHistory`).
     SaveMdtHistory {

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="21200" name="Mysterious Scroll: Drum Melody" type="EtcItem">
 		<!-- For 60 minutes, increases Max MP by 20%, HP Recovery Bonus by 20%, M. Critical Rate by 20, P. Critical Damage by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, debuff resistance by 10%, and P. Def. during a Critical Attack. Decreases Speed by 15%. Additionally when equipped with a melee weapon, bow or crossbow, P. Critical Damage increases during a standard attack when damage above a certain amount is received. -->
@@ -50,12 +50,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="21241" level="1" /> <!-- Magic Glasses -->
-		</skills>
 		<stats>
 			<stat type="maxMp">10</stat>
 		</stats>
+		<skills>
+			<skill id="21241" level="1" /> <!-- Magic Glasses -->
+		</skills>
 	</item>
 	<item id="21203" name="Queen Ant's Ring Pack (30-day)" type="EtcItem">
 		<!-- Wrapped Pack containing Queen Ant's Ring (30-day). -->
@@ -121,13 +121,13 @@
 		<set name="immediate_effect" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="21207" name="Baium's Ring" additionalName="30-day" type="Armor">
 		<!-- MP +21, Poison Resistance +40%, Poison Atk. Rate +40%, Accuracy increase, P. Critical Damage increase, hold tolerance +30%, hold Atk. Rate +30%, attack increase, and Casting Spd. Increase. Only one effect is applied even when two identical rings are worn. 30-day. -->
@@ -145,16 +145,16 @@
 		<set name="immediate_effect" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3561" level="1" /> <!-- Baium's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3561" level="1" /> <!-- Baium's Ring -->
+		</skills>
 	</item>
 	<item id="21208" name="Zaken's Earring" additionalName="30-day" type="Armor">
-		<!-- MP +31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Attack Resistance +20%, and Stun/Mental Atk. Rate +20%. When equipped with two identical earrings, the effect of only one earring will be applied. 30-day. Cannot be used in Olympiad. -->
+		<!-- MP +31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Attack Resistance +20%, and Stun/ Mental Atk. Rate +20%. When equipped with two identical earrings, the effect of only one earring will be applied. 30-day. Cannot be used in Olympiad. -->
 		<set name="icon" val="icon.bm_earring_of_zaken" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -169,16 +169,16 @@
 		<set name="is_oly_restricted" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
+		</skills>
 	</item>
-	<item id="21209" name="MP Recovery Potion Pack" type="EtcItem">
-		<!-- Wrapped Pack containing 3 MP Recovery (+50%) potions. -->
+	<item id="21209" name="MP Recovery Bonus Potion Pack" type="EtcItem">
+		<!-- Wrapped Pack containing 3 MP Recovery Bonus (+50%) potions. -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="material" val="FISH" />
 		<set name="is_tradable" val="false" />
@@ -190,10 +190,10 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="default_action" val="PEEL" />
 		<capsuled_items>
-			<item id="21210" min="3" max="3" chance="100" /> <!-- MP Recovery Potion -->
+			<item id="21210" min="3" max="3" chance="100" /> <!-- MP Recovery Bonus Potion -->
 		</capsuled_items>
 	</item>
-	<item id="21210" name="MP Recovery Potion" type="EtcItem">
+	<item id="21210" name="MP Recovery Bonus Potion" type="EtcItem">
 		<!-- Instantly restores MP by 50%. Cooldown is 5 min. -->
 		<set name="icon" val="BranchSys.icon.br_vitality_potion_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -209,7 +209,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<skills>
-			<skill id="22214" level="1" /> <!-- MP Recovery Potion -->
+			<skill id="22214" level="1" /> <!-- MP Recovery Bonus Potion -->
 		</skills>
 	</item>
 	<item id="21211" name="Vitality Recovering Potion 10-unit Pack" type="EtcItem">
@@ -342,13 +342,13 @@
 		<set name="immediate_effect" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="21219" name="Baium's Ring" additionalName="180-day" type="Armor">
 		<!-- MP +21, Poison Resistance +40%, Poison Atk. Rate +40%, Accuracy increase, P. Critical Damage increase, hold tolerance +30%, hold Atk. Rate +30%, attack increase, and Casting Spd. Increase. Only one effect is applied even when two identical rings are worn. 180 days. -->
@@ -366,16 +366,16 @@
 		<set name="immediate_effect" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3561" level="1" /> <!-- Baium's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3561" level="1" /> <!-- Baium's Ring -->
+		</skills>
 	</item>
 	<item id="21220" name="Zaken's Earring" additionalName="180-day" type="Armor">
-		<!-- MP +31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Attack Resistance 20% increase, and Stun/Mental Atk. Rate 20% increase. When equipped with two identical earrings, the effect of only one earring will be applied. 180 days. -->
+		<!-- MP +31, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Attack Resistance 20% increase, and Stun/ Mental Atk. Rate 20% increase. When equipped with two identical earrings, the effect of only one earring will be applied. 180 days. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -390,13 +390,13 @@
 		<set name="is_oly_restricted" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="21221" name="Valakas' Necklace" additionalName="180-day" type="Armor">
 		<!-- MP +50, Sleep Resistance +40%, Sleep Attack Rate +40%, HP +445, cooldown decrease, P. Atk. and M. Atk. Increase, Wild Magic Effect, Damage Reflect effect, and Fire Resistance increases. 180 days. -->
@@ -414,16 +414,16 @@
 		<set name="immediate_effect" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3557" level="1" /> <!-- Valakas' Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">95</stat>
 			<stat type="maxMp">50</stat>
 		</stats>
+		<skills>
+			<skill id="3557" level="1" /> <!-- Valakas' Necklace -->
+		</skills>
 	</item>
 	<item id="21222" name="Antharas' Earring" additionalName="180-day" type="Armor">
-		<!-- MP +37, Bleed Resistance +40%, Bleed Atk. Rate +40%, Heal Amount increase, Vampiric Rage Effect, Stun/Mental Attack Resistance 30%, Stun/Mental Atk. Rate +30%, MP consumption decrease, and Earth Resistance increases. Only one effect is applied even when the two identical earrings are worn. 180 days. -->
+		<!-- MP +37, Bleed Resistance +40%, Bleed Atk. Rate +40%, Heal Amount increase, Vampiric Rage Effect, Stun/ Mental Attack Resistance 30%, Stun/ Mental Atk. Rate +30%, MP consumption decrease, and Earth Resistance increases. Only one effect is applied even when the two identical earrings are worn. 180 days. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -438,13 +438,13 @@
 		<set name="immediate_effect" val="true" />
 		<!-- Guess. -->
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
+		</skills>
 	</item>
 	<item id="21223" name="Transformation Scroll: Anakim Pack" type="EtcItem">
 		<!-- Wrapped Pack containing 5 Anakim Transformation Scrolls. -->
@@ -1197,7 +1197,7 @@
 		</capsuled_items>
 	</item>
 	<item id="21263" name="Aden Homemade Cookie" type="EtcItem">
-		<!-- For 60 minutes, a powerful spirit acts to increases Max MP by 20%, HP Recovery Bonus by 20%, M. Critical Rate by 2, Critical power during a standard attack by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, Debuff Resistance by 10%, and P. Def. upon evading a Critical Attack. Decreases Speed by 15%, and for party members equipped with melee and long-range weapons who receive more than ordinary damage attacks, Critical power increases during an standard attack. Will not be deleted upon death. -->
+		<!-- For 60 minutes, a powerful spirit acts to increases Max MP by 20%, HP Recovery Bonus by 20%, M. Critical Rate by 2, Critical power during a standard attack by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, Debuff Resistance by 10%, and P. Def. upon evading a Critical Attack. Decreases Speed by 15%, and for party members equipped with melee and long-range weapons who receive more than ordinary damage attacks, Critical power increases during an ordinary attack. Will not be deleted upon death. -->
 		<set name="icon" val="BranchSys.icon.br_valentine_cookie_i00" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />

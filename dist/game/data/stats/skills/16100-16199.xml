@@ -1,17 +1,17 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="16100" toLevel="1" name="Presentation">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<castRange>600</castRange>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
-		<hitTime>10000</hitTime>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>600</castRange>
+		<effectPoint>100</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>10000</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="16101" toLevel="1" name="Tauti">
 		<!-- One of Bremnon's weapons, named by Shilen as the Lord of Hellfire. With its own ego and the ability to control living beings' emotions, Tauti is manipulating the class warfare among the races in the Seed in order to evolve itself and complete the sacrifices for Shilen. -->
@@ -29,20 +29,20 @@
 		<!-- Powerful magical attack on target and nearby enemies. -->
 		<icon>icon.skill1167</icon>
 		<operateType>A1</operateType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<castRange>900</castRange>
 		<affectLimit>40-80</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
-		<hitTime>2000</hitTime>
+		<affectScope>RANGE</affectScope>
+		<castRange>900</castRange>
 		<coolTime>500</coolTime>
 		<effectPoint>-264</effectPoint>
 		<effectRange>300</effectRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>157</power>
 			</effect>
 		</effects>
@@ -51,6 +51,14 @@
 		<!-- Deals damage and cancels target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>1000</coolTime>
+		<effectPoint>-150</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>2000</hitTime>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">65</value>
@@ -59,18 +67,10 @@
 			<value level="5">110</value>
 			<value level="6">125</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>2000</hitTime>
-		<coolTime>1000</coolTime>
-		<effectPoint>-150</effectPoint>
-		<reuseDelay>5000</reuseDelay>
-		<basicProperty>PHYSICAL</basicProperty>
-		<effectRange>400</effectRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<nextAction>ATTACK</nextAction>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">28833</value> <!-- Fix: Retail Missed -->
 					<value level="2">31628</value> <!-- Fix: Retail Missed -->
@@ -89,6 +89,10 @@
 	<skill id="16104" toLevel="7" name="Fatal Strike">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<coolTime>800</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1000</hitTime>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">65</value>
@@ -98,16 +102,17 @@
 			<value level="6">125</value>
 			<value level="7">140</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>1000</hitTime>
-		<coolTime>800</coolTime>
-		<effectPoint>-100</effectPoint>
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16105" toLevel="6" name="Fatal Bomber">
 		<!-- Deals a powerful blow and knocks down the enemy. -->
 		<icon>icon.skill10262</icon>
 		<operateType>A2</operateType>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1050</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">65</value>
@@ -116,17 +121,21 @@
 			<value level="5">110</value>
 			<value level="6">125</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>3000</reuseDelay>
-		<effectPoint>-1050</effectPoint>
-		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16106" toLevel="5" name="Chain Smash">
 		<!-- Pulls target toward you. -->
 		<icon>icon.skill10015</icon>
 		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<activateRate>80</activateRate>
+		<affectRange>900</affectRange>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>1000</coolTime>
+		<effectPoint>-150</effectPoint>
+		<hitTime>2000</hitTime>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">65</value>
@@ -134,16 +143,7 @@
 			<value level="4">95</value>
 			<value level="5">110</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
-		<coolTime>1000</coolTime>
 		<reuseDelay>3000</reuseDelay>
-		<effectPoint>-150</effectPoint>
-		<activateRate>80</activateRate>
-		<affectRange>900</affectRange>
-		<basicProperty>PHYSICAL</basicProperty>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<trait>PULL</trait>
 		<effects>
 			<effect name="AirBind" />
@@ -162,19 +162,19 @@
 		<!-- Powerful blow on a vital spot. Possible to achieve Critical. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>32</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>830</hitTime>
-		<coolTime>700</coolTime>
-		<effectPoint>-100</effectPoint>
-		<reuseDelay>5000</reuseDelay>
-		<basicProperty>PHYSICAL</basicProperty>
-		<effectRange>400</effectRange>
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>700</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>830</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>32</mpConsume>
 		<nextAction>ATTACK</nextAction>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
 			<effect name="FatalBlow">
 				<power>
@@ -192,7 +192,8 @@
 	<skill id="16108" toLevel="7" name="Bloody Blades">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>79</mpConsume>
+		<coolTime>800</coolTime>
+		<effectPoint>-700</effectPoint>
 		<hitTime>
 			<value level="1">1500</value>
 			<value level="2">1500</value>
@@ -202,9 +203,6 @@
 			<value level="6">1500</value>
 			<value level="7">3000</value>
 		</hitTime>
-		<coolTime>800</coolTime>
-		<reuseDelay>3000</reuseDelay>
-		<effectPoint>-700</effectPoint>
 		<isMagic>
 			<value level="1">1</value>
 			<value level="2">1</value>
@@ -214,25 +212,27 @@
 			<value level="6">1</value>
 			<value level="7">0</value>
 		</isMagic>
+		<mpConsume>79</mpConsume>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16109" toLevel="1" name="Heavy Armor Rise">
 		<!-- Critical Damage increased. -->
 		<icon>icon.m_class_heavy</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HELLBOUND_BUFF</abnormalType>
-		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
+		<effectPoint>650</effectPoint>
 		<effectRange>1400</effectRange>
 		<hitTime>1500</hitTime>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>650</effectPoint>
 		<isMagic>1</isMagic>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>10</amount>
@@ -243,23 +243,23 @@
 	<skill id="16110" toLevel="1" name="Light Armor Rise">
 		<!-- P. Atk. increased. -->
 		<icon>icon.m_class_light</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HELLBOUND_BUFF</abnormalType>
-		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
+		<effectPoint>650</effectPoint>
 		<effectRange>1400</effectRange>
 		<hitTime>1500</hitTime>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>650</effectPoint>
 		<isMagic>1</isMagic>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -268,23 +268,23 @@
 	<skill id="16111" toLevel="1" name="Robe Rise">
 		<!-- M. Atk. increased. -->
 		<icon>icon.m_class_robe</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HELLBOUND_BUFF</abnormalType>
-		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
+		<effectPoint>650</effectPoint>
 		<effectRange>1400</effectRange>
 		<hitTime>1500</hitTime>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>650</effectPoint>
 		<isMagic>1</isMagic>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
@@ -293,21 +293,21 @@
 	<skill id="16112" toLevel="1" name="Speed Rise">
 		<!-- Atk. Spd. and Casting Spd. increased. -->
 		<icon>icon.m_mystery_brain</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>HELLBOUND_BUFF</abnormalType>
-		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
+		<effectPoint>650</effectPoint>
 		<effectRange>1400</effectRange>
 		<hitTime>1500</hitTime>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>650</effectPoint>
 		<isMagic>1</isMagic>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>10</amount>
@@ -322,25 +322,25 @@
 	<skill id="16113" toLevel="1" name="Tragic Bleed">
 		<!-- Inflicts Bleed. 12 Power. -->
 		<icon>icon.m_mystery_blood</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>70</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
-		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>600</castRange>
+		<coolTime>800</coolTime>
+		<effectPoint>-100</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>1500</hitTime>
-		<coolTime>800</coolTime>
-		<reuseDelay>1000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-100</effectPoint>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DamOverTime">
 				<power>12</power>
@@ -352,79 +352,99 @@
 		<!-- Cuts target and party members' HP by 95%. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>59</mpConsume>
 		<castRange>1300</castRange>
-		<hitTime>300</hitTime>
 		<effectPoint>-10000</effectPoint>
+		<hitTime>300</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>59</mpConsume>
 	</skill>
 	<skill id="16115" toLevel="2" name="Chain Smash">
 		<!-- Pulls target toward you. -->
 		<icon>icon.skill10015</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
 		<coolTime>1000</coolTime>
-		<reuseDelay>1000</reuseDelay>
 		<effectPoint>-150</effectPoint>
+		<hitTime>500</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="16116" toLevel="2" name="Self-Devastation">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>500</hitTime>
 		<isMagic>1</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16117" toLevel="1" name="Amplify Damage - Stage 1">
 		<!-- Damage +20% toward normal monsters. -->
 		<icon>icon.skill6367_1</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>1000</hitTime>
-		<reuseDelay>1000</reuseDelay>
 		<effectPoint>650</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="16118" toLevel="1" name="Amplify Damage - Stage 2">
 		<!-- Damage +30% toward normal monsters. -->
 		<icon>icon.skill6367_2</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>1000</hitTime>
-		<reuseDelay>1000</reuseDelay>
 		<effectPoint>650</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="16119" toLevel="1" name="Flare Chain">
 		<!-- Deals fire damage to target and nearby enemies. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>90</mpConsume>
 		<castRange>450</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>-700</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>90</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16120" toLevel="1" name="Magma Chain">
 		<!-- Pulls target toward you. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
 		<coolTime>1000</coolTime>
 		<effectPoint>-150</effectPoint>
+		<hitTime>500</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>50</mpConsume>
 	</skill>
 	<skill id="16121" toLevel="5" name="Sleeping Cloud">
 		<!-- Inflicts Sleep on nearby enemies for 30 seconds. -->
 		<icon>icon.skill1072</icon>
 		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>30</abnormalTime>
+		<abnormalType>SLEEP</abnormalType>
+		<abnormalVisualEffect>SLEEP</abnormalVisualEffect>
+		<activateRate>40</activateRate>
+		<affectLimit>9-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<effectPoint>-700</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">107</value>
 			<value level="2">122</value>
@@ -432,37 +452,9 @@
 			<value level="4">154</value>
 			<value level="5">160</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>3000</hitTime>
-		<reuseDelay>3000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-700</effectPoint>
-		<abnormalTime>30</abnormalTime>
-		<isDebuff>true</isDebuff>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>30</abnormalTime>
-		<abnormalType>SLEEP</abnormalType>
-		<abnormalVisualEffect>SLEEP</abnormalVisualEffect>
-		<activateRate>40</activateRate>
-		<affectLimit>9-10</affectLimit>
-		<affectRange>200</affectRange>
-		<basicProperty>MAGIC</basicProperty>
 		<removedOnDamage>true</removedOnDamage>
-		<effectPoint>
-			<value level="1">-418</value>
-			<value level="2">-532</value>
-			<value level="3">-582</value>
-			<value level="4">-611</value>
-			<value level="5">-635</value>
-		</effectPoint>
-		<effectRange>1000</effectRange>
-		<lvlBonusRate>30</lvlBonusRate>
-		<magicLevel>1</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>3000</reuseDelay>
 		<trait>SLEEP</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -476,83 +468,87 @@
 		<!-- Powerful flame attack, draining HP for 5 sec. -->
 		<icon>icon.skill4452</icon>
 		<operateType>A2</operateType>
-		<mpConsume>40</mpConsume>
 		<castRange>450</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>-700</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>40</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16123" toLevel="1" name="Flare Outburst">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>90</mpConsume>
 		<castRange>450</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>-700</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>90</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16124" toLevel="1" name="Flare Life">
 		<!-- Restores Deathmoz' HP. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>90</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>1300</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>90</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16125" toLevel="1" name="Volcano Sword Dance">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>20</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>1000</hitTime>
+		<mpConsume>20</mpConsume>
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16126" toLevel="1" name="Volcano Buster">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>25</mpConsume>
 		<castRange>100</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>1000</hitTime>
+		<mpConsume>25</mpConsume>
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16127" toLevel="1" name="Blind Flame">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>40</mpConsume>
-		<hitTime>2000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>-700</effectPoint>
+		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>40</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16128" toLevel="1" name="Flame Bog">
 		<!-- Powerful flame attack on target and nearby enemies, draining HP for 5 sec. -->
 		<icon>icon.skill4279_new</icon>
 		<operateType>A2</operateType>
-		<mpConsume>81</mpConsume>
 		<castRange>450</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>-700</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>81</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16129" toLevel="5" name="Desert Thirst">
-		<!-- Kefensis has an effect on your terrible thirst, heightening your senses. P. Atk. + 5%, M. Atk. + 10%. Atk. Spd./ Casting Spd. - 3%. -->
+		<!-- Level 1: Kefensis has an effect on your terrible thirst, heightening your senses. P. Atk. +5%, M. Atk. +10%. Atk. Spd./ Casting Spd. -3%. -->
+		<!-- Level 2: Kefensis has an effect on your terrible thirst, heightening your senses. P. Atk. +10%, M. Atk. +21%. Atk. Spd./ Casting Spd. -5%. -->
+		<!-- Level 3: Kefensis has an effect on your terrible thirst, heightening your senses. P. Atk. +15%, M. Atk. +32%. Atk. Spd./ Casting Spd. -5%. -->
+		<!-- Level 4: Kefensis has an effect on your terrible thirst, heightening your senses. P. Atk. +5%, M. Atk. +10%. Atk. Spd./ Casting Spd. -10%. -->
+		<!-- Level 5: Kefensis has an effect on your terrible thirst, heightening your senses. Atk. Spd./ Casting Spd. -15%. -->
 		<icon>
 			<value level="1">icon.desert_thirst_Lv1</value>
 			<value level="2">icon.desert_thirst_Lv2</value>
@@ -561,28 +557,28 @@
 			<value level="5">icon.desert_thirst_Lv5</value>
 		</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>1300</castRange>
-		<hitTime>1500</hitTime>
-		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>-500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16130" toLevel="1" name="Oasis Energy">
-		<!-- The Oasis has quenched your thirst, suddenly wearing you out. Atk./ Casting Spd. - 25%, and Speed - 50. -->
+		<!-- The Oasis has quenched your thirst, suddenly wearing you out. Atk./ Casting Spd. -25%, and Speed -50. -->
 		<icon>icon.oasis_feel</icon>
-		<abnormalTime>15</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalTime>15</abnormalTime>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>10</mpConsume>
 		<castRange>1300</castRange>
-		<hitTime>1000</hitTime>
-		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>650</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 		<effects>
 			<effect name="Speed">
 				<amount>-50</amount>
@@ -599,150 +595,150 @@
 		</effects>
 	</skill>
 	<skill id="16131" toLevel="1" name="Thirst Quench">
-		<!-- Your thirst has been quenched. P./M. Atk., and Atk./Casting Spd. +50%. -->
+		<!-- Your thirst has been quenched. P./ M. Atk., and Atk./ Casting Spd. +50%. -->
 		<icon>icon.release_thirst</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>1300</castRange>
-		<hitTime>1000</hitTime>
-		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>650</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16132" toLevel="1" name="Oasis Mirage">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>89</mpConsume>
-		<hitTime>5000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>15000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>89</mpConsume>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="16133" toLevel="1" name="Watery Grave">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>89</mpConsume>
-		<hitTime>5000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>15000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>89</mpConsume>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="16134" toLevel="1" name="Doom Shrieker">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>45</mpConsume>
-		<hitTime>3000</hitTime>
 		<coolTime>800</coolTime>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>3000</hitTime>
+		<mpConsume>45</mpConsume>
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16135" toLevel="1" name="Begin Research">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>4</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_0</abnormalVisualEffect>
-		<effectRange>900</effectRange>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<hitTime>1000</hitTime>
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<effectRange>900</effectRange>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16136" toLevel="1" name="Reward x 2">
 		<!-- Hero's powers give you x 2 the rewards. Disappears upon death or expiration. -->
 		<icon>icon.etc_deco_star_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_1</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<reuseDelay>2000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16137" toLevel="1" name="Reward x 4">
 		<!-- Hero's powers give you x 4 the rewards. Disappears upon death or expiration. -->
 		<icon>icon.etc_deco_star_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_2</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<reuseDelay>2000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16138" toLevel="1" name="Reward x 8">
 		<!-- Hero's powers give you x 8 the rewards. Disappears upon death or expiration. -->
 		<icon>icon.etc_deco_star_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_3</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<reuseDelay>2000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16139" toLevel="1" name="Reward x 16">
 		<!-- Hero's powers give you x 16 the rewards. Disappears upon death or expiration. -->
 		<icon>icon.etc_deco_star_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_4</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<reuseDelay>2000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16140" toLevel="1" name="Reward x 32">
 		<!-- Hero's powers give you x 32 the rewards. Disappears upon death or expiration. -->
 		<icon>icon.etc_deco_star_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_5</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<hitTime>1000</hitTime>
-		<reuseDelay>2000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>4</isMagic>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16141" toLevel="1" name="Research Success">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
-		<abnormalTime>4</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>4</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_0</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<endEffects>
 			<effect name="CallSkill">
 				<skillId>16136</skillId> <!-- Reward x 2 -->
@@ -753,16 +749,16 @@
 	<skill id="16142" toLevel="1" name="Research Success">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
-		<abnormalTime>4</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
+		<abnormalTime>4</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_1</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<endEffects>
 			<effect name="CallSkill">
 				<skillId>16137</skillId> <!-- Reward x 4 -->
@@ -773,16 +769,16 @@
 	<skill id="16143" toLevel="1" name="Research Success">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
-		<abnormalTime>4</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>3</abnormalLevel>
+		<abnormalTime>4</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_2</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<endEffects>
 			<effect name="CallSkill">
 				<skillId>16138</skillId> <!-- Reward x 8 -->
@@ -793,16 +789,16 @@
 	<skill id="16144" toLevel="1" name="Research Success">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
-		<abnormalTime>4</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
+		<abnormalTime>4</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_3</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<endEffects>
 			<effect name="CallSkill">
 				<skillId>16139</skillId> <!-- Reward x 16 -->
@@ -813,16 +809,16 @@
 	<skill id="16145" toLevel="1" name="Research Success">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
-		<abnormalTime>4</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
+		<abnormalTime>4</abnormalTime>
 		<abnormalType>STAR_AGATHION_EXP_SP_BUFF1</abnormalType>
 		<abnormalVisualEffect>STARS_4</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<endEffects>
 			<effect name="CallSkill">
 				<skillId>16140</skillId> <!-- Reward x 32 -->
@@ -833,27 +829,20 @@
 	<skill id="16146" toLevel="1" name="Research Fail">
 		<!-- Researching the Heroes' Power. -->
 		<icon>icon.etc_deco_star_i00</icon>
-		<abnormalTime>1</abnormalTime>
 		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalTime>1</abnormalTime>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="16147" toLevel="7" name="Fatal Wave">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>
-			<value level="1">86</value>
-			<value level="2">87</value>
-			<value level="3">88</value>
-			<value level="4">89</value>
-			<value level="5">90</value>
-			<value level="6">91</value>
-			<value level="7">92</value>
-		</mpConsume>
 		<castRange>40</castRange>
+		<coolTime>570</coolTime>
+		<effectPoint>-1578</effectPoint>
 		<hitTime>
 			<value level="1">1200</value>
 			<value level="2">1200</value>
@@ -863,14 +852,26 @@
 			<value level="6">1200</value>
 			<value level="7">1200</value>
 		</hitTime>
-		<coolTime>570</coolTime>
-		<effectPoint>-1578</effectPoint>
+		<mpConsume>
+			<value level="1">86</value>
+			<value level="2">87</value>
+			<value level="3">88</value>
+			<value level="4">89</value>
+			<value level="5">90</value>
+			<value level="6">91</value>
+			<value level="7">92</value>
+		</mpConsume>
 		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16148" toLevel="5" name="Fear">
 		<!-- Inflicted with Fear and moving against own will momentarily. -->
 		<icon>icon.skill1092</icon>
 		<operateType>A2</operateType>
+		<castRange>600</castRange>
+		<effectPoint>-150</effectPoint>
+		<hitTime>4000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<mpConsume>
 			<value level="1">81</value>
 			<value level="2">84</value>
@@ -878,17 +879,21 @@
 			<value level="4">90</value>
 			<value level="5">94</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>4000</hitTime>
 		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-150</effectPoint>
-		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16149" toLevel="5" name="Poison">
-		<!-- Poisons a target, momentarily decreasing HP. Effect 11. -->
+		<!-- Level 1: Poisons a target, momentarily decreasing HP. Effect 11. -->
+		<!-- Level 2: Poisons a target, momentarily decreasing HP. Effect 12. -->
+		<!-- Level 3: Poisons a target, momentarily decreasing HP. Effect 13. -->
+		<!-- Level 4: Poisons a target, momentarily decreasing HP. Effect 14. -->
+		<!-- Level 5: Poisons a target, momentarily decreasing HP. Effect 15. -->
 		<icon>icon.skill4035</icon>
 		<operateType>A2</operateType>
+		<castRange>600</castRange>
+		<effectPoint>-150</effectPoint>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<mpConsume>
 			<value level="1">80</value>
 			<value level="2">88</value>
@@ -896,17 +901,21 @@
 			<value level="4">108</value>
 			<value level="5">120</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
 		<reuseDelay>5000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-150</effectPoint>
-		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16150" toLevel="5" name="Decrease Speed">
-		<!-- Speed decreases momentarily. Effect 9. -->
+		<!-- Level 1: Speed decreases momentarily. Effect 9. -->
+		<!-- Level 2: Speed decreases momentarily. Effect 10. -->
+		<!-- Level 3: Speed decreases momentarily. Effect 11. -->
+		<!-- Level 4: Speed decreases momentarily. Effect 11. -->
+		<!-- Level 5: Speed decreases momentarily. Effect 11. -->
 		<icon>icon.skill1160</icon>
 		<operateType>A2</operateType>
+		<castRange>600</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<mpConsume>
 			<value level="1">137</value>
 			<value level="2">154</value>
@@ -914,28 +923,13 @@
 			<value level="4">160</value>
 			<value level="5">160</value>
 		</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
 		<reuseDelay>3000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16151" toLevel="7" name="Aura Spike">
 		<!-- Deals non-attribute magic damage to target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>
-			<value level="1">30</value>
-			<value level="2">36</value>
-			<value level="3">42</value>
-			<value level="4">48</value>
-			<value level="5">54</value>
-			<value level="6">54</value>
-			<value level="7">60</value>
-		</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1200</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>
 			<value level="1">-100</value>
@@ -946,23 +940,23 @@
 			<value level="6">-120</value>
 			<value level="7">-125</value>
 		</effectPoint>
+		<hitTime>1200</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>
+			<value level="1">30</value>
+			<value level="2">36</value>
+			<value level="3">42</value>
+			<value level="4">48</value>
+			<value level="5">54</value>
+			<value level="6">54</value>
+			<value level="7">60</value>
+		</mpConsume>
 	</skill>
 	<skill id="16152" toLevel="7" name="Fire Spike">
 		<!-- Deals fire damage to target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>
-			<value level="1">30</value>
-			<value level="2">36</value>
-			<value level="3">42</value>
-			<value level="4">48</value>
-			<value level="5">54</value>
-			<value level="6">54</value>
-			<value level="7">60</value>
-		</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1200</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>
 			<value level="1">-100</value>
@@ -973,33 +967,43 @@
 			<value level="6">-120</value>
 			<value level="7">-125</value>
 		</effectPoint>
+		<hitTime>1200</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>
+			<value level="1">30</value>
+			<value level="2">36</value>
+			<value level="3">42</value>
+			<value level="4">48</value>
+			<value level="5">54</value>
+			<value level="6">54</value>
+			<value level="7">60</value>
+		</mpConsume>
 	</skill>
-	<skill id="16153" toLevel="6" name="Power Slam">
+	<skill id="16153" toLevel="7" name="Power Slam">
 		<!-- Deals a powerful blow and knocks back the enemy. -->
 		<icon>icon.skill10262</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
 		<activateRate>120</activateRate>
-		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-700</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>1000</reuseDelay>
-		<effectPoint>-700</effectPoint>
 		<isDebuff>true</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>101</magicLevel>
-		<basicProperty>NONE</basicProperty>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<trait>KNOCKDOWN</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>40289</power>
 				<overHit>true</overHit>
 			</effect>
@@ -1022,27 +1026,29 @@
 		<!-- Pulls target and nearby enemies toward you. -->
 		<icon>icon.skill10015</icon>
 		<operateType>A2</operateType>
-		<mpConsume>84</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
 		<coolTime>1000</coolTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>-2140</effectPoint>
+		<hitTime>500</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>84</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16155" toLevel="1" name="Charmed Kefensis">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>89</mpConsume>
-		<hitTime>5000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>89</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16156" toLevel="8" name="Mass Droop">
 		<!-- Decreases Atk. Spd. and Speed. -->
 		<icon>icon.skill1206</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1057,24 +1063,22 @@
 		<abnormalType>ATTACK_TIME_UP</abnormalType>
 		<activateRate>80</activateRate>
 		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<basicProperty>MAGIC</basicProperty>
-		<operateType>A2</operateType>
-		<mpConsume>94</mpConsume>
 		<castRange>40</castRange>
+		<coolTime>570</coolTime>
+		<effectPoint>-1578</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>1200</hitTime>
-		<coolTime>570</coolTime>
-		<reuseDelay>6000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-1578</effectPoint>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<lvlBonusRate>30</lvlBonusRate>
-		<magicLevel>100</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<magicLevel>100</magicLevel>
+		<mpConsume>94</mpConsume>
+		<reuseDelay>6000</reuseDelay>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>
@@ -1105,9 +1109,19 @@
 		</effects>
 	</skill>
 	<skill id="16157" toLevel="5" name="Bleed">
-		<!-- Causes target to bleed, momentarily reducing HP. Effect 1. -->
+		<!-- Level 1: Causes target to bleed, momentarily reducing HP. Effect 1. -->
+		<!-- Level 2: Causes target to bleed, momentarily reducing HP. Effect 2. -->
+		<!-- Level 3: Causes target to bleed, momentarily reducing HP. Effect 3. -->
+		<!-- Level 4: Causes target to bleed, momentarily reducing HP. Effect 4. -->
+		<!-- Level 5: Causes target to bleed, momentarily reducing HP. Effect 5. -->
 		<icon>icon.skill0096</icon>
 		<operateType>A2</operateType>
+		<castRange>40</castRange>
+		<coolTime>800</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<mpConsume>
 			<value level="1">65</value>
 			<value level="2">70</value>
@@ -1115,30 +1129,24 @@
 			<value level="4">80</value>
 			<value level="5">85</value>
 		</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>1000</hitTime>
-		<coolTime>800</coolTime>
 		<reuseDelay>3000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16158" toLevel="1" name="Beleth's Volcano">
 		<!-- Deals fire damage to target. -->
 		<icon>icon.skill0000</icon>
-		<attributeType>DARK</attributeType>
-		<attributeValue>450</attributeValue>
 		<operateType>A1</operateType>
-		<castRange>900</castRange>
-		<hitTime>1200</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-828</effectPoint>
-		<mpConsume>10</mpConsume>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>450</attributeValue>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-709</effectPoint>
+		<hitTime>1200</hitTime>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
 		<effects>
-			<effect name="MagicalAttackRange">
+			<effect name="MagicalDamageRange">
 				<power>1500</power>
 			</effect>
 		</effects>
@@ -1147,22 +1155,22 @@
 		<!-- Deals powerful fire damage to nearby enemies. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>51</mpConsume>
-		<hitTime>2000</hitTime>
-		<coolTime>800</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>-1500</effectPoint>
-		<isMagic>1</isMagic>
+		<targetType>SELF</targetType>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<attributeType>DARK</attributeType>
 		<attributeValue>450</attributeValue>
+		<coolTime>800</coolTime>
+		<effectPoint>-1500</effectPoint>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<mpConsume>51</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power>
 			</effect>
 		</effects>
@@ -1170,26 +1178,26 @@
 	<skill id="16160" toLevel="1" name="Beleth's Flame">
 		<!-- Powerful flames burn off HP. -->
 		<icon>icon.skill1101</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>70</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>450</attributeValue>
 		<basicProperty>MAGIC</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>1100</effectRange>
-		<attributeType>DARK</attributeType>
-		<attributeValue>450</attributeValue>
 		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic>
 		<lvlBonusRate>20</lvlBonusRate>
-		<magicLevel>99</magicLevel>
-		<operateType>A2</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="DamOverTime">
 				<power>10000</power>
@@ -1201,44 +1209,44 @@
 		<!-- Bleed instantly cuts HP. -->
 		<icon>icon.skill0096</icon>
 		<operateType>A2</operateType>
-		<mpConsume>91</mpConsume>
-		<hitTime>2000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>6000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>91</mpConsume>
+		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="16162" toLevel="1" name="Beleth's Meteor">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>80</activateRate>
-		<basicProperty>MAGIC</basicProperty>
-		<isDebuff>true</isDebuff>
-		<lvlBonusRate>30</lvlBonusRate>
-		<trait>BLEED</trait>
 		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
-		<castRange>600</castRange>
-		<effectPoint>-679</effectPoint>
-		<effectRange>1100</effectRange>
+		<affectScope>RANGE</affectScope>
 		<attributeType>DARK</attributeType>
 		<attributeValue>450</attributeValue>
+		<basicProperty>MAGIC</basicProperty>
+		<castRange>600</castRange>
+		<effectPoint>-1500</effectPoint>
+		<effectRange>1100</effectRange>
 		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>81</magicLevel>
 		<mpInitialConsume>72</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>300000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<trait>BLEED</trait>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1570</power>
 			</effect>
 			<effect name="DamOverTime">
@@ -1250,42 +1258,44 @@
 	<skill id="16163" toLevel="1" name="Darion's Sword Storm">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>96</mpConsume>
-		<hitTime>2000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>6000</reuseDelay>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>96</mpConsume>
+		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="16164" toLevel="1" name="Flame Blade">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>101</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>1200</hitTime>
 		<coolTime>570</coolTime>
-		<reuseDelay>6000</reuseDelay>
 		<effectPoint>-1578</effectPoint>
+		<hitTime>1200</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>101</mpConsume>
+		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="16165" toLevel="1" name="Dark Blade">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>96</mpConsume>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>6000</reuseDelay>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>96</mpConsume>
+		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="16166" toLevel="3" name="Escape Death">
-		<!-- For some time, P. Evasion + 10, M. Evasion + 10, Evasion Rate against P. Skills + 10%. -->
+		<!-- Level 1: For some time, P. Evasion +10, M. Evasion +10, Evasion Rate against P. Skills +10%. -->
+		<!-- Level 2: For 3 minutes, P. Evasion +20, M. Evasion +20, Evasion Rate against P. Skills +20%. -->
+		<!-- Level 3: For 3 minutes, P. Evasion +40, M. Evasion +40, Evasion Rate against P. Skills +40%. -->
 		<icon>icon.skill0078</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
-		<hitTime>1500</hitTime>
-		<effectPoint>204</effectPoint>
 		<abnormalTime>180</abnormalTime>
+		<effectPoint>204</effectPoint>
+		<hitTime>1500</hitTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>
 			<value level="1">5000</value>
 			<value level="2">120000</value>
@@ -1293,7 +1303,8 @@
 		</reuseDelay>
 	</skill>
 	<skill id="16167" toLevel="2" name="Increase Evasion 1">
-		<!-- P./M. Evasion strengthened. -->
+		<!-- Level 1: P./ M. Evasion strengthened. -->
+		<!-- Level 2: P./ M. Evasion very much strengthened. -->
 		<icon>icon.skill0078</icon>
 		<operateType>P</operateType>
 	</skill>
@@ -1301,51 +1312,51 @@
 		<!-- Cute target's HP in half. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>830</hitTime>
 		<coolTime>700</coolTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>830</hitTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16169" toLevel="1" name="Pull">
 		<!-- Pulls target toward you. -->
 		<icon>icon.skill10015</icon>
 		<operateType>A2</operateType>
-		<mpConsume>95</mpConsume>
 		<castRange>1100</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>1000</coolTime>
-		<reuseDelay>7000</reuseDelay>
 		<effectPoint>-150</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>95</mpConsume>
+		<reuseDelay>7000</reuseDelay>
 	</skill>
 	<skill id="16170" toLevel="1" name="Hellbound Tornado">
 		<!-- Fly away with the shock. -->
 		<icon>icon.skill4107</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>7000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-1</effectPoint>
+		<hitTime>7000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16171" toLevel="1" name="Summon Poison Zone">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>300</hitTime>
-		<reuseDelay>5000</reuseDelay>
 		<effectPoint>-707</effectPoint>
+		<hitTime>300</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="16172" toLevel="1" name="Poisoned">
 		<!-- HP drops by 75 per second due to a poisonous fog. -->
 		<icon>icon.skill1167</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
 		<effectPoint>-707</effectPoint>
 		<isDebuff>true</isDebuff>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16173" toLevel="1" name="Invincibility">
 		<!-- Invincible. -->
@@ -1353,23 +1364,23 @@
 		<operateType>A2</operateType>
 	</skill>
 	<skill id="16174" toLevel="1" name="Herb of Growth">
-		<!-- Hellbound's mysterious powers give you 10 min of SP/XP gain +50% through hunting. Entire party. -->
+		<!-- Hellbound's mysterious powers give you 10 min of SP/ XP gain +50% through hunting. Entire party. -->
 		<icon>BranchSys2.icon.g_giant_gem</icon>
-		<abnormalTime>120</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalInstant>true</abnormalInstant>
 		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>120</abnormalTime>
 		<abnormalType>EXP_HERB</abnormalType>
 		<abnormalVisualEffect>HERB_PA_UP</abnormalVisualEffect>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>100</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>40</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<magicLevel>40</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>50</amount>
@@ -1380,23 +1391,23 @@
 		</effects>
 	</skill>
 	<skill id="16175" toLevel="1" name="Major Herb of Growth">
-		<!-- Hellbound's mysterious powers give you 10 min of SP/XP gain +100% through hunting. Entire party. -->
+		<!-- Hellbound's mysterious powers give you 10 min of SP/ XP gain +100% through hunting. Entire party. -->
 		<icon>BranchSys2.icon.g_dawn_gem</icon>
-		<abnormalTime>600</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalInstant>true</abnormalInstant>
 		<abnormalLevel>2</abnormalLevel>
+		<abnormalTime>600</abnormalTime>
 		<abnormalType>EXP_HERB</abnormalType>
 		<abnormalVisualEffect>HERB_PA_UP</abnormalVisualEffect>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>100</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>40</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<magicLevel>40</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>100</amount>
@@ -1407,23 +1418,23 @@
 		</effects>
 	</skill>
 	<skill id="16176" toLevel="1" name="Superior Herb of Growth">
-		<!-- Hellbound's mysterious powers give you 2 min of SP/XP gain +300% through hunting. Entire party. -->
+		<!-- Hellbound's mysterious powers give you 2 min of SP/ XP gain +300% through hunting. Entire party. -->
 		<icon>icon.etc_str_symbol_i01</icon>
-		<abnormalTime>120</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalInstant>true</abnormalInstant>
 		<abnormalLevel>3</abnormalLevel>
+		<abnormalTime>120</abnormalTime>
 		<abnormalType>EXP_HERB</abnormalType>
 		<abnormalVisualEffect>HERB_PA_UP</abnormalVisualEffect>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>100</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>40</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<magicLevel>40</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="ExpModify">
 				<amount>300</amount>
@@ -1434,7 +1445,11 @@
 		</effects>
 	</skill>
 	<skill id="16177" toLevel="5" name="Knock Down Resistance">
-		<!-- Slightly resistant to Knock Down attack. -->
+		<!-- Level 1: Slightly resistant to Knock Down attack. -->
+		<!-- Level 2: Slightly resistant to Knock Down attack. -->
+		<!-- Level 3: Slightly resistant to Knock Down attack. -->
+		<!-- Level 4: Resistant to Knock Down attack. -->
+		<!-- Level 5: Resistant to Knock Down attack. -->
 		<icon>icon.skill0000</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1448,12 +1463,12 @@
 		<!-- Inflicts Stun by attacking the vicinity of the enemy. -->
 		<icon>icon.skll10321</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1500</hitTime>
-		<reuseDelay>3000</reuseDelay>
 		<effectPoint>500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16179" toLevel="1" name="Beleth">
 		<!-- The greatest wizard in history, and also the most demonic. Through contact with the forbidden, he gained possession of a mysterious power unknown even to the gods. His most recent tracks have been through Hellbound, which underwent an astonishing transformation after he began experimenting with Chaos, a Human attribute. No one knows what he is thinking, or what he is after. -->
@@ -1480,102 +1495,102 @@
 		<!-- Cast Petrify on an enemy that has used a skill. -->
 		<icon>icon.skill1062</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>5000</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16184" toLevel="1" name="Vengeful Petrify">
 		<!-- Petrified for 5 sec. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16185" toLevel="1" name="Sword Storm">
 		<!-- A powerful AoE attack with sword aura. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
 		<effectPoint>-1500</effectPoint>
 		<hitTime>1500</hitTime>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16186" toLevel="1" name="Belly Cut">
 		<!-- A powerful physical attack near the target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
 		<effectPoint>-1500</effectPoint>
 		<hitTime>1500</hitTime>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16187" toLevel="1" name="Head-on Crash">
 		<!-- Physical damage on a single target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
 		<effectPoint>-500</effectPoint>
 		<hitTime>1500</hitTime>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16188" toLevel="1" name="Darkness">
 		<!-- Magical AoE attack to target and surrounding area. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16189" toLevel="1" name="Disciple's Blow">
 		<!-- Magical damage on a single target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
 		<effectPoint>-500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16190" toLevel="1" name="Recharge Fury">
 		<!-- For 5 sec., P. Atk. +100%. -->
 		<icon>icon.skill0110</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
 		<effectPoint>100</effectPoint>
 		<hitTime>1500</hitTime>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16191" toLevel="1" name="Pandemonium">
 		<!-- Physical attck on target and surrounding area. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
 		<effectPoint>-1500</effectPoint>
 		<hitTime>1500</hitTime>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16192" toLevel="1" name="Tyranny">
 		<!-- Powerful magical AoE attack. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
-		<effectPoint>-1500</effectPoint>
-		<isMagic>1</isMagic>
 		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>RANGE</affectScope>
+		<castRange>300</castRange>
+		<effectPoint>-1500</effectPoint>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power>
 			</effect>
 		</effects>
@@ -1584,61 +1599,61 @@
 		<!-- Casts Fear on target and nearby enemies for 2 sec. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16194" toLevel="1" name="Quiet Path to Death">
 		<!-- A lethal magical AoE attack. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>1000</castRange>
-		<hitTime>10000</hitTime>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>10000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16195" toLevel="1" name="Guided Death">
 		<!-- A powerful magical AoE attack. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>1000</castRange>
-		<hitTime>5000</hitTime>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 	<skill id="16196" toLevel="1" name="Blood Shower">
 		<!-- A magical AoE attack with Bleed. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>9</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
 		<abnormalType>BLEEDING</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>80</activateRate>
-		<basicProperty>PHYSICAL</basicProperty>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<affectLimit>10-10</affectLimit>
-		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
-		<isMagic>1</isMagic>
-		<trait>BLEED</trait>
 		<effectPoint>-1500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
+		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
+		<trait>BLEED</trait>
 		<effects>
 			<effect name="DamOverTime">
 				<power>-13000</power>
 				<ticks>2</ticks>
 			</effect>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power>
 			</effect>
 		</effects>
@@ -1647,17 +1662,17 @@
 		<!-- Physical AoE attack. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
+		<targetType>SELF</targetType>
+		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<castRange>300</castRange>
 		<effectPoint>-1500</effectPoint>
 		<hitTime>1500</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>6-12</affectLimit>
-		<affectRange>150</affectRange>
+		<mpConsume>1</mpConsume>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>350000</power>
 			</effect>
 		</effects>
@@ -1666,17 +1681,17 @@
 		<!-- Physical AoE attack. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
+		<targetType>SELF</targetType>
+		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<castRange>300</castRange>
 		<effectPoint>-1500</effectPoint>
 		<hitTime>1500</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<affectLimit>6-12</affectLimit>
-		<affectRange>150</affectRange>
+		<mpConsume>1</mpConsume>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>350000</power>
 			</effect>
 		</effects>
@@ -1685,10 +1700,10 @@
 		<!-- Magical attack on a single target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>300</castRange>
-		<hitTime>1500</hitTime>
 		<effectPoint>-500</effectPoint>
+		<hitTime>1500</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
 	</skill>
 </list>

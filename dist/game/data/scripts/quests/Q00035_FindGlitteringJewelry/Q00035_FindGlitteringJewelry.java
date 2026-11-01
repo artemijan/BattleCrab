@@ -16,12 +16,12 @@
  */
 package quests.Q00035_FindGlitteringJewelry;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Find Glittering Jewelry (35)
@@ -32,14 +32,17 @@ public class Q00035_FindGlitteringJewelry extends Quest
 	// NPCs
 	private static final int ELLIE = 30091;
 	private static final int FELTON = 30879;
+	
 	// Monster
 	private static final int ALLIGATOR = 20135;
+	
 	// Items
 	private static final int ACCESSORY_GEM = 36556;
 	private static final int IRON_ORE = 36521;
 	private static final int ARMOR_FRAGMENT = 36551;
 	private static final int JEWEL_BOX = 7077;
 	private static final int ROUGH_JEWEL = 7162;
+	
 	// Misc
 	private static final int MIN_LEVEL = 85;
 	private static final int JEWEL_COUNT = 10;
@@ -84,6 +87,7 @@ public class Q00035_FindGlitteringJewelry extends Quest
 				{
 					return "30091-08.html";
 				}
+				
 				takeItems(player, ROUGH_JEWEL, -1);
 				qs.setCond(4, true);
 				break;
@@ -110,11 +114,12 @@ public class Q00035_FindGlitteringJewelry extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player member = getRandomPartyMember(player, 2);
 		if ((member != null) && getRandomBoolean())
@@ -129,7 +134,6 @@ public class Q00035_FindGlitteringJewelry extends Quest
 				playSound(player, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 			}
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -195,6 +199,7 @@ public class Q00035_FindGlitteringJewelry extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

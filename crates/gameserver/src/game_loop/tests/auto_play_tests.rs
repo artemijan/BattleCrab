@@ -259,6 +259,42 @@ fn loot_in_reach_is_picked_up() {
     );
 }
 
+/// `IgnoredAutoPickItems`: a listed item is skipped by the pickup pass.
+#[test]
+fn ignored_loot_is_left_on_the_ground() {
+    use crate::game_loop::items::ground_items::DropSource;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, _rx) = play_world();
+    insert_adena_template(&mut world);
+    world.cfg.auto_play.ignored_pickup_items.insert(57);
+    crate::game_loop::items::ground_items::spawn_ground_item(
+        &mut world,
+        57,
+        100,
+        0,
+        30,
+        0,
+        0,
+        0,
+        DropSource::Npc,
+    );
+    set(&mut world, |s| {
+        s.active = true;
+        s.pickup = true;
+    });
+
+    crate::game_loop::automation::play::tick(&mut world);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .map_or(0, |i| i.count_of(57)),
+        0,
+        "an ignored item is never looted"
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Auto use (slice 2)
 // ---------------------------------------------------------------------------

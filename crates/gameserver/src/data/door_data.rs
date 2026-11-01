@@ -18,18 +18,19 @@ use tracing::info;
 
 pub const DOOR_FILE: &str = "data/DoorData.xml";
 
-/// `enums/DoorOpenType` narrowed to the methods this dist declares
-/// (`BY_CYCLE` exists in the enum but appears in no door).
+/// `enums/DoorOpenType`. `BY_CYCLE` (2 doors) is Salvation's Field Cycle
+/// hook; Java's `Door.isOpenableByCycle` has no caller, so neither does this.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum DoorOpenMethod {
     /// No `openMethod` attribute — the door only moves when a script/system
-    /// calls open/close (most of the 1180).
+    /// calls open/close (1105 of the 1486).
     #[default]
     None,
     ByClick,
     ByItem,
     BySkill,
     ByTime,
+    ByCycle,
 }
 
 /// Java `DoorTemplate` narrowed to the fields with data behind them.
@@ -191,6 +192,7 @@ fn build_door(attrs: &HashMap<String, String>, xs: &[i32], ys: &[i32]) -> Option
             Some("BY_ITEM") => DoorOpenMethod::ByItem,
             Some("BY_SKILL") => DoorOpenMethod::BySkill,
             Some("BY_TIME") => DoorOpenMethod::ByTime,
+            Some("BY_CYCLE") => DoorOpenMethod::ByCycle,
             _ => DoorOpenMethod::None,
         },
         open_time: get_i32("openTime").unwrap_or(0),
@@ -212,7 +214,7 @@ mod tests {
     #[test]
     fn loads_real_dist_file() {
         let data = DoorData::load_from(crate::data::DIST_GAME);
-        assert_eq!(data.doors.len(), 1180);
+        assert_eq!(data.doors.len(), 1486);
 
         // First door in the file: Embryo fort raid door 12220001.
         let d = data.get(12220001).expect("door 12220001");
@@ -245,10 +247,11 @@ mod tests {
 
         // Method histogram matches the raw attribute counts.
         let by = |m: DoorOpenMethod| data.doors.iter().filter(|d| d.open_method == m).count();
-        assert_eq!(by(DoorOpenMethod::ByClick), 160);
-        assert_eq!(by(DoorOpenMethod::ByItem), 13);
-        assert_eq!(by(DoorOpenMethod::BySkill), 34);
-        assert_eq!(by(DoorOpenMethod::ByTime), 111);
-        assert_eq!(data.doors.iter().filter(|d| d.open_by_default).count(), 96);
+        assert_eq!(by(DoorOpenMethod::ByClick), 156);
+        assert_eq!(by(DoorOpenMethod::ByItem), 41);
+        assert_eq!(by(DoorOpenMethod::BySkill), 31);
+        assert_eq!(by(DoorOpenMethod::ByTime), 151);
+        assert_eq!(by(DoorOpenMethod::ByCycle), 2);
+        assert_eq!(data.doors.iter().filter(|d| d.open_by_default).count(), 94);
     }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="38000" name="Twilight Leather Leggings Crafting Pack" additionalName="Light Armor" type="EtcItem">
 		<!-- Wrapped Pack containing all ingredients needed for crafting Twilight Leather Leggings. -->
@@ -486,7 +486,7 @@
 		</capsuled_items>
 	</item>
 	<item id="38025" name="Seraph Gaiters Crafting Pack" additionalName="Heavy Armor" type="EtcItem">
-		<!-- Wrapped Pack containing all ingredients needed for crafting Seraph Gaiters. -->
+		<!-- Wrapped Pack containing all ingredients needed for crafting Seraph Gaiter. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
@@ -559,7 +559,7 @@
 			<item id="35312" min="10" max="10" chance="100" /> <!-- Seraph Shield Ingredient -->
 			<item id="36544" min="3" max="3" chance="100" /> <!-- Orichalcum Wire -->
 			<item id="36524" min="5" max="5" chance="100" /> <!-- Orichalcum -->
-			<item id="35436" min="1" max="1" chance="100" /> <!-- Recipe:  Seraph Shield (60%) -->
+			<item id="35436" min="1" max="1" chance="100" /> <!-- Recipe: Seraph Shield (60%) -->
 			<item id="19440" min="6" max="6" chance="100" /> <!-- Gemstone (R-grade) -->
 			<item id="36564" min="2" max="2" chance="100" /> <!-- Greater Synthetic Cokes -->
 			<item id="36554" min="2" max="2" chance="100" /> <!-- Armor Fragment (High-grade) -->
@@ -1085,7 +1085,7 @@
 		</capsuled_items>
 	</item>
 	<item id="38056" name="Eternal Gaiters Crafting Pack" additionalName="Heavy Armor" type="EtcItem">
-		<!-- Wrapped Pack containing all ingredients needed for crafting Eternal Gaiters. -->
+		<!-- Wrapped Pack containing all ingredients needed for crafting Eternal Gaiter. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="is_sellable" val="false" />
@@ -1156,7 +1156,7 @@
 			<item id="35343" min="10" max="10" chance="100" /> <!-- Eternal Shield Ingredient -->
 			<item id="36544" min="5" max="5" chance="100" /> <!-- Orichalcum Wire -->
 			<item id="36524" min="10" max="10" chance="100" /> <!-- Orichalcum -->
-			<item id="35467" min="1" max="1" chance="100" /> <!-- Recipe:  Eternal Shield (60%) -->
+			<item id="35467" min="1" max="1" chance="100" /> <!-- Recipe: Eternal Shield (60%) -->
 			<item id="19440" min="13" max="13" chance="100" /> <!-- Gemstone (R-grade) -->
 			<item id="36564" min="3" max="3" chance="100" /> <!-- Greater Synthetic Cokes -->
 			<item id="36554" min="4" max="4" chance="100" /> <!-- Armor Fragment (High-grade) -->
@@ -1437,85 +1437,85 @@
 	<item id="38074" name="Territory Card: Guillotine Fortress" type="EtcItem">
 		<set name="icon" val="icon.card2_event_giyotine" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38075" name="Territory Card: Pagan Temple" type="EtcItem">
 		<set name="icon" val="icon.card2_event_heresy" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38076" name="Territory Card: Raider's Crossroads" type="EtcItem">
 		<set name="icon" val="icon.card2_event_predator" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38077" name="Territory Card: Prison of Darkness" type="EtcItem">
 		<set name="icon" val="icon.card2_event_exile" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38078" name="Territory Card: Seed of Hellfire" type="EtcItem">
 		<set name="icon" val="icon.card2_event_hellfire" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38079" name="Territory Card: Imperial Tomb" type="EtcItem">
 		<set name="icon" val="icon.card2_event_tomb" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38080" name="Territory Card: Seed of Annihilation" type="EtcItem">
 		<set name="icon" val="icon.card2_event_annihilation" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38081" name="Territory Card: Ketra Orc Outpost" type="EtcItem">
 		<set name="icon" val="icon.card2_event_orcbase" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38082" name="Territory Card: Fairy Settlement" type="EtcItem">
 		<set name="icon" val="icon.card2_event_settlement" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38083" name="Territory Card: Sea of Spores" type="EtcItem">
 		<set name="icon" val="icon.card2_event_spore" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38084" name="Territory Card: Hellbound" type="EtcItem">
 		<set name="icon" val="icon.card2_event_hellbound" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38085" name="Territory Card: Land of Chaos" type="EtcItem">
 		<set name="icon" val="icon.card2_event_chaos" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="CARD_EVENT" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="38086" name="Territory Card Pouch: Demon" type="EtcItem">
@@ -1581,8 +1581,8 @@
 		<!-- Card obtained from combining the Destruction's Shadow card. For 30 min., Attribute Atk. +50, and Attribute Resistance +50. -->
 		<set name="icon" val="icon.card_hero_red" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1590,8 +1590,8 @@
 		<!-- Card obtained from combining the Evolving Darkness card. For 30 min., Attribute Atk. +50. -->
 		<set name="icon" val="icon.card_devil_black" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1599,8 +1599,8 @@
 		<!-- Card obtained from combining the Sliver of Truth card. For 30 min., Attribute Resistance +50. -->
 		<set name="icon" val="icon.card_angel_blue" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1608,8 +1608,8 @@
 		<!-- Card obtained from combining the Chaotic Ambush card. For 30 min., Attribute Atk. +30, and Attribute Resistance +30. -->
 		<set name="icon" val="icon.card_dragon_gold" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1625,7 +1625,7 @@
 		<set name="material" val="FISH" />
 	</item>
 	<item id="38096" name="Emperor's Rune" additionalName="2-hour" type="EtcItem">
-		<!-- While possessed, character's XP/SP gained +30%. 2-hour. Only one effect applies if used with Emperor's Rune (8-hour). -->
+		<!-- While possessed, character's XP/ SP gained +30%. 2-hour. Only one effect applies if used with Emperor's Rune (8-hour). -->
 		<set name="icon" val="br_cashtex.item.br_cash_rune_of_feather_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1634,7 +1634,7 @@
 		<set name="time" val="7200" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="17117" level="2" /> <!-- Growth Rune -->
+			<skill id="17117" level="2" /> <!-- Emperor's Rune -->
 		</skills>
 	</item>
 	<item id="38097" name="Emperor's Rune Pack (2-hour)" type="EtcItem">
@@ -1655,8 +1655,8 @@
 		<set name="icon" val="icon.etc_pi_box_belief_pack" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="extractableCountMin" val="1" />
 		<set name="extractableCountMax" val="1" />
@@ -1670,20 +1670,20 @@
 		</capsuled_items>
 	</item>
 	<item id="38099" name="Leona's Scroll: Buffs" type="EtcItem">
-		<!-- For 30 min., XP/SP gained +30%, Max HP/MP/CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, M. Atk. +20%. Skill MP Consumption - 15%. Cannot be used with the Art of Seduction. Cooldown is 30min. Cannot be used in the Olympiad. -->
+		<!-- For 30 min., XP/ SP gained +30%, Max HP/ MP/ CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, M. Atk. +20%. Skill MP Consumption -15%. Cannot be used with the Art of Seduction. Cooldown is 30min. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.event_altair_enchant_scroll_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
 		<set name="reuse_delay" val="1800000" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="17320" level="1" /> <!-- Leona's Scroll: Buffs -->
 		</skills>

@@ -144,7 +144,7 @@
 				<node x="160060" y="19836" />
 			</territory>
 		</territories>
-		<npc id="20659" count="4" respawnTime="23sec" /> <!-- Grave Wanderer -->
+		<npc id="20659" count="4" respawnTime="23sec" /> <!-- Graveyard Wanderer -->
 		<npc id="20660" count="4" respawnTime="23sec" /> <!-- Archer of Greed -->
 		<npc id="20661" count="4" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
 	</spawn>
@@ -171,7 +171,7 @@
 				<node x="161236" y="25712" />
 			</territory>
 		</territories>
-		<npc id="20659" count="4" respawnTime="23sec" /> <!-- Grave Wanderer -->
+		<npc id="20659" count="4" respawnTime="23sec" /> <!-- Graveyard Wanderer -->
 		<npc id="20660" count="3" respawnTime="23sec" /> <!-- Archer of Greed -->
 		<npc id="20661" count="4" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
 	</spawn>
@@ -185,7 +185,7 @@
 				<node x="158088" y="32216" />
 			</territory>
 		</territories>
-		<npc id="20659" count="6" respawnTime="23sec" /> <!-- Grave Wanderer -->
+		<npc id="20659" count="6" respawnTime="23sec" /> <!-- Graveyard Wanderer -->
 		<npc id="20660" count="5" respawnTime="23sec" /> <!-- Archer of Greed -->
 		<npc id="20661" count="6" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
 	</spawn>
@@ -199,7 +199,7 @@
 				<node x="154596" y="26948" />
 			</territory>
 		</territories>
-		<npc id="20659" count="6" respawnTime="23sec" /> <!-- Grave Wanderer -->
+		<npc id="20659" count="6" respawnTime="23sec" /> <!-- Graveyard Wanderer -->
 		<npc id="20660" count="5" respawnTime="23sec" /> <!-- Archer of Greed -->
 		<npc id="20661" count="5" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
 	</spawn>
@@ -255,23 +255,9 @@
 				<node x="164688" y="17196" />
 			</territory>
 		</territories>
-		<npc id="20659" count="2" respawnTime="23sec" /> <!-- Grave Wanderer -->
+		<npc id="20659" count="2" respawnTime="23sec" /> <!-- Graveyard Wanderer -->
 		<npc id="20660" count="1" respawnTime="23sec" /> <!-- Archer of Greed -->
 		<npc id="20661" count="1" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
-	</spawn>
-	<spawn>
-		<territories>
-			<territory name="aden27_2518_43" minZ="-3812" maxZ="-3412">
-				<node x="164060" y="26576" />
-				<node x="170456" y="26764" />
-				<node x="170504" y="28928" />
-				<node x="167240" y="29040" />
-				<node x="164104" y="27936" />
-			</territory>
-		</territories>
-		<npc id="20659" count="3" respawnTime="23sec" /> <!-- Grave Wanderer -->
-		<npc id="20660" count="4" respawnTime="23sec" /> <!-- Archer of Greed -->
-		<npc id="20661" count="4" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
 	</spawn>
 	<spawn>
 		<territories>
@@ -282,7 +268,7 @@
 				<node x="164140" y="26420" />
 			</territory>
 		</territories>
-		<npc id="20659" count="3" respawnTime="23sec" /> <!-- Grave Wanderer -->
+		<npc id="20659" count="3" respawnTime="23sec" /> <!-- Graveyard Wanderer -->
 		<npc id="20660" count="4" respawnTime="23sec" /> <!-- Archer of Greed -->
 		<npc id="20661" count="4" respawnTime="23sec" /> <!-- Hatar Ratman Thief -->
 	</spawn>

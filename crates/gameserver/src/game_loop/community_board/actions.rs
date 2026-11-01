@@ -47,7 +47,7 @@ pub(super) fn do_heal(world: &mut World, client_id: u32, object_id: i32, command
     );
 }
 
-/// `HomeBoard`'s `_bbsteleport;<x> <y> <z>` branch: charge, hide the board and
+/// `HomeBoard`'s `_bbsteleport;<name>` branch: charge, hide the board and
 /// teleport to the whitelisted destination. Reuses the gatekeeper teleport
 /// primitive.
 pub(super) fn do_teleport(world: &mut World, client_id: u32, object_id: i32, command: &str) {
@@ -63,7 +63,7 @@ pub(super) fn do_teleport(world: &mut World, client_id: u32, object_id: i32, com
         .available_teleports
         .get(key.trim())
     else {
-        warn!("CommunityBoard: teleport [{key}] not in the gatekeeper whitelist.");
+        warn!("CommunityBoard: teleport [{key}] not in CommunityTeleportList.");
         return;
     };
     let price = world.cfg.community_board.teleport_price;

@@ -21,6 +21,8 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         is_event_restricted: false,
         for_npc: false,
         change_weapon_id: 0,
+        ensoul_normal_slots: 0,
+        ensoul_special_slots: 0,
         time: -1,
         duration: -1,
         immediate_effect: false,
@@ -30,6 +32,8 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         name: name.into(),
         kind: ItemKind::Weapon,
         crystal_type: CrystalType::None,
+        blessed: false,
+        is_dragon_weapon: false,
         crystal_count: 0,
         attack_radius: radius,
         attack_angle: angle,
@@ -95,7 +99,11 @@ fn equip(world: &mut World, item_id: i32) {
         .get_component_mut::<Inventory>(&ATTACKER)
         .expect("inventory");
     inv.add_item(&data.item_data, obj_id, item_id, 1);
-    inv.equip_item(&data.item_data, obj_id);
+    inv.equip_item(
+        &data.item_data,
+        obj_id,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
 }
 
 /// Grant Polearm Mastery's `ATTACK_COUNT_MAX` bonus directly (skill 216 is

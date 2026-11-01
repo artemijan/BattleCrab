@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="25800" name="Entrance Pass: Kartia's Labyrinth Lv. 95 Party" type="EtcItem">
 		<!-- Kartia's Labyrinth Extra Pass delivered to adventurers from the Kartia Research Center. When used, you can reset your instance timer for the level 95 party dungeon. -->
@@ -41,7 +41,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25804" name="Vintage Casket" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -50,7 +50,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25805" name="Shabby Casket" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -68,7 +68,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25807" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -77,7 +77,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25808" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -95,7 +95,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25810" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -104,7 +104,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25811" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -122,7 +122,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25813" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -131,7 +131,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25814" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -149,7 +149,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25816" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -158,7 +158,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25817" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -176,7 +176,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25819" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -185,7 +185,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25820" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -203,7 +203,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25822" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -212,7 +212,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25823" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -230,7 +230,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25825" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -239,7 +239,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25826" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -257,7 +257,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25828" name="Luck Box 2" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -266,7 +266,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25829" name="Luck Box 3" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -275,12 +275,12 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="25830" name="Einhasad's Enhancement Stone" type="EtcItem">
-		<!-- Through the Dimensional Merchant, you can take a +3 Requiem/Apocalypse weapon and enchant it to +10. You need scrolls and ingredients to make this work, but will never fail to enchant. -->
+		<!-- Through the Dimensional Merchant, you can take a +3 Requiem/ Apocalypse weapon and enchant it to +10. You need scrolls and ingredients to make this work, but will never fail to enchant. -->
 		<set name="icon" val="icon.etc_bead_gold_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="25831" name="+4 Requiem Shaper Pack" type="EtcItem">

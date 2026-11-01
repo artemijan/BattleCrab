@@ -219,8 +219,8 @@ pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32
 
 /// `AdminTeleport`'s click-to-move latches — the "Move:" row of
 /// `html/admin/move.htm` ("Additional Movement Options"). Java arms
-/// `Player.setTeleMode(...)` and the next `MoveBackwardToLocation` consumes it
-/// (see [`position::handle_move_backward_to_location`]):
+/// `Player.setTeleMode(...)` and the next `MoveToLocation` consumes it
+/// (see [`position::handle_move_to_location`]):
 ///
 /// * `//instant_move` → `DEMONIC` ("Demonic mode")
 /// * `//teleto sayune` → `SAYUNE`

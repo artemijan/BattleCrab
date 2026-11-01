@@ -141,7 +141,7 @@ fn the_slot_condition_reads_the_weapon_bodypart() {
     // A two-handed weapon really is marked `lrhand` in the datapack, and a
     // one-handed one is not — the premise the condition rests on.
     let first_in_slot =
-        |slot: i32| (1..=1000).find(|&id| items.get(id).is_some_and(|t| t.body_part == slot));
+        |slot: i64| (1..=1000).find(|&id| items.get(id).is_some_and(|t| t.body_part == slot));
     let two_handed = first_in_slot(crate::data::item_data::SLOT_LR_HAND);
     let one_handed = first_in_slot(crate::data::item_data::SLOT_R_HAND);
     assert!(two_handed.is_some(), "the dist has two-handed weapons");

@@ -172,8 +172,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     // `ChatWhisper`. Trade has no such gate; it has a hard-coded level 20 of
     // its own, below.
     //
-    // A `CHAT_CONDITIONS` holder is exempt, which is the same override the
-    // scope branches read.
+    // A GM is exempt, the same `isGM()` the scope branches read.
     if let Some(sm) = match chat_type {
         ChatType::General => Some(sm_ids::GENERAL_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1),
         ChatType::Shout => Some(sm_ids::SHOUT_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1),
@@ -181,7 +180,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         _ => None,
     } && let Some(p) = world.objects.get_component::<Player>(&sender_oid)
         && p.level < world.cfg.general.minimum_chat_level
-        && !p.can_override_cond(CHAT_CONDITIONS_ORDINAL)
+        && !p.is_gm(&world.data)
     {
         helpers::send_sm_to_client(
             world,
@@ -201,9 +200,8 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     //     voice). WORLD is absent, which is exactly why `ChatWorld` carries its
     //     own check; ordinary, party and clan chat stay open to a prisoner on
     //     both paths.
-    //   * it has **no `PlayerCondOverride.CHAT_CONDITIONS` escape**, where
-    //     `ChatWorld`'s does — so a GM with the override may use world chat
-    //     from jail but not a whisper.
+    //   * it has **no GM escape**, where `ChatWorld`'s does — so a jailed GM
+    //     may use world chat but not a whisper.
     //   * it answers with `sendMessage(String)`, a literal line, not a
     //     `SystemMessage` — so the text is the server's rather than the
     //     client's, and is reproduced verbatim here.
@@ -405,7 +403,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 return;
             }
             // `GlobalChat` (Shout) / `TradeChat` (Trade) choose the audience.
-            // `Region` and a `gm`-scoped channel for an override holder both
+            // `Region` and a `gm`-scoped channel for a GM both
             // land here; `Global` goes server-wide below; anything else
             // matches no Java branch and the line is dropped in silence.
             let scope = if chat_type == ChatType::Trade {
@@ -413,13 +411,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             } else {
                 world.cfg.general.global_chat
             };
-            let overrides = world
+            let is_gm = world
                 .objects
                 .get_component::<Player>(&sender_oid)
-                .is_some_and(|p| p.can_override_cond(CHAT_CONDITIONS_ORDINAL));
+                .is_some_and(|p| p.is_gm(&world.data));
             let region_scoped = match scope {
                 crate::config::general::ChatScope::Region => true,
-                crate::config::general::ChatScope::GmOnly => overrides,
+                crate::config::general::ChatScope::GmOnly => is_gm,
                 _ => false,
             };
             let server_wide = !region_scoped && scope == crate::config::general::ChatScope::Global;
@@ -618,10 +616,6 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     }
 }
 
-/// `PlayerCondOverride.CHAT_CONDITIONS` — the GM escape hatch from the jail
-/// chat gate.
-const CHAT_CONDITIONS_ORDINAL: u8 = 8;
-
 /// `ChatTrade`'s own level gate — a literal 20 in Java, unrelated to
 /// `MinimumChatLevel`, and with no counterpart on Shout.
 const TRADE_CHAT_MIN_LEVEL: i32 = 20;
@@ -681,11 +675,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
     let Some(p) = world.objects.get_component::<Player>(&sender_oid) else {
         return;
     };
-    let (level, jailed, may_override) = (
-        p.level,
-        p.jailed,
-        p.can_override_cond(CHAT_CONDITIONS_ORDINAL),
-    );
+    let (level, jailed, is_gm) = (p.level, p.jailed, p.is_gm(&world.data));
 
     let min_level = world.cfg.general.world_chat_min_level;
     if level < min_level {
@@ -702,8 +692,8 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
 
     // The second of Java's two `JailDisableChat` gates — `Say2`'s is up in
     // `handle_say2`, over a different channel set and *without* the
-    // `CHAT_CONDITIONS` escape this one has. See the note there.
-    if world.cfg.general.jail_disable_chat && jailed && !may_override {
+    // GM escape this one has. See the note there.
+    if world.cfg.general.jail_disable_chat && jailed && !is_gm {
         helpers::send_sm_bare_to_client(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
         return;
     }
@@ -790,11 +780,11 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
 /// `handle_say2`). The faction split is unreachable on this dist
 /// (`EnableFactionSystem = False`), so the broadcast is unconditional.
 fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &str, text: &str) {
-    // `!activeChar.isHero() && !activeChar.canOverrideCond(CHAT_CONDITIONS)`.
+    // `!activeChar.isHero() && !activeChar.isGM()`.
     let may_speak = world
         .objects
         .get_component::<Player>(&sender_oid)
-        .is_some_and(|p| p.is_hero || p.can_override_cond(CHAT_CONDITIONS_ORDINAL));
+        .is_some_and(|p| p.is_hero || p.is_gm(&world.data));
     if !may_speak {
         helpers::send_sm_bare_to_client(
             world,
@@ -806,8 +796,7 @@ fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
     // `canUseHeroVoice()` — the one chat channel this dist rate-limits
     // (`FloodProtectorHeroVoiceInterval = 100` ticks, the ten seconds the
     // refusal line names). Java answers with `sendMessage(String)`, a literal
-    // line, reproduced verbatim. `flood::gate`'s GM exemption stands in for
-    // Java's `FLOOD_CONDITIONS` cond-override, as at every other call site.
+    // line, reproduced verbatim. `flood::gate` carries Java's GM exemption.
     if !super::super::client::flood::gate(
         world,
         client_id,

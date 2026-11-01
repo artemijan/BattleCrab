@@ -114,11 +114,9 @@ impl QuestScript for Q00688DefeatTheElrokianRaiders {
         if !ctx.has_qs() || !ctx.is_cond(1) {
             return;
         }
-        // `DROP_RATE * RATE_QUEST_DROP` folded into the roll threshold (a
-        // rate-in-threshold drop, like Q00262), then `rewardItems` scales the
+        // A plain `getRandom(1000) < DROP_RATE`, then `rewardItems` scales the
         // amount by the reward rate.
-        let chance = DROP_RATE as f64 * ctx.rate_quest_drop();
-        if (ctx.roll(1000) as f64) < chance {
+        if ctx.roll(1000) < DROP_RATE {
             ctx.reward_items(DINOSAUR_FANG_NECKLACE, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }

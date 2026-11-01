@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="17000" name="Jewelry Pack (B-grade)" additionalName="90-day" type="EtcItem">
 		<!-- When used, you acquire a Jewelry Set of Fortune (B-grade). Expires after 90 days if not used. -->
@@ -485,7 +485,7 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
-			<item id="14559" min="1" max="1" chance="100" /> <!-- Premium Account Points -->
+			<item id="14559" min="1" max="1" chance="100" /> <!-- PA Points -->
 		</capsuled_items>
 	</item>
 	<item id="17026" name="First Mate Hat Pack (Event)" type="EtcItem">
@@ -828,7 +828,7 @@
 		</capsuled_items>
 	</item>
 	<item id="17046" name="Confession Box" type="EtcItem">
-		<!-- Contains a Talisman for Stun/Sleep/Hold/Paralysis Resistance. -->
+		<!-- Contains a Talisman for Stun/ Sleep/ Hold/ Paralysis Resistance. -->
 		<set name="icon" val="icon.etc_pi_box_wish_pack" />
 		<set name="default_action" val="PEEL" />
 		<set name="material" val="FISH" />
@@ -898,12 +898,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<skills>
-			<skill id="8510" level="1" /> <!-- Summon Friend -->
-		</skills>
 		<stats>
 			<stat type="mDef">7</stat>
 		</stats>
+		<skills>
+			<skill id="8510" level="1" /> <!-- Summon Friend -->
+		</skills>
 	</item>
 	<item id="17051" name="Talisman - STR" type="Armor">
 		<!-- STR +2 when equipped. Cannot be used in the Olympiad. -->
@@ -1198,9 +1198,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9088" level="1" /> <!-- Cupid's Cure -->
 		</skills>
@@ -1216,9 +1216,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9089" level="1" /> <!-- Cupid's Enhanced Cure -->
 		</skills>
@@ -1629,9 +1629,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="1;19" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9115" level="1" /> <!-- XP Buff 50% (1-hour) -->
 		</skills>
@@ -1648,9 +1648,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="1;19" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9116" level="1" /> <!-- XP Buff 50% (1.5-hour) -->
 		</skills>
@@ -1667,9 +1667,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="1;19" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9117" level="1" /> <!-- XP Buff 50% (2-hour) -->
 		</skills>
@@ -1686,9 +1686,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="1;19" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9118" level="1" /> <!-- XP Buff 50% (2.5-hour) -->
 		</skills>
@@ -1705,9 +1705,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="1;19" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9119" level="1" /> <!-- XP Buff 50% (3-hour) -->
 		</skills>

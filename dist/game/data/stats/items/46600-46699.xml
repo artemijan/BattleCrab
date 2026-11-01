@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="46600" name="Red Zubei" type="Armor">
 		<set name="icon" val="icon.armor_t56_u_i00" />
@@ -28,12 +28,12 @@
 		<set name="weight" val="220" />
 		<set name="bodypart" val="back" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40.0</stat>
@@ -43,8 +43,8 @@
 		<!-- Changes the appearance of your entire armor into that of Blue Dynasty. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -54,8 +54,8 @@
 		<!-- Changes the appearance of your entire armor into that of Red Zubei. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -65,8 +65,8 @@
 		<!-- Changes the appearance of your entire armor into that of the White Assassin Suit. Tops and one-pieces only. Modified armor can be restored to their original appearance with a Restoration Stone. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="Appearance" />
 		<set name="immediate_effect" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -290,6 +290,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="time" val="1440" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -311,8 +312,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46627" name="Blue Dynasty Circlet" additionalName="LUC" type="Armor">
@@ -356,6 +357,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulNormalSlots" val="1" />
 		<set name="element_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -366,7 +368,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8.0</stat>
+			<stat type="critRate">8.0</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
@@ -540,8 +542,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46641" name="Entrance Pass: Crystal Caverns" type="EtcItem">
@@ -614,7 +616,7 @@
 		<set name="bodypart" val="deco1" />
 	</item>
 	<item id="46649" name="Red Libra Talisman - Restoration" additionalName="Event" type="Armor">
-		<!-- Red Libra item. Restores HP/MP/CP of all party members and dispels debuffs at a set rate. Cannot be used in the Olympiad. Deleted when the Red Libra merchants leave. -->
+		<!-- Red Libra item. Restores HP/ MP/ CP of all party members and dispels debuffs at a set rate. Cannot be used in the Olympiad. Deleted when the Red Libra merchants leave. -->
 		<set name="icon" val="BranchSys2.icon.g_giant_gem" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_dropable" val="false" />
@@ -669,10 +671,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">690</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">773</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12.0</stat>
+			<stat type="critRate">12.0</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
 	</item>
@@ -692,10 +694,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">770</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">884</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8.0</stat>
+			<stat type="critRate">8.0</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
@@ -715,10 +717,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">931</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">1075</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8.0</stat>
+			<stat type="critRate">8.0</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
@@ -738,11 +740,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FINE_STEEL" />
 		<stats>
-			<stat type="pAtk">770</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">884</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -762,11 +764,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">931</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">1075</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
 	</item>
@@ -786,16 +788,16 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pAtk">884</stat>
+			<stat type="mAtk">384</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="critRate">8.0</stat>
+			<stat type="randomDamage">10</stat>
+		</stats>
 		<skills>
 			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
 		</skills>
-		<stats>
-			<stat type="pAtk">770</stat>
-			<stat type="mAtk">388</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8.0</stat>
-			<stat type="randomDamage">10</stat>
-		</stats>
 	</item>
 	<item id="46659" name="Elysium Thrower" additionalName="Event" type="Weapon">
 		<!-- Red Libra item. Weapon used all throughout Elysium. It cannot be enchanted in Aden. Cannot be used in the Olympiad. Deleted when the Red Libra merchants leave. -->
@@ -814,10 +816,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">1521</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">1740</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12.0</stat>
+			<stat type="critRate">12.0</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
 	</item>
@@ -838,10 +840,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">1286</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">1567</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12.0</stat>
+			<stat type="critRate">12.0</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
 	</item>
@@ -862,10 +864,10 @@
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
 		<stats>
-			<stat type="pAtk">643</stat>
-			<stat type="mAtk">481</stat>
+			<stat type="pAtk">707</stat>
+			<stat type="mAtk">513</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8.0</stat>
+			<stat type="critRate">8.0</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
@@ -886,11 +888,11 @@
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
 		<stats>
-			<stat type="pAtk">643</stat>
-			<stat type="mAtk">481</stat>
+			<stat type="pAtk">707</stat>
+			<stat type="mAtk">513</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -911,16 +913,16 @@
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
 		<stats>
-			<stat type="pAtk">776</stat>
-			<stat type="mAtk">518</stat>
+			<stat type="pAtk">861</stat>
+			<stat type="mAtk">564</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8.0</stat>
 			<stat type="accMagic">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
-	<item id="46664" name="Elysium Dualsword" additionalName="Event" type="Weapon">
+	<item id="46664" name="Elysium Dual Sword" additionalName="Event" type="Weapon">
 		<!-- Red Libra item. Weapon used all throughout Elysium. It cannot be enchanted in Aden. Cannot be used in the Olympiad. Deleted when the Red Libra merchants leave. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i01" />
 		<set name="default_action" val="EQUIP" />
@@ -936,10 +938,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">931</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">1075</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8.0</stat>
+			<stat type="critRate">8.0</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
@@ -960,10 +962,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="STEEL" />
 		<stats>
-			<stat type="pAtk">792</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">884</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12.0</stat>
+			<stat type="critRate">12.0</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
@@ -983,11 +985,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FINE_STEEL" />
 		<stats>
-			<stat type="pAtk">931</stat>
-			<stat type="mAtk">388</stat>
+			<stat type="pAtk">1075</stat>
+			<stat type="mAtk">384</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -999,7 +1001,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="46668" name="La Vie En Rose's Radiant Brooch" type="Armor">
-		<!-- Activates 5 jewel slots when equipped. Inventory Slot +12. -->
+		<!-- Activates 5 jewel slots when equipped. Inventory Slots +12. -->
 		<set name="icon" val="icon.etc_bm_brooch_lavianrose_i03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -1008,13 +1010,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="10" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">101.0</stat>
+		</stats>
 		<skills>
 			<skill id="13659" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
 			<skill id="13924" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
 		</skills>
-		<stats>
-			<stat type="mDef">101.0</stat>
-		</stats>
 	</item>
 	<item id="46669" name="Radiant Brooch Fragment" type="EtcItem">
 		<!-- Main ingredient for making a La Vie En Rose's Radiant Brooch. -->
@@ -1327,7 +1329,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46693" name="Emperor Shunaiman's Shaper" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_dagger" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -1342,21 +1344,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">737</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46694" name="Emperor Shunaiman's Dicing Death" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_onehand_sword" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1371,20 +1373,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">827</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46695" name="Emperor Shunaiman's Slasher" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_twohand_sword" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -1399,20 +1401,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46696" name="Emperor Shunaiman's Avenger" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_onehand_blunt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1427,21 +1429,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">827</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46697" name="Emperor Shunaiman's Fighter" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_fist" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1456,21 +1458,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;40;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1007</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 	<item id="46698" name="Emperor Shunaiman's Stormer" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_spear" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -1485,22 +1487,22 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;66;120" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">827</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="46699" name="Emperor Shunaiman's Thrower" additionalName="30-day" type="Weapon">
-		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/Spiritshot/Blessed Spiritshot. -->
+		<!-- Dimensional Item. Emperor Shunaiman's Weapon. Can be used at all levels. Must use Soulshot (No-grade)/ Spiritshot/ Blessed Spiritshot. -->
 		<set name="icon" val="icon.npoint_weapon_bow" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1515,17 +1517,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="43200" />
 		<set name="damage_range" val="0;0;10;0" />
-		<skills>
-			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1631</stat>
 			<stat type="mAtk">409</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13925" level="1" /> <!-- Emperor Shunaiman's Authority -->
+		</skills>
 	</item>
 </list>

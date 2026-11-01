@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="12000" name="Common Item - Arcana Mace" type="Weapon">
 		<!-- Arcana Mace with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
@@ -21,7 +21,7 @@
 		<stats>
 			<stat type="pAtk">225</stat>
 			<stat type="mAtk">175</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -48,7 +48,7 @@
 		<stats>
 			<stat type="pAtk">246</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -76,7 +76,7 @@
 		<stats>
 			<stat type="pAtk">274</stat>
 			<stat type="mAtk">193</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -100,17 +100,17 @@
 		<set name="spiritshots" val="1" />
 		<set name="element_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
-		<skills>
-			<skill id="3570" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Robust Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3570" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Robust Health -->
+		</skills>
 	</item>
 	<item id="12004" name="Common Item - Forgotten Blade" type="Weapon">
 		<!-- Forgotten Blade with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
@@ -133,7 +133,7 @@
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -160,7 +160,7 @@
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1132,7 +1132,7 @@
 			<stat type="pDef">27</stat>
 		</stats>
 	</item>
-	<item id="12063" name="Common Item - Brigandine Shield" type="Armor">
+	<item id="12063" name="Common Item- Brigandine Shield" type="Armor">
 		<!-- Brigandine Shield with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_brigandine_shield_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1230,7 +1230,7 @@
 			<stat type="pDef">27</stat>
 		</stats>
 	</item>
-	<item id="12069" name="Common Item - Kite Shield" type="Armor">
+	<item id="12069" name="Common Item- Kite Shield" type="Armor">
 		<!-- Kite Shield with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_kite_shield_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1379,7 +1379,7 @@
 			<stat type="pDef">29</stat>
 		</stats>
 	</item>
-	<item id="12078" name="Common Item - Plate Shield" type="Armor">
+	<item id="12078" name="Common Item- Plate Shield" type="Armor">
 		<!-- Plate Shield with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_plate_shield_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1679,7 +1679,7 @@
 			<stat type="pDef">120</stat>
 		</stats>
 	</item>
-	<item id="12096" name="Common Item - Chain Shield" type="Armor">
+	<item id="12096" name="Common Item- Chain Shield" type="Armor">
 		<!-- Chain Shield with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_chain_shield_i00" />
 		<set name="default_action" val="EQUIP" />

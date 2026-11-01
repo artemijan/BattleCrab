@@ -1,7 +1,7 @@
 use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::admin::refresh_skill_list;
+use crate::game_loop::helpers;
 use crate::game_loop::net::broadcast;
-use crate::game_loop::{clans, helpers};
 use crate::model::components;
 
 use crate::model::Player;
@@ -122,6 +122,10 @@ pub(crate) fn add_exp_and_sp(
 
     let (exp, sp) = (add_exp.round() as i64, add_sp.round() as i64);
 
+    // `PlayableStat.addExp` notifies `ON_PLAYABLE_EXP_CHANGED` first, with the
+    // full `finalExp` before any level cap trims it — `SoulEating`'s hook.
+    crate::game_loop::skills::effects::souls::on_exp_gained(world, player_oid, exp);
+
     let max_level = world.data.experience.max_level as i32;
     // `SubClassHolder.MAX_LEVEL` — a subclass has its own ceiling,
     // `min(MaxSubclassLevel, experienceTable.maxLevel - 1)`, below the base
@@ -220,11 +224,12 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
     if karma_lost <= 0 {
         return;
     }
-    // `Player.setReputation`'s ceiling (`Config.MAX_REPUTATION`, 0 here) — a
-    // PK working their karma off stops at it rather than going positive.
+    // `setReputation(Math.min(getReputation() + karmaLost, 0))` — a PK working
+    // their karma off stops at clean rather than going positive; the setter's
+    // own `MAX_REPUTATION` ceiling sits above it.
     let max_reputation = world.cfg.pvp.max_reputation;
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
-        p.reputation = (p.reputation + karma_lost).min(max_reputation);
+        p.reputation = (p.reputation + karma_lost).min(0).min(max_reputation);
     }
     // The karma flag and name colour other clients draw come off the
     // reputation sign, so a PK crossing back to 0 has to be redrawn.
@@ -235,9 +240,9 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
 /// Java `Formulas.calculateKarmaLost(player, finalExp)`:
 ///
 /// ```java
-/// final double karmaLooseMul = KarmaData.getInstance().getMultiplier(player.getLevel());
-/// if (finalExp > 0) return (int) ((Math.abs(finalExp / Config.RATE_KARMA_LOST) / karmaLooseMul) / 30);
-/// return (int) ((Math.abs(finalExp) / karmaLooseMul) / 30);
+/// final double karmaLossMod = KarmaLossData.getInstance().getModifier(player.getLevel());
+/// if (finalExp > 0) return (int) ((Math.abs(finalExp / RatesConfig.RATE_KARMA_LOST) / karmaLossMod) / 30);
+/// return (int) ((Math.abs(finalExp) / karmaLossMod) / 30);
 /// ```
 ///
 /// The rate divides the experience *before* the per-level divisor, so raising
@@ -250,9 +255,7 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
 /// where `finalExp` is the experience *lost*; nothing in this port reaches it
 /// yet, and it is ported for shape rather than left to surprise the next caller.
 pub(crate) fn calculate_karma_lost(world: &World, level: i32, final_exp: f64) -> i32 {
-    let Some(mul) = world.data.karma.multiplier(level) else {
-        return 0;
-    };
+    let mul = world.data.karma.modifier(level);
     if mul <= 0.0 {
         return 0;
     }
@@ -288,65 +291,10 @@ pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp
 /// no-level-change path.
 fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_level: i32) {
     if new_level != old_level {
-        set_level(world, player_oid, new_level);
-        if new_level > old_level {
-            add_reputation_to_clan_for_levels(world, player_oid, new_level);
-        }
+        add_level(world, player_oid, old_level, new_level);
         return;
     }
     crate::game_loop::character::player_info::send_user_info(world, player_oid);
-}
-
-/// `PlayableStat.LAST_PLEDGE_REPUTATION_LEVEL` — the highest level this
-/// character has already been paid clan reputation for.
-const LAST_PLEDGE_REPUTATION_LEVEL: &str = "LAST_PLEDGE_REPUTATION_LEVEL";
-
-/// `PlayableStat.addReputationToClanBasedOnLevel` — a member levelling up
-/// earns their clan reputation, scaled by the level band they reached.
-///
-/// Two guards carry the weight:
-///
-/// - **Clan level 3 or above**, else nothing is paid at all.
-/// - **`LAST_PLEDGE_REPUTATION_LEVEL`**, which is the anti-farm: the grant
-///   covers only levels *above* the highest already paid for, so dying back
-///   down and re-levelling earns nothing the second time. Skipping it would
-///   turn a delevel loop into an infinite reputation source.
-///
-/// Every band is **0 on this dist**, so the whole function pays nothing today
-/// — including the `reputation == 0` early return, which is why no message
-/// goes out either. It is implemented rather than stubbed because the config
-/// is the only thing making it inert.
-fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_level: i32) {
-    let Some(clan_id) = clans::clan_of(world, player_oid) else {
-        return;
-    };
-    // "When a character from clan level 3 or above increases its level, CRP
-    // are added".
-    if world.clans.get(&clan_id).is_none_or(|c| c.level < 3) {
-        return;
-    }
-    let last_paid = helpers::player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, 0);
-    if last_paid >= new_level {
-        return;
-    }
-    let f = &world.cfg.feature;
-    // One band lookup per level gained, counting down from the new level.
-    let raw: i32 = ((last_paid + 1)..=new_level)
-        .map(|level| f.reputation_for_level(level))
-        .sum();
-    let multiplier = f.level_obtained_reputation_multiplier;
-    helpers::set_player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, new_level);
-    if raw == 0 {
-        return;
-    }
-    let reputation = (f64::from(raw) * multiplier).ceil() as i32;
-    crate::game_loop::clans::add_clan_reputation(world, clan_id, reputation);
-    // Java tells every online member what the clan just earned.
-    let msg = server_packets::system_message_with(
-        sm_ids::YOUR_CLAN_HAS_ADDED_S1_POINTS_TO_ITS_CLAN_REPUTATION,
-        &[SmParam::Int(reputation)],
-    );
-    crate::game_loop::clans::broadcast_to_clan(world, clan_id, &msg);
 }
 
 /// The `PlayableStat.addExp` level scan: highest level whose threshold the
@@ -385,6 +333,15 @@ pub(crate) fn cap_level(world: &World, level: i32) -> i32 {
 
 /// `PlayerStat.addLevel` (up or down): recompute vitals/stats, grant new
 /// autoGet skills, broadcast the level-up flourish.
+/// `PlayerStat.addLevel`: [`set_level`], then the `ON_PLAYER_LEVEL_CHANGED`
+/// notification. The exp paths (`addExp` / `removeExp`) level through here;
+/// a class or subclass switch sets the level without the event.
+pub(crate) fn add_level(world: &mut World, player_oid: i32, old_level: i32, new_level: i32) {
+    set_level(world, player_oid, new_level);
+    let level = helpers::level_of(world, player_oid).unwrap_or(new_level);
+    crate::game_loop::quests::dispatch::notify_level_changed(world, player_oid, old_level, level);
+}
+
 pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     let new_level = cap_level(world, new_level);
     let leveled_up = {
@@ -418,10 +375,13 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             .cloned()
             .unwrap_or_default();
         vitals.max_hp =
-            crate::model::max_vitals::calc_max_hp(data, &t, p.level, Some(inventory), mods) as i32;
+            crate::model::max_vitals::calc_max_hp(data, &t, base, p.level, Some(inventory), mods)
+                as i32;
         vitals.max_mp =
-            crate::model::max_vitals::calc_max_mp(data, &t, p.level, Some(inventory), mods) as i32;
-        pvitals.max_cp = crate::model::max_vitals::calc_max_cp(data, &t, p.level, mods) as i32;
+            crate::model::max_vitals::calc_max_mp(data, &t, base, p.level, Some(inventory), mods)
+                as i32;
+        pvitals.max_cp =
+            crate::model::max_vitals::calc_max_cp(data, &t, base, p.level, mods) as i32;
         if leveled_up {
             // Classic level-up: all vitals refill (Mobius Java only refills
             // CP here, but retail Classic restores HP/MP too).
@@ -623,12 +583,10 @@ pub(crate) fn maybe_skill_remove_on_delevel(
     if !world.cfg.character.decrease_skill_level {
         return Vec::new();
     }
-    let changes = world.data.skill_trees.delevel_skill_changes(
-        class_id,
-        level,
-        skills,
-        world.cfg.character.strict_delevel_skill_removal,
-    );
+    let changes = world
+        .data
+        .skill_trees
+        .delevel_skill_changes(class_id, level, skills);
     let _ = char_id; // memory-first: the changes below persist on the next flush.
     for &(skill_id, action) in &changes {
         match action {

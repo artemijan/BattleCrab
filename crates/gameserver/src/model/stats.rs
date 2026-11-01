@@ -6,8 +6,7 @@
 
 use enum_ordinalize::Ordinalize;
 
-/// The six primary stats used by G6 (Java's `BaseStat` also has `CHA`/`LUC`,
-/// unused by anything ported so far).
+/// The eight primary stats (Java `BaseStat`).
 ///
 /// `SkillMastery` round-trips a stat through a stored number, so this enum
 /// needs an ordinal both ways — but **this enum's**, not Java's (see
@@ -25,6 +24,8 @@ pub enum BaseStat {
     Int = 3,
     Wit = 4,
     Men = 5,
+    Cha = 6,
+    Luc = 7,
 }
 
 impl BaseStat {
@@ -32,7 +33,7 @@ impl BaseStat {
     ///
     /// **Deliberately by name, never by ordinal.** Java's `BaseStat` is
     /// `STR, INT, DEX, WIT, CON, MEN, CHA, LUC`; this enum is
-    /// `Str, Dex, Con, Int, Wit, Men`. `SkillMastery` stores the *ordinal* and
+    /// `Str, Dex, Con, Int, Wit, Men, Cha, Luc`. `SkillMastery` stores the *ordinal* and
     /// `calcSkillMastery` reads it back with `BaseStat.values()[val]`, so
     /// copying Java's number across would silently select the wrong stat —
     /// Skill Mastery 331 (INT) would come out as DEX.
@@ -44,8 +45,8 @@ impl BaseStat {
             "INT" => Self::Int,
             "WIT" => Self::Wit,
             "MEN" => Self::Men,
-            // CHA and LUC exist in Java's enum but have no `statBonus` table
-            // here and no skill on this dist names them.
+            "CHA" => Self::Cha,
+            "LUC" => Self::Luc,
             _ => return None,
         })
     }
@@ -59,6 +60,8 @@ impl BaseStat {
             BaseStat::Int => "INT",
             BaseStat::Wit => "WIT",
             BaseStat::Men => "MEN",
+            BaseStat::Cha => "CHA",
+            BaseStat::Luc => "LUC",
         }
     }
 }
@@ -179,6 +182,14 @@ pub enum Stat {
     MaxRecoverableHp,
     MaxRecoverableCp,
     MaxCubic,
+    /// How many talisman, brooch-jewel and agathion slots are open. Java keeps
+    /// talismans in a plain counter (`PlayerStat._talismanSlots`, bumped by
+    /// `TalismanSlot` on start and back on exit) and the other two as the
+    /// stats `BROOCH_JEWELS` / `AGATHION_SLOTS`. All three are flat sums of
+    /// what is currently pumped, so one additive stat each says the same.
+    TalismanSlots,
+    BroochJewels,
+    AgathionSlots,
     MaxBuffSlots,
     DamageZoneVuln,
     /// Java `Stat.TRANSFER_DAMAGE_SUMMON_PERCENT` — the share of incoming
@@ -188,15 +199,50 @@ pub enum Stat {
     /// multiplier) that a **melee physical skill** hitting its bearer is
     /// countered (Shield of Revenge 439 at 20 %, Counterattack 447 at 90 %).
     VengeanceSkillPhysicalDamage,
+    /// Java `Stat.DAMAGE_LIMIT` ("damageCap") — `reduceCurrentHp` caps every
+    /// hit at it when positive, unless the attacker is a GM. Fed by
+    /// `GetDamageLimit`.
+    DamageLimit,
+    /// Java `Stat.PVP_DAMAGE_TAKEN` / `PVE_DAMAGE_TAKEN` /
+    /// `PVE_DAMAGE_TAKEN_MONSTER` / `PVE_DAMAGE_TAKEN_RAID` — percentage
+    /// adjustments `reduceCurrentHp` applies to a hit after the damage events,
+    /// each floored at -80. Fed by `DamageByAttack`.
+    PvpDamageTaken,
+    PveDamageTaken,
+    PveDamageTakenMonster,
+    PveDamageTakenRaid,
+    /// Java `Stat.MAX_MOMENTUM` — the Force cap `FocusMomentum`,
+    /// `FocusMaxMomentum` and `GetMomentum` read. Base 0; fed by the
+    /// `FocusEnergy` passives (Sonic/Force Mastery, …).
+    MaxMomentum,
+    /// Java `Stat.MAX_SOULS` — the soul cap `FocusSouls`, `SoulEating` and
+    /// `OpSoulMax` read. Base 0; fed only by `SoulEating`'s pump.
+    MaxSouls,
     HateAttack,
     PhysicalSkillPower,
     MagicalSkillPower,
+    /// Java `Stat.SKILL_POWER_ADD` — flat power added to a damage skill's
+    /// `power` before the formula runs. Read by `calcMagicDam`,
+    /// `calcBlowDamage`, `PhysicalDamage`, `PhysicalDamageHpLink`,
+    /// `PhysicalSoulDamage` and `EnergyDamage`. Fed by `SkillPowerAdd` (the R
+    /// weapons' special abilities) and by a `DIFF` `PhysicalSkillPower` /
+    /// `MagicalSkillPower`, which this dist never declares.
+    SkillPowerAdd,
     /// Java `Stat.PHYSICAL_SKILL_CRITICAL_DAMAGE` and its defence twin — the
     /// crit multiplier for a *physical skill*, which `Formulas.calcCritDamage`
     /// reads instead of `CRITICAL_DAMAGE` when a skill is involved. Heroic
     /// Berserker (396) is the learnable source.
     PhysicalSkillCriticalDamage,
     DefencePhysicalSkillCriticalDamage,
+    /// `PHYSICAL_SKILL_CRITICAL_DAMAGE_ADD` and its defence twin — the flat
+    /// pair `calcCritDamageAdd` reads for a physical skill; `PhysicalDamage`
+    /// adds `max(0, add − defAdd)` to a critical hit.
+    PhysicalSkillCriticalDamageAdd,
+    DefencePhysicalSkillCriticalDamageAdd,
+    /// Java `Stat.CRITICAL_RATE_SKILL` ("physicalSkillCriticalRate") — the
+    /// physical-skill crit rate, finalized by `PSkillCritRateFinalizer` from the
+    /// template's `basePSkillCritRate` (5) and fed by `PhysicalSkillCriticalRate`.
+    CriticalRateSkill,
     /// Java's PvP/PvE damage balance stats, read by one function each —
     /// `Formulas.calculatePvpPveBonus`, which is a term in *every* damage
     /// formula. All of them are `AbstractStatPercentEffect`s, so they merge as
@@ -228,6 +274,10 @@ pub enum Stat {
     PveRaidPhysicalAttackDefence,
     PveRaidPhysicalSkillDefence,
     PveRaidMagicalSkillDefence,
+    /// Java `Stat.DRAGON_WEAPON_DEFENCE` — the target's multiplier on the PvP
+    /// bonus when the attacker's weapon `isDragonWeapon()`. `DragonWeaponDefence`
+    /// declares it; no skill on this dist carries that effect, so it is 1.
+    DragonWeaponDefence,
     /// Java `Stat.PHYSICAL_POLEARM_TARGET_SINGLE` — read in exactly one place,
     /// `Creature.generateAttackTargetData`, which skips the whole polearm
     /// sweep while `getValue(stat, 0) > 0`. Focus Attack (317) is the only
@@ -317,6 +367,14 @@ pub enum Stat {
     /// learnable skill grants it on this dist (7 non-learnable ones do), so it
     /// is folded for completeness and reads as the 1.0 default in practice.
     DefenceMagicCriticalDamage,
+    /// `MAGIC_CRITICAL_DAMAGE_ADD` and its defence twin — `calcMagicDam` adds
+    /// `max(0, add − defAdd)` to a magic crit (`critMagicAdd`).
+    MagicCriticalDamageAdd,
+    DefenceMagicCriticalDamageAdd,
+    /// Java `Stat.DEFENCE_MAGIC_CRITICAL_RATE` / `_ADD` — the defender's side of
+    /// the magic-crit roll for a skill with a negative effect.
+    DefenceMagicCriticalRate,
+    DefenceMagicCriticalRateAdd,
     /// Java `Stat.REFLECT_SKILL_PHYSIC` / `REFLECT_SKILL_MAGIC` — the percent
     /// chance that an incoming **debuff** is bounced back onto its caster
     /// (Riposte Stance 340, Physical Mirror 350, Magical Mirror 351). Additive,
@@ -577,7 +635,7 @@ mod tests {
     /// enum's, deliberately not Java's — see [`BaseStat::from_name`].
     #[test]
     fn base_stat_ordinals_round_trip() {
-        for name in ["STR", "DEX", "CON", "INT", "WIT", "MEN"] {
+        for name in ["STR", "DEX", "CON", "INT", "WIT", "MEN", "CHA", "LUC"] {
             let stat = BaseStat::from_name(name).expect(name);
             assert_eq!(BaseStat::from_ordinal(stat.ordinal()), Some(stat), "{name}");
         }
@@ -585,7 +643,7 @@ mod tests {
         // across, INT would come out as DEX. Ordinal 1 must stay DEX.
         assert_eq!(BaseStat::from_ordinal(1), Some(BaseStat::Dex));
         assert_eq!(BaseStat::Men.ordinal(), 5);
-        assert_eq!(BaseStat::from_ordinal(6), None);
+        assert_eq!(BaseStat::from_ordinal(8), None);
         assert_eq!(BaseStat::from_ordinal(-1), None);
     }
 }

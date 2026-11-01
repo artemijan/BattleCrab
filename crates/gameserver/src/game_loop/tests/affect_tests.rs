@@ -45,6 +45,9 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: scope,
@@ -407,7 +410,12 @@ fn aoe_nuke_damages_the_whole_cluster() {
     let (mut world, _db, _l) = cast_test_world();
 
     let mut nuke = aoe_skill(9200, AffectScope::Range, AffectObject::NotFriend, 300);
-    nuke.effects = vec![SkillEffect::MagicalAttack { power: 50.0 }];
+    nuke.effects = vec![SkillEffect::MagicalDamage {
+        power: 50.0,
+        debuff_modifier: 1.0,
+        races: Vec::new(),
+        race_modifier: 1.0,
+    }];
     nuke.hit_time = 100;
     world.data.skill_data.insert_for_test(nuke);
 
@@ -772,6 +780,22 @@ fn an_enemy_aura_debuffs_the_monsters_in_range() {
     apply_due_tasks(&mut world);
     assert!(has_buff(&world, a, PULSE) && has_buff(&world, b, PULSE));
     assert!(!has_buff(&world, far, PULSE));
+}
+
+/// A synergy (`A6`) pulse is exempt from the aura's block (`onStart` skips
+/// it) and lands on the holder each pulse (`applyEffects(effector,
+/// effector)`), with nobody else around.
+#[test]
+fn a_synergy_pulse_lands_on_the_holder() {
+    let (mut world, _db, _l) = cast_test_world();
+    let mut pulse = party_pulse();
+    pulse.synergy = true;
+    let _out = switch_aura_on(&mut world, pulse);
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(has_buff(&world, CASTER, PULSE));
 }
 
 // ---------------------------------------------------------------------------

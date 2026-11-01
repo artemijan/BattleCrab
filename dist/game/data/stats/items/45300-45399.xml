@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="45372" name="Agathion - Blessed Pisces" additionalName="30-day" type="Armor">
-		<!-- Summons Pisces. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine.(Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Enchant: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. and Def. each increases by 30. -->
+		<!-- Summons Pisces. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine.(Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Enchant: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. and Def. each increases by 30. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -12,20 +12,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17619" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
 			<skill id="26117" level="5" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
-	<item id="45373" name="Agathion - Blessed Pisces Pack" type="EtcItem">
-		<!-- Wrapped Pack containing an Agathion - Blessed Pisces (30-day). -->
+	<item id="45373" name="Blessed Pisces Agathion Bracelet Pack" type="EtcItem">
+		<!-- Wrapped Pack containing a Super Advanced Seed Bracelet (30-day). -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -57,13 +57,13 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
 	<item id="45375" name="Battle Rations" additionalName="Event" type="EtcItem">
-		<!-- Random basic stat +6 for 30 min. Cannot be stacked with Fish Stew or other Battle Rations. -->
+		<!-- Random basic stat +6 for 30 min. Cannot be stacked with Fish Stew or other Alien Nano Supplements. -->
 		<set name="icon" val="icon.ev_invasion_buff_box" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -116,7 +116,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -137,7 +137,7 @@
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -289,8 +289,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 </list>

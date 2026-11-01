@@ -36,6 +36,16 @@
 			<!-- Oren -->
 			<npc id="31756" x="81136" y="54576" z="-1517" heading="32000" respawnTime="60sec" /> <!-- Mr. Cat -->
 			<npc id="31757" x="81126" y="54519" z="-1517" heading="32000" respawnTime="60sec" /> <!-- Queen of Hearts -->
+			<!-- Rune -->
+			<npc id="31756" x="44176" y="-48732" z="-800" heading="33000" respawnTime="60sec" /> <!-- Mr. Cat -->
+			<npc id="31756" x="44319" y="-47640" z="-792" heading="50000" respawnTime="60sec" /> <!-- Mr. Cat -->
+			<npc id="31757" x="44176" y="-48688" z="-800" heading="33000" respawnTime="60sec" /> <!-- Queen of Hearts -->
+			<npc id="31757" x="44294" y="-47642" z="-792" heading="50000" respawnTime="60sec" /> <!-- Queen of Hearts -->
+			<!-- Schuttgard -->
+			<npc id="31756" x="87824" y="-142256" z="-1336" heading="7342" respawnTime="60sec" /> <!-- Mr. Cat -->
+			<npc id="31756" x="87596" y="-140674" z="-1536" heading="16500" respawnTime="60sec" /> <!-- Mr. Cat -->
+			<npc id="31757" x="87856" y="-142272" z="-1336" heading="44000" respawnTime="60sec" /> <!-- Queen of Hearts -->
+			<npc id="31757" x="87644" y="-140674" z="-1536" heading="16500" respawnTime="60sec" /> <!-- Queen of Hearts -->
 		</group>
 	</spawn>
 </list>

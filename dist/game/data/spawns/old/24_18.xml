@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="24_18">
+		<group>
+			<npc id="30766" x="160611" y="21236" z="-3712" heading="32768" respawnTime="60sec" /> <!-- Cleo -->
+			<npc id="27380" x="157284" y="21161" z="-4200" heading="24994" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="157484" y="19558" z="-4216" heading="7684" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="157779" y="19788" z="-4216" heading="58920" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158634" y="19701" z="-4168" heading="53603" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158190" y="19957" z="-4176" heading="48935" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158026" y="19510" z="-4192" heading="42693" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158489" y="19621" z="-4176" heading="65319" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158189" y="20176" z="-4160" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158189" y="20052" z="-4168" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="157816" y="21397" z="-4168" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="157992" y="20851" z="-4168" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158080" y="21124" z="-4136" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158256" y="21852" z="-4120" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="157816" y="20942" z="-4192" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="157728" y="21761" z="-4144" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27380" x="158168" y="21579" z="-4152" respawnTime="60sec" /> <!-- Reckless Water Spirit -->
+			<npc id="27484" x="146740" y="14832" z="-1368" respawnTime="60sec" /> <!-- -->
+			<npc id="27484" x="148197" y="14813" z="-1368" respawnTime="60sec" /> <!-- -->
+		</group>
+	</spawn>
+</list>

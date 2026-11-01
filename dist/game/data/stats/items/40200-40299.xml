@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="40200" name="Sayha's Cloak" additionalName="Eviscerator" type="Armor">
 		<!-- Cloak for those that carry the power of Sayha. M. Def. +40. -->
@@ -13,9 +13,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="188" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -34,16 +34,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="189" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
 	</item>
 	<item id="40202" name="Supply Box (R-grade)" type="EtcItem">
-		<!-- Double-click to obtain either a normal/blessed weapon/armor/accessory (R-grade). -->
+		<!-- Double-click to obtain either a normal/ blessed weapon/ armor/ accessory (R-grade). -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="crystal_type" val="R" />
 		<set name="is_stackable" val="false" />
@@ -57,7 +57,7 @@
 		</skills>
 	</item>
 	<item id="40203" name="Supply Box (R95-grade)" type="EtcItem">
-		<!-- Double-click to obtain either a normal/blessed weapon/armor/accessory (R95-grade). -->
+		<!-- Double-click to obtain either a normal/ blessed weapon/ armor/ accessory (R95-grade). -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="crystal_type" val="R" />
 		<set name="is_stackable" val="false" />
@@ -71,7 +71,7 @@
 		</skills>
 	</item>
 	<item id="40204" name="Supply Box (R99-grade)" type="EtcItem">
-		<!-- Double-click to obtain either a normal/blessed weapon/armor/accessory (R99-grade). -->
+		<!-- Double-click to obtain either a normal/ blessed weapon/ armor/ accessory (R99-grade). -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="crystal_type" val="R" />
 		<set name="is_stackable" val="false" />
@@ -268,7 +268,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18118" level="1" /> <!-- Cat Fighter Appearance Stone - Ertheia Only -->
+			<skill id="18118" level="1" /> <!-- Appearance Stone: Cat Fighter (Ertheia Only) -->
 		</skills>
 	</item>
 	<item id="40220" name="Appearance Stone: Cat Staff (Ertheia Only)" additionalName="90-day" type="EtcItem">
@@ -285,31 +285,31 @@
 		<set name="is_freightable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18119" level="1" /> <!-- Cat Fighter Appearance Stone - Ertheia Only -->
+			<skill id="18119" level="1" /> <!-- Appearance Stone: Cat Staff (Ertheia Only) -->
 		</skills>
 	</item>
 	<item id="40221" name="Ertheia's Attribute Stone Pack (+60)" type="EtcItem">
 		<!-- Double-click to obtain an Attribute Stone (+60). -->
 		<set name="icon" val="icon.etc_treasure_box_i03" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40222" name="Ertheia's Attribute Stone Pack (+150)" type="EtcItem">
 		<!-- Double-click to obtain an Attribute Stone (+150). -->
 		<set name="icon" val="icon.etc_treasure_box_i04" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40223" name="Ertheia's Attribute Crystal Pack - Super" type="EtcItem">
 		<!-- Double-click to obtain an Attribute Crystal - Super. -->
 		<set name="icon" val="icon.etc_treasure_box_i02" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40224" name="Minstrel's Scroll of Escape: Town of Aden" type="EtcItem">
@@ -319,8 +319,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40225" name="Scroll of Escape: Pagan Temple" type="EtcItem">
@@ -330,8 +330,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40226" name="Freya's Frozen Lamp" type="EtcItem">
@@ -339,17 +339,17 @@
 		<set name="icon" val="icon.freya_lamp" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40227" name="Freya's Frozen Scroll" type="EtcItem">
-		<!-- Vitality consumption +100% and XP/SP acquisition +100% while hunting. Remains after death. Duration 10 min. Cooldown 9 min. Only usable when 1 or more Vitality slots are full. Cannot be used in the Olympiad. Cannot be stacked with Freya's Scroll of Storm and Maphr's Wind Scroll. -->
+		<!-- For 10 min. vitality consumption +100% and XP/ SP acquisition +100% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. Cannot be stacked with “Freya's Scroll of Storm” and "Maphr's Wind Scroll". -->
 		<set name="icon" val="icon.freya_scroll" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ItemSkills" />
@@ -364,17 +364,17 @@
 		<set name="icon" val="icon.freya_box_i01" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40229" name="Sirra's Wish Box" type="EtcItem">
-		<!-- Double-click for a chance to obtain one of the following items: Lucky Enchant Stone, High-grade Lucky Enchant Stone, Blessed Lucky Enchant Stone, Elemental Shirt Pack, Dark/Bloody Eternal Enhancement Stone, Blessed High-grade Lucky Enchant Stone, Freya's Lucky Enchant Stone, or a Dark/Bloody Helios Enhancement Stone. -->
+		<!-- Double-click for a chance to obtain one of the following items: Lucky Enchant Stone, High-grade Lucky Enchant Stone, Blessed Lucky Enchant Stone, Elemental Shirt Pack, Dark/ Bloody Eternal Enhancement Stone, Blessed High-grade Lucky Enchant Stone, Freya's Lucky Enchant Stone, or a Dark/ Bloody Helios Enhancement Stone. -->
 		<set name="icon" val="icon.freya_box_i02" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40230" name="Snowman's Wish Box" type="EtcItem">
@@ -382,18 +382,18 @@
 		<set name="icon" val="icon.freya_box_i03" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40231" name="Freya's Frozen Scroll" additionalName="Event" type="EtcItem">
-		<!-- Vitality consumption +100% and XP/SP acquisition +100% while hunting. Remains after death. Duration 10 min. Cooldown 9 min. Only usable when 1 or more Vitality slots are full. Cannot be used in the Olympiad. Cannot be stacked with Freya's Scroll of Storm and Maphr's Wind Scroll. -->
+		<!-- For 10 min. vitality consumption +100% and XP/ SP acquisition +100% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. Cannot be stacked with “Freya's Scroll of Storm” and "Maphr's Wind Scroll". -->
 		<set name="icon" val="icon.freya_scroll" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ItemSkills" />
@@ -408,10 +408,10 @@
 		<set name="icon" val="icon.freya_stone_i01" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="18131" level="1" /> <!-- Freya's Lucky Enchant Stone: Weapon (R-grade) -->
@@ -422,10 +422,10 @@
 		<set name="icon" val="icon.freya_stone_i02" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="18132" level="1" /> <!-- Freya's Lucky Enchant Stone: Armor (R-grade) -->
@@ -436,8 +436,8 @@
 		<set name="icon" val="icon.etc_exchange_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ExtractableItems" />
@@ -451,8 +451,8 @@
 		<set name="icon" val="icon.etc_exchange_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ExtractableItems" />
@@ -466,8 +466,8 @@
 		<set name="icon" val="icon.etc_exchange_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ExtractableItems" />
@@ -477,7 +477,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40237" name="Agathion - Freya" additionalName="30-day" type="Armor">
-		<!-- Summons Freya agathion. 30-day. Cannot be used in the Olymipad. <Active Skill>. 1. Freya's Scroll of Escape: Town of Aden / Town of Rune / Talking Island Village. Cooldown is 30 min. <Passive SKill>. 1. Freya's Mind: Mental/Paralysis Resistance +10%, Water Resistance +10. 2. Freya's Strength: STR/INT/CON/DEX/WIT/MEN +1. 3. Freya's Magic: P./M. Skill MP Consumption - 3%. -->
+		<!-- Summons Freya agathion. 30-day. Cannot be used in the Olymipad. <Active Skill>. 1. Freya's Scroll of Escape: Town of Aden/ Town of Rune/ Talking Island Village. Cooldown is 30 min. <Passive SKill>. 1. Freya's Mind: Mental/ Paralysis Resistance +10%, Water Resistance +10. 2. Freya's Strength: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 3. Freya's Magic: P./ M. Skill MP Consumption -3%. -->
 		<set name="icon" val="icon.pi_high_agathion_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -492,7 +492,7 @@
 			<skill id="18135" level="1" /> <!-- Freya's Cute Trick -->
 			<skill id="18136" level="1" /> <!-- Freya's Scroll of Escape: Town of Rune -->
 			<skill id="18137" level="1" /> <!-- Freya's Scroll of Escape: Town of Aden -->
-			<skill id="18138" level="1" /> <!-- Freya's Scroll of Escape: Talking Island -->
+			<skill id="18138" level="1" /> <!-- Freya's Scroll of Escape: Talking Island Village -->
 			<skill id="18139" level="1" /> <!-- Freya's Mind -->
 			<skill id="18140" level="1" /> <!-- Freya's Strength -->
 			<skill id="18141" level="1" /> <!-- Freya's Magic -->
@@ -500,17 +500,17 @@
 		</skills>
 	</item>
 	<item id="40238" name="Freya's Supply Box" type="EtcItem">
-		<!-- Double-click to obtain a Transformation Scroll: Anakim / Zaken / Kechi / Saber Tooth Tiger / Doll Blader. Cannot be used in the Olympiad. -->
+		<!-- Double-click to obtain a Transformation Scroll: Anakim/ Zaken/ Kechi/ Saber Tooth Tiger/ Doll Blader. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.freya_cube_box" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40239" name="Freya's Heart" type="EtcItem">
-		<!-- For 60 min., P. Atk. +5%, M. Atk. +20%, P./M. Def. +5%, Atk./Casting Spd. +5%, Max HP/MP +5%. XP/SP acquisition +50% while hunting. Does not stack with Letter's Collector Gift or Art of Seduction buffs. -->
+		<!-- For 60 min., P. Atk. +5%, M. Atk. +20%, P./ M. Def. +5%, Atk./ Casting Spd. +5%, Max HP/ MP +5%. XP/ SP acquisition +50% while hunting. Does not stack with Letter's Collector Gift or Art of Seduction buffs. -->
 		<set name="icon" val="icon.etc_jewel_gold_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -537,8 +537,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
@@ -550,8 +550,8 @@
 		<set name="icon" val="icon.etc_pi_box_wish_pack" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
@@ -559,7 +559,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40243" name="Greater Abelius Cloak (20-day)" additionalName="Sigel Knight" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -571,19 +571,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="148, 149, 150, 151" />
-		</cond>
-		<skills>
-			<skill id="16426" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16426" level="1" /> <!-- Greater Abelius Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40244" name="Greater Sapyros Cloak (20-day)" additionalName="Tyrr Warrior" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -595,19 +595,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="152, 153, 154, 155, 156, 157" />
-		</cond>
-		<skills>
-			<skill id="16427" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16427" level="1" /> <!-- Greater Sapyros Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40245" name="Greater Ashagen Cloak (20-day)" additionalName="Othell Rogue" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -619,19 +619,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="158, 159, 160, 161" />
-		</cond>
-		<skills>
-			<skill id="16428" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16428" level="1" /> <!-- Greater Ashagen Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40246" name="Greater Cranigg Cloak (20-day)" additionalName="Yul Archer" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -643,19 +643,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="162, 163, 164, 165" />
-		</cond>
-		<skills>
-			<skill id="16429" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16429" level="1" /> <!-- Greater Cranigg Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40247" name="Greater Soltkreig Cloak (20-day)" additionalName="Feoh Wizard" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -667,19 +667,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="166, 167, 168, 169, 170" />
-		</cond>
-		<skills>
-			<skill id="16430" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16430" level="1" /> <!-- Greater Soltkreig Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40248" name="Greater Naviarope Cloak (20-day)" additionalName="Wynn Summoner" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -691,19 +691,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="176, 177, 178" />
-		</cond>
-		<skills>
-			<skill id="16431" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16431" level="1" /> <!-- Greater Naviarope Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40249" name="Greater Leister Cloak (20-day)" additionalName="Iss Enchanter" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -715,19 +715,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="171, 172, 173, 174, 175" />
-		</cond>
-		<skills>
-			<skill id="16432" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16432" level="1" /> <!-- Greater Leister Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40250" name="Greater Lakcis Cloak (20-day)" additionalName="Aeore Healer" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -739,19 +739,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="179, 180, 181" />
-		</cond>
-		<skills>
-			<skill id="16433" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16433" level="1" /> <!-- Greater Lakcis Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40251" name="Greater Sayha Cloak (20-day)" additionalName="Eviscerator" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -763,19 +763,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="188" />
-		</cond>
-		<skills>
-			<skill id="16434" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16434" level="1" /> <!-- Greater Sayha Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40252" name="Greater Sayha Cloak (20-day)" additionalName="Sayha's Seer" type="Armor">
-		<!-- M. Def. +40, STR/INT/CON/MEN +1. 20-day. -->
+		<!-- M. Def. +40, STR/ INT/ CON/ MEN +1. 20-day. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -787,19 +787,19 @@
 		<set name="time" val="28800" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="189" />
-		</cond>
-		<skills>
-			<skill id="16435" level="1" /> <!-- Greater Cloak (20-day) -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="16435" level="1" /> <!-- Greater Sayha Cloak (20-day) -->
+		</skills>
 	</item>
 	<item id="40253" name="Potion of Protection: Stun" type="EtcItem">
-		<!-- When used, increases Resistance to Stun Attacks by 5% and reduces PVP damage taken by 3%. Cannot be used in Olympiad. Does not stack when used with other Potions of Protection. -->
+		<!-- When used, Resistance to Stun Attacks +5% and PVP damage taken -3%. Cannot be used in Olympiad. Does not stack when used with other Potions of Protection. -->
 		<set name="icon" val="icon.etc_fruit_juice_glass_bottle_i01" />
 		<set name="weight" val="10" />
 		<set name="is_stackable" val="true" />
@@ -865,7 +865,6 @@
 		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="commissionItemType" val="POTION" />
-		<set name="commissionItemType" val="POTION" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="LIQUID" />
 		<set name="handler" val="ItemSkills" />
@@ -905,7 +904,7 @@
 		</skills>
 	</item>
 	<item id="40260" name="Potion of Protection: Knock Back / Knock Down" type="EtcItem">
-		<!-- When used, increases Resistance to Knock Back/Knock Down Attacks by 5% and reduces PVP damage taken by 3%. Cannot be used in the Olympiad. Does not stack when used with other Potions of Protection. -->
+		<!-- When used, increases Resistance to Knock Back/ Knock Down Attacks by 5% and reduces PVP damage taken by 3%. Cannot be used in the Olympiad. Does not stack when used with other Potions of Protection. -->
 		<set name="icon" val="icon.etc_fruit_juice_glass_bottle_i10" />
 		<set name="weight" val="10" />
 		<set name="etcitem_type" val="POTION" />
@@ -916,7 +915,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_oly_restricted" val="true" />
 		<skills>
-			<skill id="18163" level="1" /> <!-- Potion of Protection: Knock Back / Knock Down -->
+			<skill id="18163" level="1" /> <!-- Potion of Protection: Knock Back/ Knock Down -->
 		</skills>
 	</item>
 	<item id="40261" name="Potion of Protection: Aerial Yoke" type="EtcItem">
@@ -942,8 +941,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item chance="100.0" id="12074" max="1" min="1" /> <!-- Common Item - Salamander Skin Mail -->
@@ -960,8 +959,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item chance="100.0" id="12071" max="1" min="1" /> <!-- Common Item - Assault Boots -->
@@ -978,8 +977,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item chance="100.0" id="11691" max="1" min="1" /> <!-- Common Item - Bich'Hwa -->
@@ -997,8 +996,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item chance="100.0" id="11693" max="1" min="1" /> <!-- Common Item - Goat Head Staff -->
@@ -1016,8 +1015,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item chance="100.0" id="11776" max="1" min="1" /> <!-- Common Item - Knuckle Duster -->
@@ -1040,8 +1039,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item chance="100.0" id="11793" max="1" min="1" /> <!-- Common Item - Cursed Staff -->
@@ -1105,12 +1104,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="18558" level="1" /> <!-- Dark Assassin Appearance Stone -->
+			<skill id="18558" level="1" /> <!-- White Assassin Suit Appearance Stone -->
 		</skills>
 	</item>
 	<item id="40271" name="Orc's Normal Old Box" type="EtcItem">
@@ -1128,13 +1127,13 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40273" name="Ertheia's Boost Scroll" type="EtcItem">
-		<!-- For 30 min., P./M. Atk. +30%, P./M. Critical Damage +15%, Speed +20. MP Consumption - 15%. -->
+		<!-- For 30 min., P./ M. Atk. +30%, P./ M. Critical Damage +15%, Speed +20. MP Consumption -15%. -->
 		<set name="icon" val="icon.etc_scroll_of_transformation_traikan_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40274" name="Buff Helmet" type="Armor">
@@ -1317,7 +1316,7 @@
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1342,7 +1341,7 @@
 			<stat type="mAtk">134</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1367,7 +1366,7 @@
 			<stat type="mAtk">157</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1392,7 +1391,7 @@
 			<stat type="mAtk">193</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1417,7 +1416,7 @@
 			<stat type="mAtk">222</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1426,16 +1425,16 @@
 		<!-- Changes the appearance of a one-handed blunt weapon into that of a Turikki's Blunt Weapon. An appearance-modified item has no change in abilities. Double-click to use. -->
 		<set name="icon" val="icon.shape_shifting_blunt_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40297" name="Monster Weapon Appearance Stone: Tayga Archer's Bow" type="EtcItem">
 		<!-- Changes the appearance of a bow into that of a Tayga Archer's Bow. An appearance-modified item has no change in abilities. Double-click to use. -->
 		<set name="icon" val="icon.shape_shifting_bow_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="40298" name="Turikki's Blunt Weapon" type="Weapon">
@@ -1456,7 +1455,7 @@
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1480,7 +1479,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>

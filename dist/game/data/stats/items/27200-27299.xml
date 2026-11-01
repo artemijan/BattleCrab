@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="27200" name="Pirate's Eyepatch" additionalName="LUC + M. Def." type="Armor">
 		<!-- LUC +3 and M. Def. +5% when equipped. -->
@@ -45,7 +45,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27203" name="Pirate's Eyepatch" additionalName="CHA + Evasion" type="Armor">
@@ -61,7 +61,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27204" name="Pirate's Eyepatch" additionalName="LUC + P. Atk." type="Armor">
@@ -141,7 +141,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27209" name="Pirate's Eyepatch" additionalName="CHA + Accuracy" type="Armor">
@@ -157,7 +157,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27210" name="Outlaw's Eyepatch" additionalName="LUC + Critical Rate" type="Armor">
@@ -173,7 +173,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27211" name="Outlaw's Eyepatch" additionalName="CHA + Critical Rate" type="Armor">
@@ -189,7 +189,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27212" name="Outlaw's Eyepatch" additionalName="LUC + Critical Damage" type="Armor">
@@ -301,7 +301,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27219" name="Outlaw's Eyepatch" additionalName="CHA + Evasion" type="Armor">
@@ -317,7 +317,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27220" name="Outlaw's Eyepatch" additionalName="LUC + P. Atk." type="Armor">
@@ -397,7 +397,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27225" name="Outlaw's Eyepatch" additionalName="CHA + Accuracy" type="Armor">
@@ -413,7 +413,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27226" name="Eyepatch" additionalName="LUC + Critical Rate" type="Armor">
@@ -429,7 +429,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27227" name="Eyepatch" additionalName="CHA + Critical Rate" type="Armor">
@@ -445,7 +445,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27228" name="Eyepatch" additionalName="LUC + Critical Damage" type="Armor">
@@ -557,7 +557,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27235" name="Eyepatch" additionalName="CHA + Evasion" type="Armor">
@@ -573,7 +573,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27236" name="Eyepatch" additionalName="LUC + P. Atk." type="Armor">
@@ -653,7 +653,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27241" name="Eyepatch" additionalName="CHA + Accuracy" type="Armor">
@@ -669,7 +669,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27242" name="Party Hat" additionalName="LUC + Critical Rate" type="Armor">
@@ -685,7 +685,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27243" name="Party Hat" additionalName="CHA + Critical Rate" type="Armor">
@@ -701,7 +701,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27244" name="Party Hat" additionalName="LUC + Critical Damage" type="Armor">
@@ -813,7 +813,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27251" name="Party Hat" additionalName="CHA + Evasion" type="Armor">
@@ -829,7 +829,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27252" name="Party Hat" additionalName="LUC + P. Atk." type="Armor">
@@ -909,7 +909,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27257" name="Party Hat" additionalName="CHA + Accuracy" type="Armor">
@@ -925,7 +925,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27258" name="Refined Angel Ring" additionalName="LUC + Critical Rate" type="Armor">
@@ -941,7 +941,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27259" name="Refined Angel Ring" additionalName="CHA + Critical Rate" type="Armor">
@@ -957,7 +957,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27260" name="Refined Angel Ring" additionalName="LUC + Critical Damage" type="Armor">
@@ -1069,7 +1069,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27267" name="Refined Angel Ring" additionalName="CHA + Evasion" type="Armor">
@@ -1085,7 +1085,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27268" name="Refined Angel Ring" additionalName="LUC + P. Atk." type="Armor">
@@ -1165,7 +1165,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27273" name="Refined Angel Ring" additionalName="CHA + Accuracy" type="Armor">
@@ -1181,7 +1181,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27274" name="Refined Devil Horn" additionalName="LUC + Critical Rate" type="Armor">
@@ -1197,7 +1197,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27275" name="Refined Devil Horn" additionalName="CHA + Critical Rate" type="Armor">
@@ -1213,7 +1213,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="27276" name="Refined Devil Horn" additionalName="LUC + Critical Damage" type="Armor">
@@ -1325,7 +1325,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27283" name="Refined Devil Horn" additionalName="CHA + Evasion" type="Armor">
@@ -1341,7 +1341,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="27284" name="Refined Devil Horn" additionalName="LUC + P. Atk." type="Armor">
@@ -1421,7 +1421,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27289" name="Refined Devil Horn" additionalName="CHA + Accuracy" type="Armor">
@@ -1437,7 +1437,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="27290" name="Pirate Captain Outfit" additionalName="Low-grade / Debuff Reflect" type="Armor">
@@ -1469,7 +1469,7 @@
 		</skills>
 	</item>
 	<item id="27292" name="Pirate Captain Outfit" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_captain_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />

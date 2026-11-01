@@ -36,7 +36,12 @@ fn volcano_like(id: i32) -> Skill {
         channeling_start_ms: 100,
         // Tiny power: the default test template has almost no m.def, so a
         // realistic power one-shots even a 100k-HP fixture.
-        channeling_effects: vec![SkillEffect::MagicalAttack { power: 1.0 }],
+        channeling_effects: vec![SkillEffect::MagicalDamage {
+            power: 1.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     }
 }
@@ -85,8 +90,8 @@ fn volcano_parses_as_a_channeling_ground_cast() {
         volcano
             .channeling_effects
             .iter()
-            .any(|e| matches!(e, SkillEffect::MagicalAttack { power } if *power == 500.0)),
-        "the tick payload is MagicalAttack 500: {:?}",
+            .any(|e| matches!(e, SkillEffect::MagicalDamage { power, .. } if *power == 500.0)),
+        "the tick payload is MagicalDamage 500: {:?}",
         volcano.channeling_effects
     );
     assert!(volcano.effects.is_empty(), "nothing lands at cast finish");

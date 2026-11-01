@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47300" name="Unworldly Visitors Talisman Stage 10" type="Armor">
 		<!-- A Talisman created by the energy of the Pure Spirits remaining in the Garden of Spirits. When equipped, damage received from Spirits -10%, P. Atk. against Spirits +5%, M. Critical Damage +3%. -->
@@ -280,7 +280,7 @@
 			<stat type="pDef">108</stat>
 		</stats>
 	</item>
-	<item id="47318" name="Blessed Eternal Shield" additionalName="Attack Type / Heavy Armor" type="Armor">
+	<item id="47318" name="Blessed Eternal Shield" additionalName="Attack Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.weapon_akra_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -392,7 +392,7 @@
 		</stats>
 	</item>
 	<item id="47325" name="Bloody Eternal Tunic" additionalName="Magic Type / Robe" type="Armor">
-		<!-- PvE enchant type item. Damage received from an NPC -8%, P. Atk. +1%, M. Atk. +2%. When enchanted to +4, M. Evasion and Mental Attack Resistance increased, P. Critical Rate/Damage Received decreased. Aeore, Feoh, Wynn, Iss classes and Sayha's Seer only. -->
+		<!-- PvE enchant type item. Damage received from an NPC -8%, P. Atk. +1%, M. Atk. +2%. When enchanted to +4, M. Evasion and Mental Attack Resistance increased, P. Critical Rate/ Damage Received decreased. Aeore, Feoh, Wynn, Iss classes and Sayha's Seer only. -->
 		<set name="icon" val="icon.armor_t803_u_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -403,17 +403,17 @@
 		<set name="weight" val="1750" />
 		<set name="price" val="422292000" />
 		<set name="enchant_enabled" val="true" />
+		<stats>
+			<stat type="pDef">238</stat>
+			<stat type="mDef">56</stat>
+			<stat type="maxMp">649</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="8845" level="1" /> <!-- PvE Defense -->
 			<skill id="13812" level="1" /> <!-- Additional Ability Might -->
 			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">238</stat>
-			<stat type="mDef">56</stat>
-			<stat type="maxMp">649</stat>
-		</stats>
 	</item>
 	<item id="47326" name="Bloody Eternal Stockings" additionalName="Magic Type / Robe" type="Armor">
 		<!-- PvE enchant type item. Damage received from an NPC -5%, P. Atk. +1%, M. Atk. +2%. Aeore, Feoh, Wynn, Iss classes and Sayha's Seer only. -->
@@ -540,7 +540,7 @@
 			<stat type="pDef">108</stat>
 		</stats>
 	</item>
-	<item id="47334" name="Blessed Eternal Shield" additionalName="Defense Type / Heavy Armor" type="Armor">
+	<item id="47334" name="Blessed Eternal Shield" additionalName="Defense Type/Heavy" type="Armor">
 		<!-- Additionally increases Shield Defense. -->
 		<set name="icon" val="icon.weapon_akra_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -652,7 +652,7 @@
 		</stats>
 	</item>
 	<item id="47341" name="Bloody Eternal Tunic" additionalName="Recovery Type / Robe" type="Armor">
-		<!-- PvE enchant type item. Damage received from an NPC -8%, P. Atk. +1%, M. Atk. +2%. When enchanted to +4, M. Evasion and Mental Attack Resistance increased, P. Critical Rate/Damage Received decreased. Aeore classes only. -->
+		<!-- PvE enchant type item. Damage received from an NPC -8%, P. Atk. +1%, M. Atk. +2%. When enchanted to +4, M. Evasion and Mental Attack Resistance increased, P. Critical Rate/ Damage Received decreased. Aeore classes only. -->
 		<set name="icon" val="icon.armor_t803_u_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -663,17 +663,17 @@
 		<set name="weight" val="1750" />
 		<set name="price" val="422292000" />
 		<set name="enchant_enabled" val="true" />
+		<stats>
+			<stat type="pDef">238</stat>
+			<stat type="mDef">56</stat>
+			<stat type="maxMp">649</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="8845" level="1" /> <!-- PvE Defense -->
 			<skill id="13812" level="1" /> <!-- Additional Ability Might -->
 			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">238</stat>
-			<stat type="mDef">56</stat>
-			<stat type="maxMp">649</stat>
-		</stats>
 	</item>
 	<item id="47342" name="Bloody Eternal Stockings" additionalName="Recovery Type / Robe" type="Armor">
 		<!-- PvE enchant type item. Damage received from an NPC -5%, P. Atk. +1%, M. Atk. +2%. Aeore classes only. -->
@@ -914,7 +914,7 @@
 			<item id="46701" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Buster - 30-day -->
 			<item id="46702" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Caster - 30-day -->
 			<item id="46703" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Retributer - 30-day -->
-			<item id="46704" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Dualsword - 30-day -->
+			<item id="46704" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Dual Sword - 30-day -->
 			<item id="46705" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Dual Dagger - 30-day -->
 			<item id="46706" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Dual Blunt - 30-day -->
 		</capsuled_items>
@@ -941,7 +941,7 @@
 			<item id="35715" min="1" max="1" chance="100" /> <!-- Refined Romantic Chapeau containing the GM's Blessing - Warriors Only -->
 			<item id="35716" min="1" max="1" chance="100" /> <!-- Refined Romantic Chapeau containing the GM's Blessing - Wizards Only -->
 			<item id="35717" min="1" max="1" chance="100" /> <!-- Refined Romantic Chapeau containing the GM's Blessing - Healers Only -->
-			<item id="37134" min="1" max="1" chance="100" /> <!-- Lv. 5 Legendary Dye Pack - Event -->
+			<item id="37134" min="1" max="1" chance="100" /> <!-- Lv. 5 Legendary Dye Pack -->
 			<item id="47353" min="1" max="1" chance="100" /> <!-- Rare Accessory Pack -->
 			<item id="47352" min="1" max="1" chance="100" /> <!-- +8 Bloody Eternal Pack -->
 			<item id="47354" min="1" max="1" chance="100" /> <!-- Emperor Shunaiman's Weapon Set Pack -->
@@ -1016,7 +1016,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18620" level="2" /> <!-- Basic Supply Box -->
+			<skill id="18620" level="2" /> <!-- Intermediate Supply Box -->
 		</skills>
 	</item>
 	<item id="47361" name="Advanced Supply Box" additionalName="Giant Trackers" type="EtcItem">
@@ -1030,7 +1030,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18620" level="3" /> <!-- Basic Supply Box -->
+			<skill id="18620" level="3" /> <!-- Advanced Supply Box -->
 		</skills>
 	</item>
 	<item id="47362" name="Supply Box" additionalName="Kingdom's Royal Guard" type="EtcItem">
@@ -1099,7 +1099,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
-	<item id="47368" name="Agathion Box" type="EtcItem">
+	<item id="47368" name="Agathion Pack" type="EtcItem">
 		<!-- Double click to obtain one of the following: Zodiac Agathion Pack (15-day), Radiant Zodiac Agathion Pack (30-day), Twinkling Zodiac Agathion Pack (30-day), Agathion - Anakim Holy Barrier Pack. -->
 		<set name="icon" val="icon.etc_pi_box_joy_pack" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
@@ -1116,7 +1116,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="47370" name="Superion Elcyum Box" type="EtcItem">
-		<!-- Double click to obtain one of a bundle of 80/100/150 Elcyum Powder. -->
+		<!-- Double click to obtain one of a bundle of 80/ 100/ 150 Elcyum Powder. -->
 		<set name="icon" val="icon.bm_special_pendant_abradant_box" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_sellable" val="false" />
@@ -1160,7 +1160,7 @@
 		<set name="time" val="43200" />
 		<set name="crystal_type" val="R" />
 		<skills>
-			<skill id="13960" level="1" /> <!-- Mammon's Talisman - Attack Attribute -->
+			<skill id="13960" level="1" /> <!-- Mammon's Talisman Box - Attack Attribute -->
 		</skills>
 	</item>
 	<item id="47374" name="Mammon's Talisman" additionalName="Skill Cooldown" type="Armor">
@@ -1257,22 +1257,22 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
-	<item id="47382" name="Freya's Wind Scroll (High-grade)" additionalName="Temporary Name" type="EtcItem">
-		<!-- Vitality consumption +150%, XP/SP acquisition +150% while hunting. Remains after death. Duration is 10 min. Cooldown is 10 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. -->
+	<item id="47382" name="Freya's Wind Scroll" additionalName="Event" type="EtcItem">
+		<!-- Vitality consumption +150%, XP/ SP acquisition +150% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.freya_scroll" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
-		<cond>
+		<conditions>
 			<player MinimumVitalityPoints="35000" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="27629" level="1" /> <!-- Freya's Scroll of Storm -->
 		</skills>
@@ -1300,15 +1300,15 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="material" val="PAPER" />
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="99;255" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="18628" level="1" /> <!-- Express Bus Pass Card -->
 		</skills>
 	</item>
-	<item id="47385" name="Balthus Knight Mark" type="EtcItem">
-		<!-- Makes you eligible to receive a Member of the Balthus Knight disguise for 1 hour. Can be used only by characters of Level 85 or higher. Buff gets deleted upon Subclass/Dual Class change. This item will be deleted after the event is over. -->
+	<item id="47385" name="Balthus Knights' Mark" type="EtcItem">
+		<!-- Makes you eligible to receive a Member of the Balthus Knight disguise for 1 hour. Can be used only by characters of Level 85 or higher. Buff gets deleted upon Subclass/ Dual Class change. Will be deleted after the event. -->
 		<set name="icon" val="icon.ev_balthus_token" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_tradable" val="false" />
@@ -1319,7 +1319,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="47386" name="Sibi's Letter" additionalName="Event" type="EtcItem">
-		<!-- Letter from the Vice-Chief of the Balthus Knights. This item will be deleted after the event is over. -->
+		<!-- Letter from the Vice-Chief of the Balthus Knights. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_royal_membership_i00" />
 		<set name="default_action" val="SHOW_HTML" />
 		<set name="immediate_effect" val="true" />
@@ -1329,8 +1329,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="47387" name="Balthus Knights Supply Box" type="EtcItem">
-		<!-- Double-click to receive 3 Balthus Knight Marks. (Can be used only once a day). This item will be deleted after the event is over. -->
+	<item id="47387" name="Balthus Knights' Supply Box" type="EtcItem">
+		<!-- Double-click to receive 3 Balthus Knight Marks. (Can be used only once a day). Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_ev_kalie_treasure_box" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1343,7 +1343,7 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
-			<item id="47385" min="3" max="3" chance="100" /> <!-- Balthus Knight Mark -->
+			<item id="47385" min="3" max="3" chance="100" /> <!-- Balthus Knights' Mark -->
 		</capsuled_items>
 	</item>
 	<item id="47388" name="12th Anniversary Souvenir" type="EtcItem">
@@ -1371,7 +1371,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47390" name="Insanity Talisman/Longing Talisman/Energy of Longing Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, an Insanity Talisman/Longing Talisman/Energy of Longing can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knights' Supply Box. When used, an Insanity Talisman/ Longing Talisman/ Energy of Longing can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i01" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1388,7 +1388,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47391" name="Venir Stage 11/12/13 Talisman Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knight Supply Box. When used, a Venir Talisman Stage 11/12/13 can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knight Supply Box. When used, a Venir Talisman Stage 11/ 12/ 13 can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i02" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
@@ -1406,15 +1406,15 @@
 		</capsuled_items>
 	</item>
 	<item id="47392" name="Destruction Scroll: Enchant Elemental Shirt" type="EtcItem">
-		<!-- Shirt Enchantment-only Scroll. The enchant level is maintained when enchantment fails. Cannot be used on Shirts of +9 or higher. -->
+		<!-- Shirt Enchantment-only Scroll. If enchanting fails the existing enchant value is maintained. Cannot be used on Shirts of +9 or higher. -->
 		<set name="icon" val="icon.g_scrl_of_ench_wolf_shirt" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="weight" val="10" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="47393" name="Dark Assassin/White Assassin Suit Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, a Dark Assassin/White Assassin Suit Appearance Stone can be obtained. This item will be deleted after the event is over. -->
+	<item id="47393" name="Dark/White Assassin Suit Supply Box" type="EtcItem">
+		<!-- Top-grade Balthus Knights' Supply Box. When used, a Dark/White Assassin Suit Appearance Stone can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i04" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
@@ -1431,7 +1431,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47394" name="Scroll of Blessing R99/R95/R(2) Supply Item" type="EtcItem">
-		<!-- Top-grade Balthus Knight Supply Item. Use to obtain an R99/R95/R(2) Grade Scroll of Blessing. Will be deleted when the event ends. -->
+		<!-- Top-grade Balthus Knight Supply Item. Use to obtain an R99/ R95/ R(2) Grade Scroll of Blessing. Will be deleted when the event ends. -->
 		<set name="icon" val="icon.etc_treasure_box_i05" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="is_tradable" val="false" />
@@ -1441,7 +1441,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="47395" name="Bottle of Antharas/Valakas/Baium's Soul Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, an Antharas/Valakas/Baium Soul Bottle can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knights' Supply Box. When used, an Antharas/ Valakas/ Baium Soul Bottle can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i06" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
@@ -1459,7 +1459,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47396" name="Nurka/Rydel/Gustav's Belt Supply Item" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Items. When used, a Nurka/Lydia/Gustav's Belt can be obtained. Will be deleted on June 15th, 2016, after regular maintenance. -->
+		<!-- Top-grade Balthus Knights' Supply Items. When used, a Nurka/ Lydia/ Gustav's Belt can be obtained. Will be deleted on June 15th, 2016, after regular maintenance. -->
 		<set name="icon" val="icon.etc_treasure_box_i07" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1476,7 +1476,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47397" name="Seven Signs/Anakim/Lilith Talisman Supply Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, a Seven Signs/Anakim/Lilith's Talisman can be obtained. This item will be deleted after the event is over. -->
+		<!-- Top-grade Balthus Knights' Supply Box. When used, a Seven Signs/ Anakim/ Lilith's Talisman can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
@@ -1493,8 +1493,8 @@
 			<item id="37715" min="1" max="1" chance="25" /> <!-- Talisman - Anakim -->
 		</capsuled_items>
 	</item>
-	<item id="47398" name="Bloody Eternal Enhancement Stones Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Box. When used, 2 Bloody Eternal Enhancement Stones can be obtained. This item will be deleted after the event is over. -->
+	<item id="47398" name="Bloody Eternal Enhancement Stones Supply Box" type="EtcItem">
+		<!-- Top-grade Balthus Knights' Supply Box. When used, 2 Bloody Eternal Enhancement Stones can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i04" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_tradable" val="false" />
@@ -1507,8 +1507,8 @@
 			<item id="35569" min="2" max="2" chance="75" /> <!-- Bloody Eternal Enhancement Stone -->
 		</capsuled_items>
 	</item>
-	<item id="47399" name="Sibi Coin Box" type="EtcItem">
-		<!-- Top-grade Balthus Knights Supply Items. When used, 1500 Sibi Coins can be obtained. This item will be deleted after the event is over. -->
+	<item id="47399" name="Sibi's Coins Box" type="EtcItem">
+		<!-- Top-grade Balthus Knights' Supply Items. When used, 1500 Sibi's Coins can be obtained. Will be deleted after the event. -->
 		<set name="icon" val="icon.etc_treasure_box_i10" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1519,7 +1519,7 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="LEATHER" />
 		<capsuled_items>
-			<item id="49783" min="1500" max="1500" chance="75" /> <!-- Sibi Coin -->
+			<item id="49783" min="1500" max="1500" chance="75" /> <!-- Sibi's Coin -->
 		</capsuled_items>
 	</item>
 </list>

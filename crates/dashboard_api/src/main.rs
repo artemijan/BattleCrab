@@ -101,7 +101,7 @@ async fn main() {
                  This is not the game database. The usual cause is an empty file created by a \
                  previous run with a wrong path or working directory.\n\
                  Point DIST_GAME_CONFIG_DASHBOARD_URL at the real interlude_classic.db (the same \
-                 one dist/login/config/LoginServer.ini uses), and delete the empty file.",
+                 one dist/login/config/Database.ini uses), and delete the empty file.",
                 missing.join(", "),
                 absolute
                     .as_ref()

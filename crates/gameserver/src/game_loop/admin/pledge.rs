@@ -121,7 +121,12 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
         "info" => {
             let cid = clan_id.or_msg("Target player has no clan!")?;
             if let Some(clan) = world.clans.get(&cid) {
-                let pkt = server_packets::gm_view_pledge_info(clan, &target_name, &world.objects);
+                let pkt = server_packets::gm_view_pledge_info(
+                    clan,
+                    crate::game_loop::clans::pledge_standing(world, clan.id),
+                    &target_name,
+                    &world.objects,
+                );
                 send_to_client(world, client_id, pkt);
             }
         }

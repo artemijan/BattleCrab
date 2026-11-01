@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="3900" name="Wolf's Luxury Plate" type="Armor">
 		<!-- Double-click to wear. Only for wolves, great wolves, and fenrir. -->
@@ -13,9 +13,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">38</stat>
 			<stat type="pDef">43</stat>
@@ -34,9 +34,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">41</stat>
 			<stat type="pDef">47</stat>
@@ -56,13 +56,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">11</stat>
 			<stat type="mAtk">10</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -82,13 +82,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">16</stat>
 			<stat type="mAtk">14</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -108,13 +108,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">23</stat>
 			<stat type="mAtk">18</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -134,13 +134,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">24</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -160,13 +160,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">40</stat>
 			<stat type="mAtk">30</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -186,13 +186,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">49</stat>
 			<stat type="mAtk">36</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -212,13 +212,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">58</stat>
 			<stat type="mAtk">42</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -238,13 +238,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">69</stat>
 			<stat type="mAtk">50</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -264,13 +264,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">80</stat>
 			<stat type="mAtk">58</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -290,13 +290,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">93</stat>
 			<stat type="mAtk">66</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -315,9 +315,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">26</stat>
 			<stat type="pDef">26</stat>
@@ -336,9 +336,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">29</stat>
 			<stat type="pDef">29</stat>
@@ -357,9 +357,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">31</stat>
 			<stat type="pDef">31</stat>
@@ -378,9 +378,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">33</stat>
 			<stat type="pDef">33</stat>
@@ -399,9 +399,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="pDef">36</stat>
@@ -420,9 +420,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">38</stat>
 			<stat type="pDef">38</stat>
@@ -441,9 +441,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">41</stat>
 			<stat type="pDef">41</stat>
@@ -463,13 +463,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">8</stat>
 			<stat type="mAtk">7</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -489,13 +489,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">9</stat>
 			<stat type="mAtk">10</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -515,13 +515,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">10</stat>
 			<stat type="mAtk">11</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -541,13 +541,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">12</stat>
 			<stat type="mAtk">13</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -567,13 +567,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">13</stat>
 			<stat type="mAtk">16</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -593,13 +593,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">15</stat>
 			<stat type="mAtk">18</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -619,13 +619,13 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="HATCHLING_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">17</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">277</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -643,9 +643,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2050" level="1" /> <!-- Scroll: Guidance -->
 		</skills>
@@ -662,9 +662,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2051" level="1" /> <!-- Scroll: Death Whisper -->
 		</skills>
@@ -681,9 +681,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2052" level="1" /> <!-- Scroll: Focus -->
 		</skills>
@@ -700,9 +700,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2053" level="1" /> <!-- Scroll: Acumen -->
 		</skills>
@@ -719,9 +719,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2054" level="1" /> <!-- Scroll: Haste -->
 		</skills>
@@ -738,9 +738,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2055" level="1" /> <!-- Scroll: Agility -->
 		</skills>
@@ -757,9 +757,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2056" level="1" /> <!-- Scroll: Empower -->
 		</skills>
@@ -776,9 +776,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2057" level="1" /> <!-- Scroll: Might -->
 		</skills>
@@ -795,9 +795,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2058" level="1" /> <!-- Scroll: Wind Walk -->
 		</skills>
@@ -814,9 +814,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2059" level="1" /> <!-- Scroll: Shield -->
 		</skills>
@@ -855,18 +855,18 @@
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="3938" name="Monster Only (Lesser Giant Wizard's Weapon)" type="Weapon">
 		<set name="icon" val="icon.weapon_monster_i00" />
@@ -886,18 +886,18 @@
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="3939" name="Monster Only (Bensh)" type="Weapon">
 		<set name="icon" val="icon.weapon_monster_i00" />
@@ -917,18 +917,18 @@
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="3940" name="Blueprint: Summon Siege Golem" type="EtcItem">
 		<!-- Blueprint needed to learn the Summon Siege Golem technique. Required level: 49 -->
@@ -1207,7 +1207,7 @@
 		</skills>
 	</item>
 	<item id="3960" name="Mercenary Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Gludio/Sword/Stationary. -->
+		<!-- Gludio/ Sword/ Stationary. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1218,7 +1218,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3961" name="Mercenary Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Gludio/Spear/Stationary. -->
+		<!-- Gludio/ Spear/ Stationary. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1229,7 +1229,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3962" name="Mercenary Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Gludio/Bow/Stationary. -->
+		<!-- Gludio/ Bow/ Stationary. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1240,7 +1240,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3963" name="Mercenary Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Gludio/Cleric/Stationary. -->
+		<!-- Gludio/ Cleric/ Stationary. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1251,7 +1251,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3964" name="Mercenary Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Gludio/Wizard/Stationary. -->
+		<!-- Gludio/ Wizard/ Stationary. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1262,7 +1262,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3965" name="Mercenary Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Gludio/Sword/Mobile. -->
+		<!-- Gludio/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1273,7 +1273,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3966" name="Mercenary Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Gludio/Spear/Mobile. -->
+		<!-- Gludio/ Spear/ Mobile. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1284,7 +1284,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3967" name="Mercenary Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Gludio/Bow/Mobile. -->
+		<!-- Gludio/ Bow/ Mobile. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1295,7 +1295,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3968" name="Mercenary Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Gludio/Cleric/Mobile. -->
+		<!-- Gludio/ Cleric/ Mobile. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1306,7 +1306,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3969" name="Mercenary Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Gludio/Wizard/Mobile. -->
+		<!-- Gludio/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1350,7 +1350,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3973" name="Mercenary Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Dion/Sword/Stationary. -->
+		<!-- Dion/ Sword/ Stationary. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1361,7 +1361,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3974" name="Mercenary Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Dion/Spear/Stationary. -->
+		<!-- Dion/ Spear/ Stationary. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1372,7 +1372,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3975" name="Mercenary Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Dion/Bow/Stationary. -->
+		<!-- Dion/ Bow/ Stationary. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1383,7 +1383,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3976" name="Mercenary Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Dion/Cleric/Stationary. -->
+		<!-- Dion/ Cleric/ Stationary. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1394,7 +1394,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3977" name="Mercenary Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Dion/Wizard/Stationary. -->
+		<!-- Dion/ Wizard/ Stationary. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1405,7 +1405,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3978" name="Mercenary Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Dion/Sword/Mobile. -->
+		<!-- Dion/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1416,7 +1416,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3979" name="Mercenary Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Dion/Spear/Mobile. -->
+		<!-- Dion/ Spear/ Mobile. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1427,7 +1427,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3980" name="Mercenary Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Dion/Bow/Mobile. -->
+		<!-- Dion/ Bow/ Mobile. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1438,7 +1438,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3981" name="Mercenary Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Dion/Cleric/Mobile. -->
+		<!-- Dion/ Cleric/ Mobile. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1449,7 +1449,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3982" name="Mercenary Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Dion/Wizard/Mobile. -->
+		<!-- Dion/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1493,7 +1493,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3986" name="Mercenary Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Giran/Sword/Stationary. -->
+		<!-- Giran/ Sword/ Stationary. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1504,7 +1504,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3987" name="Mercenary Posting Ticket (Spear/Stationary)" type="EtcItem">
-		<!-- Giran/Spear/Stationary. -->
+		<!-- Giran/ Spear/ Stationary. -->
 		<set name="icon" val="icon.mticket_pole_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1515,7 +1515,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3988" name="Mercenary Posting Ticket (Bow/Stationary)" type="EtcItem">
-		<!-- Giran/Bow/Stationary. -->
+		<!-- Giran/ Bow/ Stationary. -->
 		<set name="icon" val="icon.mticket_bow_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1526,7 +1526,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3989" name="Mercenary Posting Ticket (Cleric/Stationary)" type="EtcItem">
-		<!-- Giran/Cleric/Stationary. -->
+		<!-- Giran/ Cleric/ Stationary. -->
 		<set name="icon" val="icon.mticket_cleric_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1537,7 +1537,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3990" name="Mercenary Posting Ticket (Wizard/Stationary)" type="EtcItem">
-		<!-- Giran/Wizard/Stationary. -->
+		<!-- Giran/ Wizard/ Stationary. -->
 		<set name="icon" val="icon.mticket_wizard_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1548,7 +1548,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3991" name="Mercenary Posting Ticket (Sword/Mobile)" type="EtcItem">
-		<!-- Giran/Sword/Mobile. -->
+		<!-- Giran/ Sword/ Mobile. -->
 		<set name="icon" val="icon.mticket_sword_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1559,7 +1559,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3992" name="Mercenary Posting Ticket (Spear/Mobile)" type="EtcItem">
-		<!-- Giran/Spear/Mobile. -->
+		<!-- Giran/ Spear/ Mobile. -->
 		<set name="icon" val="icon.mticket_pole_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1570,7 +1570,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3993" name="Mercenary Posting Ticket (Bow/Mobile)" type="EtcItem">
-		<!-- Giran/Bow/Mobile. -->
+		<!-- Giran/ Bow/ Mobile. -->
 		<set name="icon" val="icon.mticket_bow_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1581,7 +1581,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3994" name="Mercenary Posting Ticket (Cleric/Mobile)" type="EtcItem">
-		<!-- Giran/Cleric/Mobile. -->
+		<!-- Giran/ Cleric/ Mobile. -->
 		<set name="icon" val="icon.mticket_cleric_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1592,7 +1592,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3995" name="Mercenary Posting Ticket (Wizard/Mobile)" type="EtcItem">
-		<!-- Giran/Wizard/Mobile. -->
+		<!-- Giran/ Wizard/ Mobile. -->
 		<set name="icon" val="icon.mticket_wizard_move_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />
@@ -1636,7 +1636,7 @@
 		<set name="handler" val="MercTicket" />
 	</item>
 	<item id="3999" name="Mercenary Posting Ticket (Sword/Stationary)" type="EtcItem">
-		<!-- Oren/Sword/Stationary. -->
+		<!-- Oren/ Sword/ Stationary. -->
 		<set name="icon" val="icon.mticket_sword_fix_i00" />
 		<set name="etcitem_type" val="CASTLE_GUARD" />
 		<set name="immediate_effect" val="true" />

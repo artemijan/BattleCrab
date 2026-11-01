@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/spawns.xsd">
+	<spawn name="giran30_2523_01m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_01" minZ="-11949" maxZ="-12149">
+				<node x="177985" y="176765" />
+				<node x="178226" y="176768" />
+				<node x="178227" y="177275" />
+				<node x="177983" y="177274" />
+			</territory>
+		</territories>
+		<npc id="34369" count="1" respawnTime="1min" x="178103" y="176927" z="-12098" heading="0" />
+		<npc id="34370" count="1" respawnTime="1min" x="178103" y="177119" z="-12102" heading="0" />
+		<npc id="34371" count="1" respawnTime="1min" x="178150" y="177024" z="-12099" heading="0" />
+	</spawn>
+	<spawn name="giran30_2523_02m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_02" minZ="-11765" maxZ="-11965">
+				<node x="179888" y="179328" />
+				<node x="180032" y="179328" />
+				<node x="180032" y="179392" />
+				<node x="179887" y="179390" />
+			</territory>
+		</territories>
+		<npc id="34361" count="1" respawnTime="1min" x="179958" y="179364" z="-11917" heading="-16408" />
+	</spawn>
+	<spawn name="giran30_2523_03m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_03" minZ="-11767" maxZ="-11967">
+				<node x="178910" y="178468" />
+				<node x="179053" y="178468" />
+				<node x="179053" y="178533" />
+				<node x="178909" y="178533" />
+			</territory>
+		</territories>
+		<npc id="34383" count="1" respawnTime="1min" x="178988" y="178499" z="-11927" heading="16356" />
+	</spawn>
+	<spawn name="giran30_2523_04m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_04" minZ="-12022" maxZ="-12172">
+				<node x="180532" y="179393" />
+				<node x="180767" y="179391" />
+				<node x="180776" y="179570" />
+				<node x="180531" y="179576" />
+			</territory>
+		</territories>
+		<npc id="34385" count="1" respawnTime="1min" x="180682" y="179502" z="-12150" heading="-17884" />
+	</spawn>
+	<spawn name="giran30_2523_05m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_05" minZ="-12029" maxZ="-12179">
+				<node x="180044" y="178706" />
+				<node x="180328" y="178963" />
+				<node x="180211" y="179198" />
+				<node x="179864" y="178889" />
+			</territory>
+		</territories>
+		<npc id="34384" count="1" respawnTime="1min" x="180099" y="178976" z="-12132" heading="-9168" />
+	</spawn>
+	<spawn name="giran30_2523_06m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_06" minZ="-12345" maxZ="-12545">
+				<node x="178739" y="177471" />
+				<node x="179039" y="177472" />
+				<node x="179252" y="177684" />
+				<node x="179252" y="177984" />
+				<node x="179040" y="178196" />
+				<node x="178739" y="178196" />
+				<node x="178527" y="177983" />
+				<node x="178527" y="177683" />
+			</territory>
+		</territories>
+		<npc id="24091" count="1" respawnTime="1min" x="178620" y="177725" z="-12528" heading="0" />
+		<npc id="24091" count="1" respawnTime="1min" x="178782" y="178076" z="-12528" heading="0" />
+		<npc id="24091" count="1" respawnTime="1min" x="178884" y="177696" z="-12528" heading="0" />
+		<npc id="24091" count="1" respawnTime="1min" x="178891" y="177960" z="-12528" heading="0" />
+		<npc id="24091" count="1" respawnTime="1min" x="178993" y="177572" z="-12528" heading="0" />
+		<npc id="24091" count="1" respawnTime="1min" x="179128" y="177938" z="-12528" heading="0" />
+		<npc id="24089" count="1" respawnTime="1min" x="178627" y="177944" z="-12528" heading="0" />
+		<npc id="24089" count="1" respawnTime="1min" x="178754" y="177842" z="-12528" heading="0" />
+		<npc id="24089" count="1" respawnTime="1min" x="178777" y="177570" z="-12528" heading="0" />
+		<npc id="24089" count="1" respawnTime="1min" x="178982" y="178076" z="-12528" heading="0" />
+		<npc id="24089" count="1" respawnTime="1min" x="178999" y="177832" z="-12528" heading="0" />
+		<npc id="24089" count="1" respawnTime="1min" x="179147" y="177723" z="-12528" heading="0" />
+	</spawn>
+	<spawn name="giran30_2523_07m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_07" minZ="-12097" maxZ="-12297">
+				<node x="180396" y="177481" />
+				<node x="180596" y="177481" />
+				<node x="180596" y="177681" />
+				<node x="180396" y="177681" />
+			</territory>
+		</territories>
+		<npc id="34368" count="1" respawnTime="1min" x="180496" y="177579" z="-12256" heading="-16424" />
+	</spawn>
+	<spawn name="giran30_2523_08m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_08" minZ="-12096" maxZ="-12296">
+				<node x="180128" y="177056" />
+				<node x="180464" y="177055" />
+				<node x="180464" y="177553" />
+				<node x="180128" y="177550" />
+			</territory>
+		</territories>
+		<npc id="34364" count="1" respawnTime="1min" x="180296" y="177496" z="-12240" heading="-16396" />
+		<npc id="34363" count="1" respawnTime="1min" x="180175" y="177095" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180175" y="177177" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180176" y="177257" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180176" y="177338" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180176" y="177418" z="-12239" heading="16308" />
+		<npc id="34363" count="1" respawnTime="1min" x="180256" y="177093" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180256" y="177177" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180256" y="177257" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180257" y="177336" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180257" y="177417" z="-12239" heading="16428" />
+		<npc id="34363" count="1" respawnTime="1min" x="180335" y="177095" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180335" y="177176" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180336" y="177257" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180336" y="177337" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180336" y="177419" z="-12239" heading="16420" />
+		<npc id="34363" count="1" respawnTime="1min" x="180415" y="177175" z="-12240" heading="16416" />
+		<npc id="34363" count="1" respawnTime="1min" x="180416" y="177093" z="-12240" heading="16368" />
+		<npc id="34363" count="1" respawnTime="1min" x="180416" y="177256" z="-12240" heading="16352" />
+		<npc id="34363" count="1" respawnTime="1min" x="180416" y="177337" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180416" y="177416" z="-12239" heading="16308" />
+	</spawn>
+	<spawn name="giran30_2523_09m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_09" minZ="-12099" maxZ="-12299">
+				<node x="180526" y="177057" />
+				<node x="180862" y="177057" />
+				<node x="180863" y="177554" />
+				<node x="180527" y="177552" />
+			</territory>
+		</territories>
+		<npc id="34364" count="1" respawnTime="1min" x="180696" y="177497" z="-12240" heading="-16348" />
+		<npc id="34363" count="1" respawnTime="1min" x="180575" y="177176" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180575" y="177255" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180575" y="177415" z="-12240" heading="16328" />
+		<npc id="34363" count="1" respawnTime="1min" x="180576" y="177095" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180576" y="177335" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180654" y="177257" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180655" y="177177" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180655" y="177416" z="-12240" heading="16328" />
+		<npc id="34363" count="1" respawnTime="1min" x="180656" y="177096" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180656" y="177336" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180735" y="177178" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180735" y="177257" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180735" y="177415" z="-12240" heading="16416" />
+		<npc id="34363" count="1" respawnTime="1min" x="180737" y="177097" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180737" y="177336" z="-12240" heading="16468" />
+		<npc id="34363" count="1" respawnTime="1min" x="180814" y="177177" z="-12240" heading="16416" />
+		<npc id="34363" count="1" respawnTime="1min" x="180815" y="177097" z="-12240" heading="16416" />
+		<npc id="34363" count="1" respawnTime="1min" x="180815" y="177256" z="-12240" heading="16384" />
+		<npc id="34363" count="1" respawnTime="1min" x="180816" y="177416" z="-12240" heading="16416" />
+		<npc id="34363" count="1" respawnTime="1min" x="180817" y="177336" z="-12240" heading="16408" />
+	</spawn>
+	<spawn name="giran30_2523_10m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_10" minZ="-11931" maxZ="-12131">
+				<node x="179597" y="178141" />
+				<node x="179646" y="178141" />
+				<node x="179648" y="178239" />
+				<node x="179597" y="178237" />
+			</territory>
+		</territories>
+		<npc id="34359" count="1" respawnTime="1min" x="179622" y="178189" z="-12091" heading="0" />
+	</spawn>
+	<spawn name="giran30_2523_11m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran30_2523_11" minZ="-11797" maxZ="-11997">
+				<node x="179770" y="179095" />
+				<node x="180072" y="179101" />
+				<node x="180072" y="179372" />
+				<node x="179770" y="179368" />
+			</territory>
+		</territories>
+		<npc id="18919" count="1" respawnTime="1min" x="179863" y="179147" z="-11952" heading="0" />
+		<npc id="18919" count="1" respawnTime="1min" x="179964" y="179313" z="-11920" heading="0" />
+	</spawn>
+</list>

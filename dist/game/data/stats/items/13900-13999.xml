@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="13900" name="Sealed Magic Pin (A-grade)" type="EtcItem">
 		<!-- Can be attached to Sealed Magic Pin and Belt. And the seal can be cancelled through the weaver Olf Kanore and Olf Adams. -->
@@ -318,12 +318,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="3" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="3" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13939" name="Standard Magic Pouch Cloth Belt" type="Armor">
 		<!-- Inventory Slots +12 -->
@@ -339,12 +339,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="4" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="4" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13940" name="High-grade Magic Pouch Cloth Belt" type="Armor">
 		<!-- Inventory Slots +15 -->
@@ -360,12 +360,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="5" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="5" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13941" name="Top-grade Magic Pouch Cloth Belt" type="Armor">
 		<!-- Inventory Slots +18 -->
@@ -381,12 +381,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="6" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="6" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13942" name="Low-grade Magic Pouch Leather Belt" type="Armor">
 		<!-- Inventory Slots +15 -->
@@ -402,12 +402,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="5" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="5" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13943" name="Standard Magic Pouch Leather Belt" type="Armor">
 		<!-- Inventory Slots +18 -->
@@ -423,12 +423,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="6" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="6" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13944" name="High-grade Magic Pouch Leather Belt" type="Armor">
 		<!-- Inventory Slots +21 -->
@@ -444,12 +444,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="7" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="7" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13945" name="Top-grade Magic Pouch Leather Belt" type="Armor">
 		<!-- Inventory Slots +24 -->
@@ -465,12 +465,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="8" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="8" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13946" name="Low-grade Magic Pouch Iron Belt" type="Armor">
 		<!-- Inventory Slots +21 -->
@@ -486,12 +486,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="7" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="7" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13947" name="Standard Magic Pouch Iron Belt" type="Armor">
 		<!-- Inventory Slots +24 -->
@@ -507,12 +507,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="8" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="8" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13948" name="High-grade Magic Pouch Iron Belt" type="Armor">
 		<!-- Inventory Slots +27 -->
@@ -528,12 +528,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="9" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="9" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13949" name="Top-grade Magic Pouch Iron Belt" type="Armor">
 		<!-- Inventory Slots +30 -->
@@ -549,12 +549,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="10" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="10" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13950" name="Low-grade Magic Pouch Mithril Belt" type="Armor">
 		<!-- Inventory Slots +27 -->
@@ -570,12 +570,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="9" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="9" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13951" name="Standard Magic Pouch Mithril Belt" type="Armor">
 		<!-- Inventory Slots +30 -->
@@ -591,12 +591,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="10" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="10" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13952" name="High-grade Magic Pouch Mithril Belt" type="Armor">
 		<!-- Inventory Slots +33 -->
@@ -612,12 +612,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="11" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="11" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13953" name="Top-grade Magic Pouch Mithril Belt" type="Armor">
 		<!-- Inventory Slots +36 -->
@@ -633,12 +633,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8290" level="12" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="12" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="13954" name="Low-grade Magic Pin Cloth Belt" type="Armor">
 		<!-- Weight +3000. -->
@@ -654,12 +654,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="3" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="3" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13955" name="Standard Magic Pin Cloth Belt" type="Armor">
 		<!-- Weight +4000. -->
@@ -675,12 +675,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="4" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="4" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13956" name="High-grade Magic Pin Cloth Belt" type="Armor">
 		<!-- Weight +5000. -->
@@ -696,12 +696,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="5" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="5" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13957" name="Top-grade Magic Pin Cloth Belt" type="Armor">
 		<!-- Weight +6000. -->
@@ -717,12 +717,12 @@
 		<set name="price" val="45100" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="6" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="6" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13958" name="Low-grade Magic Pin Leather Belt" type="Armor">
 		<!-- Weight +5000. -->
@@ -738,12 +738,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="5" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="5" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13959" name="Standard Magic Pin Leather Belt" type="Armor">
 		<!-- Weight +6000. -->
@@ -759,12 +759,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="6" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="6" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13960" name="High-grade Magic Pin Leather Belt" type="Armor">
 		<!-- Weight +7000. -->
@@ -780,12 +780,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="7" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="7" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13961" name="Top-grade Magic Pin Leather Belt" type="Armor">
 		<!-- Weight +8000. -->
@@ -801,12 +801,12 @@
 		<set name="price" val="165000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="8" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">11</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="8" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13962" name="Low-grade Magic Pin Iron Belt" type="Armor">
 		<!-- Weight +7000. -->
@@ -822,12 +822,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="7" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="7" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13963" name="Standard Magic Pin Iron Belt" type="Armor">
 		<!-- Weight +8000. -->
@@ -843,12 +843,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="8" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="8" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13964" name="High-grade Magic Pin Iron Belt" type="Armor">
 		<!-- Weight +9000. -->
@@ -864,12 +864,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="9" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="9" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13965" name="Top-grade Magic Pin Iron Belt" type="Armor">
 		<!-- Weight +10000. -->
@@ -885,12 +885,12 @@
 		<set name="price" val="371300" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="10" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">12</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="10" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13966" name="Low-grade Magic Pin Mithril Belt" type="Armor">
 		<!-- Weight +9000. -->
@@ -906,12 +906,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="9" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="9" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13967" name="Standard Magic Pin Mithril Belt" type="Armor">
 		<!-- Weight +10000. -->
@@ -927,12 +927,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="10" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="10" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13968" name="High-grade Magic Pin Mithril Belt" type="Armor">
 		<!-- Weight +11000. -->
@@ -948,12 +948,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="11" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="11" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13969" name="Top-grade Magic Pin Mithril Belt" type="Armor">
 		<!-- Weight +12000. -->
@@ -969,12 +969,12 @@
 		<set name="price" val="1917000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BELT" />
-		<skills>
-			<skill id="8291" level="12" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">14</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="12" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="13970" name="Spellbook: Star Stone Extraction Skill" type="EtcItem">
 		<!-- Collection suppleMental scroll created for Adventurers who aren't familiar with collecting Star Stones. -->
@@ -1004,18 +1004,18 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
+		</skills>
 	</item>
 	<item id="13972" name="Fantasy Blue Boing Hammer" type="Weapon">
 		<!-- Fantasy Isle reward item. It enlarges the target's head at a certain rate with attacks. -->
@@ -1036,18 +1036,18 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
+		</skills>
 	</item>
 	<item id="13973" name="Small Fantasy Red Boing Hammer" type="Weapon">
 		<!-- Fantasy Isle reward item. It enlarges the target's head at a certain rate with attacks. -->
@@ -1068,18 +1068,18 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
+		</skills>
 	</item>
 	<item id="13974" name="Small Fantasy Blue Boing Hammer" type="Weapon">
 		<!-- Fantasy Isle reward item. It enlarges the target's head at a certain rate with attacks. -->
@@ -1100,18 +1100,18 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">61</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8307" level="1" /> <!-- Boing Hammer's Mysterious Effect -->
+		</skills>
 	</item>
 	<item id="13975" name="Poison Bottle 1" type="Armor">
 		<set name="icon" val="icon.etc_fruit_juice_glass_bottle_i00" />
@@ -1169,18 +1169,18 @@
 		<set name="spiritshots" val="2" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="13979" name="Monster Only (Dragontroop Commando)" type="Weapon">
 		<set name="icon" val="icon.weapon_mon_dragon_legionaries_sword_i00" />
@@ -1199,7 +1199,7 @@
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1239,7 +1239,7 @@
 		<stats>
 			<stat type="pAtk">11</stat>
 			<stat type="mAtk">12</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -1260,18 +1260,18 @@
 		<set name="spiritshots" val="2" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="13983" name="Monster Only (Death Knight_2hs)" type="Weapon">
 		<set name="icon" val="icon.weapon_two_handed_sword_i00" />
@@ -1293,7 +1293,7 @@
 		<stats>
 			<stat type="pAtk">78</stat>
 			<stat type="mAtk">39</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1316,7 +1316,7 @@
 		<stats>
 			<stat type="pAtk">24</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1339,17 +1339,17 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="13986" name="Monster Only (Death Slayer_l)" type="Weapon">
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
@@ -1368,17 +1368,17 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
 		<stats>
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3046" level="11" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
 	<item id="13987" name="Monster Only (Savage Warrior)" type="Weapon">
 		<set name="icon" val="icon.weapon_mon_ravager_silen_axe_i00" />
@@ -1400,7 +1400,7 @@
 		<stats>
 			<stat type="pAtk">175</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>

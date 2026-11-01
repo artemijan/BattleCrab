@@ -25,7 +25,13 @@ fn hate_attack_scales_auto_attack_hate_only() {
     };
 
     // Unbuffed auto-attack: the plain `damage·100 / (level + 7)`.
-    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID,
+        CASTER,
+        10.0,
+        combat::DamageHit::default(),
+    );
     let plain = hate_of(&world);
     assert!(plain > 0.0, "baseline hate: {plain}");
 
@@ -38,7 +44,13 @@ fn hate_attack_scales_auto_attack_hate_only() {
     world.objects.add_components(&CASTER, mods);
 
     // Same damage, now tripled…
-    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    combat::npc_receive_damage(
+        &mut world,
+        NPC_OID,
+        CASTER,
+        10.0,
+        combat::DamageHit::default(),
+    );
     let after_auto = hate_of(&world) - plain;
     assert!(
         (after_auto - plain * 3.0).abs() < 1e-6,
@@ -47,7 +59,7 @@ fn hate_attack_scales_auto_attack_hate_only() {
 
     // …but a *skill*'s hate is untouched, which is Java's `skill == null` gate.
     let before = hate_of(&world);
-    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, false);
+    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, combat::DamageHit::SKILL);
     let after_skill = hate_of(&world) - before;
     assert!(
         (after_skill - plain).abs() < 1e-6,
@@ -95,12 +107,17 @@ fn skill_evasion_dodges_only_its_own_magic_type() {
     // 100 % dodge must land no damage at all.
     let mut nuke = cc_skill(
         9343,
-        SkillEffect::PhysicalAttack {
+        SkillEffect::PhysicalDamage {
             power: 500.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 0.0,
             ignore_shield_defence: false,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         },
         "NONE",
     );
@@ -206,7 +223,6 @@ fn counter_physical_skill_answers_melee_skills_only() {
         NPC_OID,
         effects::SkillHit {
             damage: 1.0,
-            caster_name: "c",
             skill_id: 9351,
             ..Default::default()
         },
@@ -230,7 +246,6 @@ fn counter_physical_skill_answers_melee_skills_only() {
         effects::SkillHit {
             damage: 1.0,
             is_magic: true,
-            caster_name: "c",
             skill_id: 9352,
             ..Default::default()
         },
@@ -253,7 +268,6 @@ fn counter_physical_skill_answers_melee_skills_only() {
         NPC_OID,
         effects::SkillHit {
             damage: 1.0,
-            caster_name: "c",
             skill_id: 9353,
             ..Default::default()
         },
@@ -279,7 +293,7 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
     world.data.skill_data.insert_for_test(cc_skill(
         9413,
-        SkillEffect::PhysicalAttackHpLink {
+        SkillEffect::PhysicalDamageHpLink {
             power: 500.0,
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
@@ -317,15 +331,15 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
     );
 }
 
-/// **`TriggerSkillByDamage`** (Mirage 445) — the mirror of
-/// `TriggerSkillByAttack`: it fires when the bearer **takes** a hit, and casts
-/// back at the attacker rather than on itself.
+/// **`TriggerSkillByDamageReceived`** (Mirage 445) — the mirror of
+/// `TriggerSkillByDamageDealt`: it fires when the bearer **takes** a hit, and
+/// with `targetType=ENEMY` casts back at the attacker.
 ///
-/// Two gates separate it from the attack-side twin, and both are the half a
-/// "copy the attack trigger" port would drop: `attackerType` (Mirage takes
-/// `Playable` only, so a monster hitting you never sets it off) and the
-/// requirement that the carrier actually be *up* — Mirage is a timed buff,
-/// unlike the always-on weapon masteries the attack twin reads.
+/// Two gates matter here: `attackerType` (Mirage takes `Playable` only, so a
+/// monster hitting you never sets it off) and the requirement that the carrier
+/// actually be *up* — Mirage is a timed buff. `ENEMY` also wants the attacker
+/// auto-attackable from the bearer's side, which a player who just hit you is
+/// (their PvP flag).
 #[test]
 fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     let (mut world, _db, _l) = cc2_world();
@@ -342,14 +356,13 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     // The carrier: Playable attackers only, always rolls, casts at the enemy.
     let mut carrier = cc_skill(
         9415,
-        SkillEffect::TriggerSkillByDamage {
-            min_damage: 1,
-            chance: 100,
-            skill_id: 9416,
-            skill_level: 1,
+        SkillEffect::TriggerSkillByDamageReceived {
+            trigger: model::skill::effects::DamageTrigger {
+                target_type: TargetType::Enemy,
+                attacker_type: model::skill::effects::AttackerType::Playable,
+                ..damage_trigger(9416)
+            },
             hp_percent: 100,
-            attacker_playable_only: true,
-            on_attacker: true,
         },
         "NONE",
     );
@@ -357,23 +370,30 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     world.data.skill_data.insert_for_test(carrier);
 
     let has = |world: &World, oid: i32| has_buff(world, oid, 9416);
+    world.objects.add_components(
+        &attacker,
+        model::components::combat::PvpState {
+            flag: 1,
+            expires_tick: u64::MAX,
+        },
+    );
 
     // Not cast yet: nothing to listen, so nothing triggers. (Java attaches the
     // listener to the *buff*, which is why this is the meaningful negative —
     // knowing Mirage and being under it are different things.)
-    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None, 0);
     assert!(!has(&world, attacker), "no Mirage buff up, no counter-cast");
 
     // Now put it up. A *monster* hitting us must still not set it off.
     land(&mut world, 9415, CASTER);
-    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, false, None, 0);
     assert!(
         !has(&world, NPC_OID),
         "attackerType=Playable: a monster never triggers it"
     );
 
     // A player hitting us does.
-    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, false, None, 0);
     assert!(
         has(&world, attacker),
         "a playable attacker takes the counter-cast"
@@ -389,21 +409,11 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    world
-        .data
-        .skill_data
-        .insert_for_test(cc_skill(9418, SkillEffect::Root, "ROOT"));
-    let mut carrier = cc_skill(
-        9417,
-        SkillEffect::TriggerSkillByMagicType {
-            magic_types: vec![1, 2],
-            chance: 100,
-            skill_id: 9418,
-            skill_level: 1,
-            on_party: true,
-        },
-        "NONE",
-    );
+    world.data.skill_data.insert_for_test(Skill {
+        magic_type: 4,
+        ..cc_skill(9418, SkillEffect::Root, "ROOT")
+    });
+    let mut carrier = cc_skill(9417, magic_type_trigger(9418, TargetType::MyParty), "NONE");
     carrier.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(carrier);
     land(&mut world, 9417, CASTER);
@@ -411,10 +421,254 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
     let has = |world: &World| has_buff(world, CASTER, 9418);
 
     // A cast whose magicType is *not* listed changes nothing.
-    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 7);
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(7, 0));
     assert!(!has(&world), "an unlisted magicType does not fire it");
 
     // One that is listed does.
-    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 2);
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(2, 0));
     assert!(has(&world), "a listed magicType fires the trigger");
+}
+
+/// A magic-type trigger on types 1 and 2 firing `skill_id`, with Java's other
+/// defaults (`replace` on, no level scaling).
+fn magic_type_trigger(skill_id: i32, target_type: TargetType) -> SkillEffect {
+    SkillEffect::TriggerSkillByMagicType {
+        magic_types: vec![1, 2],
+        chance: 100,
+        skill_id,
+        skill_level: 1,
+        skill_level_scale_to: 0,
+        target_type,
+        replace: true,
+    }
+}
+
+/// The finished cast as the event carries it: only its id and magic type
+/// matter to the handler.
+fn cast_of(magic_type: i32, id: i32) -> model::skill::Skill {
+    model::skill::Skill {
+        id,
+        magic_type,
+        ..Default::default()
+    }
+}
+
+/// Bearer of a passive magic-type trigger, plus the 60 s buff it fires.
+fn magic_type_world(
+    effect: SkillEffect,
+) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    for level in 1..=3 {
+        let mut fired = cc_skill(9418, SkillEffect::Root, "ROOT");
+        fired.level = level;
+        fired.abnormal_level = level;
+        fired.target_type = TargetType::Self_;
+        // Outside the trigger's own list: a fired skill that is itself a
+        // listed type re-fires the trigger, which real carriers bound by
+        // reuse, chance or dispelling their own carrier.
+        fired.magic_type = 4;
+        world.data.skill_data.insert_for_test(fired);
+    }
+    let mut carrier = cc_skill(9417, effect, "NONE");
+    carrier.operate_type = model::skill::target::OperateType::Passive;
+    world.data.skill_data.insert_for_test(carrier);
+    world
+        .objects
+        .get_component_mut::<model::components::skills::SkillBook>(&CASTER)
+        .unwrap()
+        .0
+        .insert(9417, 1);
+    (world, db, l)
+}
+
+fn expiry_of(world: &World, oid: i32, skill_id: i32) -> Option<u64> {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id))
+        .map(|x| x.expires_at_tick)
+}
+
+fn level_of(world: &World, oid: i32, skill_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id))
+        .map(|x| x.skill_level)
+}
+
+/// `replace` (the default) takes the target's copy off before re-casting, so
+/// a fire lands even under a higher-level copy; with `replace=false` the
+/// abnormal stacking decides, and it keeps the higher level.
+#[test]
+fn magic_type_replace_restarts_the_buff() {
+    let (mut world, _db, _l) = magic_type_world(magic_type_trigger(9418, TargetType::Self_));
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+    let first = expiry_of(&world, CASTER, 9418).expect("first fire lands");
+    world.tick += 50;
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+    assert_eq!(
+        expiry_of(&world, CASTER, 9418),
+        Some(first + 50),
+        "replace restarts the timer"
+    );
+
+    for (replace, kept) in [(true, 1), (false, 2)] {
+        let (mut world, _db, _l) = magic_type_world(SkillEffect::TriggerSkillByMagicType {
+            magic_types: vec![1, 2],
+            chance: 100,
+            skill_id: 9418,
+            skill_level: 1,
+            skill_level_scale_to: 0,
+            target_type: TargetType::Self_,
+            replace,
+        });
+        let higher = world.data.skill_data.get(9418, 2).unwrap().clone();
+        crate::game_loop::skills::cast::trigger_cast(&mut world, CASTER, CASTER, higher);
+        assert_eq!(level_of(&world, CASTER, 9418), Some(2));
+        effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+        assert_eq!(
+            level_of(&world, CASTER, 9418),
+            Some(kept),
+            "replace={replace}"
+        );
+    }
+}
+
+/// `skillLevelScaleTo` steps the target's copy one level per fire, to the cap.
+#[test]
+fn magic_type_scale_to_steps_up_to_the_cap() {
+    let (mut world, _db, _l) = magic_type_world(SkillEffect::TriggerSkillByMagicType {
+        magic_types: vec![1],
+        chance: 100,
+        skill_id: 9418,
+        skill_level: 1,
+        skill_level_scale_to: 3,
+        target_type: TargetType::Self_,
+        replace: true,
+    });
+    let mut seen = Vec::new();
+    for _ in 0..4 {
+        effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 0));
+        seen.push(crate::game_loop::skills::cast::buff_level(
+            &world, CASTER, 9418,
+        ));
+    }
+    assert_eq!(seen, vec![Some(1), Some(2), Some(3), Some(3)]);
+}
+
+/// A `CommonSkill` cast (here the weight penalty, 4270) is a system cast, not
+/// the bearer acting, and fires nothing.
+#[test]
+fn magic_type_ignores_common_skills() {
+    let (mut world, _db, _l) = magic_type_world(magic_type_trigger(9418, TargetType::Self_));
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, &cast_of(1, 4270));
+    assert!(
+        !has_buff(&world, CASTER, 9418),
+        "CommonSkill casts are ignored"
+    );
+}
+
+/// The default `TARGET` resolves from the caster onto the finished cast's own
+/// target.
+#[test]
+fn magic_type_default_target_is_the_casts_target() {
+    let (mut world, _db, _l) = magic_type_world(magic_type_trigger(9418, TargetType::Target));
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+    effects::fire_magic_type_triggers(&mut world, CASTER, NPC_OID, &cast_of(1, 0));
+    assert!(
+        has_buff(&world, NPC_OID, 9418),
+        "lands on the cast's target"
+    );
+    assert!(!has_buff(&world, CASTER, 9418), "not on the caster");
+}
+
+// ---------------------------------------------------------------------------
+// `CallSkill`
+// ---------------------------------------------------------------------------
+
+/// The 9418 ladder (levels 1–3, no hit time) and a carrier that calls it.
+fn call_skill_world(
+    skill_level: i32,
+    skill_level_scale_to: i32,
+) -> (
+    World,
+    db::CmdRx,
+    UnboundedReceiver<LoginLinkCommand>,
+    model::skill::Skill,
+) {
+    let (mut world, db, l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    for level in 1..=3 {
+        let mut called = cc_skill(9418, SkillEffect::Root, "ROOT");
+        called.level = level;
+        called.abnormal_level = level;
+        called.hit_time = 0;
+        world.data.skill_data.insert_for_test(called);
+    }
+    let carrier = cc_skill(
+        9419,
+        SkillEffect::CallSkill {
+            skill_id: 9418,
+            skill_level,
+            skill_level_scale_to,
+            chance: 100,
+        },
+        "NONE",
+    );
+    (world, db, l, carrier)
+}
+
+/// `skillLevelScaleTo` steps the effected's existing copy one level up per
+/// call, and stops at the cap.
+#[test]
+fn call_skill_scale_to_steps_the_targets_copy_up() {
+    let (mut world, _db, _l, carrier) = call_skill_world(1, 3);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+
+    for expect in [1, 2, 3, 3] {
+        effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+        assert_eq!(level_of(&world, victim, 9418), Some(expect));
+    }
+}
+
+/// `skillLevel 0` is Mobius's "the effector's own learned level", and calls
+/// nothing for an effector who has not learned the skill.
+#[test]
+fn call_skill_level_zero_uses_the_effectors_learned_level() {
+    let (mut world, _db, _l, carrier) = call_skill_world(0, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+
+    effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+    assert_eq!(level_of(&world, victim, 9418), None, "not learned: nothing");
+
+    world
+        .objects
+        .get_component_mut::<model::components::skills::SkillBook>(&CASTER)
+        .unwrap()
+        .0
+        .insert(9418, 2);
+    effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+    assert_eq!(level_of(&world, victim, 9418), Some(2));
+}
+
+/// A called skill with a `hitTime` is refused while it is on reuse, before
+/// any animation plays.
+#[test]
+fn a_delayed_call_skill_is_refused_while_disabled() {
+    let (mut world, _db, _l, carrier) = call_skill_world(1, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+    let mut called = world.data.skill_data.get(9418, 1).unwrap().clone();
+    called.hit_time = 500;
+    called.reuse_delay = 10_000;
+    world.data.skill_data.insert_for_test(called.clone());
+    crate::game_loop::skills::cast::set_skill_reuse(&mut world, CASTER, &called);
+
+    effects::apply_skill_effects(&mut world, CASTER, victim, &carrier);
+    advance_ticks(&mut world, crate::scheduler::ms_to_ticks(500));
+    assert_eq!(level_of(&world, victim, 9418), None);
 }

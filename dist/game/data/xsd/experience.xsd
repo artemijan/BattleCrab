@@ -3,13 +3,13 @@
 	<xs:element name="table">
 		<xs:complexType>
 			<xs:sequence minOccurs="1" maxOccurs="1">
-				<xs:element name="experience" minOccurs="1" maxOccurs="108">
+				<xs:element name="experience" minOccurs="1" maxOccurs="111">
 					<xs:complexType>
 						<xs:attribute name="level" use="required">
 							<xs:simpleType>
 								<xs:restriction base="xs:positiveInteger">
 									<xs:minInclusive value="1" />
-									<xs:maxInclusive value="108" />
+									<xs:maxInclusive value="111" />
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:attribute>
@@ -28,7 +28,7 @@
 				<xs:simpleType>
 					<xs:restriction base="xs:positiveInteger">
 						<xs:minInclusive value="1" />
-						<xs:maxInclusive value="108" />
+						<xs:maxInclusive value="111" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -36,7 +36,7 @@
 				<xs:simpleType>
 					<xs:restriction base="xs:positiveInteger">
 						<xs:minInclusive value="1" />
-						<xs:maxInclusive value="108" />
+						<xs:maxInclusive value="111" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

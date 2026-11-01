@@ -33,7 +33,7 @@
 	<xs:element name="list">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="map" maxOccurs="unbounded" minOccurs="0">
+				<xs:element name="map" maxOccurs="unbounded" minOccurs="1">
 					<xs:complexType>
 						<xs:group ref="mapSequenceGroup" />
 						<xs:attribute type="xs:byte" name="id" use="required" />

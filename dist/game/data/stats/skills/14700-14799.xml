@@ -1,31 +1,31 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="14700" toLevel="1" name="Maximum Defense">
-		<!-- For 1 minute, increases one's own P. Atk. by 25%, M. Atk. by 50%, P. Def. by 1800, M. Def. by 1620, HP recovery speed by 300, MP recovery speed by 300%, and Buff-canceling Attack Resistance by 80%. -->
+		<!-- For 1 minute, increases one's own P. Atk. by 25%, M. Atk. by 50%, P. Def. by 1800, M. Def. by 1620, HP Recovery Bonus speed by 300, MP Recovery Bonus speed by 300%, and Buff-canceling Attack Resistance by 80%. -->
 		<icon>icon.skill0110</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
 		<abnormalType>PD_UP_SPECIAL</abnormalType>
+		<abnormalVisualEffect>ULTIMATE_DEFENCE</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>900</castRange>
 		<effectPoint>204</effectPoint>
+		<effectRange>1600</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>700</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>25</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1600</effectRange>
-		<abnormalVisualEffect>ULTIMATE_DEFENCE</abnormalVisualEffect>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
@@ -54,18 +54,18 @@
 	<skill id="14701" toLevel="1" name="Brutal Agony">
 		<icon>icon.skill0003</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>100</castRange>
-		<effectPoint>-1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>500</effectRange>
-		<magicLevel>88</magicLevel>
-		<hitTime>2000</hitTime>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>100</castRange>
+		<effectPoint>-1</effectPoint>
+		<effectRange>500</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2000</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>88</magicLevel>
+		<mpConsume>1</mpConsume>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>63180</power>
 			</effect>
 		</effects>
@@ -73,20 +73,20 @@
 	<skill id="14702" toLevel="1" name="Invasion of Darkness">
 		<icon>icon.skill0056</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
+		<targetType>ENEMY</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>-1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<effectRange>1000</effectRange>
-		<magicLevel>88</magicLevel>
-		<affectRange>300</affectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>3000</hitTime>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>88</magicLevel>
+		<mpConsume>1</mpConsume>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>50544</power>
 			</effect>
 		</effects>
@@ -95,28 +95,28 @@
 		<!-- Bleed status. -->
 		<icon>icon.skill0096</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>500</castRange>
-		<hitTime>2500</hitTime>
-		<effectPoint>-1</effectPoint>
-		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
-		<abnormalType>BLEEDING</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1000</effectRange>
-		<lvlBonusRate>2</lvlBonusRate>
-		<activateRate>100</activateRate>
-		<magicLevel>88</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>7</abnormalTime>
-		<trait>BLEED</trait>
-		<affectRange>300</affectRange>
+		<abnormalType>BLEEDING</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
+		<activateRate>100</activateRate>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>500</castRange>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>2</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>88</magicLevel>
+		<mpConsume>1</mpConsume>
+		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
+		<trait>BLEED</trait>
 		<effects>
 			<effect name="DamOverTime">
 				<power>1000</power>
@@ -127,24 +127,24 @@
 	<skill id="14704" toLevel="1" name="Forced Yoke">
 		<icon>icon.skill10015</icon>
 		<operateType>A2</operateType>
-		<mpConsume>58</mpConsume>
-		<castRange>600</castRange>
-		<hitTime>1500</hitTime>
-		<effectPoint>-2066</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<lvlBonusRate>2</lvlBonusRate>
-		<activateRate>140</activateRate>
-		<magicLevel>88</magicLevel>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1</abnormalTime>
-		<trait>PULL</trait>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
+		<abnormalType>STUN</abnormalType>
+		<activateRate>140</activateRate>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>600</castRange>
+		<effectPoint>-2066</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>2</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>88</magicLevel>
+		<mpConsume>58</mpConsume>
+		<trait>PULL</trait>
 		<effects>
 			<effect name="PullBack">
 				<speed>600</speed>
@@ -388,19 +388,19 @@
 	<skill id="14736" toLevel="1" name="Light Heal">
 		<!-- Restores the target's HP with 1488 Power. Once HP is filled, the remaining effect stores CP. -->
 		<icon>icon.skill11755</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
-		<effectRange>1100</effectRange>
 		<effectPoint>867</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>1</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>0</mpConsume>
 		<mpInitialConsume>0</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>1488</power>
@@ -411,36 +411,36 @@
 		<!-- Sealed status. -->
 		<icon>icon.skill1042</icon>
 		<operateType>CA1</operateType>
-		<castRange>2000</castRange>
-		<hitTime>120000</hitTime>
-		<reuseDelay>30000</reuseDelay>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>2000</effectRange>
-		<magicLevel>85</magicLevel>
-		<channelingStart>1.2</channelingStart>
-		<channelingTickInterval>2</channelingTickInterval>
-		<isMagic>1</isMagic>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>2000</castRange>
+		<channelingStart>1.2</channelingStart>
+		<channelingTickInterval>2</channelingTickInterval>
+		<effectRange>2000</effectRange>
+		<hitTime>120000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="14738" toLevel="1" name="Olympiad - Horn Melody">
-		<!-- For 30 minutes, the selected target's P. Atk. +17%, P. Def. +15%, M. Atk. +79%, and M. Def. +30%. -->
+		<!-- For 30 minutes, P. Atk. +23%, M. Atk. +88%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</dispel>
@@ -449,51 +449,51 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
-				<amount>17</amount>
+			<effect name="PhysicalAttack">
+				<amount>23</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
-				<amount>79</amount>
+			<effect name="MagicalAttack">
+				<amount>88</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MagicalDefence">
-				<amount>30</amount>
+				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="PhysicalDefence">
-				<amount>15</amount>
+				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="14739" toLevel="1" name="Olympiad - Drum Melody">
-		<!-- For 30 minutes, the selected target's Max MP +20%, HP recovery bonus +20%, M. Critical Rate +20, Critical Damage during a standard attack +20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, Debuff Resistance +10%, damage received from a critical attack - 30%, and Speed - 15%. Additionally increases Critical Damage during a standard attack when receiving more than a certain amount of damage. -->
+		<!-- For 30 minutes, P. Critical Rate +30%, P. Critical Damage +30%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_DEFENCE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Critical Damage Increase -->
 				<attackerType>Creature</attackerType>
 				<minDamage>300</minDamage>
 				<chance>80</chance>
 				<isCritical>true</isCritical>
 				<allowWeapons>SWORD,BLUNT,DAGGER,DUALDAGGER,DUAL,DUALFIST,POLE,ANCIENTSWORD,RAPIER,BOW,CROSSBOW</allowWeapons>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -503,78 +503,42 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="PAtk">
-				<amount>10</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="Speed">
-				<amount>-15</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MaxMp">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="CriticalDamage">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="ResistAbnormalByCategory">
-				<amount>-10</amount>
-				<slot>DEBUFF</slot>
-			</effect>
 			<effect name="MagicCriticalRate">
 				<amount>20</amount>
 				<mode>DIFF</mode>
 			</effect>
+			<effect name="CriticalDamage">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DefenceCriticalDamage">
+				<amount>50</amount>
+				<mode>PER</mode>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="14740" toLevel="1" name="Olympiad - Pipe Organ Melody">
-		<!-- For 30 minutes, the selected target's Max HP +37%, Max MP +37%, Max CP +37%, and HP recovery bonus +20%. -->
+		<!-- For 30 minutes, Max HP +37%, Max MP +62%, and Max CP +37%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;IMPROVE_HP_MP_UP;MAX_HP_UP;MAX_MP_UP;HP_REGEN_UP;VAMPIRIC_ATTACK;IMPROVE_VAMPIRIC_HASTE;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -599,26 +563,30 @@
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="14741" toLevel="1" name="Olympiad - Guitar Melody">
-		<!-- For 30 minutes, the selected target's P. Critical Rate +32%, P. Critical Damage +35%, M. Critical Rate +20. Decreases MP consumption for physical skills - 20% and magic skills - 10%. Decreases MP consumption for Iss Enchanter's enchant skills - 20%. -->
+		<!-- For 30 minutes, Atk. Spd. +60%, Casting Spd. +60%, and Speed +10 and Skill MP Consumption -10%. -->
 		<icon>icon.skill11520</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -627,16 +595,16 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="CriticalDamage">
-				<amount>35</amount>
+			<effect name="PhysicalAttackSpeed">
+				<amount>60</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="CriticalRate">
-				<amount>32</amount>
+			<effect name="MagicalAttackSpeed">
+				<amount>60</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicCriticalRate">
-				<amount>20</amount>
+			<effect name="Speed">
+				<amount>10</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="MagicMpCost">
@@ -645,40 +613,40 @@
 				<magicType>1</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>3</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>22</magicType>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="14742" toLevel="1" name="Olympiad - Harp Melody">
-		<!-- For 30 minutes, the selected target's P. Accuracy +5, P. and M. Evasion +5, Speed +34, and received Critical Damage - 30%. -->
+		<!-- For 30 minutes, the selected target's P. Accuracy +5, P. and M. Evasion +5, Speed +34, and received Critical Damage -30%. -->
 		<icon>icon.skill11521</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_HIT_DEFENCE_CRT_RATE_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;AVOID_UP</dispel>
@@ -704,7 +672,7 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
@@ -713,20 +681,20 @@
 		<!-- For 30 minutes, the selected target's Atk. Spd. +34% and Casting Spd. +31%. Applies Vampiric Rage effect +9% with a certain probability. -->
 		<icon>icon.skill11518</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_VAMPIRIC_HASTE;ATTACK_TIME_DOWN;VAMPIRIC_ATTACK;CASTING_TIME_DOWN;MULTI_BUFF</dispel>
@@ -749,24 +717,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14744" toLevel="1" name="Olympiad - Knight's Harmony">
-		<!-- For 30 minutes, P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Defense Rate +30%, and Shield Defense +50%. -->
+	<skill id="14744" toLevel="1" name="Knight's Harmony - Olympiad">
+		<!-- For 30 minutes, P. Def +45%, M. Def +15%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. -->
 		<icon>icon.skill11523</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -775,7 +743,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>12</amount>
 				<mode>PER</mode>
 			</effect>
@@ -801,24 +769,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14745" toLevel="1" name="Olympiad - Warrior's Harmony">
-		<!-- For 30 minutes, P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, and Speed +8. -->
+	<skill id="14745" toLevel="1" name="Warrior's Harmony - Olympiad">
+		<!-- For 30 minutes, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. -->
 		<icon>icon.skill11524</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -827,11 +795,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -857,24 +825,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14746" toLevel="1" name="Olympiad - Wizard's Harmony">
-		<!-- For 30 minutes, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, MP Recovery Bonus +20%, MP Consumption for magic skills - 15% and for physical skills - 5%, and Cooldown - 20%. -->
+	<skill id="14746" toLevel="1" name="Wizard's Harmony - Olympiad">
+		<!-- For 30 minutes, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +15%, Skill Cooldown -20%, and Skill MP Consumption -15%. -->
 		<icon>icon.skill11525</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -883,11 +851,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1095,14 +1063,14 @@
 		<!-- Cancels all of the user's mass. -->
 		<icon>icon.skill14766</icon>
 		<operateType>A1</operateType>
-		<mpConsume>73</mpConsume>
-		<hitTime>500</hitTime>
-		<coolTime>200</coolTime>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
-		<reuseDelay>120000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>200</coolTime>
+		<hitTime>500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>73</mpConsume>
+		<reuseDelay>120000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlot">
 				<dispel>ROOT_MAGICALLY,9;ROOT_PHYSICALLY,9;STUN,9</dispel>
@@ -1113,18 +1081,18 @@
 		<!-- Launches a powerful attack on the target around you -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>4600</hitTime>
+		<targetType>SELF</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<effectPoint>-100</effectPoint>
+		<hitTime>4600</hitTime>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>55</magicLevel>
-		<affectRange>300</affectRange>
-		<affectLimit>5-12</affectLimit>
 		<reuseDelay>5000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>31500</power>
 			</effect>
 		</effects>
@@ -1206,25 +1174,25 @@
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="14779" toLevel="1" name="Master's Blessing - Horn Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Atk. +23%, P. Def. +15%, M. Atk. +91%, and M. Def. +30%. -->
+	<skill id="14779" toLevel="1" name="Horn Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Atk. +30%, M. Atk. +100%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</dispel>
@@ -1233,51 +1201,51 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
-				<amount>23</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>91</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
+			<effect name="PhysicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
+			<effect name="MagicalAttack">
+				<amount>100</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>40</amount>
+				<mode>PER</mode>
+			</effect>
 			<effect name="PhysicalDefence">
-				<amount>15</amount>
+				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14780" toLevel="1" name="Master's Blessing - Drum Melody">
-		<!-- The GM is always with you. For 1 hour, increases Max MP +20%, HP recovery bonus +20%, M. Critical Rate +20, Critical Damage during a standard attack +20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, Debuff Resistance +10%, and damage received from a critical attack - 30%. Additionally increases Critical Damage during a standard attack when receiving more than a certain amount of damage. -->
+	<skill id="14780" toLevel="1" name="Drum Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Critical Rate +38%, P. Critical Damage +34%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Critical Damage Increase -->
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
 				<targetType>SELF</targetType>
 				<minDamage>300</minDamage>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -1287,11 +1255,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1324,7 +1292,7 @@
 				<mode>PER</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="ResistAbnormalByCategory">
@@ -1337,25 +1305,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14781" toLevel="1" name="Master's Blessing - Pipe Organ Melody">
-		<!-- The GM is always with you. For 1 hour, increases Max HP +43%, Max MP +43%, Max CP +43%, and HP recovery bonus +20%. -->
+	<skill id="14781" toLevel="1" name="Pipe Organ Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Max HP +45%, Max MP +70%, and Max CP +45%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;IMPROVE_HP_MP_UP;MAX_HP_UP;MAX_MP_UP;HP_REGEN_UP;VAMPIRIC_ATTACK;IMPROVE_VAMPIRIC_HASTE;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -1380,27 +1348,31 @@
 				<amount>43</amount>
 				<mode>PER</mode>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="14782" toLevel="1" name="Master's Blessing - Guitar Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Critical Rate +38%, P. Critical Damage +35%, and M. Critical Rate +20. Decreases MP consumption for physical skills - 20% and magic skills - 10%. Decreases MP consumption for Iss Enchanter's enchant skills - 20%. -->
+	<skill id="14782" toLevel="1" name="Guitar Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Atk. Spd. +64%, Casting Spd. +62%, and Speed +30, and decreases Skill MP Consumption by 10%. -->
 		<icon>icon.skill11520</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -1409,16 +1381,16 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="CriticalDamage">
-				<amount>35</amount>
+			<effect name="PhysicalAttackSpeed">
+				<amount>60</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="CriticalRate">
-				<amount>38</amount>
+			<effect name="MagicalAttackSpeed">
+				<amount>60</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicCriticalRate">
-				<amount>20</amount>
+			<effect name="Speed">
+				<amount>10</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="MagicMpCost">
@@ -1427,41 +1399,41 @@
 				<magicType>1</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>3</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>22</magicType>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14783" toLevel="1" name="Master's Blessing - Harp Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Accuracy +8, physical and magic evasion +8, and speed +37. Decreases received critical damage - 30%. -->
+	<skill id="14783" toLevel="1" name="Harp Melody - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, P. Accuracy +8, physical and magic evasion +8, and speed +37. Received critical damage -30%. -->
 		<icon>icon.skill11521</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_HIT_DEFENCE_CRT_RATE_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;AVOID_UP</dispel>
@@ -1487,30 +1459,30 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14784" toLevel="1" name="Master's Blessing - Lute Melody">
-		<!-- The GM is always with you. For 1 hour, increases Atk. Spd. +37% and Casting Spd. +34%. Applies Vampiric Rage effect +9% with a certain probability. -->
+	<skill id="14784" toLevel="1" name="Lute Melody - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, Atk. Spd. +37% and Casting Spd. +34%. Applies Vampiric Rage effect +9% with a certain probability. -->
 		<icon>icon.skill11518</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_VAMPIRIC_HASTE;ATTACK_TIME_DOWN;VAMPIRIC_ATTACK;CASTING_TIME_DOWN;MULTI_BUFF</dispel>
@@ -1533,25 +1505,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14785" toLevel="1" name="Master's Blessing - Knight's Harmony">
-		<!-- The GM is always with you. For 1 hour, P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Defense Rate +30%, Shield Defense +50%. -->
-		<icon>icon.skill11523</icon>
+	<skill id="14785" toLevel="1" name="Knight's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases P. Def +45%, M. Def +35%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, and Shield Defense Rate/ P. Def +50%, and decreases the chance of receiving Physical/ Magic Critical Hit by 25%. -->
+		<icon>icon.skill19500</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -1560,7 +1532,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>12</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1586,25 +1558,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14786" toLevel="1" name="Master's Blessing - Warrior's Harmony">
-		<!-- The GM is always with you. For 1 hour, P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, Speed +8. -->
-		<icon>icon.skill11524</icon>
+	<skill id="14786" toLevel="1" name="Warrior's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases P. Atk +25%, P. Critical Rate +100%, P. Critical Damage +85%, Atk. Spd. +10%, and Speed +10. There is also a chance to add the Spectral Slash effect to the target. -->
+		<icon>icon.skill19501</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -1613,11 +1585,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1643,25 +1615,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14787" toLevel="1" name="Master's Blessing - Wizard's Harmony">
-		<!-- The GM is always with you. For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, MP Recovery Bonus +20%, MP Consumption - 15% for magic skills and - 5% for physical skills , and Cooldown - 20%. -->
-		<icon>icon.skill11525</icon>
+	<skill id="14787" toLevel="1" name="Wizard's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases M. Atk. +45%, M. Critical Rate +100%, M. Critical Damage +10%, Casting Spd. +15%, and Attack Attribute +and decreases Skill Cooldown by 20% and Skill MP Consumption by 15%. -->
+		<icon>icon.skill19502</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -1670,11 +1642,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1734,25 +1706,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14788" toLevel="1" name="Master's Blessing - Elemental Resistance">
-		<!-- The GM is always with you. For 1 hour, increases Fire/Water/Wind/Earth Resistance by 30. -->
+	<skill id="14788" toLevel="1" name="Elemental Resistance - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases all Defense Attributes +30. -->
 		<icon>icon.skill11565</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>ARMOR_ELEMENT_ALL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>ARMOR_ELEMENT_ALL</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>ARMOR_FIRE;ARMOR_WATER;ARMOR_WIND;ARMOR_EARTH;MD_UP_ATTR;DANCE_OF_AQUA_GUARD;DANCE_OF_EARTH_GUARD;SONG_OF_ELEMENTAL;SONG_OF_FLAME_GUARD;SONG_OF_STORM_GUARD;SONG_OF_WIND</dispel>
@@ -1779,25 +1751,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14789" toLevel="1" name="Master's Blessing - Holy Attack Resistance">
-		<!-- The GM is always with you. For 1 hour, increases Holy/Dark Attack Resistance by 30, and Poison/Bleed Resistance by 50%. -->
+	<skill id="14789" toLevel="1" name="Resistance Debuff - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases Resistance to Poison/ Bleed/ Hold/ Sleep/ MEN +50%. -->
 		<icon>icon.skill11567</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>ARMOR_HOLY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>ARMOR_HOLY</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>50</BLEED>
@@ -1820,25 +1792,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14790" toLevel="1" name="Master's Blessing - Mental Attack Resistance">
-		<!-- The GM is always with you. For 1 hour, increases Hold/Sleep/Mental Attack Resistance by 50, Buff Cancellation Resistance by 30, and Debuff Resistance by 20. -->
+	<skill id="14790" toLevel="1" name="Mental Attack Resistance - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases Resistance to buff-canceling/ debuff attacks +30. -->
 		<icon>icon.skill11824</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>RESIST_DERANGEMENT</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>1500</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>RESIST_DERANGEMENT</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<effectRange>1500</effectRange>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>50</HOLD>
@@ -1862,25 +1834,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14791" toLevel="1" name="Master's Blessing - Horn Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Atk. +23%, P. Def. +15%, M. Atk. +91%, and M. Def. +30%. -->
+	<skill id="14791" toLevel="1" name="Horn Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Atk. +30%, M. Atk. +100%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</dispel>
@@ -1889,52 +1861,52 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>IMPROVE_PA_PD_UP;PA_UP;PD_UP;IMPROVE_MA_MD_UP;MD_UP;MA_UP;KAMAEL_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
-				<amount>17</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>79</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
+			<effect name="PhysicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
+			<effect name="MagicalAttack">
+				<amount>100</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>40</amount>
+				<mode>PER</mode>
+			</effect>
 			<effect name="PhysicalDefence">
-				<amount>15</amount>
+				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14792" toLevel="1" name="Master's Blessing - Drum Melody">
-		<!-- The GM is always with you. For 1 hour, Max MP +20%, HP Recovery Bonus +20%, M. Critical Rate +20, Critical Damage during a standard attack +20%, P. Atk. +10%, P. Def. +20%, Atk. Spd. +20%, M. Atk. +20%, M. Def. +20%, Casting Spd. +20%, Debuff Resistance +10%, and damage received from a critical attack - 30%. Additionally increases Critical Damage during a standard attack when receiving more than a certain amount of damage. -->
+	<skill id="14792" toLevel="1" name="Drum Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, P. Critical Rate +38%, P. Critical Damage +34%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Critical Damage Increase -->
 				<attackerType>Creature</attackerType>
 				<minDamage>300</minDamage>
 				<chance>80</chance>
 				<isCritical>true</isCritical>
 				<allowWeapons>SWORD,BLUNT,DAGGER,DUALDAGGER,DUAL,DUALFIST,POLE,ANCIENTSWORD,RAPIER,BOW,CROSSBOW</allowWeapons>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -1944,79 +1916,43 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="PAtk">
-				<amount>10</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="Speed">
-				<amount>-15</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MaxMp">
-				<amount>20</amount>
-				<mode>PER</mode>
+			<effect name="MagicCriticalRate">
+				<amount>40</amount>
+				<mode>DIFF</mode>
 			</effect>
 			<effect name="CriticalDamage">
-				<amount>20</amount>
+				<amount>34</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
+			<effect name="CriticalRate">
+				<amount>38</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>50</amount>
 				<mode>PER</mode>
-			</effect>
-			<effect name="ResistAbnormalByCategory">
-				<amount>-10</amount>
-				<slot>DEBUFF</slot>
-			</effect>
-			<effect name="MagicCriticalRate">
-				<amount>20</amount>
-				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14793" toLevel="1" name="Master's Blessing - Pipe Organ Melody">
-		<!-- The GM is always with you. For 1 hour, increases Max HP +43%, Max MP +43%, Max CP +43%, and HP recovery bonus +20%. -->
+	<skill id="14793" toLevel="1" name="Pipe Organ Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Max HP +45%, Max MP +70%, and Max CP +45%. A chance to apply 9% Vampiric Rage effect. -->
 		<icon>icon.skill11519</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_CONDITION</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;IMPROVE_HP_MP_UP;MAX_HP_UP;MAX_MP_UP;HP_REGEN_UP;VAMPIRIC_ATTACK;IMPROVE_VAMPIRIC_HASTE;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -2041,27 +1977,31 @@
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="14794" toLevel="1" name="Master's Blessing - Guitar Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Critical Rate +38%, P. Critical Damage +35%, and M. Critical Rate +20. Decreases MP consumption for physical skills - 20% and magic skills - 10%. Decreases MP consumption for Iss Enchanter's enchant skills - 20%. -->
+	<skill id="14794" toLevel="1" name="Guitar Melody - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, Atk. Spd. +64%, Casting Spd. +62%, and Speed +30, and decreases Skill MP Consumption by 10%. -->
 		<icon>icon.skill11520</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
@@ -2070,16 +2010,16 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>ATTACK_TIME_DOWN;CASTING_TIME_DOWN;SPEED_UP;CHEAP_MAGIC;MULTI_BUFF;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;CRITICAL_DMG_UP;CRITICAL_PROB_UP;IMPROVE_SPEED_AVOID_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
-			<effect name="CriticalDamage">
-				<amount>35</amount>
+			<effect name="PhysicalAttackSpeed">
+				<amount>60</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="CriticalRate">
-				<amount>32</amount>
+			<effect name="MagicalAttackSpeed">
+				<amount>60</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicCriticalRate">
-				<amount>20</amount>
+			<effect name="Speed">
+				<amount>10</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="MagicMpCost">
@@ -2088,41 +2028,41 @@
 				<magicType>1</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>0</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>3</magicType>
 			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>22</magicType>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14795" toLevel="1" name="Master's Blessing - Harp Melody">
-		<!-- The GM is always with you. For 1 hour, increases P. Accuracy +8, physical and magic evasion +8, and speed +37. Decreases received critical damage - 30%. -->
+	<skill id="14795" toLevel="1" name="Harp Melody - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, P. Accuracy +8, physical and magic evasion +8, and speed +37. Received critical damage -30%. -->
 		<icon>icon.skill11521</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_HITAVOID</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_HIT_DEFENCE_CRT_RATE_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;AVOID_UP</dispel>
@@ -2148,30 +2088,30 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14796" toLevel="1" name="Master's Blessing - Lute Melody">
-		<!-- The GM is always with you. For 1 hour, increases Atk. Spd. +37% and Casting Spd. +34%. Applies Vampiric Rage effect +9% with a certain probability. -->
+	<skill id="14796" toLevel="1" name="Lute Melody - GM's Blessing">
+		<!-- The GM is always with you. For 1 hour, Atk. Spd. +37% and Casting Spd. +34%. Applies Vampiric Rage effect +9% with a certain probability. -->
 		<icon>icon.skill11518</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_MOVE</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>IMPROVE_VAMPIRIC_HASTE;ATTACK_TIME_DOWN;VAMPIRIC_ATTACK;CASTING_TIME_DOWN;MULTI_BUFF</dispel>
@@ -2194,25 +2134,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14797" toLevel="1" name="Master's Blessing - Knight's Harmony">
-		<!-- The GM is always with you. For 1 hour, P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Defense Rate +30%, Shield Defense +50%. -->
-		<icon>icon.skill11523</icon>
+	<skill id="14797" toLevel="1" name="Knight's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases P. Def +45%, M. Def +35%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, and Shield Defense Rate/ P. Def +50%, and decreases the chance of receiving Physical/ Magic Critical Hit by 25%. -->
+		<icon>icon.skill19500</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -2221,7 +2161,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>12</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2247,25 +2187,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14798" toLevel="1" name="Master's Blessing - Warrior's Harmony">
-		<!-- The GM is always with you. For 1 hour, P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, Speed +8. -->
-		<icon>icon.skill11524</icon>
+	<skill id="14798" toLevel="1" name="Warrior's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases P. Atk +25%, P. Critical Rate +100%, P. Critical Damage +85%, Atk. Spd. +10%, and Speed +10. There is also a chance to add the Spectral Slash effect to the target. -->
+		<icon>icon.skill19501</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -2274,11 +2214,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2304,25 +2244,25 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="14799" toLevel="1" name="Master's Blessing - Wizard's Harmony">
-		<!-- The GM is always with you. For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, MP Recovery Bonus +20%, MP Consumption -5% for magic skills and - 5% for physical skills, and Cooldown - 20%. -->
-		<icon>icon.skill11525</icon>
+	<skill id="14799" toLevel="1" name="Wizard's Harmony - GM's Blessing">
+		<!-- The GM is always by your side. For 1 hour, this blessing increases M. Atk. +45%, M. Critical Rate +100%, M. Critical Damage +10%, Casting Spd. +15%, and Attack Attribute +and decreases Skill Cooldown by 20% and Skill MP Consumption by 15%. -->
+		<icon>icon.skill19502</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>1</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<affectRange>2000</affectRange>
-		<isMagic>2</isMagic>
-		<reuseDelay>1000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>2000</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -2331,11 +2271,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>

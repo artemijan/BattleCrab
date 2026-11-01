@@ -157,7 +157,7 @@ pub(crate) fn clan_dissolve_delay_ms(world: &World) -> i64 {
 
 /// `CommonSkill.CLAN_ADVENT` (skill 19009 lv.1): the clan-leader-online aura —
 /// PAtk/PDef/MDef +5%, MAtk +6%, HP/MP regen +5 on every clan member while the
-/// leader is logged in. `abnormalTime=-1` (permanent) + `irreplacableBuff`, so
+/// leader is logged in. `abnormalTime=-1` (permanent) + `irreplaceableBuff`, so
 /// it lasts until explicitly removed on the leader's logout / clan dispersal.
 pub(crate) const CLAN_ADVENT_SKILL_ID: i32 = 19009;
 pub(crate) const CLAN_ADVENT_SKILL_LEVEL: i32 = 1;
@@ -313,12 +313,16 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
     send_to_client(
         world,
         leader_client,
-        server_packets::pledge_show_info_update(&clan),
+        server_packets::pledge_show_info_update(&clan, pledge_standing(world, clan_id)),
     );
     send_to_client(
         world,
         leader_client,
-        server_packets::pledge_show_member_list_all(&clan, &world.objects),
+        server_packets::pledge_show_member_list_all(
+            &clan,
+            pledge_standing(world, clan_id),
+            &world.objects,
+        ),
     );
     if let Some(m) = clan.member(leader_oid) {
         send_to_client(
@@ -349,8 +353,10 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
         clan.members.iter().map(|m| m.char_id).collect()
     };
     let _ = world.db.send(DbCommand::UpdateClanLevel { clan_id, level });
-    let info =
-        server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("checked above"));
+    let info = server_packets::pledge_show_info_update(
+        world.clans.get(&clan_id).expect("checked above"),
+        pledge_standing(world, clan_id),
+    );
     broadcast_to_clan(world, clan_id, &info);
     broadcast_to_clan(
         world,
@@ -400,8 +406,10 @@ pub(crate) fn add_clan_reputation(world: &mut World, clan_id: i32, points: i32) 
         clan_id,
         reputation: new_score,
     });
-    let info =
-        server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("checked above"));
+    let info = server_packets::pledge_show_info_update(
+        world.clans.get(&clan_id).expect("checked above"),
+        pledge_standing(world, clan_id),
+    );
     broadcast_to_clan(world, clan_id, &info);
     Some(new_score)
 }
@@ -585,8 +593,11 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         m.level = level;
     }
     let clan = world.clans.get(&clan_id).expect("checked above");
-    // Java `sendAllTo`: one tab per sub-unit, main pledge last.
-    for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
+    for pkt in server_packets::pledge_show_member_list_send_all(
+        clan,
+        pledge_standing(world, clan_id),
+        &world.objects,
+    ) {
         send_to_client(world, client_id, pkt);
     }
     notify_members(world, clan_id, object_id, true);
@@ -815,4 +826,23 @@ pub(crate) fn clan_and_privs(world: &World, player_object_id: i32) -> Option<(i3
 /// only where the sentinel is genuinely the shape needed.
 pub(crate) fn clan_of_or_zero(world: &World, player_object_id: i32) -> i32 {
     clan_of(world, player_object_id).unwrap_or(0)
+}
+
+/// Java `Clan.getHideoutId`: the clan hall the clan owns, 0 for none.
+pub(crate) fn hideout_of(world: &World, clan_id: i32) -> i32 {
+    world
+        .clan_halls
+        .values()
+        .find(|h| h.owner_id == clan_id)
+        .map(|h| h.id)
+        .unwrap_or(0)
+}
+
+/// The residence and war fields every pledge window carries.
+pub(crate) fn pledge_standing(world: &World, clan_id: i32) -> server_packets::PledgeStanding {
+    server_packets::PledgeStanding {
+        castle_id: world.clans.get(&clan_id).map_or(0, |c| c.castle_id),
+        hideout_id: hideout_of(world, clan_id),
+        at_war: wars::clan_is_at_war(world, clan_id),
+    }
 }

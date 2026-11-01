@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="24900" name="Seductive Swimsuit" additionalName="Mid-grade / Debuff Reflect" type="Armor">
 		<!-- When modified, Debuff Reflect +5%. -->
@@ -33,7 +33,7 @@
 		</skills>
 	</item>
 	<item id="24902" name="Seductive Swimsuit" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -209,7 +209,7 @@
 		</skills>
 	</item>
 	<item id="24913" name="Seductive Swimsuit" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +4. -->
+		<!-- When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -225,7 +225,7 @@
 		</skills>
 	</item>
 	<item id="24914" name="Seductive Swimsuit" additionalName="Mid-grade / Option 15" type="Armor">
-		<!-- When modified, Mid-grade / Option +15. -->
+		<!-- When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -241,7 +241,7 @@
 		</skills>
 	</item>
 	<item id="24915" name="Seductive Swimsuit" additionalName="Mid-grade / Option 16" type="Armor">
-		<!-- When modified, Mid-grade / Option +16. -->
+		<!-- When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -257,7 +257,7 @@
 		</skills>
 	</item>
 	<item id="24916" name="Seductive Swimsuit" additionalName="Mid-grade / Option 17" type="Armor">
-		<!-- When modified, Mid-grade / Option +17. -->
+		<!-- When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -273,7 +273,7 @@
 		</skills>
 	</item>
 	<item id="24917" name="Seductive Swimsuit" additionalName="Mid-grade / Option 18" type="Armor">
-		<!-- When modified, Mid-grade / Option +18. -->
+		<!-- When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -289,7 +289,7 @@
 		</skills>
 	</item>
 	<item id="24918" name="Seductive Swimsuit" additionalName="Mid-grade / Option 19" type="Armor">
-		<!-- When modified, Mid-grade / Option +19. -->
+		<!-- When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -305,7 +305,7 @@
 		</skills>
 	</item>
 	<item id="24919" name="Seductive Swimsuit" additionalName="Mid-grade / Option 20" type="Armor">
-		<!-- When modified, Mid-grade / Option +20. -->
+		<!-- When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -353,7 +353,7 @@
 		</skills>
 	</item>
 	<item id="24922" name="Seductive Swimsuit" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -529,7 +529,7 @@
 		</skills>
 	</item>
 	<item id="24933" name="Seductive Swimsuit" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +8. -->
+		<!-- When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -545,7 +545,7 @@
 		</skills>
 	</item>
 	<item id="24934" name="Seductive Swimsuit" additionalName="Top-grade / Option 15" type="Armor">
-		<!-- When modified, Top-grade / Option +15. -->
+		<!-- When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -561,7 +561,7 @@
 		</skills>
 	</item>
 	<item id="24935" name="Seductive Swimsuit" additionalName="Top-grade / Option 16" type="Armor">
-		<!-- When modified, Top-grade / Option +16. -->
+		<!-- When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -577,7 +577,7 @@
 		</skills>
 	</item>
 	<item id="24936" name="Seductive Swimsuit" additionalName="Top-grade / Option 17" type="Armor">
-		<!-- When modified, Top-grade / Option +17. -->
+		<!-- When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -593,7 +593,7 @@
 		</skills>
 	</item>
 	<item id="24937" name="Seductive Swimsuit" additionalName="Top-grade / Option 18" type="Armor">
-		<!-- When modified, Top-grade / Option +18. -->
+		<!-- When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -609,7 +609,7 @@
 		</skills>
 	</item>
 	<item id="24938" name="Seductive Swimsuit" additionalName="Top-grade / Option 19" type="Armor">
-		<!-- When modified, Top-grade / Option +19. -->
+		<!-- When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -625,7 +625,7 @@
 		</skills>
 	</item>
 	<item id="24939" name="Seductive Swimsuit" additionalName="Top-grade / Option 20" type="Armor">
-		<!-- When modified, Top-grade / Option +20. -->
+		<!-- When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="BranchSys3.icon1.g_co_swimsuit_event_03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -673,7 +673,7 @@
 		</skills>
 	</item>
 	<item id="24942" name="Santa Outfit" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -849,7 +849,7 @@
 		</skills>
 	</item>
 	<item id="24953" name="Santa Outfit" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +3. -->
+		<!-- When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -865,7 +865,7 @@
 		</skills>
 	</item>
 	<item id="24954" name="Santa Outfit" additionalName="Low-grade / Option 15" type="Armor">
-		<!-- When modified, Low-grade / Option +15. -->
+		<!-- When modified, Low-grade/ Option +15. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -881,7 +881,7 @@
 		</skills>
 	</item>
 	<item id="24955" name="Santa Outfit" additionalName="Low-grade / Option 16" type="Armor">
-		<!-- When modified, Low-grade / Option +16. -->
+		<!-- When modified, Low-grade/ Option +16. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -897,7 +897,7 @@
 		</skills>
 	</item>
 	<item id="24956" name="Santa Outfit" additionalName="Low-grade / Option 17" type="Armor">
-		<!-- When modified, Low-grade / Option +17. -->
+		<!-- When modified, Low-grade/ Option +17. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -913,7 +913,7 @@
 		</skills>
 	</item>
 	<item id="24957" name="Santa Outfit" additionalName="Low-grade / Option 18" type="Armor">
-		<!-- When modified, Low-grade / Option +18. -->
+		<!-- When modified, Low-grade/ Option +18. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -929,7 +929,7 @@
 		</skills>
 	</item>
 	<item id="24958" name="Santa Outfit" additionalName="Low-grade / Option 19" type="Armor">
-		<!-- When modified, Low-grade / Option +19. -->
+		<!-- When modified, Low-grade/ Option +19. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -945,7 +945,7 @@
 		</skills>
 	</item>
 	<item id="24959" name="Santa Outfit" additionalName="Low-grade / Option 20" type="Armor">
-		<!-- When modified, Low-grade / Option +20. -->
+		<!-- When modified, Low-grade/ Option +20. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -993,7 +993,7 @@
 		</skills>
 	</item>
 	<item id="24962" name="Santa Outfit" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1169,7 +1169,7 @@
 		</skills>
 	</item>
 	<item id="24973" name="Santa Outfit" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +4. -->
+		<!-- When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1185,7 +1185,7 @@
 		</skills>
 	</item>
 	<item id="24974" name="Santa Outfit" additionalName="Mid-grade / Option 15" type="Armor">
-		<!-- When modified, Mid-grade / Option +15. -->
+		<!-- When modified, Mid-grade/ Option +15. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1201,7 +1201,7 @@
 		</skills>
 	</item>
 	<item id="24975" name="Santa Outfit" additionalName="Mid-grade / Option 16" type="Armor">
-		<!-- When modified, Mid-grade / Option +16. -->
+		<!-- When modified, Mid-grade/ Option +16. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1217,7 +1217,7 @@
 		</skills>
 	</item>
 	<item id="24976" name="Santa Outfit" additionalName="Mid-grade / Option 17" type="Armor">
-		<!-- When modified, Mid-grade / Option +17. -->
+		<!-- When modified, Mid-grade/ Option +17. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1233,7 +1233,7 @@
 		</skills>
 	</item>
 	<item id="24977" name="Santa Outfit" additionalName="Mid-grade / Option 18" type="Armor">
-		<!-- When modified, Mid-grade / Option +18. -->
+		<!-- When modified, Mid-grade/ Option +18. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1249,7 +1249,7 @@
 		</skills>
 	</item>
 	<item id="24978" name="Santa Outfit" additionalName="Mid-grade / Option 19" type="Armor">
-		<!-- When modified, Mid-grade / Option +19. -->
+		<!-- When modified, Mid-grade/ Option +19. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1265,7 +1265,7 @@
 		</skills>
 	</item>
 	<item id="24979" name="Santa Outfit" additionalName="Mid-grade / Option 20" type="Armor">
-		<!-- When modified, Mid-grade / Option +20. -->
+		<!-- When modified, Mid-grade/ Option +20. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1313,7 +1313,7 @@
 		</skills>
 	</item>
 	<item id="24982" name="Santa Outfit" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1489,7 +1489,7 @@
 		</skills>
 	</item>
 	<item id="24993" name="Santa Outfit" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- When modified, P./M. Evasion +8. -->
+		<!-- When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1505,7 +1505,7 @@
 		</skills>
 	</item>
 	<item id="24994" name="Santa Outfit" additionalName="Top-grade / Option 15" type="Armor">
-		<!-- When modified, Top-grade / Option +15. -->
+		<!-- When modified, Top-grade/ Option +15. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1521,7 +1521,7 @@
 		</skills>
 	</item>
 	<item id="24995" name="Santa Outfit" additionalName="Top-grade / Option 16" type="Armor">
-		<!-- When modified, Top-grade / Option +16. -->
+		<!-- When modified, Top-grade/ Option +16. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1537,7 +1537,7 @@
 		</skills>
 	</item>
 	<item id="24996" name="Santa Outfit" additionalName="Top-grade / Option 17" type="Armor">
-		<!-- When modified, Top-grade / Option +17. -->
+		<!-- When modified, Top-grade/ Option +17. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1553,7 +1553,7 @@
 		</skills>
 	</item>
 	<item id="24997" name="Santa Outfit" additionalName="Top-grade / Option 18" type="Armor">
-		<!-- When modified, Top-grade / Option +18. -->
+		<!-- When modified, Top-grade/ Option +18. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1569,7 +1569,7 @@
 		</skills>
 	</item>
 	<item id="24998" name="Santa Outfit" additionalName="Top-grade / Option 19" type="Armor">
-		<!-- When modified, Top-grade / Option +19. -->
+		<!-- When modified, Top-grade/ Option +19. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />
@@ -1585,7 +1585,7 @@
 		</skills>
 	</item>
 	<item id="24999" name="Santa Outfit" additionalName="Top-grade / Option 20" type="Armor">
-		<!-- When modified, Top-grade / Option +20. -->
+		<!-- When modified, Top-grade/ Option +20. -->
 		<set name="icon" val="Branchsys3.icon1.armor_ev_santas_clothes" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="alldress" />

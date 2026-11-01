@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package handlers;
 
@@ -20,11 +24,11 @@ import java.util.logging.Logger;
 
 import org.l2jmobius.gameserver.handler.EffectHandler;
 
-import handlers.effecthandlers.*;
+import handlers.skill.effects.*;
 
 /**
  * Effect Master handler.
- * @author NosBit
+ * @author NosBit, Mobius
  */
 public class EffectMasterHandler
 {
@@ -40,12 +44,14 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("AdditionalPotionCp", AdditionalPotionCp::new);
 		EffectHandler.getInstance().registerHandler("AdditionalPotionHp", AdditionalPotionHp::new);
 		EffectHandler.getInstance().registerHandler("AdditionalPotionMp", AdditionalPotionMp::new);
-		EffectHandler.getInstance().registerHandler("AddPcCafePoints", AddPcCafePoints::new);
-		EffectHandler.getInstance().registerHandler("AddMaxPhysicalCriticalRate", AddMaxPhysicalCriticalRate::new);
 		EffectHandler.getInstance().registerHandler("AddMaxMagicCriticalRate", AddMaxMagicCriticalRate::new);
+		EffectHandler.getInstance().registerHandler("AddMaxPhysicalCriticalRate", AddMaxPhysicalCriticalRate::new);
+		EffectHandler.getInstance().registerHandler("AddPcCafePoints", AddPcCafePoints::new);
 		EffectHandler.getInstance().registerHandler("AddSkillBySkill", AddSkillBySkill::new);
 		EffectHandler.getInstance().registerHandler("AddTeleportBookmarkSlot", AddTeleportBookmarkSlot::new);
+		EffectHandler.getInstance().registerHandler("AgathionSlot", AgathionSlot::new);
 		EffectHandler.getInstance().registerHandler("AirBind", AirBind::new);
+		EffectHandler.getInstance().registerHandler("ApplySkillEffects", ApplySkillEffects::new);
 		EffectHandler.getInstance().registerHandler("AreaDamage", AreaDamage::new);
 		EffectHandler.getInstance().registerHandler("AttackAttribute", AttackAttribute::new);
 		EffectHandler.getInstance().registerHandler("AttackAttributeAdd", AttackAttributeAdd::new);
@@ -71,6 +77,7 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("BonusDropAdena", BonusDropAdena::new);
 		EffectHandler.getInstance().registerHandler("BonusDropAmount", BonusDropAmount::new);
 		EffectHandler.getInstance().registerHandler("BonusDropRate", BonusDropRate::new);
+		EffectHandler.getInstance().registerHandler("BonusRaidPoints", BonusRaidPoints::new);
 		EffectHandler.getInstance().registerHandler("BonusSpoilRate", BonusSpoilRate::new);
 		EffectHandler.getInstance().registerHandler("Breath", Breath::new);
 		EffectHandler.getInstance().registerHandler("BuffBlock", BuffBlock::new);
@@ -81,13 +88,14 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("CallSkill", CallSkill::new);
 		EffectHandler.getInstance().registerHandler("CallSkillOnActionTime", CallSkillOnActionTime::new);
 		EffectHandler.getInstance().registerHandler("CallTargetParty", CallTargetParty::new);
-		EffectHandler.getInstance().registerHandler("CheapShot", CheapShot::new);
 		EffectHandler.getInstance().registerHandler("ChameleonRest", ChameleonRest::new);
 		EffectHandler.getInstance().registerHandler("ChangeBody", ChangeBody::new);
 		EffectHandler.getInstance().registerHandler("ChangeFace", ChangeFace::new);
 		EffectHandler.getInstance().registerHandler("ChangeFishingMastery", ChangeFishingMastery::new);
 		EffectHandler.getInstance().registerHandler("ChangeHairColor", ChangeHairColor::new);
 		EffectHandler.getInstance().registerHandler("ChangeHairStyle", ChangeHairStyle::new);
+		EffectHandler.getInstance().registerHandler("CheapShot", CheapShot::new);
+		EffectHandler.getInstance().registerHandler("CheatDeath", CheatDeath::new);
 		EffectHandler.getInstance().registerHandler("ClassChange", ClassChange::new);
 		EffectHandler.getInstance().registerHandler("Compelling", Compelling::new);
 		EffectHandler.getInstance().registerHandler("Confuse", Confuse::new);
@@ -101,11 +109,14 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("CpRegen", CpRegen::new);
 		EffectHandler.getInstance().registerHandler("CraftingCritical", CraftingCritical::new);
 		EffectHandler.getInstance().registerHandler("CraftRate", CraftRate::new);
+		EffectHandler.getInstance().registerHandler("CreateCommonItem", CreateCommonItem::new);
+		EffectHandler.getInstance().registerHandler("CreateItem", CreateItem::new);
 		EffectHandler.getInstance().registerHandler("CriticalDamage", CriticalDamage::new);
 		EffectHandler.getInstance().registerHandler("CriticalDamagePosition", CriticalDamagePosition::new);
 		EffectHandler.getInstance().registerHandler("CriticalRate", CriticalRate::new);
 		EffectHandler.getInstance().registerHandler("CriticalRatePositionBonus", CriticalRatePositionBonus::new);
 		EffectHandler.getInstance().registerHandler("CrystalGradeModify", CrystalGradeModify::new);
+		EffectHandler.getInstance().registerHandler("Crystallize", Crystallize::new);
 		EffectHandler.getInstance().registerHandler("CubicMastery", CubicMastery::new);
 		EffectHandler.getInstance().registerHandler("DamageBlock", DamageBlock::new);
 		EffectHandler.getInstance().registerHandler("DamageByAttack", DamageByAttack::new);
@@ -136,12 +147,14 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("DispelBySlot", DispelBySlot::new);
 		EffectHandler.getInstance().registerHandler("DispelBySlotMyself", DispelBySlotMyself::new);
 		EffectHandler.getInstance().registerHandler("DispelBySlotProbability", DispelBySlotProbability::new);
+		EffectHandler.getInstance().registerHandler("DispelCaster", DispelCaster::new);
+		EffectHandler.getInstance().registerHandler("Distrust", Distrust::new);
 		EffectHandler.getInstance().registerHandler("DoubleCast", DoubleCast::new);
 		EffectHandler.getInstance().registerHandler("DragonWeaponDefence", DragonWeaponDefence::new);
 		EffectHandler.getInstance().registerHandler("DuelistFury", DuelistFury::new);
 		EffectHandler.getInstance().registerHandler("EnableCloak", EnableCloak::new);
 		EffectHandler.getInstance().registerHandler("EnchantRate", EnchantRate::new);
-		EffectHandler.getInstance().registerHandler("EnergyAttack", EnergyAttack::new);
+		EffectHandler.getInstance().registerHandler("EnergyDamage", EnergyDamage::new);
 		EffectHandler.getInstance().registerHandler("EnlargeAbnormalSlot", EnlargeAbnormalSlot::new);
 		EffectHandler.getInstance().registerHandler("EnlargeSlot", EnlargeSlot::new);
 		EffectHandler.getInstance().registerHandler("Escape", Escape::new);
@@ -155,9 +168,11 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("Feed", Feed::new);
 		EffectHandler.getInstance().registerHandler("FishingExpSpBonus", FishingExpSpBonus::new);
 		EffectHandler.getInstance().registerHandler("Flag", Flag::new);
+		EffectHandler.getInstance().registerHandler("FlipBlock", FlipBlock::new);
+		EffectHandler.getInstance().registerHandler("FlyAway", FlyAway::new);
 		EffectHandler.getInstance().registerHandler("FocusEnergy", FocusEnergy::new);
-		EffectHandler.getInstance().registerHandler("FocusMomentum", FocusMomentum::new);
 		EffectHandler.getInstance().registerHandler("FocusMaxMomentum", FocusMaxMomentum::new);
+		EffectHandler.getInstance().registerHandler("FocusMomentum", FocusMomentum::new);
 		EffectHandler.getInstance().registerHandler("FocusSouls", FocusSouls::new);
 		EffectHandler.getInstance().registerHandler("GetAgro", GetAgro::new);
 		EffectHandler.getInstance().registerHandler("GetDamageLimit", GetDamageLimit::new);
@@ -200,21 +215,24 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("LimitCp", LimitCp::new);
 		EffectHandler.getInstance().registerHandler("LimitHp", LimitHp::new);
 		EffectHandler.getInstance().registerHandler("LimitMp", LimitMp::new);
+		EffectHandler.getInstance().registerHandler("LimitSkill", LimitSkill::new);
 		EffectHandler.getInstance().registerHandler("Lucky", Lucky::new);
 		EffectHandler.getInstance().registerHandler("MagicAccuracy", MagicAccuracy::new);
-		EffectHandler.getInstance().registerHandler("MagicalAbnormalDispelAttack", MagicalAbnormalDispelAttack::new);
+		EffectHandler.getInstance().registerHandler("MagicalAbnormalDispelDamage", MagicalAbnormalDispelDamage::new);
 		EffectHandler.getInstance().registerHandler("MagicalAbnormalResist", MagicalAbnormalResist::new);
 		EffectHandler.getInstance().registerHandler("MagicalAttack", MagicalAttack::new);
-		EffectHandler.getInstance().registerHandler("MagicalAttackByAbnormal", MagicalAttackByAbnormal::new);
-		EffectHandler.getInstance().registerHandler("MagicalAttackByAbnormalSlot", MagicalAttackByAbnormalSlot::new);
-		EffectHandler.getInstance().registerHandler("MagicalAttackMp", MagicalAttackMp::new);
-		EffectHandler.getInstance().registerHandler("MagicalAttackRange", MagicalAttackRange::new);
 		EffectHandler.getInstance().registerHandler("MagicalAttackSpeed", MagicalAttackSpeed::new);
-		EffectHandler.getInstance().registerHandler("MagicalDamOverTime", MagicalDamOverTime::new);
+		EffectHandler.getInstance().registerHandler("MagicalDamage", MagicalDamage::new);
+		EffectHandler.getInstance().registerHandler("MagicalDamageByAbnormal", MagicalDamageByAbnormal::new);
+		EffectHandler.getInstance().registerHandler("MagicalDamageByAbnormalSlot", MagicalDamageByAbnormalSlot::new);
+		EffectHandler.getInstance().registerHandler("MagicalDamageMp", MagicalDamageMp::new);
+		EffectHandler.getInstance().registerHandler("MagicalDamageOverTime", MagicalDamageOverTime::new);
+		EffectHandler.getInstance().registerHandler("MagicalDamageRange", MagicalDamageRange::new);
 		EffectHandler.getInstance().registerHandler("MagicalDefence", MagicalDefence::new);
 		EffectHandler.getInstance().registerHandler("MagicalEvasion", MagicalEvasion::new);
 		EffectHandler.getInstance().registerHandler("MagicalSkillPower", MagicalSkillPower::new);
-		EffectHandler.getInstance().registerHandler("MagicalSoulAttack", MagicalSoulAttack::new);
+		EffectHandler.getInstance().registerHandler("MagicalSoulDamage", MagicalSoulDamage::new);
+		EffectHandler.getInstance().registerHandler("MagicalSuccessResistance", MagicalSuccessResistance::new);
 		EffectHandler.getInstance().registerHandler("MagicCriticalDamage", MagicCriticalDamage::new);
 		EffectHandler.getInstance().registerHandler("MagicCriticalRate", MagicCriticalRate::new);
 		EffectHandler.getInstance().registerHandler("MagicMpCost", MagicMpCost::new);
@@ -224,7 +242,6 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("ManaHealByLevel", ManaHealByLevel::new);
 		EffectHandler.getInstance().registerHandler("ManaHealOverTime", ManaHealOverTime::new);
 		EffectHandler.getInstance().registerHandler("ManaHealPercent", ManaHealPercent::new);
-		EffectHandler.getInstance().registerHandler("MAtk", MAtk::new);
 		EffectHandler.getInstance().registerHandler("MaxCp", MaxCp::new);
 		EffectHandler.getInstance().registerHandler("MaxHp", MaxHp::new);
 		EffectHandler.getInstance().registerHandler("MaxMp", MaxMp::new);
@@ -242,15 +259,15 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("OpenDoor", OpenDoor::new);
 		EffectHandler.getInstance().registerHandler("OpenDwarfRecipeBook", OpenDwarfRecipeBook::new);
 		EffectHandler.getInstance().registerHandler("Passive", Passive::new);
-		EffectHandler.getInstance().registerHandler("PAtk", PAtk::new);
 		EffectHandler.getInstance().registerHandler("PhysicalAbnormalResist", PhysicalAbnormalResist::new);
 		EffectHandler.getInstance().registerHandler("PhysicalAttack", PhysicalAttack::new);
-		EffectHandler.getInstance().registerHandler("PhysicalAttackHpLink", PhysicalAttackHpLink::new);
-		EffectHandler.getInstance().registerHandler("PhysicalAttackMute", PhysicalAttackMute::new);
 		EffectHandler.getInstance().registerHandler("PhysicalAttackRange", PhysicalAttackRange::new);
-		EffectHandler.getInstance().registerHandler("PhysicalAttackSaveHp", PhysicalAttackSaveHp::new);
 		EffectHandler.getInstance().registerHandler("PhysicalAttackSpeed", PhysicalAttackSpeed::new);
-		EffectHandler.getInstance().registerHandler("PhysicalAttackWeaponBonus", PhysicalAttackWeaponBonus::new);
+		EffectHandler.getInstance().registerHandler("PhysicalDamage", PhysicalDamage::new);
+		EffectHandler.getInstance().registerHandler("PhysicalDamageHpLink", PhysicalDamageHpLink::new);
+		EffectHandler.getInstance().registerHandler("PhysicalDamageMute", PhysicalDamageMute::new);
+		EffectHandler.getInstance().registerHandler("PhysicalDamageSaveHp", PhysicalDamageSaveHp::new);
+		EffectHandler.getInstance().registerHandler("PhysicalDamageWeaponBonus", PhysicalDamageWeaponBonus::new);
 		EffectHandler.getInstance().registerHandler("PhysicalDefence", PhysicalDefence::new);
 		EffectHandler.getInstance().registerHandler("PhysicalEvasion", PhysicalEvasion::new);
 		EffectHandler.getInstance().registerHandler("PhysicalMute", PhysicalMute::new);
@@ -258,12 +275,12 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("PhysicalSkillCriticalDamage", PhysicalSkillCriticalDamage::new);
 		EffectHandler.getInstance().registerHandler("PhysicalSkillCriticalRate", PhysicalSkillCriticalRate::new);
 		EffectHandler.getInstance().registerHandler("PhysicalSkillPower", PhysicalSkillPower::new);
-		EffectHandler.getInstance().registerHandler("PhysicalSoulAttack", PhysicalSoulAttack::new);
+		EffectHandler.getInstance().registerHandler("PhysicalSoulDamage", PhysicalSoulDamage::new);
 		EffectHandler.getInstance().registerHandler("PkCount", PkCount::new);
 		EffectHandler.getInstance().registerHandler("Plunder", Plunder::new);
 		EffectHandler.getInstance().registerHandler("PolearmSingleTarget", PolearmSingleTarget::new);
-		EffectHandler.getInstance().registerHandler("ProtectionBlessing", ProtectionBlessing::new);
 		EffectHandler.getInstance().registerHandler("ProtectDeathPenalty", ProtectDeathPenalty::new);
+		EffectHandler.getInstance().registerHandler("ProtectionBlessing", ProtectionBlessing::new);
 		EffectHandler.getInstance().registerHandler("PullBack", PullBack::new);
 		EffectHandler.getInstance().registerHandler("PveMagicalSkillDamageBonus", PveMagicalSkillDamageBonus::new);
 		EffectHandler.getInstance().registerHandler("PveMagicalSkillDefenceBonus", PveMagicalSkillDefenceBonus::new);
@@ -291,16 +308,17 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("RebalanceHPSummon", RebalanceHPSummon::new);
 		EffectHandler.getInstance().registerHandler("RecoverVitalityInPeaceZone", RecoverVitalityInPeaceZone::new);
 		EffectHandler.getInstance().registerHandler("Recovery", Recovery::new);
-		EffectHandler.getInstance().registerHandler("ReduceDamage", ReduceDamage::new);
 		EffectHandler.getInstance().registerHandler("ReduceCancel", ReduceCancel::new);
+		EffectHandler.getInstance().registerHandler("ReduceDamage", ReduceDamage::new);
 		EffectHandler.getInstance().registerHandler("ReduceDropPenalty", ReduceDropPenalty::new);
 		EffectHandler.getInstance().registerHandler("ReflectMagic", ReflectMagic::new);
 		EffectHandler.getInstance().registerHandler("ReflectSkill", ReflectSkill::new);
 		EffectHandler.getInstance().registerHandler("RefuelAirship", RefuelAirship::new);
 		EffectHandler.getInstance().registerHandler("Relax", Relax::new);
+		EffectHandler.getInstance().registerHandler("RemoveEquipPenalty", RemoveEquipPenalty::new);
+		EffectHandler.getInstance().registerHandler("ReplaceSkillBySkill", ReplaceSkillBySkill::new);
 		EffectHandler.getInstance().registerHandler("ResetInstanceEntry", ResetInstanceEntry::new);
 		EffectHandler.getInstance().registerHandler("ResistAbnormalByCategory", ResistAbnormalByCategory::new);
-		EffectHandler.getInstance().registerHandler("ResistDDMagic", ResistDDMagic::new);
 		EffectHandler.getInstance().registerHandler("ResistDispelByCategory", ResistDispelByCategory::new);
 		EffectHandler.getInstance().registerHandler("ResistSkill", ResistSkill::new);
 		EffectHandler.getInstance().registerHandler("Restoration", Restoration::new);
@@ -309,13 +327,14 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("ResurrectionSpecial", ResurrectionSpecial::new);
 		EffectHandler.getInstance().registerHandler("Reuse", Reuse::new);
 		EffectHandler.getInstance().registerHandler("ReuseSkillById", ReuseSkillById::new);
+		EffectHandler.getInstance().registerHandler("Ride", Ride::new);
 		EffectHandler.getInstance().registerHandler("Root", Root::new);
 		EffectHandler.getInstance().registerHandler("SacrificeSummon", SacrificeSummon::new);
 		EffectHandler.getInstance().registerHandler("SafeFallHeight", SafeFallHeight::new);
 		EffectHandler.getInstance().registerHandler("SendSystemMessageToClan", SendSystemMessageToClan::new);
 		EffectHandler.getInstance().registerHandler("ServitorShare", ServitorShare::new);
-		EffectHandler.getInstance().registerHandler("SetHp", SetHp::new);
 		EffectHandler.getInstance().registerHandler("SetCp", SetCp::new);
+		EffectHandler.getInstance().registerHandler("SetHp", SetHp::new);
 		EffectHandler.getInstance().registerHandler("SetSkill", SetSkill::new);
 		EffectHandler.getInstance().registerHandler("ShieldDefence", ShieldDefence::new);
 		EffectHandler.getInstance().registerHandler("ShieldDefenceRate", ShieldDefenceRate::new);
@@ -331,8 +350,8 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("SoulEating", SoulEating::new);
 		EffectHandler.getInstance().registerHandler("Sow", Sow::new);
 		EffectHandler.getInstance().registerHandler("Speed", Speed::new);
-		EffectHandler.getInstance().registerHandler("SphericBarrier", SphericBarrier::new);
 		EffectHandler.getInstance().registerHandler("SpeedLimit", SpeedLimit::new);
+		EffectHandler.getInstance().registerHandler("SphericBarrier", SphericBarrier::new);
 		EffectHandler.getInstance().registerHandler("SpModify", SpModify::new);
 		EffectHandler.getInstance().registerHandler("Spoil", Spoil::new);
 		EffectHandler.getInstance().registerHandler("StatAddForLevel", StatAddForLevel::new);
@@ -366,7 +385,7 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("TeleportToPlayer", TeleportToPlayer::new);
 		EffectHandler.getInstance().registerHandler("TeleportToSummon", TeleportToSummon::new);
 		EffectHandler.getInstance().registerHandler("TeleportToTarget", TeleportToTarget::new);
-		EffectHandler.getInstance().registerHandler("FlyAway", FlyAway::new);
+		EffectHandler.getInstance().registerHandler("TrackLimitedSkill", TrackLimitedSkill::new);
 		EffectHandler.getInstance().registerHandler("TransferDamageToPlayer", TransferDamageToPlayer::new);
 		EffectHandler.getInstance().registerHandler("TransferDamageToSummon", TransferDamageToSummon::new);
 		EffectHandler.getInstance().registerHandler("TransferHate", TransferHate::new);
@@ -374,15 +393,16 @@ public class EffectMasterHandler
 		EffectHandler.getInstance().registerHandler("TrapDetect", TrapDetect::new);
 		EffectHandler.getInstance().registerHandler("TrapRemove", TrapRemove::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkill", TriggerSkill::new);
-		EffectHandler.getInstance().registerHandler("TriggerSkillByAttack", TriggerSkillByAttack::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkillByAvoid", TriggerSkillByAvoid::new);
-		EffectHandler.getInstance().registerHandler("TriggerSkillByDamage", TriggerSkillByDamage::new);
+		EffectHandler.getInstance().registerHandler("TriggerSkillByDamageDealt", TriggerSkillByDamageDealt::new);
+		EffectHandler.getInstance().registerHandler("TriggerSkillByDamageReceived", TriggerSkillByDamageReceived::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkillByDeathBlow", TriggerSkillByDeathBlow::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkillByHpPercent", TriggerSkillByHpPercent::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkillByKill", TriggerSkillByKill::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkillByMagicType", TriggerSkillByMagicType::new);
 		EffectHandler.getInstance().registerHandler("TriggerSkillBySkill", TriggerSkillBySkill::new);
-		EffectHandler.getInstance().registerHandler("TriggerSkillBySkillAttack", TriggerSkillBySkillAttack::new);
+		EffectHandler.getInstance().registerHandler("TriggerSkillBySkillDamage", TriggerSkillBySkillDamage::new);
+		EffectHandler.getInstance().registerHandler("TriggerSkillWithDelay", TriggerSkillWithDelay::new);
 		EffectHandler.getInstance().registerHandler("TwoHandedBluntBonus", TwoHandedBluntBonus::new);
 		EffectHandler.getInstance().registerHandler("TwoHandedSwordBonus", TwoHandedSwordBonus::new);
 		EffectHandler.getInstance().registerHandler("Unsummon", Unsummon::new);

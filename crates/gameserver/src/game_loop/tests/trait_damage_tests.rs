@@ -128,7 +128,11 @@ fn a_weapon_defence_trait_softens_that_weapons_hits() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0001, 13, 1); // Short Bow
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     assert!(
         (calc_weapon_trait_bonus(&world, ATTACKER, TARGET) - 0.60).abs() < 1e-9,
@@ -147,7 +151,11 @@ fn a_negative_weapon_trait_is_a_vulnerability_and_the_floor_is_0_22() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0002, 13, 1);
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     let bow = TraitType::Weapon(WeaponTrait::Bow);
 
@@ -259,7 +267,11 @@ fn the_auto_attack_trait_bonus_multiplies_weapon_and_weakness() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0003, 13, 1);
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     let bow = TraitType::Weapon(WeaponTrait::Bow);
     let beast = TraitType::Weakness(WeaknessTrait::Beast);
@@ -310,7 +322,11 @@ fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0004, 13, 1);
-        inv.equip_item(&data.item_data, oid);
+        inv.equip_item(
+            &data.item_data,
+            oid,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     let bonus_after = calc_attack_trait_bonus(&world, ATTACKER, npc_oid);
 
@@ -371,7 +387,11 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
             let World { objects, data, .. } = &mut world;
             let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
             let oid = inv.add_item(&data.item_data, 0x5300_0005, 1, 1); // Short Sword
-            inv.equip_item(&data.item_data, oid);
+            inv.equip_item(
+                &data.item_data,
+                oid,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+            );
         }
         if let Some(pct) = trait_pct {
             merge_defence_traits(
@@ -454,7 +474,11 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
             let World { objects, data, .. } = &mut world;
             let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
             let oid = inv.add_item(&data.item_data, 0x5300_0006, 13, 1);
-            inv.equip_item(&data.item_data, oid);
+            inv.equip_item(
+                &data.item_data,
+                oid,
+                crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+            );
         }
         if with_trait {
             merge_defence_traits(
@@ -468,12 +492,17 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
         skill.id = 9800;
         skill.magic_type = 0;
         skill.activate_rate = -1;
-        skill.effects = vec![SkillEffect::PhysicalAttack {
+        skill.effects = vec![SkillEffect::PhysicalDamage {
             power: 50.0,
             p_atk_mod: 1.0,
             p_def_mod: 40.0,
             critical_chance: 0.0,
             ignore_shield_defence: true,
+            abnormals: Vec::new(),
+            abnormal_damage_mod: 1.0,
+            abnormal_power_mod: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
         }];
 
         let max = world

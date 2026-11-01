@@ -5,6 +5,7 @@ mod buffs;
 mod cast;
 mod charges;
 mod damage;
+mod damage_mods;
 mod debuffs;
 mod dispel;
 mod fly;
@@ -13,6 +14,7 @@ mod learning;
 mod npc;
 mod passives;
 mod reuse;
+mod souls;
 mod targeting;
 
 use super::*;
@@ -61,6 +63,7 @@ fn synthetic_buff(
     use model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        synergy: false,
         not_broadcastable: false,
         necessary_toggle: false,
         fly: None,
@@ -102,6 +105,9 @@ fn synthetic_buff(
         abnormal_level,
         abnormal_type: abnormal_type.into(),
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -123,6 +129,7 @@ fn synthetic_buff(
         excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
+        can_cast_while_disabled: false,
         removed_on_damage: false,
         self_effects: Vec::new(),
         pve_effects: Vec::new(),
@@ -156,6 +163,10 @@ fn arm(world: &mut World, object_id: i32, item_id: i32) {
         .expect("test player has an inventory")
         .clone();
     let oid = inv.add_item(&world.data.item_data, 0x5000_0001, item_id, 1);
-    inv.equip_item(&world.data.item_data, oid);
+    inv.equip_item(
+        &world.data.item_data,
+        oid,
+        crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+    );
     world.objects.add_components(&object_id, inv);
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="6900" name="Recipe: Arcana Mace" type="EtcItem">
 		<!-- For Dwarves only. Recipe for an Arcana Mace. Requires Create Item - Skill Lv. 9. The success rate is 100%. -->
@@ -39,12 +39,12 @@
 		<set name="commissionItemType" val="SHIELD" />
 		<set name="isAppearanceable" val="true" />
 		<set name="price" val="1980" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player clanHall="-1" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="rEvas">-8</stat>
 			<stat type="rShld">20</stat>
@@ -720,7 +720,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6954" name="Recipe: STR Dye (STR +1 CON - 1)" type="EtcItem">
+	<item id="6954" name="Recipe: STR Dye (STR +1 CON -1)" type="EtcItem">
 		<!-- This recipe for STR Dye <Str +1 Con -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -734,7 +734,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6955" name="Recipe: STR Dye (STR +1 DEX - 1)" type="EtcItem">
+	<item id="6955" name="Recipe: STR Dye (STR +1 DEX -1)" type="EtcItem">
 		<!-- This recipe for STR Dye <Str +1 Dex -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -748,7 +748,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6956" name="Recipe: CON Dye (Con +1 Str - 1)" type="EtcItem">
+	<item id="6956" name="Recipe: CON Dye (Con +1 Str -1)" type="EtcItem">
 		<!-- This recipe for CON Dye <Con +1 Str -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -762,7 +762,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6957" name="Recipe: CON Dye (Con +1 DEX - 1)" type="EtcItem">
+	<item id="6957" name="Recipe: CON Dye (Con +1 DEX -1)" type="EtcItem">
 		<!-- This recipe for CON Dye <Con +1 Dex -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -776,7 +776,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6958" name="Recipe: DEX Dye (Dex +1 Str - 1)" type="EtcItem">
+	<item id="6958" name="Recipe: DEX Dye (Dex +1 Str -1)" type="EtcItem">
 		<!-- This recipe for DEX Dye <Dex +1 Str -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -790,7 +790,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6959" name="Recipe: DEX Dye (Dex +1 CON - 1)" type="EtcItem">
+	<item id="6959" name="Recipe: DEX Dye (Dex +1 CON -1)" type="EtcItem">
 		<!-- This recipe for DEX Dye <Dex +1 Con -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -804,7 +804,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6960" name="Recipe: INT Dye (Int +1 Men - 1)" type="EtcItem">
+	<item id="6960" name="Recipe: INT Dye (Int +1 Men -1)" type="EtcItem">
 		<!-- This recipe for INT Dye <Int +1 Men -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -818,7 +818,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6961" name="Recipe: INT Dye (Int +1 Wit - 1)" type="EtcItem">
+	<item id="6961" name="Recipe: INT Dye (Int +1 Wit -1)" type="EtcItem">
 		<!-- This recipe for INT Dye <Int +1 Wit -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -832,7 +832,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6962" name="Recipe: MEN Dye (Men +1 Int - 1)" type="EtcItem">
+	<item id="6962" name="Recipe: MEN Dye (Men +1 Int -1)" type="EtcItem">
 		<!-- This recipe for MEN Dye <Men +1 Int -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -846,7 +846,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6963" name="Recipe: MEN Dye (Men +1 Wit - 1)" type="EtcItem">
+	<item id="6963" name="Recipe: MEN Dye (Men +1 Wit -1)" type="EtcItem">
 		<!-- This recipe for MEN Dye <Men +1 Wit -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -860,7 +860,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6964" name="Recipe: WIT Dye (Wit +1 Int - 1)" type="EtcItem">
+	<item id="6964" name="Recipe: WIT Dye (Wit +1 Int -1)" type="EtcItem">
 		<!-- This recipe for WIT Dye <Wit +1 Int -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -874,7 +874,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6965" name="Recipe: WIT Dye (Wit +1 Men - 1)" type="EtcItem">
+	<item id="6965" name="Recipe: WIT Dye (Wit +1 Men -1)" type="EtcItem">
 		<!-- This recipe for WIT Dye <Wit +1 Men -1>. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -888,7 +888,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6966" name="Recipe: Greater STR Dye (STR +1 CON - 1)" type="EtcItem">
+	<item id="6966" name="Recipe: Greater STR Dye (STR +1 CON -1)" type="EtcItem">
 		<!-- This recipe for Greater STR Dye <Str +1 Con -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -902,7 +902,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6967" name="Recipe: Greater STR Dye (STR +1 DEX - 1)" type="EtcItem">
+	<item id="6967" name="Recipe: Greater STR Dye (STR +1 DEX -1)" type="EtcItem">
 		<!-- This recipe for Greater STR Dye <Str +1 Dex -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -916,7 +916,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6968" name="Recipe: Greater CON Dye (Con +1 Str - 1)" type="EtcItem">
+	<item id="6968" name="Recipe: Greater CON Dye (Con +1 Str -1)" type="EtcItem">
 		<!-- This recipe for Greater CON Dye <Con +1 Str -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -930,7 +930,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6969" name="Recipe: Greater CON Dye (Con +1 DEX - 1)" type="EtcItem">
+	<item id="6969" name="Recipe: Greater CON Dye (Con +1 DEX -1)" type="EtcItem">
 		<!-- This recipe for Greater CON Dye <Con +1 Dex -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -944,7 +944,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6970" name="Recipe: Greater DEX Dye (Dex +1 Str - 1)" type="EtcItem">
+	<item id="6970" name="Recipe: Greater DEX Dye (Dex +1 Str -1)" type="EtcItem">
 		<!-- This recipe for Greater DEX Dye <Dex +1 Str -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -958,7 +958,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6971" name="Recipe: Greater DEX Dye (Dex +1 CON - 1)" type="EtcItem">
+	<item id="6971" name="Recipe: Greater DEX Dye (Dex +1 CON -1)" type="EtcItem">
 		<!-- This recipe for Greater DEX Dye <Dex +1 Con -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -972,7 +972,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6972" name="Recipe: Greater INT Dye (Int +1 Men - 1)" type="EtcItem">
+	<item id="6972" name="Recipe: Greater INT Dye (Int +1 Men -1)" type="EtcItem">
 		<!-- This recipe for Greater INT Dye <Int +1 Men -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -986,7 +986,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6973" name="Recipe: Greater INT Dye (Int +1 Wit - 1)" type="EtcItem">
+	<item id="6973" name="Recipe: Greater INT Dye (Int +1 Wit -1)" type="EtcItem">
 		<!-- This recipe for Greater INT Dye <Int +1 Wit -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -1000,7 +1000,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6974" name="Recipe: Greater MEN Dye (Men +1 Int - 1)" type="EtcItem">
+	<item id="6974" name="Recipe: Greater MEN Dye (Men +1 Int -1)" type="EtcItem">
 		<!-- This recipe for Greater MEN Dye <Men +1 Int -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -1014,7 +1014,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6975" name="Recipe: Greater MEN Dye (Men +1 Wit - 1)" type="EtcItem">
+	<item id="6975" name="Recipe: Greater MEN Dye (Men +1 Wit -1)" type="EtcItem">
 		<!-- This recipe for Greater MEN Dye <Men +1 Wit -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -1028,7 +1028,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6976" name="Recipe: Greater WIT Dye (Wit +1 Int - 1)" type="EtcItem">
+	<item id="6976" name="Recipe: Greater WIT Dye (Wit +1 Int -1)" type="EtcItem">
 		<!-- This recipe for Greater WIT Dye <Wit +1 Int -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -1042,7 +1042,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6977" name="Recipe: Greater WIT Dye (Wit +1 Men - 1)" type="EtcItem">
+	<item id="6977" name="Recipe: Greater WIT Dye (Wit +1 Men -1)" type="EtcItem">
 		<!-- This recipe for Greater WIT Dye <Wit +1 Men -1> can be used by all races. Requires Create Common Item Skill Lv. 4. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -1056,8 +1056,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6978" name="Recipe: Greater STR Dye (STR +2 CON - 2)" type="EtcItem">
-		<!-- This recipe for Greater STR Dye <Str +2 Con - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6978" name="Recipe: Greater STR Dye (STR +2 CON -2)" type="EtcItem">
+		<!-- This recipe for Greater STR Dye <Str +2 Con -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1070,8 +1070,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6979" name="Recipe: Greater STR Dye (STR +2 DEX - 2)" type="EtcItem">
-		<!-- This recipe for Greater STR Dye <Str +2 Dex - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6979" name="Recipe: Greater STR Dye (STR +2 DEX -2)" type="EtcItem">
+		<!-- This recipe for Greater STR Dye <Str +2 Dex -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1084,8 +1084,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6980" name="Recipe: Greater CON Dye (Con +2 Str - 2)" type="EtcItem">
-		<!-- This recipe for Greater CON Dye <Con +2 Str - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6980" name="Recipe: Greater CON Dye (Con +2 Str -2)" type="EtcItem">
+		<!-- This recipe for Greater CON Dye <Con +2 Str -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1098,8 +1098,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6981" name="Recipe: Greater CON Dye (Con +2 DEX - 2)" type="EtcItem">
-		<!-- This recipe for Greater CON Dye <Con +2 Dex - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6981" name="Recipe: Greater CON Dye (Con +2 DEX -2)" type="EtcItem">
+		<!-- This recipe for Greater CON Dye <Con +2 Dex -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1112,8 +1112,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6982" name="Recipe: Greater DEX Dye (Dex +2 Str - 2)" type="EtcItem">
-		<!-- This recipe for Greater DEX Dye <Dex +2 Str - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6982" name="Recipe: Greater DEX Dye (Dex +2 Str -2)" type="EtcItem">
+		<!-- This recipe for Greater DEX Dye <Dex +2 Str -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1126,8 +1126,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6983" name="Recipe: Greater DEX Dye (Dex +2 CON - 2)" type="EtcItem">
-		<!-- This recipe for Greater DEX Dye <Dex +2 Con - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6983" name="Recipe: Greater DEX Dye (Dex +2 CON -2)" type="EtcItem">
+		<!-- This recipe for Greater DEX Dye <Dex +2 Con -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1140,8 +1140,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6984" name="Recipe: Greater INT Dye (Int +2 Men - 2)" type="EtcItem">
-		<!-- This recipe for Greater INT Dye <Int +2 Men - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6984" name="Recipe: Greater INT Dye (Int +2 Men -2)" type="EtcItem">
+		<!-- This recipe for Greater INT Dye <Int +2 Men -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1154,8 +1154,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6985" name="Recipe: Greater INT Dye (Int +2 Wit - 2)" type="EtcItem">
-		<!-- This recipe for Greater INT Dye <Int +2 Wit - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6985" name="Recipe: Greater INT Dye (Int +2 Wit -2)" type="EtcItem">
+		<!-- This recipe for Greater INT Dye <Int +2 Wit -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1168,8 +1168,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6986" name="Recipe: Greater MEN Dye (Men +2 Int - 2)" type="EtcItem">
-		<!-- This recipe for Greater MEN Dye <Men +2 Int - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6986" name="Recipe: Greater MEN Dye (Men +2 Int -2)" type="EtcItem">
+		<!-- This recipe for Greater MEN Dye <Men +2 Int -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1182,8 +1182,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6987" name="Recipe: Greater MEN Dye (Men +2 Wit - 2)" type="EtcItem">
-		<!-- This recipe for Greater MEN Dye <Men +2 Wit - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6987" name="Recipe: Greater MEN Dye (Men +2 Wit -2)" type="EtcItem">
+		<!-- This recipe for Greater MEN Dye <Men +2 Wit -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1196,8 +1196,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6988" name="Recipe: Greater WIT Dye (Wit +2 Int - 2)" type="EtcItem">
-		<!-- This recipe for Greater WIT Dye <Wit +2 Int - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6988" name="Recipe: Greater WIT Dye (Wit +2 Int -2)" type="EtcItem">
+		<!-- This recipe for Greater WIT Dye <Wit +2 Int -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1210,8 +1210,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6989" name="Recipe: Greater WIT Dye (Wit +2 Men - 2)" type="EtcItem">
-		<!-- This recipe for Greater WIT Dye <Wit +2 Men - 2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6989" name="Recipe: Greater WIT Dye (Wit +2 Men -2)" type="EtcItem">
+		<!-- This recipe for Greater WIT Dye <Wit +2 Men -2> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1224,8 +1224,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6990" name="Recipe: Greater STR Dye (STR +3 CON - 3)" type="EtcItem">
-		<!-- This recipe for Greater STR Dye <Str +3 Con - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6990" name="Recipe: Greater STR Dye (STR +3 CON -3)" type="EtcItem">
+		<!-- This recipe for Greater STR Dye <Str +3 Con -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1238,8 +1238,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6991" name="Recipe: Greater STR Dye (STR +3 DEX - 3)" type="EtcItem">
-		<!-- This recipe for Greater STR Dye <Str +3 Dex - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6991" name="Recipe: Greater STR Dye (STR +3 DEX -3)" type="EtcItem">
+		<!-- This recipe for Greater STR Dye <Str +3 Dex -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1252,8 +1252,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6992" name="Recipe: Greater CON Dye (Con +3 Str - 3)" type="EtcItem">
-		<!-- This recipe for Greater CON Dye <Con +3 Str - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6992" name="Recipe: Greater CON Dye (Con +3 Str -3)" type="EtcItem">
+		<!-- This recipe for Greater CON Dye <Con +3 Str -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1266,8 +1266,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6993" name="Recipe: Greater CON Dye (Con +3 DEX - 3)" type="EtcItem">
-		<!-- This recipe for Greater CON Dye <Con +3 Dex - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6993" name="Recipe: Greater CON Dye (Con +3 DEX -3)" type="EtcItem">
+		<!-- This recipe for Greater CON Dye <Con +3 Dex -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1280,8 +1280,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6994" name="Recipe: Greater DEX Dye (Dex +3 Str - 3)" type="EtcItem">
-		<!-- This recipe for Greater DEX Dye <Dex +3 Str - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6994" name="Recipe: Greater DEX Dye (Dex +3 Str -3)" type="EtcItem">
+		<!-- This recipe for Greater DEX Dye <Dex +3 Str -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1294,8 +1294,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6995" name="Recipe: Greater DEX Dye (Dex +3 CON - 3)" type="EtcItem">
-		<!-- This recipe for Greater DEX Dye <Dex +3 Con - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6995" name="Recipe: Greater DEX Dye (Dex +3 CON -3)" type="EtcItem">
+		<!-- This recipe for Greater DEX Dye <Dex +3 Con -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1308,8 +1308,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6996" name="Recipe: Greater INT Dye (Int +3 Men - 3)" type="EtcItem">
-		<!-- This recipe for Greater INT Dye <Int +3 Men - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6996" name="Recipe: Greater INT Dye (Int +3 Men -3)" type="EtcItem">
+		<!-- This recipe for Greater INT Dye <Int +3 Men -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1322,8 +1322,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6997" name="Recipe: Greater INT Dye (Int +3 Wit - 3)" type="EtcItem">
-		<!-- This recipe for Greater INT Dye <Int +3 Wit - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6997" name="Recipe: Greater INT Dye (Int +3 Wit -3)" type="EtcItem">
+		<!-- This recipe for Greater INT Dye <Int +3 Wit -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1336,8 +1336,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6998" name="Recipe: Greater MEN Dye (Men +3 Int - 3)" type="EtcItem">
-		<!-- This recipe for Greater MEN Dye <Men +3 Int - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6998" name="Recipe: Greater MEN Dye (Men +3 Int -3)" type="EtcItem">
+		<!-- This recipe for Greater MEN Dye <Men +3 Int -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1350,8 +1350,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="handler" val="Recipes" />
 	</item>
-	<item id="6999" name="Recipe: Greater MEN Dye (Men +3 Wit - 3)" type="EtcItem">
-		<!-- This recipe for Greater MEN Dye <Men +3 Wit - 3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
+	<item id="6999" name="Recipe: Greater MEN Dye (Men +3 Wit -3)" type="EtcItem">
+		<!-- This recipe for Greater MEN Dye <Men +3 Wit -3> can be used by all races. Requires Create Common Item Skill Lv. 5. -->
 		<set name="icon" val="icon.etc_recipe_green_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />

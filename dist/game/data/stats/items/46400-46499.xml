@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="46400" name="NPC Feoh Wizard Transformation Cloak" type="Armor">
 		<set name="icon" val="icon.armor_back04" />
@@ -50,7 +50,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46405" name="Mr. K's Gift Basket" type="EtcItem">
-		<!-- Mr. K's gift basket. Obtain 50 My Teleport Scrolls, 1 My Teleport Book, 10 Feathers of Blessing, 5 Emperor's Vitality Tonics, 5 Emperor's Rune 2-hour Boxes, 25 Vitality Replenishing Potions. Also, randomly get one of the following: Chic Silver Chapeau/White Uniform Hat/Ribbon Hairband. -->
+		<!-- Mr. K's gift basket. Obtain 50 My Teleport Scrolls, 1 My Teleport Book, 10 Feathers of Blessing, 5 Emperor's Vitality Tonics, 5 Emperor's Rune 2-hour Boxes, 25 Vitality Replenishing Potions. Also, randomly get one of the following: Chic Silver Chapeau/ White Uniform Hat/ Ribbon Hairband. -->
 		<set name="icon" val="icon.mrk_basket_i00" />
 		<set name="weight" val="10" />
 		<set name="is_tradable" val="false" />
@@ -61,7 +61,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46406" name="Angel Cat's Energy" type="EtcItem">
-		<!-- For 30 minutes, P. Atk. +5%, M. Atk. by 20%, P. Def. by 5%, M. Def. by 5%, Atk. Spd. by 5%, Casting Spd. by 5%, Max HP/MP by 5%, and XP and SP acquired through hunting increase by 30%. Cannot be used in the Olympiad. Cannot be applied along with event buffs such as Angel Cat's Blessing and Letter Collector's Gift. -->
+		<!-- For 30 minutes, P. Atk. +5%, M. Atk. by 20%, P. Def. by 5%, M. Def. by 5%, Atk. Spd. by 5%, Casting Spd. by 5%, Max HP/ MP by 5%, and XP and SP acquired through hunting increase by 30%. Cannot be used in the Olympiad. Cannot be applied along with event buffs such as Angel Cat's Blessing and Letter Collector's Gift. -->
 		<set name="icon" val="icon.skilltransform4" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -173,7 +173,7 @@
 		<set name="bodypart" val="hairall" />
 	</item>
 	<item id="46416" name="Sheep Hat - Defense" additionalName="7-day" type="Armor">
-		<!-- CON +3, P./M. Def +3% when equipped. Uses 2 hair accessory slots. Deleted after event. -->
+		<!-- CON +3, P./ M. Def +3% when equipped. Uses 2 hair accessory slots. Deleted after event. -->
 		<set name="icon" val="icon.accessory_sheep_cap_white_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="10" />
@@ -221,8 +221,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46421" name="R Sheep Bait" type="EtcItem">
@@ -233,8 +233,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46422" name="R95 Sheep Bait" type="EtcItem">
@@ -245,8 +245,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46423" name="R99 Sheep Bait" type="EtcItem">
@@ -257,8 +257,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46424" name="Sheep Hat" additionalName="14-day" type="Armor">
@@ -298,7 +298,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -317,7 +317,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -336,7 +336,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -355,7 +355,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -374,7 +374,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8.0</stat>
-			<stat type="rCrit">6.0</stat>
+			<stat type="critRate">6.0</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
@@ -418,51 +418,51 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="46435" name="Heine Special Bait (85-89)" type="EtcItem">
-		<!-- Fishing Bait. When used, various types of fish can be caught, Wind Vitality Tonic, Heine Treasure Chest, Zodiac Agathion Pack have a small chance of being obtained. Can only be used by Lv.85~Lv.89. -->
+		<!-- Fishing Bait. When used, various types of fish can be caught. Has a very low chance of obtaining Wind Vitality Tonic, Heine Treasure Chest, or Seed Bracelet Treasure Chest. Can only be used by Lv.85-Lv.89. -->
 		<set name="icon" val="icon.etc_bm_lure_i00" />
 		<set name="bodypart" val="lhand" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46436" name="Heine Special Bait (90-94)" type="EtcItem">
-		<!-- Bait for fishing. Catch fresh fish and whales. Has a very low chance of obtaining Wind Vitality Tonic, Heine Treasure Chest, or a Zodiac Agathion Box. Can be used by characters Lv. 90 - 94. -->
+		<!-- Bait for fishing. Catch fresh fish and whales. Has a very low chance of obtaining Wind Vitality Tonic, Heine Treasure Chest, or a Seed Bracelet Treasure Chest. Can be used by characters Lv. 90- 94. -->
 		<set name="icon" val="icon.etc_bm_lure_i00" />
 		<set name="bodypart" val="lhand" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46437" name="Heine Special Bait (95-98)" type="EtcItem">
-		<!-- Fishing Bait. When used, various types of fish can be caught, Wind Vitality Tonic, Heine Treasure Chest, Zodiac Agathion Pack have a small chance of being obtained. Can only be used by Lv.95~Lv.98. -->
+		<!-- Fishing Bait. When used, various types of fish can be caught. Has a very low chance of obtaining Wind Vitality Tonic, Heine Treasure Chest, or Seed Bracelet Treasure Chest. Can only be used by Lv.95-Lv.98. -->
 		<set name="icon" val="icon.etc_bm_lure_i00" />
 		<set name="bodypart" val="lhand" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="46438" name="Heine Special Bait (99~)" type="EtcItem">
-		<!-- Fishing Bait. When used, various types of fish can be caught, Wind Vitality Tonic, Heine Treasure Chest, Zodiac Agathion Pack have a small chance of being obtained. Can only be used above Lv.99. -->
+	<item id="46438" name="Heine Special Bait (99-)" type="EtcItem">
+		<!-- Fishing Bait. When used, various types of fish can be caught. Has a very low chance of obtaining Wind Vitality Tonic, Heine Treasure Chest, or Seed Bracelet Treasure Chest. Can only be used above Lv.99. -->
 		<set name="icon" val="icon.etc_bm_lure_i00" />
 		<set name="bodypart" val="lhand" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="LURE" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="LURE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46439" name="Heine Special Bait Coupon" type="EtcItem">
@@ -476,16 +476,16 @@
 		<!-- Double-click to get Heine Fishing Coins. Has a chance of obtaining a Hidden Treasure Chest. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="46441" name="Zodiac Agathion Box" type="EtcItem">
-		<!-- Double-click to get a random Zodiac Agathion. -->
+	<item id="46441" name="Zodiac Agathion Pack" type="EtcItem">
+		<!-- Double-click to randomly obtain one Zodiac Agathion. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46442" name="Heine Special Fishing Tools - 300 Pack" type="EtcItem">

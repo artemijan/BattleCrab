@@ -62,10 +62,10 @@ fn a_heros_line_reaches_every_online_player() {
 }
 
 /// A non-hero is refused with the hero-channel notice and nobody hears
-/// anything; `PlayerCondOverride.CHAT_CONDITIONS` (ordinal 8) is the one
-/// escape, exactly as on the world-chat jail gate.
+/// anything; `isGM()` is the one escape, exactly as on the world-chat jail
+/// gate.
 #[test]
-fn a_non_hero_is_refused_unless_the_cond_is_overridden() {
+fn a_non_hero_is_refused_unless_gm() {
     let (mut world, ..) = test_world();
     let (mut rx, mut listener_rx) = two_players(&mut world);
     drain(&mut rx);
@@ -78,17 +78,18 @@ fn a_non_hero_is_refused_unless_the_cond_is_overridden() {
     );
     assert!(drain(&mut listener_rx).is_empty(), "nothing broadcast");
 
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
     world
         .objects
         .get_component_mut::<Player>(&2001)
         .unwrap()
-        .cond_overrides |= 1 << 8;
+        .access_level = 100;
     chat::handle_say2(&mut world, 1, &hero_body("gm speaking"));
     assert!(
         drain(&mut listener_rx)
             .iter()
             .any(|p| p[0] == opcodes::SAY2),
-        "CHAT_CONDITIONS overrides the hero requirement"
+        "a GM passes the hero requirement"
     );
 }
 

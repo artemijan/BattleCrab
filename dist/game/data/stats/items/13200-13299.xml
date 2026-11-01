@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="13200" name="Premium Account - Bellion Cestus" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13200" name="PA - Bellion Cestus" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Bellion Cestus with limited ability enhancement. <Special Option>. Atk. Spd. decreases by 9% when HP drops to 60% or below. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_bellion_cestus_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -20,20 +20,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3034" level="6" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3034" level="6" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
-	<item id="13201" name="Premium Account - Bow of Peril" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13201" name="PA - Bow of Peril" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Bow of Peril with limited ability enhancement. <Special Option>. Cooldown decreases by about 13%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_hazard_bow_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -58,15 +58,15 @@
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="13202" name="Premium Account - Samurai Long Sword*Samurai Long Sword" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Samurai Long Sword*Samurai Long Sword with limited ability enhancement. When enchanted, P. Atk. of a dualsword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Atk. Spd. Increases by 4%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="13202" name="PA - Samurai Long Sword*Samurai Long Sword" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- Samurai Long Sword*Samurai Long Sword with limited ability enhancement. When enchanted, P. Atk. of a dual sword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Atk. Spd. Increases by 4%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -85,19 +85,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3045" level="14" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3045" level="14" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
-	<item id="13203" name="Premium Account - Guardian's Sword" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13203" name="PA - Guardian's Sword" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Guardian's Sword with limited ability enhancement. <Special Option>. Max HP increases by 25%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_guardians_sword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -117,19 +117,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
-	<item id="13204" name="Premium Account - Wizard's Tear" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13204" name="PA - Wizard's Tear" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Wizard's Tear with limited ability enhancement. <Special Option>. Casting Spd. Increases by 15%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_tears_of_wizard_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -150,19 +150,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
-	<item id="13205" name="Premium Account - Kaim Vanul's Bones" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13205" name="PA - Kaim Vanul's Bones" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Kaim Vanul's Bones with limited ability enhancement. <Special Option>. Max MP increases by 30%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_bone_of_kaim_vanul_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -183,20 +183,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
-	<item id="13206" name="Premium Account - Star Buster" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13206" name="PA - Star Buster" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Star Buster with limited ability enhancement. <Special Option>. Atk. Spd. Increases by about 6%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_star_buster_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -216,20 +216,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
-	<item id="13207" name="Premium Account - Colichemarde" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13207" name="PA - Colichemarde" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Colichemarde with limited ability enhancement. <Special Option>. Critical increases by 64. When enchanted to 4 or more, chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_colichemarde_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -249,24 +249,24 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
-	<item id="13208" name="Premium Account - Dismantler" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13208" name="PA - Dismantler" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Dismantler with limited ability enhancement. <Special Option>. Absorbs 8 HP from the target during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dismantler_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -286,23 +286,23 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3022" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">210</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3022" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Drain -->
+		</skills>
 	</item>
-	<item id="13209" name="Premium Account - Hell Hound" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13209" name="PA - Hell Hound" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Hell Hound with limited ability enhancement. <Special Option>. MP consumption decreases by 12% during skill use. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_hell_hound_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -323,23 +323,23 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
+		</skills>
 	</item>
-	<item id="13210" name="Premium Account - Sirra's Blade" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13210" name="PA - Sirra's Blade" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Sirra's Blade with limited ability enhancement. <Special Option>. Max HP increases by 25%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_sirr_blade_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -359,19 +359,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
-	<item id="13211" name="Premium Account - Sword of Ipos" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13211" name="PA - Sword of Ipos" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Sword of Ipos with limited ability enhancement. <Special Option>. Critical increases by 61. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_sword_of_ipos_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -391,19 +391,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13212" name="Premium Account - Barakiel's Axe" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13212" name="PA - Barakiel's Axe" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Barakiel's Axe with limited ability enhancement. <Special Option>. Critical increases by 61. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_barakiel_axe_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -423,20 +423,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13213" name="Premium Account - Behemoth' Tuning Fork" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13213" name="PA - Behemoth' Tuning Fork" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Behemoth' Tuning Fork with limited ability enhancement. <Special Option>. Critical increases by 61. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_tuning_fork_of_behemoth_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -456,20 +456,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13214" name="Premium Account - Naga Storm" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13214" name="PA - Naga Storm" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Naga Storm with limited ability enhancement. <Special Option>. Critical increases by 67. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_naga_storm_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -489,20 +489,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3051" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">220</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3051" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13215" name="Premium Account - Tiphon's Spear" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13215" name="PA - Tiphon's Spear" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Tiphon's Spear with limited ability enhancement. <Special Option>. The angle of attack widens. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_tiphon_spear_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -522,20 +522,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
-	<item id="13216" name="Premium Account - Shyeed's Bow" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13216" name="PA - Shyeed's Bow" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Shyeed's Bow with limited ability enhancement. <Special Option>. Critical increases by 61. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_shyid_bow_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -557,20 +557,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">570</stat>
 			<stat type="mAtk">133</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13217" name="Premium Account - Sobekk's Hurricane" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13217" name="PA - Sobekk's Hurricane" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Sobekk's Hurricane with limited ability enhancement. <Special Option>. Atk. Spd. Increases by about 6%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_sobekk_hurricane_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -590,20 +590,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
-	<item id="13218" name="Premium Account - Themis' Tongue" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13218" name="PA - Themis' Tongue" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Themis' Tongue with limited ability enhancement. <Special Option>. Max MP increases by 30%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_tongue_of_themis_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -624,19 +624,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3014" level="3" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">202</stat>
 			<stat type="mAtk">161</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="3" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
-	<item id="13219" name="Premium Account - Cabrio's Hand" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13219" name="PA - Cabrio's Hand" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Cabrio's Hand with limited ability enhancement. <Special Option>. Max MP increases by 30%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_hand_of_cabrio_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -657,20 +657,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3048" level="3" /> <!-- Special Ability: Conversion -->
-		</skills>
 		<stats>
 			<stat type="pAtk">202</stat>
 			<stat type="mAtk">161</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3048" level="3" /> <!-- Special Ability: Conversion -->
+		</skills>
 	</item>
-	<item id="13220" name="Premium Account - Daimon Crystal" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13220" name="PA - Daimon Crystal" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Daimon Crystal with limited ability enhancement. <Special Option>. Casting Spd. Increases by 15%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_crystal_of_deamon_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -691,21 +691,21 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">177</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
-	<item id="13221" name="Premium Account - Tallum Blade*Damascus" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Tallum Blade*Damascus with limited ability enhancement. When enchanted, P. Atk. of a dualsword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Atk. Spd. Increases by 8%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="13221" name="PA - Tallum Blade*Damascus" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- Tallum Blade*Damascus with limited ability enhancement. When enchanted, P. Atk. of a dual sword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Atk. Spd. Increases by 8%. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -724,19 +724,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3045" level="17" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3045" level="17" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
-	<item id="13222" name="Premium Account - Éclair Bijou" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13222" name="PA - Éclair Bijou" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Éclair Bijou with limited ability enhancement. <Special Option>. Atk. Spd. Increases by about 6%. Increases damage inflicted during PvP. When enchanted to 4 or more, chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_greed_stinger_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -756,24 +756,24 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">228</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
-	<item id="13223" name="Premium Account - Durendal" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13223" name="PA - Durendal" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Durendal with limited ability enhancement. <Special Option>. Critical increases by 61. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_death_bringer_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -793,23 +793,23 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">272</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13224" name="Premium Account - Screaming Vengeance" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13224" name="PA - Screaming Vengeance" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Screaming Vengeance with limited ability enhancement. <Special Option>. Critical increases by 61. Increases damage inflicted during PvP. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_soul_shooter_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -830,24 +830,24 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">318</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="13225" name="Kamaloka (Hall of the Abyss) 15-unit Pack" type="EtcItem">
-		<!-- Wrapped Pack containing 15 Extra Passes: Hall of the Abyss -->
+		<!-- Wrapped Pack containing 15 Extra Passes: Hall of the Abyss. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i01" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1222,7 +1222,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1246,7 +1246,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1270,7 +1270,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1294,7 +1294,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1318,7 +1318,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1339,18 +1339,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8246" level="1" /> <!-- Transform Pumpkin Ghost -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8246" level="1" /> <!-- Transform Pumpkin Ghost -->
+		</skills>
 	</item>
 	<item id="13254" name="Agathion - Love" additionalName="7-day" type="Armor">
 		<!-- Seal bracelet that can summon an Love Agathion. 7-day. -->
@@ -1368,7 +1368,7 @@
 		<set name="is_destroyable" val="false" />
 		<skills>
 			<skill id="5763" level="1" /> <!-- Wink -->
-			<skill id="8245" level="1" /> <!-- Release Agathion's Seal - Love -->
+			<skill id="8245" level="1" /> <!-- Agathion Summon- Love -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
@@ -1765,7 +1765,7 @@
 		</capsuled_items>
 	</item>
 	<item id="13280" name="Agathion - Love Pack (7-day)" type="EtcItem">
-		<!-- Wrapped Pack containing Love Agathion Bracelet (7-day). -->
+		<!-- Dimensional Item Pack. A pack containing Love Agathion Bracelet (7-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i02" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -2034,12 +2034,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="3323" level="1" /> <!-- Bronze Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">20</stat>
 		</stats>
+		<skills>
+			<skill id="3323" level="1" /> <!-- Bronze Bracelet -->
+		</skills>
 	</item>
 	<item id="13296" name="Pailaka Shirt" type="Armor">
 		<!-- Pailaka Varka Silenos reward item. Shirt with prominent P. Def. MP 40 effect. -->

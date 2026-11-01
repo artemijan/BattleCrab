@@ -49,6 +49,7 @@ fn insert_damage_zone(world: &mut World, p: DamageZoneParams) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     refresh_zone_masks(world);
 }
@@ -66,6 +67,7 @@ fn insert_swamp_zone(world: &mut World, p: SwampZoneParams) {
         swamp: Some(p),
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 

@@ -231,6 +231,14 @@ pub(crate) fn is_playable(world: &World, object_id: i32) -> bool {
             .has_component::<model::components::summons::ServitorOf>(&object_id)
 }
 
+/// Java `isNpc()`: an `Npc` — not a summon (a `Playable`) and not a door.
+pub(crate) fn is_npc(world: &World, oid: i32) -> bool {
+    world.objects.has_component::<Npc>(&oid)
+        && !world
+            .objects
+            .has_component::<model::components::summons::ServitorOf>(&oid)
+}
+
 /// A player's character name, or `None` once the object has left the world.
 ///
 /// Prefer this whenever the caller can say something useful about a missing

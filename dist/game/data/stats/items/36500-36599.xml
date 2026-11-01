@@ -1,82 +1,79 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="36500" name="Valakas Cutter" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_valrakas_onehand_sword_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="rhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
+		<stats>
+			<stat type="pAtk">2884</stat>
+			<stat type="mAtk">1257</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+			<stat type="firePower">999</stat>
+		</stats>
 		<skills>
 			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
 			<skill id="8890" level="1" /> <!-- Dignity -->
 			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
 			<skill id="8901" level="1" /> <!-- Dragon Knight -->
 		</skills>
-		<stats>
-			<stat type="pAtk">2884</stat>
-			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-			<stat type="firePower">999</stat>
-		</stats>
 	</item>
 	<item id="36501" name="Valakas Slasher" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_valrakas_twohand_sword_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="lrhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1740" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
+		<stats>
+			<stat type="pAtk">3509</stat>
+			<stat type="mAtk">1257</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+			<stat type="firePower">999</stat>
+		</stats>
 		<skills>
 			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
 			<skill id="8890" level="1" /> <!-- Dignity -->
 			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
 			<skill id="8901" level="1" /> <!-- Dragon Knight -->
 		</skills>
-		<stats>
-			<stat type="pAtk">3509</stat>
-			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-			<stat type="firePower">999</stat>
-		</stats>
 	</item>
 	<item id="36502" name="Valakas Thrower" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_valrakas_bow_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="lrhand" />
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
@@ -84,34 +81,33 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
-			<skill id="8901" level="1" /> <!-- Dragon Knight -->
-		</skills>
 		<stats>
 			<stat type="pAtk">5678</stat>
 			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="firePower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
+			<skill id="8901" level="1" /> <!-- Dragon Knight -->
+		</skills>
 	</item>
 	<item id="36503" name="Valakas Buster" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_valrakas_onehand_magic_sword_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="rhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
@@ -119,33 +115,32 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
+		<stats>
+			<stat type="pAtk">2307</stat>
+			<stat type="mAtk">1676</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+			<stat type="firePower">999</stat>
+		</stats>
 		<skills>
 			<skill id="8890" level="1" /> <!-- Dignity -->
 			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
 			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
 			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
 		</skills>
-		<stats>
-			<stat type="pAtk">2307</stat>
-			<stat type="mAtk">1676</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-			<stat type="firePower">999</stat>
-		</stats>
 	</item>
 	<item id="36504" name="Valakas Caster" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Casting Spd. +100%, P. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Casting Spd. +100%, P. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_valrakas_onehand_magic_blunt_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="rhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="WOOD" />
 		<set name="weight" val="1080" />
 		<set name="soulshots" val="1" />
@@ -153,34 +148,33 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
-			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
-		</skills>
 		<stats>
 			<stat type="pAtk">2307</stat>
 			<stat type="mAtk">1676</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="firePower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
+			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
+		</skills>
 	</item>
 	<item id="36505" name="Valakas Retributer" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Valakas' Bite and Valakas' Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_valrakas_twohand_magic_blunt_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="lrhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="WOOD" />
 		<set name="weight" val="1080" />
 		<set name="soulshots" val="1" />
@@ -189,16 +183,10 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
-			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
-		</skills>
 		<stats>
 			<stat type="pAtk">2809</stat>
 			<stat type="mAtk">1843</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accMagic">8</stat>
@@ -206,52 +194,56 @@
 			<stat type="pAtkRange">40</stat>
 			<stat type="firePower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8896" level="1" /> <!-- Valakas' Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8897" level="1" /> <!-- Valakas' Bite -->
+			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
+		</skills>
 	</item>
 	<item id="36506" name="Lindvior Shaper" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_lind_dagger_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="rhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
-			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8901" level="1" /> <!-- Dragon Knight -->
-		</skills>
 		<stats>
 			<stat type="pAtk">2523</stat>
 			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="windPower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
+			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8901" level="1" /> <!-- Dragon Knight -->
+		</skills>
 	</item>
 	<item id="36507" name="Lindvior Thrower" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_lind_bow_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="lrhand" />
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
@@ -259,67 +251,65 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
-			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8901" level="1" /> <!-- Dragon Knight -->
-		</skills>
 		<stats>
 			<stat type="pAtk">5678</stat>
 			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="windPower">999</stat>
 		</stats>
-	</item>
-	<item id="36508" name="Lindvior Slasher" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
-		<set name="icon" val="icon.weapon_lind_twohand_sword_i01" />
-		<set name="is_dragon_weapon" val="true" />
-		<set name="default_action" val="EQUIP" />
-		<set name="weapon_type" val="SWORD" />
-		<set name="crystal_type" val="R" />
-		<set name="bodypart" val="lrhand" />
-		<set name="damage_range" val="0;0;40;120" />
-		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
-		<set name="material" val="STEEL" />
-		<set name="weight" val="1740" />
-		<set name="soulshots" val="1" />
-		<set name="spiritshots" val="1" />
-		<set name="is_sellable" val="false" />
-		<set name="equip_reuse_delay" val="300" />
 		<skills>
 			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
 			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
 			<skill id="8890" level="1" /> <!-- Dignity -->
 			<skill id="8901" level="1" /> <!-- Dragon Knight -->
 		</skills>
+	</item>
+	<item id="36508" name="Lindvior Slasher" additionalName="Top-grade" type="Weapon">
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<set name="icon" val="icon.weapon_lind_twohand_sword_i01" />
+		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="SWORD" />
+		<set name="bodypart" val="lrhand" />
+		<set name="damage_range" val="0;0;40;120" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="STEEL" />
+		<set name="weight" val="1740" />
+		<set name="soulshots" val="1" />
+		<set name="spiritshots" val="1" />
+		<set name="is_sellable" val="false" />
+		<set name="equip_reuse_delay" val="300" />
 		<stats>
 			<stat type="pAtk">3509</stat>
 			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="windPower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
+			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8901" level="1" /> <!-- Dragon Knight -->
+		</skills>
 	</item>
 	<item id="36509" name="Lindvior Caster" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the wisdom of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +500, M. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_lind_onehand_magic_blunt_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="rhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
@@ -327,67 +317,65 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
-			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
-		</skills>
 		<stats>
 			<stat type="pAtk">2307</stat>
 			<stat type="mAtk">1676</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="windPower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
+			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8903" level="1" /> <!-- Dragon Wizard -->
+		</skills>
 	</item>
 	<item id="36510" name="Lindvior Cutter" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_lind_onehand_sword_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="rhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1520" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
+		<stats>
+			<stat type="pAtk">2884</stat>
+			<stat type="mAtk">1257</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+			<stat type="windPower">999</stat>
+		</stats>
 		<skills>
 			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
 			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
 			<skill id="8890" level="1" /> <!-- Dignity -->
 			<skill id="8901" level="1" /> <!-- Dragon Knight -->
 		</skills>
-		<stats>
-			<stat type="pAtk">2884</stat>
-			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-			<stat type="windPower">999</stat>
-		</stats>
 	</item>
 	<item id="36511" name="Lindvior Shooter" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_lind_crossbow_i01" />
 		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
-		<set name="crystal_type" val="R" />
 		<set name="bodypart" val="lrhand" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
 		<set name="material" val="STEEL" />
 		<set name="weight" val="1580" />
 		<set name="soulshots" val="1" />
@@ -395,56 +383,55 @@
 		<set name="reuse_delay" val="1350" />
 		<set name="is_sellable" val="false" />
 		<set name="equip_reuse_delay" val="300" />
-		<skills>
-			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
-			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
-			<skill id="8890" level="1" /> <!-- Dignity -->
-			<skill id="8901" level="1" /> <!-- Dragon Knight -->
-		</skills>
 		<stats>
 			<stat type="pAtk">5113</stat>
 			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="windPower">999</stat>
 		</stats>
-	</item>
-	<item id="36512" name="Lindvior Dual Dagger" additionalName="Top-grade" type="Weapon">
-		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
-		<set name="icon" val="icon.weapon_lind_dual_dagger_i01" />
-		<set name="is_dragon_weapon" val="true" />
-		<set name="default_action" val="EQUIP" />
-		<set name="weapon_type" val="DUALDAGGER" />
-		<set name="crystal_type" val="R" />
-		<set name="bodypart" val="lrhand" />
-		<set name="damage_range" val="0;0;44;120" />
-		<set name="immediate_effect" val="true" />
-		<set name="crystal_type" val="R" />
-		<set name="material" val="STEEL" />
-		<set name="weight" val="2050" />
-		<set name="soulshots" val="1" />
-		<set name="spiritshots" val="1" />
-		<set name="is_sellable" val="false" />
-		<set name="equip_reuse_delay" val="300" />
 		<skills>
 			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
 			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
 			<skill id="8890" level="1" /> <!-- Dignity -->
 			<skill id="8901" level="1" /> <!-- Dragon Knight -->
 		</skills>
+	</item>
+	<item id="36512" name="Lindvior Dual Dagger" additionalName="Top-grade" type="Weapon">
+		<!-- A weapon imbued with the power of the dragons. PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, damage on dragons +300%. Use Active Skills Dignity, Lindvior's Wingbeat and Lindvior's Breath. Its appearance cannot be changed. Cannot be crystallized, enchanted, augmented, or assigned an attribute. Can bestow 1 special Soul Crystal. -->
+		<set name="icon" val="icon.weapon_lind_dual_dagger_i01" />
+		<set name="is_dragon_weapon" val="true" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="DUALDAGGER" />
+		<set name="bodypart" val="lrhand" />
+		<set name="damage_range" val="0;0;44;120" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="STEEL" />
+		<set name="weight" val="2050" />
+		<set name="soulshots" val="1" />
+		<set name="spiritshots" val="1" />
+		<set name="is_sellable" val="false" />
+		<set name="equip_reuse_delay" val="300" />
 		<stats>
 			<stat type="pAtk">2884</stat>
 			<stat type="mAtk">1257</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="windPower">999</stat>
 		</stats>
+		<skills>
+			<skill id="8899" level="1" /> <!-- Lindvior's Wingbeat -->
+			<skill id="8898" level="1" /> <!-- Lindvior's Breath -->
+			<skill id="8890" level="1" /> <!-- Dignity -->
+			<skill id="8901" level="1" /> <!-- Dragon Knight -->
+		</skills>
 	</item>
 	<item id="36513" name="Elcyum Powder" type="EtcItem">
 		<!-- Rare mineral discovered in the deepest part of the Spine Mine area. Take 10 units of Elcyum Powder to a Merchant of Mammon to receive an Elcyum Crystal. -->
@@ -465,7 +452,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="36515" name="Elcyum" type="EtcItem">
-		<!-- Rare mineral discovered in the deepest part of the Spine Mine area. Use the item to receive various abilities including item enchantment/augmentation. -->
+		<!-- Rare mineral discovered in the deepest part of the Spine Mine area. Use the item to receive various abilities including item enchantment/ augmentation. -->
 		<set name="icon" val="icon.etc_crystal_cave_crystal_i0" />
 		<set name="price" val="400000000" />
 		<set name="is_stackable" val="true" />
@@ -997,7 +984,7 @@
 		</capsuled_items>
 	</item>
 	<item id="36568" name="Friendship Cube (30-day)" additionalName="Event" type="EtcItem">
-		<!-- Lineage II L-together is even better with friends! Double-click to obtain either a pass for entering an instance zone one additional time or an Unbind Scroll R/R95/R99 (weapon/armor). Can be used only once a day. -->
+		<!-- Lineage II L-together is even better with friends! Double-click to obtain either a pass for entering an instance zone one additional time or an Unbind Scroll R/ R95/ R99 (weapon/ armor). Can be used only once a day. -->
 		<set name="icon" val="icon.etc_pink_crystal_cube_pc_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1008,7 +995,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="36569" name="Yum Yum Candy Gift Box" additionalName="Event" type="EtcItem">
-		<!-- Lineage II L2 Together is even better with friends! Double-click to obtain a Yum Yum Candy (30-day) that increases additional XP/SP by 15%. Cannot be exchanged once open. A Nom Nom Candy Gift Box is included in the gift coupon provided when you paid for your account. Can be exchanged and stored in a private warehouse. -->
+		<!-- Lineage II L2 Together is even better with friends! Double-click to obtain a Yum Yum Candy (30-day) that increases additional XP/ SP by 15%. Cannot be exchanged once open. A Nom Nom Candy Gift Box is included in the gift coupon provided when you paid for your account. Can be exchanged and stored in a private warehouse. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -1022,7 +1009,7 @@
 		</capsuled_items>
 	</item>
 	<item id="36570" name="Nom Nom Candy Gift Box" additionalName="Event" type="EtcItem">
-		<!-- Lineage II L2 Together is even better with friends! Double-click to obtain a Nom Nom Candy (30-day) that increases additional XP/SP by 15%. Cannot be exchanged once open. A Nom Nom Candy Gift Box is included in the gift coupon provided when you paid for your account. Can be exchanged and stored in a private warehouse. -->
+		<!-- Lineage II L2 Together is even better with friends! Double-click to obtain a Nom Nom Candy (30-day) that increases additional XP/ SP by 15%. Cannot be exchanged once open. A Nom Nom Candy Gift Box is included in the gift coupon provided when you paid for your account. Can be exchanged and stored in a private warehouse. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
@@ -1036,7 +1023,7 @@
 		</capsuled_items>
 	</item>
 	<item id="36571" name="Yum Yum Candy (30-day)" additionalName="Event" type="EtcItem">
-		<!-- Have fun with your friends! increases additionally obtained XP/SP by 15%. When this candy and a Nom Nom Candy are used together, both of their effects apply. When this candy is used with an identical candy, their effects apply only once. -->
+		<!-- Have fun with your friends! increases additionally obtained XP/ SP by 15%. When this candy and a Nom Nom Candy are used together, both of their effects apply. When this candy is used with an identical candy, their effects apply only once. -->
 		<set name="icon" val="icon.etc_whiteday_candy_i05" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1051,7 +1038,7 @@
 		</skills>
 	</item>
 	<item id="36572" name="Nom Nom Candy (30-day)" additionalName="Event" type="EtcItem">
-		<!-- Have fun with your friends! increases additionally obtained XP/SP by 15%. When this candy and a Yum Yum Candy are used together, both of their effects apply. When this candy is used with an identical candy, their effects apply only once. -->
+		<!-- Have fun with your friends! increases additionally obtained XP/ SP by 15%. When this candy and a Yum Yum Candy are used together, both of their effects apply. When this candy is used with an identical candy, their effects apply only once. -->
 		<set name="icon" val="icon.etc_whiteday_candy_i06" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1100,8 +1087,8 @@
 		<!-- Changes the appearance of an S-grade weapon to that of a different weapon of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. -->
 		<set name="icon" val="icon.weapon_change_i05" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
@@ -1116,8 +1103,8 @@
 		<!-- Changes the appearance of an A-grade weapon to that of a different weapon of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. -->
 		<set name="icon" val="icon.weapon_change_i04" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
@@ -1132,8 +1119,8 @@
 		<!-- Changes the appearance of a B-grade weapon to that of a different weapon of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. -->
 		<set name="icon" val="icon.weapon_change_i03" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
@@ -1183,9 +1170,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="immediate_effect" val="true" />
@@ -1201,8 +1188,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1219,8 +1206,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1237,8 +1224,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1255,8 +1242,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1273,8 +1260,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1288,9 +1275,9 @@
 		<!-- Changes the appearance of an R-grade armor to that of different armor of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. Consumes 125000 adena. -->
 		<set name="icon" val="icon.armor_change_i06" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1304,8 +1291,8 @@
 		<!-- Changes the appearance of an S-grade armor to that of different armor of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. Consumes 50,000 adena. -->
 		<set name="icon" val="icon.armor_change_i05" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1351,8 +1338,8 @@
 		<!-- Changes the appearance of a C-grade armor to that of different armor of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. Consumes 1500 adena. -->
 		<set name="icon" val="icon.armor_change_i02" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1366,8 +1353,8 @@
 		<!-- Changes the appearance of a D-grade armor to that of different armor of the same grade or a lower grade. You need an appearance item, which is destroyed after its appearance is extracted. An appearance-modified item has no change in abilities. Double click to use. Consumes 600 adena. -->
 		<set name="icon" val="icon.armor_change_i01" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1384,8 +1371,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1402,8 +1389,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1420,8 +1407,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1438,8 +1425,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1456,8 +1443,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1474,8 +1461,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="Appearance" />

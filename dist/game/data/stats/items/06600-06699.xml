@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="6600" name="Saint Spear" additionalName="Guidance" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Accuracy by about 5. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_saint_spear_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -19,21 +19,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">281</stat>
+			<stat type="mAtk">132</stat>
+			<stat type="critRate">8</stat>
+			<stat type="accCombat">-3.75</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">80</stat>
+		</stats>
 		<skills>
 			<skill id="3602" level="9" /> <!-- Special Ability: Guidance -->
 		</skills>
-		<stats>
-			<stat type="pAtk">281</stat>
-			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="accCombat">-3.75</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">80</stat>
-		</stats>
 	</item>
 	<item id="6601" name="Saint Spear" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 7%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_saint_spear_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -51,21 +53,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3601" level="9" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">281</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3601" level="9" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="6602" name="Demon Splinter" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 80. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demon_splinter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -83,21 +87,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">342</stat>
+			<stat type="mAtk">132</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3565" level="1" /> <!-- Special Ability: Focus -->
 		</skills>
-		<stats>
-			<stat type="pAtk">342</stat>
-			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6603" name="Demon Splinter" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demon_splinter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -115,21 +121,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">342</stat>
+			<stat type="mAtk">132</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 		</skills>
-		<stats>
-			<stat type="pAtk">342</stat>
-			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6604" name="Demon Splinter" additionalName="Critical Stun" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has about a 27% chance of casting Stun on the target during a Critical Attack. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_demon_splinter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -147,22 +155,24 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">342</stat>
+			<stat type="mAtk">132</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">5</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3571" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
 		</skills>
-		<stats>
-			<stat type="pAtk">342</stat>
-			<stat type="mAtk">132</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">5</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6605" name="Heaven's Divider" additionalName="Haste" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 7%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavens_divider_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -181,20 +191,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3564" level="1" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="1" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="6606" name="Heaven's Divider" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavens_divider_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -213,20 +225,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="6607" name="Heaven's Divider" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 84. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_heavens_divider_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -245,20 +259,22 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
-		<skills>
-			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">342</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="6608" name="Arcana Mace" additionalName="Acumen" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_arcana_mace_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -275,23 +291,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
+		<stats>
+			<stat type="pAtk">225</stat>
+			<stat type="mAtk">175</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
 		</skills>
-		<stats>
-			<stat type="pAtk">225</stat>
-			<stat type="mAtk">175</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6609" name="Arcana Mace" additionalName="MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases MP Recovery Rate. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_arcana_mace_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -308,23 +326,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">225</stat>
+			<stat type="mAtk">175</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3576" level="1" /> <!-- Special Ability: MP Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">225</stat>
-			<stat type="mAtk">175</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="6610" name="Arcana Mace" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_arcana_mace_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -341,23 +361,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">225</stat>
 			<stat type="mAtk">175</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
 	<item id="6611" name="Infinity Blade" type="Weapon">
-		<!-- Divine hero's weapon. During a Critical Attack, casts a P. Def.-decreasing de-buff on the target. Also causes damage shield, increases Max HP/Max MP/Max CP, and Damage Reflect. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. During a Critical Attack, casts a P. Def.-decreasing de-buff on the target. Also causes Damage Reflect, increases Max HP/ Max MP/ Max CP, and Shield Defense. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_sword_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -376,26 +398,26 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3578" level="1" /> <!-- Special Ability: Infinity Blade -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3579" level="1" type="ON_CRITICAL_SKILL" /> <!-- Decrease P. Def. -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3578" level="1" /> <!-- Special Ability: Infinity Blade -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3579" level="1" type="ON_CRITICAL_SKILL" /> <!-- Decrease P. Def. -->
+		</skills>
 	</item>
 	<item id="6612" name="Infinity Cleaver" type="Weapon">
-		<!-- Divine hero's weapon. During a Critical Attack, inflicts additional damage on the target. Also Has a chance of causing skill reflect and increasing Max HP/Max CP and P. Critical Damage/Rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. During a Critical Attack, inflicts additional damage on the target. Also Has a chance of causing skill reflect and increasing Max HP/ Max CP and P. Critical Damage/ Rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_two_handed_sword_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -414,25 +436,25 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3582" level="1" /> <!-- Special Ability: Infinity Cleaver -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3582" level="1" /> <!-- Special Ability: Infinity Cleaver -->
+		</skills>
 	</item>
 	<item id="6613" name="Infinity Axe" type="Weapon">
-		<!-- Divine hero's weapon. During a Critical Attack, inflicts discord on the target. Also causes Damage Reflect. Increases Max HP/Max MP/Max CP and shield rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. During a Critical Attack, inflicts discord on the target. Also causes Damage Reflect. Increases Max HP/ Max MP/ Max CP and shield rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_axe_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -451,27 +473,27 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3580" level="1" /> <!-- Special Ability: Infinity Axe -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3581" level="1" type="ON_CRITICAL_SKILL" /> <!-- Discord -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3580" level="1" /> <!-- Special Ability: Infinity Axe -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3581" level="1" type="ON_CRITICAL_SKILL" /> <!-- Discord -->
+		</skills>
 	</item>
 	<item id="6614" name="Infinity Rod" type="Weapon">
-		<!-- Divine hero's weapon. Recovers HP by 100%. Increases Max MP/Max CP, Casting Spd., MP Recovery Rate when using magic skills. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. Recovers HP by 100%. Increases Max MP/ Max CP, Casting Spd., MP Recovery Bonus Rate when using magic skills. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_mace_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -491,27 +513,27 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3598" level="1" type_chance="3" type="ON_MAGIC_SKILL" /> <!-- Full Recovery -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3597" level="1" /> <!-- Special Ability: Infinity Rod -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">420</stat>
 			<stat type="mAtk">307</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3598" level="1" type_chance="3" type="ON_MAGIC_SKILL" /> <!-- Full Recovery -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3597" level="1" /> <!-- Special Ability: Infinity Rod -->
+		</skills>
 	</item>
 	<item id="6615" name="Infinity Crusher" type="Weapon">
-		<!-- Divine hero's weapon. Inflicts Stun on the target during a Critical Attack. Also Has a chance of causing skill reflect and increasing Max HP/Max CP and Atk. Spd. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. Inflicts Stun on the target during a Critical Attack. Also Has a chance of causing skill reflect and increasing Max HP/ Max CP and Atk. Spd. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_hammer_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -530,24 +552,24 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3583" level="1" /> <!-- Special Ability: Infinity Crusher -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3584" level="1" type="ON_CRITICAL_SKILL" /> <!-- Stun -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3583" level="1" /> <!-- Special Ability: Infinity Crusher -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3584" level="1" type="ON_CRITICAL_SKILL" /> <!-- Stun -->
+		</skills>
 	</item>
 	<item id="6616" name="Infinity Scepter" type="Weapon">
 		<!-- Divine hero's weapon. Recovers HP 100% and adds holy P. Atk. Has a chance of increasing Max MP, Max CP, M. Atk., and M. Critical Rate, and of decreasing MP consumption and Magic Cancel Rate while using a magic skill. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
@@ -570,27 +592,27 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="is_magic_weapon" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3596" level="1" type_chance="3" type="ON_MAGIC_SKILL" /> <!-- Full Recovery -->
-			<skill id="8525" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3595" level="1" /> <!-- Special Ability: Infinity Scepter -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">511</stat>
 			<stat type="mAtk">337</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3596" level="1" type_chance="3" type="ON_MAGIC_SKILL" /> <!-- Full Recovery -->
+			<skill id="8525" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3595" level="1" /> <!-- Special Ability: Infinity Scepter -->
+		</skills>
 	</item>
 	<item id="6617" name="Infinity Stinger" type="Weapon">
-		<!-- Divine hero's weapon. During a Critical Attack, inflicts Silence on the target. Also causes Vampiric Rage. Increases success rate when using mortal type skills. Increases Max MP/Max CP, Atk. Spd. and MP Regeneration Rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. During a Critical Attack, inflicts Silence on the target. Also causes Vampiric Rage. Increases success rate when using mortal type skills. Increases Max MP/ Max CP, Atk. Spd. and MP Regeneration Rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_dagger_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -609,27 +631,27 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3589" level="1" /> <!-- Special Ability: Infinity Stinger -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3590" level="1" type="ON_CRITICAL_SKILL" /> <!-- Restrain Magic Skills -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">458</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3589" level="1" /> <!-- Special Ability: Infinity Stinger -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3590" level="1" type="ON_CRITICAL_SKILL" /> <!-- Restrain Magic Skills -->
+		</skills>
 	</item>
 	<item id="6618" name="Infinity Fang" type="Weapon">
-		<!-- Divine hero's weapon. Inflicts Stun on the target during a Critical Attack. Also Has a chance of causing skill reflect and increasing Max HP/Max MP/Max CP and Evasion. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. Inflicts Stun on the target during a Critical Attack. Also Has a chance of causing skill reflect and increasing Max HP/ Max MP/ Max CP and Evasion. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_fist_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -648,27 +670,27 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3587" level="1" /> <!-- Special Ability: Infinity Fang -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3588" level="1" type="ON_CRITICAL_SKILL" /> <!-- Stun -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3587" level="1" /> <!-- Special Ability: Infinity Fang -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3588" level="1" type="ON_CRITICAL_SKILL" /> <!-- Stun -->
+		</skills>
 	</item>
 	<item id="6619" name="Infinity Bow" type="Weapon">
-		<!-- Divine hero's weapon. Inflicts Slow on the target during a Critical Attack Also causes Cheap Shot. Decreases cooldown. Increases Max MP/Max CP. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. Inflicts Slow on the target during a Critical Attack Also causes Cheap Shot. Decreases cooldown. Increases Max MP/ Max CP. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_bow_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -689,27 +711,27 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="BOW" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3593" level="1" /> <!-- Special Ability: Infinity Bow -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3594" level="1" type="ON_CRITICAL_SKILL" /> <!-- Decrease Speed -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">952</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3593" level="1" /> <!-- Special Ability: Infinity Bow -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3594" level="1" type="ON_CRITICAL_SKILL" /> <!-- Decrease Speed -->
+		</skills>
 	</item>
 	<item id="6620" name="Infinity Wing" type="Weapon">
-		<!-- Divine hero's weapon. During a Critical Attack, inflicts physical skill Silence on the target. Also Has a chance of causing skill reflect and increasing Max HP/Max MP/Max CP and P. Critical Rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. During a Critical Attack, inflicts physical skill Silence on the target. Also Has a chance of causing skill reflect and increasing Max HP/ Max MP/ Max CP and P. Critical Rate. Adds holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_dualsword_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -728,26 +750,26 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="DUALSWORD" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3585" level="1" /> <!-- Special Ability: Infinity Wing -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3586" level="1" type="ON_CRITICAL_SKILL" /> <!-- Restrain Physical Skills -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">638</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3585" level="1" /> <!-- Special Ability: Infinity Wing -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3586" level="1" type="ON_CRITICAL_SKILL" /> <!-- Restrain Physical Skills -->
+		</skills>
 	</item>
 	<item id="6621" name="Infinity Spear" type="Weapon">
-		<!-- Divine hero's weapon. During a Critical Attack, inflicts cancel on the target. Also Has a chance of causing skill reflect and increasing Max HP/Max CP, Atk. Spd., and Accuracy. Adds Holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
+		<!-- Divine hero's weapon. During a Critical Attack, inflicts cancel on the target. Also Has a chance of causing skill reflect and increasing Max HP/ Max CP, Atk. Spd., and Accuracy. Adds Holy P. Atk. Increases damage inflicted during PvP. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.weapon_the_pole_of_hero_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -766,24 +788,24 @@
 		<set name="is_depositable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player isHero="true" />
-		</cond>
-		<skills>
-			<skill id="3591" level="1" /> <!-- Special Ability: Infinity Spear -->
-			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
-			<skill id="3592" level="1" type="ON_CRITICAL_SKILL" /> <!-- Dispel -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">524</stat>
 			<stat type="mAtk">230</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="holyPower">250</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3591" level="1" /> <!-- Special Ability: Infinity Spear -->
+			<skill id="8524" level="1" /> <!-- Hero's Holy Attack -->
+			<skill id="3592" level="1" type="ON_CRITICAL_SKILL" /> <!-- Dispel -->
+		</skills>
 	</item>
 	<item id="6622" name="Lesser Giant's Codex" type="EtcItem">
 		<!-- Item required for skill enchanting. -->
@@ -1026,7 +1048,7 @@
 		</skills>
 	</item>
 	<item id="6645" name="Beast Soulshot" type="EtcItem">
-		<!-- The light of a spirit is bestowed upon a pet/servitor and temporarily increases the power of attack. The number of soulshots consumed can be viewed in the Pet/Servitor Information window. (Used in the master's inventory.) -->
+		<!-- The light of a spirit is bestowed upon a pet/ servitor and temporarily increases the power of attack. The number of soulshots consumed can be viewed in the Pet/ Servitor Information window. (Used in the master's inventory.) -->
 		<set name="icon" val="icon.etc_beast_soul_shot_i00" />
 		<set name="default_action" val="SUMMON_SOULSHOT" />
 		<set name="immediate_effect" val="true" />
@@ -1043,7 +1065,7 @@
 		</skills>
 	</item>
 	<item id="6646" name="Beast Spiritshot" type="EtcItem">
-		<!-- The light of a spirit is bestowed upon a pet/servitor and temporarily increases the power of M. Atk. The number of spiritshots consumed can be viewed in the Pet/Servitor Information window. (Used in the master's inventory.) -->
+		<!-- The light of a spirit is bestowed upon a pet/ servitor and temporarily increases the power of M. Atk. The number of spiritshots consumed can be viewed in the Pet/ Servitor Information window. (Used in the master's inventory.) -->
 		<set name="icon" val="icon.etc_beast_spirit_shot_i00" />
 		<set name="default_action" val="SUMMON_SPIRITSHOT" />
 		<set name="immediate_effect" val="true" />
@@ -1060,7 +1082,7 @@
 		</skills>
 	</item>
 	<item id="6647" name="Blessed Beast Spiritshot" type="EtcItem">
-		<!-- The light of a higher-level spirit is bestowed upon a pet/servitor and temporarily increases the power of M. Atk. The number of blessed spiritshots consumed can be viewed in the Pet/Servitor Information window. (Used in the master's inventory.) -->
+		<!-- The light of a higher-level spirit is bestowed upon a pet/ servitor and temporarily increases the power of M. Atk. The number of blessed spiritshots consumed can be viewed in the Pet/ Servitor Information window. (Used in the master's inventory.) -->
 		<set name="icon" val="icon.etc_blessed_beast_spirit_shot_i00" />
 		<set name="default_action" val="SUMMON_SPIRITSHOT" />
 		<set name="immediate_effect" val="true" />
@@ -1073,7 +1095,7 @@
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="for_npc" val="true" />
 		<skills>
-			<skill id="2009" level="1" /> <!-- Item - Beast Blessed Spirit Shot -->
+			<skill id="2009" level="1" /> <!-- Item - Blessed Beast Spirit Shot -->
 		</skills>
 	</item>
 	<item id="6648" name="Baby Buffalo Panpipe" type="EtcItem">
@@ -1088,9 +1110,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1107,9 +1129,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1126,9 +1148,9 @@
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1197,7 +1219,7 @@
 		</skills>
 	</item>
 	<item id="6656" name="Antharas' Earring" type="Armor">
-		<!-- MP +37, Bleed Resistance +40%, Bleed Atk. Rate +40%, Vampiric Rage Effect, Stun/Mental Attack Resistance +30%, Stun/Mental Atk. Rate +30%, decreases MP consumption. Increases Heal Amount and Earth Resistance. Only one effect is applied when two of the same earrings are equipped. -->
+		<!-- MP +37, Bleed Resistance +40%, Bleed Atk. Rate +40%, Vampiric Rage Effect, Stun/ Mental Attack Resistance +30%, Stun/ Mental Atk. Rate +30%, decreases MP consumption. Increases Heal Amount and Earth Resistance. Only one effect is applied when two of the same earrings are equipped. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -1209,13 +1231,13 @@
 		<set name="price" val="3700000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
+		</skills>
 	</item>
 	<item id="6657" name="Valakas' Necklace" type="Armor">
 		<!-- MP +50, Sleep Resistance +40%, Sleep Attack Rate +40%, HP +445. Decreases skill cooldown. Increases P. Atk. and M. Atk. Wild Magic Effect and Damage Reflect effect. Increases Fire Resistance. -->
@@ -1230,13 +1252,13 @@
 		<set name="price" val="4940000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3557" level="1" /> <!-- Valakas' Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">125</stat>
 			<stat type="maxMp">50</stat>
 		</stats>
+		<skills>
+			<skill id="3557" level="1" /> <!-- Valakas' Necklace -->
+		</skills>
 	</item>
 	<item id="6658" name="Baium's Ring" type="Armor">
 		<!-- MP +21, Poison Resistance +40%, Poison Atk. Rate +40%, Hold Resistance +30%, Hold Atk. Rate +30%, increases Accuracy, P. Critical Damage, Atk. Spd. and Casting Spd. When two identical rings are equipped, the effect of only one ring will be applied. -->
@@ -1251,13 +1273,13 @@
 		<set name="price" val="1730000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3561" level="1" /> <!-- Baium's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3561" level="1" /> <!-- Baium's Ring -->
+		</skills>
 	</item>
 	<item id="6659" name="Zaken's Earring" type="Armor">
 		<!-- MP+31 -->
@@ -1272,13 +1294,13 @@
 		<set name="price" val="2590000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="1" /> <!-- Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="6660" name="Queen Ant's Ring" type="Armor">
 		<!-- MP +21, Poison Resistance +30%, Poison Atk. Rate +30%, increases Accuracy, increases P. Critical Damage, Hold Resistance +20%, and Hold Atk. Rate +20%. When two identical rings are equipped, the effect of only one ring will be applied. -->
@@ -1293,13 +1315,13 @@
 		<set name="price" val="123200" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="6661" name="Orfen's Earring" type="Armor">
 		<!-- MP +31, Bleed Resistance +20%, chance of Bleed attack +20%. Increases healing effects. When equipped with two identical earrings, the effect of only one earring will be applied. -->
@@ -1314,13 +1336,13 @@
 		<set name="price" val="1300000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3560" level="1" /> <!-- Orfen's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">71</stat>
 			<stat type="maxMp">31</stat>
 		</stats>
+		<skills>
+			<skill id="3560" level="1" /> <!-- Orfen's Earring -->
+		</skills>
 	</item>
 	<item id="6662" name="Ring of Core" type="Armor">
 		<!-- MP +21, Poison Resistance +20%, Poison Atk. Rate +20%. Increases Accuracy. When equipped with two identical rings, the effect of only one ring will be applied. -->
@@ -1335,13 +1357,13 @@
 		<set name="price" val="870000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3563" level="1" /> <!-- Ring of Core -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3563" level="1" /> <!-- Ring of Core -->
+		</skills>
 	</item>
 	<item id="6663" name="Scroll of Escape: Orc Village" type="EtcItem">
 		<set name="icon" val="icon.etc_scroll_of_return_agit_i00" />
@@ -1481,8 +1503,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 	</item>
 	<item id="6674" name="Sealed Imperial Crusader Breastplate" type="Armor">
 		<!-- Sealed Imperial Crusader Breastplate. Its seal can be broken with the help of the Blacksmith of Mammon. -->

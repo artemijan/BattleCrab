@@ -1,13 +1,13 @@
 //! `General.ini`'s developer switches, packet tracing and the region grid:
-//! `AltDevNoSpawns`, `AltDevShowScriptsLoadInLogs`, the four `Debug*Packets`
+//! `NoSpawns`, `ShowScriptLoadInLogs`, the four `Debug*Packets`
 //! keys plus `ExcludedPacketList`, `GridsAlwaysOn`,
 //! `GridNeighborTurnOn/OffTime` and `ShowServerNews`.
 //!
 //! Two of the eleven have no test, for the same reason each time — there is no
 //! behaviour to assert:
 //!
-//! * **`AltDevShowScriptsLoadInLogs`** emits boot log lines and nothing else,
-//!   like `AltDevShowQuestsLoadInLogs` beside it (untested for the same reason
+//! * **`ShowScriptLoadInLogs`** emits boot log lines and nothing else,
+//!   like `ShowQuestLoadInLogs` beside it (untested for the same reason
 //!   when the quest cluster landed). The *split* between the two keys is real
 //!   — `id() > 0` picks which one a script answers to — but both sides of it
 //!   are `info!` calls.
@@ -115,9 +115,9 @@ fn grids_always_on_activates_every_npc_region() {
     );
 }
 
-/// `AltDevNoSpawns` (**False**) boots a world with no NPCs in it at all.
+/// `NoSpawns` (**False**) boots a world with no NPCs in it at all.
 #[test]
-fn alt_dev_no_spawns_places_nothing() {
+fn no_spawns_places_nothing() {
     let spawn_world = || {
         let (mut world, ..) = test_world();
         register_npc_kind(&mut world, 20001, "Monster");
@@ -131,10 +131,12 @@ fn alt_dev_no_spawns_places_nothing() {
                 ai: None,
                 parameters: Default::default(),
                 territories: vec![],
+                banned_territories: Vec::new(),
                 groups: vec![crate::data::spawn_data::SpawnGroup {
                     name: None,
                     spawn_by_default: true,
                     territories: vec![],
+                    banned_territories: Vec::new(),
                     npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                         npc_id: 20001,
                         count: 1,
@@ -148,6 +150,8 @@ fn alt_dev_no_spawns_places_nothing() {
                         respawn_random_secs: 0,
                         chase_range: 0,
                         db_save: false,
+                        locations: Vec::new(),
+                        minions: Vec::new(),
                     }],
                 }],
             });
@@ -161,11 +165,11 @@ fn alt_dev_no_spawns_places_nothing() {
     );
 
     let mut on = spawn_world();
-    on.cfg.general.alt_dev_no_spawns = true;
+    on.cfg.general.no_spawns = true;
     assert_eq!(
         crate::game_loop::npc::spawn_all(&mut on),
         0,
-        "AltDevNoSpawns places nothing"
+        "NoSpawns places nothing"
     );
     assert!(
         on.npc_regions.is_empty(),

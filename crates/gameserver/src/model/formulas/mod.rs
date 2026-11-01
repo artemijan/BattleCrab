@@ -3,7 +3,7 @@
 //! cast-break-on-hit roll. Every function documents the Java method it ports
 //! and which terms are dropped. The dropped terms are identity values for an
 //! unarmed, shotless player: `SHOTS_BONUS`/spiritshots (1.0/absent),
-//! `SKILL_POWER_ADD` (0), `RANDOM_DAMAGE` (weapon-supplied, unarmed = 0 →
+//! `RANDOM_DAMAGE` (weapon-supplied, unarmed = 0 →
 //! randomMod 1.0), pvp/pve config multipliers (1.0 by default),
 //! `MAGICAL_SKILL_POWER` (1.0).
 //!

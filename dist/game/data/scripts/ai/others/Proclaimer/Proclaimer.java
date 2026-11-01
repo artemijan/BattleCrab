@@ -16,23 +16,22 @@
  */
 package ai.others.Proclaimer;
 
-import org.l2jmobius.gameserver.enums.ChatType;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.clan.Clan;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.SkillCaster;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.network.NpcStringId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
 import org.l2jmobius.gameserver.network.serverpackets.NpcSay;
-
-import ai.AbstractNpcAI;
 
 /**
  * Proclaimer AI.
  * @author St3eT
  */
-public class Proclaimer extends AbstractNpcAI
+public class Proclaimer extends Script
 {
 	// NPCs
 	private static final int[] PROCLAIMER =
@@ -47,6 +46,7 @@ public class Proclaimer extends AbstractNpcAI
 		36616, // Rune
 		36617, // Schuttgart
 	};
+	
 	// Skills
 	private static final SkillHolder XP_BUFF = new SkillHolder(19036, 1); // Blessing of Light
 	
@@ -80,6 +80,7 @@ public class Proclaimer extends AbstractNpcAI
 		{
 			htmltext = "proclaimer-01.html";
 		}
+		
 		return htmltext;
 	}
 	
@@ -98,6 +99,7 @@ public class Proclaimer extends AbstractNpcAI
 				htmltext = "proclaimer-01.html";
 			}
 		}
+		
 		return htmltext;
 	}
 	

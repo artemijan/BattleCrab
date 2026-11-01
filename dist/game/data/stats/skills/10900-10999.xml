@@ -1,8 +1,133 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="10903" toLevel="4" name="Hawk Eye">
-		<!-- For 30 minutes when a bow or crossbow is equipped, P. Atk. + 5%, Skill Power + 5%, and received M. Critical Damage - 5%. -->
+		<!-- Level 1: For 30 minutes when a bow or crossbow is equipped, P. Atk. +5%, Skill Power +5%, and received M. Critical Damage -5%. -->
+		<!-- Level 2: For 30 minutes when a bow or crossbow is equipped, P. Atk. +6%, Skill Power +6%, and received M. Critical Damage -7%. -->
+		<!-- Level 3: For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 4: For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 3 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 3 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, Skill Power +7%, and received M. Critical Damage -10%. -->
+		<!-- Level 4 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
+		<!-- Level 4 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, Skill Power +10%, and received M. Critical Damage -15%. -->
 		<icon>icon.skill11872</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -13,10 +138,10 @@
 			<value fromLevel="1" toLevel="4">1800</value>
 			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1020">{1800 + subIndex * 90}</value>
 		</abnormalTime>
-		<!-- TODO: abnormalType -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -29,13 +154,10 @@
 			<value level="3">76</value>
 			<value level="4">83</value>
 		</mpConsume>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>687</effectPoint>
 		<reuseDelay>30000</reuseDelay>
 		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">6</value>
@@ -65,10 +187,10 @@
 			</effect>
 			<effect name="DefenceCriticalRate">
 				<amount>
-					<value level="1">-5</value>
-					<value level="2">-7</value>
-					<value level="3">-10</value>
-					<value level="4">-15</value>
+					<value level="1">5</value>
+					<value level="2">7</value>
+					<value level="3">10</value>
+					<value level="4">15</value>
 				</amount>
 				<mode>PER</mode>
 				<weaponType>
@@ -79,7 +201,7 @@
 			</effect>
 			<effect name="DefenceCriticalDamage" fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">
 				<amount>
-					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{-1 - ((subIndex - 1} * 0.5)}</value>
+					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{1 + ((subIndex - 1) * 0.5)}</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
@@ -92,15 +214,18 @@
 		</effects>
 	</skill>
 	<skill id="10904" toLevel="4" name="Superior Skill Mastery">
-		<!-- Skill power + 5%. -->
+		<!-- Level 1: Skill power +5%. -->
+		<!-- Level 2: Skill power +6%. -->
+		<!-- Level 3: Skill power +7%. -->
+		<!-- Level 4: Skill power +10%. -->
 		<icon>icon.skill11874</icon>
+		<operateType>P</operateType>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>P</operateType>
 		<effects>
 			<effect name="PhysicalSkillPower">
 				<amount>
@@ -114,24 +239,26 @@
 		</effects>
 	</skill>
 	<skill id="10905" toLevel="3" name="Fatal Arrow">
-		<!-- Fires an agony-inducing arrow at the target with 29176 Power added to P. Atk. The power of the attack increases as the enemy's HP decreases. Requires a bow. Over-hit. -->
+		<!-- Level 1: Fires an agony-inducing arrow at the target with 29176 Power added to P. Atk. The power of the attack increases as the enemy's HP decreases. Requires a bow. Over-hit. -->
+		<!-- Level 2: Fires an agony-inducing arrow at the target with 30726 Power added to P. Atk. The power of the attack increases as the enemy's HP decreases. Requires a bow. Over-hit. -->
+		<!-- Level 3: Fires an agony-inducing arrow at the target with 32277 Power added to P. Atk. The power of the attack increases as the enemy's HP decreases. Requires a bow. Over-hit. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>
-			<value level="1">93</value>
-			<value level="2">96</value>
-			<value level="3">99</value>
-		</mpConsume>
 		<castRange>1100</castRange>
-		<hitTime>1800</hitTime>
 		<coolTime>250</coolTime>
 		<effectPoint>
 			<value level="1">-709</value>
 			<value level="2">-711</value>
 			<value level="3">-714</value>
 		</effectPoint>
+		<hitTime>1800</hitTime>
+		<mpConsume>
+			<value level="1">93</value>
+			<value level="2">96</value>
+			<value level="3">99</value>
+		</mpConsume>
 		<reuseDelay>30000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
@@ -141,7 +268,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttackHpLink">
+			<effect name="PhysicalDamageHpLink">
 				<power>
 					<value level="1">29176</value>
 					<value level="2">30726</value>
@@ -152,8 +279,133 @@
 		</effects>
 	</skill>
 	<skill id="10950" toLevel="4" name="Vengeful Sniper">
-		<!-- For 30 minutes when a bow or crossbow is equipped, P. Atk. + 5%, PvP damage + 5%, received magic skill damage during PvP - 5%. -->
+		<!-- Level 1: For 30 minutes when a bow or crossbow is equipped, P. Atk. +5%, PvP damage +5%, received magic skill damage during PvP -5%. -->
+		<!-- Level 2: For 30 minutes when a bow or crossbow is equipped, P. Atk. +6%, PvP damage +6%, received magic skill damage during PvP -6%. -->
+		<!-- Level 3: For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 4: For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 3 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 3 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +7%, PvP damage +7%, received magic skill damage during PvP -7%. -->
+		<!-- Level 4 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2001 (+ 1% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2003 (+ 2% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2005 (+ 3% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2007 (+ 4% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2009 (+ 5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2011 (+ 6% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2013 (+ 7% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2015 (+ 8% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2017 (+ 9% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2019 (+ 10% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3001 (+ 2 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3002 (+ 4 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3003 (+ 6 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3004 (+ 8 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3005 (+ 10 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3006 (+ 12 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3007 (+ 14 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3008 (+ 16 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3009 (+ 18 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3010 (+ 20 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3011 (+ 22 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3012 (+ 24 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3013 (+ 26 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3014 (+ 28 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3015 (+ 30 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3016 (+ 32 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3017 (+ 34 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3018 (+ 36 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3019 (+ 38 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
+		<!-- Level 4 - SubLevel 3020 (+ 40 Wind): For 30 minutes when a bow or crossbow is equipped, P. Atk. +10%, PvP damage +10%, received magic skill damage during PvP -10%. -->
 		<icon>icon.skill11873</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -164,10 +416,10 @@
 			<value fromLevel="1" toLevel="4">1800</value>
 			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1020">{1800 + subIndex * 90}</value>
 		</abnormalTime>
-		<!-- TODO: abnormalType -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -180,12 +432,9 @@
 			<value level="3">76</value>
 			<value level="4">83</value>
 		</mpConsume>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>687</effectPoint>
 		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">6</value>
@@ -224,6 +473,7 @@
 				<weaponType>
 					<item>BOW</item>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 			<effect name="PvpPhysicalSkillDamageBonus">
@@ -256,7 +506,7 @@
 			</effect>
 			<effect name="DefenceCriticalDamage" fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">
 				<amount>
-					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{-1 - ((subIndex - 1} * 0.5)}</value>
+					<value fromLevel="3" toLevel="4" fromSubLevel="2001" toSubLevel="2020">{1 + ((subIndex - 1) * 0.5)}</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
@@ -269,17 +519,20 @@
 		</effects>
 	</skill>
 	<skill id="10951" toLevel="4" name="Superior Instinct Mastery">
-		<!-- PvP damage + 5%, and P. Atk. + 5% when equipped with a crossbow. -->
+		<!-- Level 1: PvP damage +5%, and P. Atk. +5% when equipped with a crossbow. -->
+		<!-- Level 2: PvP damage +7%, and P. Atk. +7% when equipped with a crossbow. -->
+		<!-- Level 3: PvP damage +10%, and P. Atk. +10% when equipped with a crossbow. -->
+		<!-- Level 4: PvP damage +15%, and P. Atk. +15% when equipped with a crossbow. -->
 		<icon>icon.skill10951</icon>
+		<operateType>P</operateType>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
 			<value level="3">95</value>
 			<value level="4">99</value>
 		</magicLevel>
-		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">7</value>
@@ -335,7 +588,49 @@
 	</skill>
 	<skill id="10952" toLevel="1" name="Survival Instinct">
 		<!-- For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2001 (+ 2 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2002 (+ 4 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2003 (+ 6 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2004 (+ 8 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2005 (+ 10 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2006 (+ 12 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2007 (+ 14 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2008 (+ 16 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2009 (+ 18 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2010 (+ 20 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2011 (+ 22 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2012 (+ 24 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2013 (+ 26 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2014 (+ 28 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2015 (+ 30 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2016 (+ 32 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2017 (+ 34 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2018 (+ 36 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2019 (+ 38 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2020 (+ 40 Wind): For 60 seconds, own P. Atk +20%, P. Skill Power +15%, Atk. Spd. +15%, P. Def. +20%, M. Def. +20%. 5 Soul Stones consumed. -->
 		<icon>icon.skill10952</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">60</value>
@@ -343,18 +638,16 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>POSSESSION</abnormalType>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>64</mpConsume>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>2</effectPoint>
+		<hitTime>3000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<mpConsume>64</mpConsume>
 		<reuseDelay>600000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -384,7 +677,49 @@
 	</skill>
 	<skill id="10953" toLevel="1" name="Hunting Instinct">
 		<!-- For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2001 (+ 2 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2002 (+ 4 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2003 (+ 6 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2004 (+ 8 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2005 (+ 10 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2006 (+ 12 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2007 (+ 14 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2008 (+ 16 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2009 (+ 18 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2010 (+ 20 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2011 (+ 22 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2012 (+ 24 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2013 (+ 26 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2014 (+ 28 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2015 (+ 30 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2016 (+ 32 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2017 (+ 34 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2018 (+ 36 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2019 (+ 38 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2020 (+ 40 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Rate +15%, P. Skill Critical Damage +15%. 5 Soul Stones consumed. -->
 		<icon>icon.skill10953</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">60</value>
@@ -392,18 +727,16 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>POSSESSION</abnormalType>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>64</mpConsume>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>2</effectPoint>
+		<hitTime>3000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<mpConsume>64</mpConsume>
 		<reuseDelay>600000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -429,7 +762,49 @@
 	</skill>
 	<skill id="10954" toLevel="1" name="Counter Instinct">
 		<!-- For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2001 (+ 2 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2002 (+ 4 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2003 (+ 6 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2004 (+ 8 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2005 (+ 10 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2006 (+ 12 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2007 (+ 14 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2008 (+ 16 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2009 (+ 18 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2010 (+ 20 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2011 (+ 22 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2012 (+ 24 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2013 (+ 26 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2014 (+ 28 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2015 (+ 30 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2016 (+ 32 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2017 (+ 34 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2018 (+ 36 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2019 (+ 38 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2020 (+ 40 Wind): For 60 seconds, own P. Atk +10%, P. Skill Power +15%, P. Skill Critical Damage +25%. 5 Soul Stones consumed. -->
 		<icon>icon.skill10954</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">60</value>
@@ -437,18 +812,16 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>POSSESSION</abnormalType>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>64</mpConsume>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>2</effectPoint>
+		<hitTime>3000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<mpConsume>64</mpConsume>
 		<reuseDelay>600000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -459,6 +832,7 @@
 			<effect name="PhysicalSkillCriticalDamage">
 				<amount>25</amount>
 				<mode>PER</mode>
+				<magicType>0</magicType>
 			</effect>
 			<effect name="Speed" fromLevel="1" toLevel="1" fromSubLevel="2001" toSubLevel="2020">
 				<amount>
@@ -470,7 +844,49 @@
 	</skill>
 	<skill id="10955" toLevel="1" name="Bloody Instinct">
 		<!-- For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1001 (+ 1 second Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1002 (+ 2 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1003 (+ 3 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1004 (+ 4 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1005 (+ 5 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1006 (+ 6 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1007 (+ 7 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1008 (+ 8 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1009 (+ 9 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1010 (+ 10 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1011 (+ 10.5 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1012 (+ 11 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1013 (+ 11.5 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1014 (+ 12 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1015 (+ 12.5 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1016 (+ 13 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1017 (+ 13.5 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1018 (+ 14 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1019 (+ 14.5 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 1020 (+ 15 seconds Time): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2001 (+ 2 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2002 (+ 4 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2003 (+ 6 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2004 (+ 8 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2005 (+ 10 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2006 (+ 12 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2007 (+ 14 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2008 (+ 16 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2009 (+ 18 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2010 (+ 20 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2011 (+ 22 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2012 (+ 24 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2013 (+ 26 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2014 (+ 28 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2015 (+ 30 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2016 (+ 32 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2017 (+ 34 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2018 (+ 36 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2019 (+ 38 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
+		<!-- Level 1 - SubLevel 2020 (+ 40 Wind): For 60 seconds, own PvP damage +15%, P. Atk. +10%, P. Skill Damage +15%. 5 Soul Stones consumed. -->
 		<icon>icon.skill10955</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">60</value>
@@ -478,18 +894,16 @@
 			<value fromLevel="1" toLevel="1" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>POSSESSION</abnormalType>
-		<itemConsumeCount>5</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>64</mpConsume>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>2</effectPoint>
+		<hitTime>3000</hitTime>
+		<itemConsumeCount>5</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<mpConsume>64</mpConsume>
 		<reuseDelay>600000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -538,20 +952,20 @@
 		<!-- Atk. Spd. +30% for 5 seconds. -->
 		<icon>icon.skill1543</icon>
 		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<abnormalType>ATTACK_TIME_DOWN_SPECIAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<reuseDelayGroup>10760</reuseDelayGroup>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>ATTACK_TIME_DOWN_SPECIAL</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<reuseDelayGroup>10760</reuseDelayGroup>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>30</amount>
@@ -563,17 +977,17 @@
 		<!-- Attacks long-range enemies. Hurls arrows like rain near target to inflict damage with 19158 damage added to P. Atk. Requires a bow or crossbow to be equipped. Over-hit. -->
 		<icon>icon.skill10317</icon>
 		<operateType>A1</operateType>
-		<mpConsume>1</mpConsume>
-		<castRange>700</castRange>
-		<hitTime>2000</hitTime>
-		<coolTime>1800</coolTime>
-		<effectPoint>-687</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1200</effectRange>
-		<magicLevel>85</magicLevel>
-		<reuseDelay>10000</reuseDelay>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>700</castRange>
+		<coolTime>1800</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1200</effectRange>
+		<hitTime>2000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -589,7 +1003,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>21365.2</power>
 			</effect>
 		</effects>

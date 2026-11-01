@@ -126,8 +126,9 @@ impl PrivateStoreItemList {
     }
 
     /// `SetPrivateStoreListBuy`: the wanted lines, keyed by **item id** (the
-    /// owner doesn't own them yet) with the client's enchant/augment/element
-    /// tail that this port ignores.
+    /// owner doesn't own them yet) with the client's enchant/augment/element/
+    /// ensoul tail that this port ignores. The two ensoul arrays are p140's:
+    /// without them every line after the first is misread.
     pub fn read_set_list_buy(body_after_opcode: &[u8]) -> Option<Vec<WantedLine>> {
         let mut r = PacketReader::new(body_after_opcode);
         let count = r.read_i32()?;
@@ -148,6 +149,13 @@ impl PrivateStoreItemList {
                 r.read_i16()?;
             }
             let _visual_id = r.read_i32()?;
+            // Regular then special soul-crystal option ids.
+            for _ in 0..2 {
+                let options = r.read_u8()?;
+                for _ in 0..options {
+                    r.read_i32()?;
+                }
+            }
             if item_id < 1 || cnt < 1 || price < 0 {
                 return None;
             }
@@ -335,4 +343,45 @@ pub fn read_recipe_single_int(body: &[u8]) -> Option<i32> {
 /// `RequestRecipeShopMessageSet` (0xBA): the store title string.
 pub fn read_recipe_shop_message_set(body: &[u8]) -> Option<String> {
     PacketReader::new(body).read_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use commons::network::PacketWriter;
+
+    /// Two wanted lines, the first carrying soul-crystal options: the second
+    /// line still reads correctly because both ensoul arrays are consumed.
+    #[test]
+    fn buy_list_lines_skip_their_ensoul_arrays() {
+        let mut w = PacketWriter::new();
+        w.write_i32(2);
+        for (item_id, regular, special) in [(1458, 2, 1), (1459, 0, 0)] {
+            w.write_i32(item_id);
+            w.write_i16(0);
+            w.write_i16(0);
+            w.write_i64(3);
+            w.write_i64(100);
+            w.write_i32(0);
+            w.write_i32(0);
+            for _ in 0..8 {
+                w.write_i16(0);
+            }
+            w.write_i32(0);
+            w.write_u8(regular);
+            for _ in 0..regular {
+                w.write_i32(7);
+            }
+            w.write_u8(special);
+            for _ in 0..special {
+                w.write_i32(8);
+            }
+        }
+        let lines = PrivateStoreItemList::read_set_list_buy(&w.into_bytes()).unwrap();
+        assert_eq!(
+            lines.iter().map(|l| l.item_id).collect::<Vec<_>>(),
+            [1458, 1459]
+        );
+        assert!(lines.iter().all(|l| l.count == 3 && l.price == 100));
+    }
 }

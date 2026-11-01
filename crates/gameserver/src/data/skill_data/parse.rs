@@ -197,6 +197,12 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                         in_effects = true;
                         cur_scope = EffectScope::from_xml(&name);
                     } else if name.ends_with("onditions") {
+                        // Salvation's legacy `<conditions msgId addName>`
+                        // blocks share this name with the skill-condition
+                        // block. Java's `SkillData` reads only `<condition>`
+                        // children of either, so a legacy block's `<and>`/
+                        // `<not>`/`<player>` tree yields nothing — the same
+                        // outcome here, since only `condition` is matched below.
                         cond_block = Some(name.clone());
                     }
                 } else if path.len() == 2 && name == "value" && !in_effects && cond_block.is_none()

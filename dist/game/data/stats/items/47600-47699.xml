@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47600" name="Warm Bear Paws" type="Weapon">
 		<set name="icon" val="BranchSys2.icon.br_polar_bear_wp_i00" />
@@ -15,7 +15,7 @@
 		<stats>
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -93,7 +93,7 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="47608" name="Monkey Bait" additionalName="R" type="EtcItem">
-		<!-- Fishing Time: 75 seconds. Fishing Standby Time: 15 seconds. Fish bait bought from Chef Monkey. Fish using this bait to catch Ugly Fish, Nimble Fish, Powerful Fish, or Chef Monkey's Treasure Chest. Can be used by characters between Lv. 85-94. Will be deleted when the event ends. -->
+		<!-- Fishing Time: 75 seconds. Fishing Standby Time: 15 seconds. Fish bait bought from Chef Monkey. Fish using this bait to catch Ugly Fish, Nimble Fish, Powerful Fish, and Chef Monkey's Treasure Chest. Can be used by characters between Lv. 85-94. Will be deleted when the event ends. -->
 		<set name="icon" val="Icon.ev_monkey_banana" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -101,7 +101,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="47609" name="Monkey Bait" additionalName="R95" type="EtcItem">
-		<!-- Fishing Time: 75 seconds. Standby Time: 15 seconds. Fish bait bought from Chef Monkey. Fish using this bait to catch Ugly Fish, Nimble Fish, Powerful Fish, or Chef Monkey's Treasure Chest. Can be used by characters between Lv. 95-98. Will be deleted when the event ends. -->
+		<!-- Fishing Time: 75 seconds. Standby Time: 15 seconds. Fish bait bought from Chef Monkey. Fish using this bait to catch Ugly Fish, Nimble Fish, Powerful Fish, and Chef Monkey's Treasure Chest. Can be used by characters between Lv. 95-98. Will be deleted when the event ends. -->
 		<set name="icon" val="Icon.ev_monkey_banana" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -109,7 +109,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="47610" name="Monkey Bait" additionalName="R99" type="EtcItem">
-		<!-- Fishing Time: 75 seconds. Fishing Standby Time: 15 seconds. Fish bait bought from Chef Monkey. Fish using this bait to catch Ugly Fish, Nimble Fish, Powerful Fish, or Chef Monkey's Treasure Chest. Can be used by characters with Lv. 99 or above. Will be deleted when the event ends. -->
+		<!-- Fishing Time: 75 seconds. Fishing Standby Time: 15 seconds. Fish bait bought from Chef Monkey. Fish using this bait to catch Ugly Fish, Nimble Fish, Powerful Fish, and Chef Monkey's Treasure Chest. Can be used by characters with Lv. 99 or above. Will be deleted when the event ends. -->
 		<set name="icon" val="Icon.ev_monkey_banana" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -117,7 +117,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="47611" name="Chef Monkeys' Banana Herb" type="EtcItem">
-		<!-- Chef Monkeys' Banana Herb. P. Atk./M. Atk./P. Def./M. Def. increase by 50% for 5 minutes, and XP and SP gained increase by 10%. Effect disappears when restarted. -->
+		<!-- Chef Monkeys' Banana Herb. P.Atk./ M.Atk./ P. Def./ M. Def. increase by 50% for 5 minutes, and XP and SP gained increase by 10%. Effect disappears when restarted. -->
 		<set name="icon" val="icon.general_fuel_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -255,7 +255,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47625" name="Eli Shirt" type="Armor">
-		<!-- Red Libra-only Item. A shirt widely used in Elysium. However, cannot increase power in Aden. <Item Skill>. Magic Defense Increased by 18. Speed increased by 7. Max HP increased by 552. Max MP increased by 552. Skill MP Consumption reduced by 3%. Damage Reflect Resistance increased by 5. Vampiric Rage increased by 5%. Skill Cooldown reduced by 3%. Damage Received reduced by 3%. Water, Fire, Wind, Earth, Holy, Dark Attack Resistance increased by 36. STR+4, DEX+4, CON+4, INT+4, WIT+4, MEN+4. <Active Skill>. Einhasad's Wrath/Einhasad's Protection/Einhasad's Silence/Einhasad's Salvation/Einhasad's Blessing. To be deleted on March 9th, 2016 (Wed) after regular maintenance. -->
+		<!-- Red Libra-only Item. A shirt widely used in Elysium. However, cannot increase power in Aden. <Item Skill>. Magic Defense Increased by 18. Speed increased by 7. Max HP increased by 552. Max MP increased by 552. Skill MP Consumption reduced by 3%. Damage Reflect Resistance increased by 5. Vampiric Rage increased by 5%. Skill Cooldown reduced by 3%. Damage Received reduced by 3%. Water, Fire, Wind, Earth, Holy, Dark Attack Resistance increased by 36. STR+4, DEX+4, CON+4, INT+4, WIT+4, MEN+4. <Active Skill>. Einhasad's Wrath/ Einhasad's Protection/ Einhasad's Silence/ Einhasad's Salvation/ Einhasad's Blessing. To be deleted on March 9th, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.ainhasard_shirt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="underwear" />
@@ -265,17 +265,17 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<stats>
+			<stat type="pDef">52</stat>
+		</stats>
 		<skills>
-			<skill id="13562" level="10" /> <!-- Shiny Elemental Shirt -->
+			<skill id="13562" level="10" /> <!-- Enchant Effect: Shiny Elemental Shirt -->
 			<skill id="13563" level="5" /> <!-- Einhasad's Wrath -->
 			<skill id="13564" level="4" /> <!-- Einhasad's Protection -->
 			<skill id="13565" level="3" /> <!-- Einhasad's Silence -->
 			<skill id="13566" level="2" /> <!-- Einhasad's Salvation -->
 			<skill id="13567" level="1" /> <!-- Einhasad's Blessing -->
 		</skills>
-		<stats>
-			<stat type="pDef">52</stat>
-		</stats>
 	</item>
 	<item id="47626" name="Ruby Lv. 3 Jewelry Box" type="EtcItem">
 		<!-- Double-click to obtain a Ruby Lv. 3. -->
@@ -356,7 +356,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47632" name="Emerald Lv. 3 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Emerald Lv. 3. -->
+		<!-- Double-click to obtain an Emerald Lv. 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_emerald_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -369,7 +369,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47633" name="Aquamarine Lv. 3 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Aquamarine Lv. 3. -->
+		<!-- Double-click to obtain an Aquamarine Lv. 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_aquamarine_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -512,7 +512,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47644" name="Emerald Lv. 4 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Emerald Lv. 4. -->
+		<!-- Double-click to obtain an Emerald Lv. 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_emerald_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -525,7 +525,7 @@
 		</capsuled_items>
 	</item>
 	<item id="47645" name="Aquamarine Lv. 4 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Aquamarine Lv. 4. -->
+		<!-- Double-click to obtain an Aquamarine Lv. 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_aquamarine_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -610,7 +610,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 	</item>
-	<item id="47653" name="PVE Rune" additionalName="Test Item" type="EtcItem">
+	<item id="47653" name="PvE Rune" additionalName="Test Item" type="EtcItem">
 		<set name="icon" val="icon.bm_freya_bloody_rune" />
 		<set name="material" val="PAPER" />
 		<set name="is_tradable" val="false" />
@@ -632,7 +632,7 @@
 		<set name="is_sellable" val="false" />
 	</item>
 	<item id="47656" name="Protector's Guardian Earring" additionalName="30-day" type="Armor">
-		<!-- Earring bought using Mark of Battle. Max MP +49, Max CP +10%, P./M. Def. +3%, Stun/Mental Resistance and Stun/Mental Success Rate +30%, Vampiric Rage +4%. These effects do not stack with identical earrings. -->
+		<!-- Earring bought using Mark of Battle. Max MP +49, Max CP +10%, P./ M. Def. +3%, Stun/ Mental Resistance and Stun/ Mental Success Rate +30%, Vampiric Rage +4%. These effects do not stack with identical earrings. -->
 		<set name="icon" val="icon.accessory_earring_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -742,79 +742,79 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="47663" name="Freya's Art of Seduction" additionalName="Barrier" type="EtcItem">
-		<!-- For 30 min., Max HP/MP/CP + 30%, P. Atk. + 10%, M. Atk. + 20%, P./M. Def. + 30%, Speed + 20, Skill MP Consumption - 15%. Additionally, Damage Received - 10%, All Attributes Defense + 100. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
+		<!-- For 30 min., Max HP/ MP/ CP +30%, P. Atk. +10%, M. Atk. +20%, P./ M. Def. +30%, Speed +20, Skill MP Consumption -15%. Additionally, Damage Received -10%, All Attributes Defense +100. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18700" level="1" /> <!-- Freya's Art of Seduction -->
+			<skill id="18700" level="1" /> <!-- Freya's Art of Seduction - Barrier -->
 		</skills>
 	</item>
 	<item id="47664" name="Freya's Art of Seduction" additionalName="EXP" type="EtcItem">
-		<!-- For 30 min., Max HP/MP/CP + 30%, P. Atk. + 10%, M. Atk. + 20%, P./M. Def. + 30%, Speed + 20, Skill MP Consumption - 15%. Additionally, XP Gain + 30%, Vitality XP Bonus + 12%. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
+		<!-- For 30 min., Max HP/ MP/ CP +30%, P. Atk. +10%, M. Atk. +20%, P./ M. Def. +30%, Speed +20, Skill MP Consumption -15%. Additionally, XP Gain +30%, Vitality XP Bonus +12%. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18701" level="1" /> <!-- Freya's Art of Seduction -->
+			<skill id="18701" level="1" /> <!-- Freya's Art of Seduction - Exp -->
 		</skills>
 	</item>
 	<item id="47665" name="Pa'agrio's Blessing" additionalName="Might" type="EtcItem">
-		<!-- For 30 min., Max HP/MP/CP + 10%, P. Atk. + 20%, M. Atk. + 30%, P./M. Def. + 10%, P. Accuracy + 4, M. Accuracy + 4, Atk./Casting Spd. + 10%, Speed + 10, Attack Attribute + 100, Skill MP Consumption - 10%. Additionally, Damage + 10%, Skill Power + 10%. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
+		<!-- For 30 min., Max HP/ MP/ CP +10%, P. Atk. +20%, M. Atk. +30%, P./ M. Def. +10%, P. Accuracy +4, M. Accuracy +4, Atk./ Casting Spd. +10%, Speed +10, Attack Attribute +100, Skill MP Consumption -10%. Additionally, Damage +10%, Skill Power +10%. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18702" level="1" /> <!-- Pa'agrio's Blessing -->
+			<skill id="18702" level="1" /> <!-- Pa'agrio's Blessing - Might -->
 		</skills>
 	</item>
 	<item id="47666" name="Pa'agrio's Blessing" additionalName="EXP" type="EtcItem">
-		<!-- For 30 min., Max HP/MP/CP + 10%, P. Atk. + 20%, M. Atk. + 30%, P./M. Def. + 10%, P. Accuracy + 4, M. Accuracy + 4, Atk./Casting Spd. + 10%, Speed + 10, Attack Attribute + 100, Skill MP Consumption - 10%. Additionally, XP Gain + 30%, Vitality XP Bonus + 12%. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
+		<!-- For 30 min., Max HP/ MP/ CP +10%, P. Atk. +20%, M. Atk. +30%, P./ M. Def. +10%, P. Accuracy +4, M. Accuracy +4, Atk./ Casting Spd. +10%, Speed +10, Attack Attribute +100, Skill MP Consumption -10%. Additionally, XP Gain +30%, Vitality XP Bonus +12%. Buff remains in place after death. Cooldown is 5 minutes. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Cannot be used in Olympiad. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18703" level="1" /> <!-- Pa'agrio's Blessing -->
+			<skill id="18703" level="1" /> <!-- Pa'agrio's Blessing - Exp -->
 		</skills>
 	</item>
 	<item id="47667" name="MOPP Combat Ration" type="EtcItem">
-		<!-- MOPP Combat Ration. P. Atk./M. Atk./P. Def/M. Def increased by 50%, Obtained XP and SP increased by 10% for 5 minutes. Effect disappears upon restart. -->
+		<!-- MOPP Combat Ration. P. Atk./ M. Atk./ P. Def/ M. Def increased by 50%, Obtained XP and SP increased by 10% for 5 minutes. Effect disappears upon restart. -->
 		<set name="icon" val="icon.ev_mopp_herb" />
 		<set name="material" val="PAPER" />
 		<set name="is_sellable" val="false" />
@@ -854,7 +854,7 @@
 		<set name="is_freightable" val="true" />
 	</item>
 	<item id="47671" name="PA Points Coupon (180)" type="EtcItem">
-		<!-- Double click to receive 180 Premium Account Points. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
+		<!-- Double click to receive 180 PA Points. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.etc_ticket_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="FISH" />
@@ -870,16 +870,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18710" level="1" /> <!-- Formal Wear Appearance Stone -->
 		</skills>
 	</item>
 	<item id="47673" name="Freya's Art of Seduction - Barrier" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally reduces damage taken by 10%, and increases all property Defense by 100. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/ M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally reduces damage taken by 10%, and increases all property Defense by 100. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -889,18 +889,18 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18725" level="1" /> <!-- Art of Seduction -->
+			<skill id="18725" level="1" /> <!-- Freya's Art of Seduction - Barrier -->
 		</skills>
 	</item>
 	<item id="47674" name="Freya's Art of Seduction - EXP" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 30%, P. Atk. 10%, M. Atk. 20%, P. Def/ M. Def 30%, and Speed by 20, and reduces Skill MP Consumption by 15% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown: 5 minutes. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.bm_freya_rose_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -910,26 +910,26 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="18726" level="1" /> <!-- Art of Seduction -->
+			<skill id="18726" level="1" /> <!-- Freya's Art of Seduction - Exp -->
 		</skills>
 	</item>
 	<item id="47675" name="Pa'agrio's Blessing - Might" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases Damage by 10%, and grants 10% Skill Power. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/ M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./ Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases Damage by 10%, and grants 10% Skill Power. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
@@ -942,15 +942,15 @@
 		</skills>
 	</item>
 	<item id="47676" name="Pa'agrio's Blessing - EXP" additionalName="Event" type="EtcItem">
-		<!-- When used, increases Max HP/MP/CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
+		<!-- When used, increases Max HP/ MP/ CP 10%, P. Atk. 20%, M. Atk. 30%, P. Def/ M. Def 10%, and Accuracy by 4, Magic Accuracy by 4, P. Atk./ Casting Spd. by 10%, Speed by 10, Attack Attribute by 100, and reduces Skill MP Consumption by 10% for 30 minutes. Additionally Increases XP by 30%, and grants 12% bonus Vitality. Buff effect persists through death. Cooldown Time 5min. Cannot be stacked with 'Art of Seduction'. Cannot be used in the Olympiad. Will be deleted on May 25, 2016 (Wed) after regular maintenance. -->
 		<set name="icon" val="icon.nshop_bless_of_paagrio" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
@@ -959,7 +959,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18728" level="1" /> <!-- Pa'agrio's Blessing - EXP -->
+			<skill id="18728" level="1" /> <!-- Pa'agrio's Blessing - Exp -->
 		</skills>
 	</item>
 	<item id="47677" name="Red Cat's Eye" additionalName="Lv. 1" type="Armor">
@@ -1118,7 +1118,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17701" level="6" /> <!-- Topaz: Spiritshot -->
+			<skill id="17701" level="6" /> <!-- Greater Topaz - Spiritshot -->
 		</skills>
 	</item>
 	<item id="47688" name="Greater Ruby" type="Armor">
@@ -1133,11 +1133,11 @@
 		<skills>
 			<skill id="18715" level="1" /> <!-- Greater Ruby -->
 			<skill id="18716" level="1" /> <!-- Greater Ruby -->
-			<skill id="18717" level="6" /> <!-- Ruby -->
+			<skill id="18717" level="6" /> <!-- Greater Ruby -->
 		</skills>
 	</item>
 	<item id="47689" name="Greater Sapphire" type="Armor">
-		<!-- When equipped, increases Spiritshot and Blessed Spiritshot damage by 20% and M. Atk. by 13%. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
+		<!-- When equipped, increases Spiritshot and Blessed Spiritshot damage by 20% and M. Atk. By 13%. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
 		<set name="icon" val="icon.bm_jewel_spsdmg_high_lv1_lavianrose" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch_jewel" />
@@ -1148,7 +1148,7 @@
 		<skills>
 			<skill id="18718" level="1" /> <!-- Greater Sapphire -->
 			<skill id="18718" level="2" /> <!-- Greater Sapphire -->
-			<skill id="18719" level="6" /> <!-- Sapphire -->
+			<skill id="18719" level="6" /> <!-- Greater Sapphire -->
 		</skills>
 	</item>
 	<item id="47690" name="Greater Obsidian" type="Armor">
@@ -1161,7 +1161,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17704" level="6" /> <!-- Obsidian -->
+			<skill id="17704" level="6" /> <!-- Greater Obsidian -->
 		</skills>
 	</item>
 	<item id="47691" name="Greater Opal" type="Armor">
@@ -1174,7 +1174,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17705" level="6" /> <!-- Opal -->
+			<skill id="17705" level="6" /> <!-- Greater Opal -->
 		</skills>
 	</item>
 	<item id="47692" name="Greater Emerald" type="Armor">
@@ -1187,7 +1187,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17825" level="6" /> <!-- Emerald -->
+			<skill id="17825" level="6" /> <!-- Greater Emerald -->
 		</skills>
 	</item>
 	<item id="47693" name="Greater Aquamarine" type="Armor">
@@ -1200,7 +1200,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17823" level="6" /> <!-- Aquamarine -->
+			<skill id="17823" level="6" /> <!-- Greater Aquamarine -->
 		</skills>
 	</item>
 	<item id="47694" name="Greater Diamond" type="Armor">
@@ -1213,7 +1213,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17708" level="6" /> <!-- Diamond -->
+			<skill id="17708" level="6" /> <!-- Greater Diamond -->
 		</skills>
 	</item>
 	<item id="47695" name="Greater Pearl" type="Armor">
@@ -1226,7 +1226,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="17709" level="6" /> <!-- Pearl -->
+			<skill id="17709" level="6" /> <!-- Greater Pearl -->
 		</skills>
 	</item>
 	<item id="47696" name="Greater Vital Stone" type="Armor">
@@ -1239,11 +1239,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18568" level="6" /> <!-- Vital Stone -->
+			<skill id="18568" level="6" /> <!-- Greater Vital Stone -->
 		</skills>
 	</item>
 	<item id="47697" name="Greater Garnet" type="Armor">
-		<!-- Increases success rate of Resistance to Debuffs by 30%, and when receiving damage to a PC, Stun/Silence are canceled. When used, all debuffs are canceled. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
+		<!-- Increases success rate of Resistance to Debuffs by 30%, and when receiving damage to a PC, Stun/ Silence are canceled. When used, all debuffs are canceled. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
 		<set name="icon" val="icon.bm_jewel_garnet_high_lv1_lavianrose" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch_jewel" />
@@ -1252,8 +1252,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18566" level="6" /> <!-- Garnet -->
-			<skill id="18567" level="2" /> <!-- Garnet - Purge -->
+			<skill id="18566" level="6" /> <!-- Greater Garnet -->
+			<skill id="18567" level="2" /> <!-- Greater Garnet - Cancel Debuffs -->
 		</skills>
 	</item>
 	<item id="47698" name="Greater Tanzanite" type="Armor">
@@ -1279,7 +1279,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18713" level="6" /> <!-- Red Cat's Eye -->
+			<skill id="18713" level="6" /> <!-- Greater Red Cat's Eye -->
 		</skills>
 	</item>
 </list>

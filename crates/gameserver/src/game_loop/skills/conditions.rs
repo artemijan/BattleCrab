@@ -12,8 +12,8 @@
 //! `Player.useMagic` resolves the target *first*, then calls
 //! `skill.checkCondition(caster, target)`, which:
 //!
-//! 1. lets a fake player, or a GM with `PlayerCondOverride.SKILL_CONDITIONS`,
-//!    through unconditionally;
+//! 1. lets a fake player, or a GM (unless `GMSkillRestriction`), through
+//!    unconditionally;
 //! 2. refuses a **bad** skill cast while mounted, unless the skill is on
 //!    `MountEnabledSkillList`;
 //! 3. evaluates `GENERAL` then `TARGET`, stopping at the first failure;
@@ -76,23 +76,14 @@ pub(crate) fn check_cast(
     skill: &skill::Skill,
     target_oid: i32,
 ) -> Result<(), Refusal> {
-    // Java: `creature.canOverrideCond(SKILL_CONDITIONS) && !Config.GM_SKILL_RESTRICTION`.
+    // Java: `creature.isGM() && !Config.GM_SKILL_RESTRICTION`.
     //
-    // **Both halves of this used to be wrong.** The port read "is this an
-    // access-level GM" instead of the override — there was no override grid at
-    // load — and the comment justifying it stated `GM_SKILL_RESTRICTION` was
-    // off in this dist's `General.ini`. It is **True**, which is precisely the
-    // value that *stops* the override exempting anyone, so every GM here
-    // skipped every skill condition on a server configured to allow none of
-    // that.
-    //
-    // The override is now real (`Player.restore` seeds a GM with the whole
-    // exception mask), so this reads the thing Java reads, and `//set_exception 2`
-    // turns it off for one GM without touching the config.
+    // `GM_SKILL_RESTRICTION` is **True** in this dist's `General.ini`, which is
+    // precisely the value that *stops* a GM being exempt.
     if world
         .objects
         .get_component::<Player>(&caster_oid)
-        .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::SKILL_CONDITIONS_ORDINAL))
+        .is_some_and(|p| p.is_gm(&world.data))
         && !world.cfg.general.gm_skill_restriction
     {
         return Ok(());
@@ -172,11 +163,27 @@ pub(crate) fn passive_stat_gate(
 
 /// Send the refusal Java sends: the condition's own message (if any), then the
 /// generic one, then `ActionFailed`.
+pub(crate) fn send_refusal(
+    world: &World,
+    client_id: u32,
+    caster_oid: i32,
+    skill: &skill::Skill,
+    target_oid: i32,
+    refusal: &Refusal,
+) {
+    send_refusal_lines(world, client_id, caster_oid, skill, target_oid, refusal);
+    helpers::send_action_failed(world, client_id);
+}
+
+/// What `Skill.checkCondition` itself sends on a refusal: the condition's own
+/// message (if any), then the generic one. `ActionFailed` is the casting
+/// path's addition, so a trigger cast (`SkillCaster.triggerCast`) sends only
+/// this.
 ///
 /// The generic message is suppressed when the caster aimed a **bad** skill at
 /// themselves — Java's `!((creature == object) && isBad())` guard, which exists
 /// so the AoE-on-self resolution of an offensive skill doesn't spam the caster.
-pub(crate) fn send_refusal(
+pub(crate) fn send_refusal_lines(
     world: &World,
     client_id: u32,
     caster_oid: i32,
@@ -205,7 +212,6 @@ pub(crate) fn send_refusal(
             }],
         );
     }
-    helpers::send_action_failed(world, client_id);
 }
 
 /// Evaluate one condition on its own — the dispatcher's per-condition step,
@@ -273,6 +279,15 @@ fn eval(
         skill::condition::SkillCondition::EnergySaved { amount } => {
             ok(charges(world, caster) >= *amount)
         }
+        skill::condition::SkillCondition::SoulSaved { amount } => {
+            ok(helpers::player(world, caster).is_some_and(|p| p.souls >= *amount))
+        }
+        // Java's `isPlayable() && asPlayer().getChargedSouls() < MAX_SOULS`; a
+        // summon's `asPlayer()` is null there, so only a player can pass.
+        skill::condition::SkillCondition::SoulMax => ok(helpers::player(world, caster)
+            .is_some_and(|p| {
+                p.souls < crate::game_loop::skills::effects::souls::max_souls(world, caster)
+            })),
         // The inverse, and the one with its own message: refuse *at* the cap.
         skill::condition::SkillCondition::EnergyMax { amount } => {
             if charges(world, caster) >= *amount {
@@ -774,7 +789,7 @@ fn vital_percent(world: &World, object_id: i32, vital: skill::Vital) -> Option<i
 
 /// `Creature.getRace()`: the NPC template's race for a monster, the character
 /// race for a player.
-fn race_of(world: &World, object_id: i32) -> Option<crate::enums::Race> {
+pub(crate) fn race_of(world: &World, object_id: i32) -> Option<crate::enums::Race> {
     if object_id == 0 {
         return None;
     }

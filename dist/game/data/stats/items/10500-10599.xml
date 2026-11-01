@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="10500" name="Mithril Shirt" additionalName="HP" type="Armor">
 		<!-- Increases Max HP by 224 when enchanted to +4 or higher. -->
@@ -13,12 +13,12 @@
 		<set name="price" val="1800000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3457" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Mithril Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">28</stat>
 		</stats>
+		<skills>
+			<skill id="3457" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Mithril Shirt -->
+		</skills>
 	</item>
 	<item id="10501" name="Mithril Shirt" additionalName="MP" type="Armor">
 		<!-- Increases Max MP by 111 when enchanted to +4 or higher. -->
@@ -33,12 +33,12 @@
 		<set name="price" val="1800000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3458" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Mithril Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">28</stat>
 		</stats>
+		<skills>
+			<skill id="3458" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Mithril Shirt -->
+		</skills>
 	</item>
 	<item id="10502" name="Mithril Shirt" additionalName="CP" type="Armor">
 		<!-- Increases Max CP by 672 when enchanted to +4 or higher. -->
@@ -53,12 +53,12 @@
 		<set name="price" val="1800000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3459" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Mithril Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">28</stat>
 		</stats>
+		<skills>
+			<skill id="3459" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Mithril Shirt -->
+		</skills>
 	</item>
 	<item id="10503" name="Striped Silk Shirt" additionalName="HP" type="Armor">
 		<!-- Increases Max HP by 135 when enchanted to +4 or higher. -->
@@ -73,12 +73,12 @@
 		<set name="price" val="36000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3463" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Silk Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">19</stat>
 		</stats>
+		<skills>
+			<skill id="3463" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Silk Shirt -->
+		</skills>
 	</item>
 	<item id="10504" name="Striped Silk Shirt" additionalName="MP" type="Armor">
 		<!-- Increases Max MP by 66 when enchanted to +4 or higher. -->
@@ -93,12 +93,12 @@
 		<set name="price" val="36000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3464" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Silk Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">19</stat>
 		</stats>
+		<skills>
+			<skill id="3464" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Silk Shirt -->
+		</skills>
 	</item>
 	<item id="10505" name="Striped Silk Shirt" additionalName="CP" type="Armor">
 		<!-- Increases Max CP by 405 when enchanted to +4 or higher. -->
@@ -113,12 +113,12 @@
 		<set name="price" val="36000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3465" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Silk Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">19</stat>
 		</stats>
+		<skills>
+			<skill id="3465" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Silk Shirt -->
+		</skills>
 	</item>
 	<item id="10506" name="Thin Striped Leather Shirt" additionalName="HP" type="Armor">
 		<!-- Increases Max HP by 160 when enchanted to +4 or higher. -->
@@ -133,12 +133,12 @@
 		<set name="price" val="80000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3469" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Thin Striped Leather Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">22</stat>
 		</stats>
+		<skills>
+			<skill id="3469" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Thin Striped Leather Shirt -->
+		</skills>
 	</item>
 	<item id="10507" name="Thin Striped Leather Shirt" additionalName="MP" type="Armor">
 		<!-- Increases Max MP by 78 when enchanted to +4 or higher. -->
@@ -153,12 +153,12 @@
 		<set name="price" val="80000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3470" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Thin Striped Leather Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">22</stat>
 		</stats>
+		<skills>
+			<skill id="3470" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Thin Striped Leather Shirt -->
+		</skills>
 	</item>
 	<item id="10508" name="Thin Striped Leather Shirt" additionalName="CP" type="Armor">
 		<!-- Increases Max CP by 480 when enchanted to +4 or higher. -->
@@ -173,12 +173,12 @@
 		<set name="price" val="80000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3471" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Thin Striped Leather Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">22</stat>
 		</stats>
+		<skills>
+			<skill id="3471" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Thin Striped Leather Shirt -->
+		</skills>
 	</item>
 	<item id="10509" name="Striped Scale Shirt" additionalName="HP" type="Armor">
 		<!-- Increases Max HP by 186 when enchanted to +4 or higher. -->
@@ -193,12 +193,12 @@
 		<set name="price" val="880000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3475" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Scale Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">26</stat>
 		</stats>
+		<skills>
+			<skill id="3475" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Scale Shirt -->
+		</skills>
 	</item>
 	<item id="10510" name="Striped Scale Shirt" additionalName="MP" type="Armor">
 		<!-- Increases Max MP by 92 when enchanted to +4 or higher. -->
@@ -213,12 +213,12 @@
 		<set name="price" val="880000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3476" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Scale Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">26</stat>
 		</stats>
+		<skills>
+			<skill id="3476" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Scale Shirt -->
+		</skills>
 	</item>
 	<item id="10511" name="Striped Scale Shirt" additionalName="CP" type="Armor">
 		<!-- Increases Max CP by 564 when enchanted to +4 or higher. -->
@@ -233,12 +233,12 @@
 		<set name="price" val="880000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3477" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Scale Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">26</stat>
 		</stats>
+		<skills>
+			<skill id="3477" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Scale Shirt -->
+		</skills>
 	</item>
 	<item id="10512" name="Striped Mithril Shirt" additionalName="HP" type="Armor">
 		<!-- Increases Max HP by 246 when enchanted to +4 or higher. -->
@@ -253,12 +253,12 @@
 		<set name="price" val="2540000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3481" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Mithril Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">30</stat>
 		</stats>
+		<skills>
+			<skill id="3481" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Mithril Shirt -->
+		</skills>
 	</item>
 	<item id="10513" name="Striped Mithril Shirt" additionalName="MP" type="Armor">
 		<!-- Increases Max MP by 122 when enchanted to +4 or higher. -->
@@ -273,12 +273,12 @@
 		<set name="price" val="2540000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3482" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Mithril Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">30</stat>
 		</stats>
+		<skills>
+			<skill id="3482" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Mithril Shirt -->
+		</skills>
 	</item>
 	<item id="10514" name="Striped Mithril Shirt" additionalName="CP" type="Armor">
 		<!-- Increases Max CP by 744 when enchanted to +4 or higher. -->
@@ -293,12 +293,12 @@
 		<set name="price" val="2540000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="UNDERWEAR" />
-		<skills>
-			<skill id="3483" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Mithril Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">30</stat>
 		</stats>
+		<skills>
+			<skill id="3483" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Striped Mithril Shirt -->
+		</skills>
 	</item>
 	<item id="10515" name="Beast Soulshot Compressed Pack" type="EtcItem">
 		<!-- Small capsule of compressed Beast Soulshot. Changes into a 500 Beast Soulshots when used. -->
@@ -346,7 +346,7 @@
 		</skills>
 	</item>
 	<item id="10518" name="Red Talisman - Life Force" type="Armor">
-		<!-- Completely restores MP/HP when used. Effect does not stack with additional Talismans of the same type. -->
+		<!-- Completely restores MP/ HP when used. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -499,7 +499,7 @@
 		</skills>
 	</item>
 	<item id="10527" name="Dynasty Staff" additionalName="Mana Up" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 30%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -516,23 +516,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">325</stat>
+			<stat type="mAtk">222</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3014" level="2" /> <!-- Special Ability: Mana Up -->
 		</skills>
-		<stats>
-			<stat type="pAtk">325</stat>
-			<stat type="mAtk">222</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10528" name="Dynasty Staff" additionalName="Conversion" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max MP by 60% and decreases Max HP by 40%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -549,23 +551,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtk">325</stat>
+			<stat type="mAtk">222</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3048" level="2" /> <!-- Special Ability: Conversion -->
 		</skills>
-		<stats>
-			<stat type="pAtk">325</stat>
-			<stat type="mAtk">222</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10529" name="Dynasty Staff" additionalName="Acumen" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -582,23 +586,25 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="commissionItemType" val="TWO_HAND_MAGIC_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">325</stat>
 			<stat type="mAtk">222</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="10530" name="Dynasty Crusher" additionalName="Anger" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 78 and decreases HP by 15%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dynasty_crusher_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -616,21 +622,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">405</stat>
+			<stat type="mAtk">151</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3057" level="4" /> <!-- Special Ability: Anger -->
 		</skills>
-		<stats>
-			<stat type="pAtk">405</stat>
-			<stat type="mAtk">151</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10531" name="Dynasty Crusher" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dynasty_crusher_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -648,21 +656,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">405</stat>
+			<stat type="mAtk">151</stat>
+			<stat type="critRate">6</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 		</skills>
-		<stats>
-			<stat type="pAtk">405</stat>
-			<stat type="mAtk">151</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="10532" name="Dynasty Crusher" additionalName="Rsk. Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 164 when HP drops to 60% or below. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_dynasty_crusher_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -680,18 +690,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3027" level="7" /> <!-- Special Ability: Rsk. Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3027" level="7" /> <!-- Special Ability: Rsk. Focus -->
+		</skills>
 	</item>
 	<item id="10533" name="Blue Talisman - P. Atk." type="Armor">
 		<!-- Increases P. Atk. when used. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
@@ -781,7 +793,7 @@
 		</skills>
 	</item>
 	<item id="10538" name="Yellow Talisman - Healing Power" type="Armor">
-		<!-- HP Recovery M. Atk. Increases when equipped. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
+		<!-- HP Recovery Bonus M. Atk. Increases when equipped. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
 		<set name="icon" val="icon.etc_talisman_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -815,7 +827,7 @@
 		</skills>
 	</item>
 	<item id="10540" name="Yellow Talisman - HP Regeneration" type="Armor">
-		<!-- Increases HP Recovery Rate. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
+		<!-- Increases HP Recovery Bonus Rate. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
 		<set name="icon" val="icon.etc_talisman_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -832,7 +844,7 @@
 		</skills>
 	</item>
 	<item id="10541" name="Yellow Talisman - MP Regeneration (Low-grade)" type="Armor">
-		<!-- Increases MP Recovery Rate. Effect does not stack with additional Talismans of the same type. -->
+		<!-- Increases MP Recovery Bonus Rate. Effect does not stack with additional Talismans of the same type. -->
 		<set name="icon" val="icon.etc_talisman_i02" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -849,7 +861,7 @@
 		</skills>
 	</item>
 	<item id="10542" name="Red Talisman - HP/CP Recovery" type="Armor">
-		<!-- HP/CP are recovered when equipped. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
+		<!-- HP/ CP are recovered when equipped. Effect does not stack with additional Talismans of the same type. Shadow Item. -->
 		<set name="icon" val="icon.etc_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="deco1" />
@@ -1464,7 +1476,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SPELLBOOK" />
 		<skills>
-			<skill id="2477" level="1" /> <!-- Sublime Self-sacrifice -->
+			<skill id="2477" level="1" /> <!-- Sublime Self-Sacrifice -->
 		</skills>
 	</item>
 	<item id="10586" name="Forgotten Scroll: Blessing of Eva" type="EtcItem">

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="22_19">
+		<group>
+			<npc id="31002" x="92743" y="55523" z="-3416" heading="32768" respawnTime="60sec" /> <!-- Reorin -->
+			<npc id="32568" x="88125" y="38448" z="-3368" respawnTime="60sec" /> <!-- Unidentified Body -->
+			<npc id="32569" x="82717" y="47060" z="-3232" heading="33103" respawnTime="60sec" /> <!-- Cain -->
+			<npc id="30750" x="71569" y="44058" z="-1436" respawnTime="60sec" /> <!-- Kalibran -->
+		</group>
+	</spawn>
+</list>

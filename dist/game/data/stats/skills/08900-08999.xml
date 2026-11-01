@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="8900" toLevel="1" name="Dragon Fighter">
-		<!-- PvP Damage +30%, Max HP/MP/CP +30%, Atk. Spd. +30%, P. Critical Rate +100, P. Skill Critical Rate +30%, P. Skill Critical Damage +30%, and added damage to dragons +100%. -->
+		<!-- PvP Damage +30%, Max HP/ MP/ CP +30%, Atk. Spd. +30%, P. Critical Rate +100, P. Skill Critical Rate +30%, P. Skill Critical Damage +30%, and added damage to dragons +100%. -->
 		<icon>icon.skill5860</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -51,7 +51,7 @@
 		</effects>
 	</skill>
 	<skill id="8901" toLevel="1" name="Dragon Knight">
-		<!-- PvP Damage +50%, Max HP/MP/CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, and added damage to dragons +300%. -->
+		<!-- PvP Damage +50%, Max HP/ MP/ CP +100%, Atk. Spd. +100%, P. Critical Rate +500, P. Skill Critical Rate +50%, P. Skill Critical Damage +50%, and added damage to dragons +300%. -->
 		<icon>icon.skill5861</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -101,7 +101,7 @@
 		</effects>
 	</skill>
 	<skill id="8902" toLevel="1" name="Dragon Mage">
-		<!-- PvP Damage +30%, Max HP/MP/CP +30%, Casting Spd. +30%, M. Critical Rate +100, M. Skill Critical Rate +30%, M. Skill Critical Damage +30%., and added damage to dragons +100%. -->
+		<!-- PvP Damage +30%, Max HP/ MP/ CP +30%, Casting Spd. +30%, M. Critical Rate +100, M. Skill Critical Rate +30%, M. Skill Critical Damage +30%., and added damage to dragons +100%. -->
 		<icon>icon.skill5860</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -146,7 +146,7 @@
 		</effects>
 	</skill>
 	<skill id="8903" toLevel="1" name="Dragon Wizard">
-		<!-- PvP Damage +50%, Max HP/MP/CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +50%, M. Skill Critical Damage +50%., and added damage to dragons +300%. -->
+		<!-- PvP Damage +50%, Max HP/ MP/ CP +100%, Casting Spd. +100%, M. Critical Rate +500, M. Skill Critical Rate +50%, M. Skill Critical Damage +50%., and added damage to dragons +300%. -->
 		<icon>icon.skill5861</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -193,13 +193,13 @@
 	<skill id="8904" toLevel="1" name="Summon Eviscerator Fox">
 		<!-- Mount the Eviscerator's pet fox. -->
 		<icon>icon.skill8904</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>1</effectPoint>
 		<hitTime>1000</hitTime>
 		<conditions>
@@ -216,13 +216,13 @@
 	<skill id="8905" toLevel="1" name="Summon Sayha's Seer Fox">
 		<!-- Mount the Sayha's Seer's pet fox. -->
 		<icon>icon.skill8905</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<blockedInOlympiad>true</blockedInOlympiad>
 		<effectPoint>1</effectPoint>
 		<hitTime>1000</hitTime>
 		<conditions>
@@ -239,22 +239,22 @@
 	<skill id="8906" toLevel="1" name="Riding the Hell Hound">
 		<!-- The Hell Hound can be mounted. -->
 		<icon>icon.hellound_vehicle</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelayType>S</reuseDelayType>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<excludedFromCheck>true</excludedFromCheck>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelayType>S</reuseDelayType>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>158</transformId>
@@ -275,21 +275,21 @@
 	<skill id="8907" toLevel="1" name="Riding the Pegasus">
 		<!-- The Pegasus can be mounted. -->
 		<icon>icon.pegasus_vehicle</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<excludedFromCheck>true</excludedFromCheck>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<excludedFromCheck>true</excludedFromCheck>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>159</transformId>
@@ -312,22 +312,22 @@
 	<skill id="8908" toLevel="1" name="Riding the Wing Hound">
 		<!-- The Wing Hound can be mounted. -->
 		<icon>icon.winghound_vehicle</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelayType>S</reuseDelayType>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<excludedFromCheck>true</excludedFromCheck>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelayType>S</reuseDelayType>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>160</transformId>
@@ -350,22 +350,22 @@
 	<skill id="8909" toLevel="1" name="Riding the War Horse">
 		<!-- The War Horse can be mounted. -->
 		<icon>icon.warhorse_vehicle</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelayType>S</reuseDelayType>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<excludedFromCheck>true</excludedFromCheck>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelayType>S</reuseDelayType>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>161</transformId>
@@ -388,22 +388,22 @@
 	<skill id="8910" toLevel="1" name="Riding the Griffin">
 		<!-- The Griffin can be mounted. -->
 		<icon>icon.griffin_vehicle</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelayType>S</reuseDelayType>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
 		<excludedFromCheck>true</excludedFromCheck>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelayType>S</reuseDelayType>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>162</transformId>

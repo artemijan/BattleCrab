@@ -19,7 +19,7 @@ COPY --chown=app:app_grp --from=builder /build/target/release/loginserver logins
 EXPOSE 2106
 EXPOSE 9014
 
-# Config values are overridable via env: CONFIG_LOGINSERVER_<KEY>
-# (e.g. CONFIG_LOGINSERVER_URL=jdbc:sqlite:./data/l2.db), matching the Java
+# Config values are overridable via env: DIST_LOGIN_CONFIG_<FILE>_<KEY>
+# (e.g. DIST_LOGIN_CONFIG_DATABASE_URL=jdbc:sqlite:./data/l2.db), matching the Java
 # PropertiesParser env convention.
 ENTRYPOINT ["./loginserver"]

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="22000" name="Small Fortuna Box" type="EtcItem">
 		<!-- Has a chance to contain an Ancient Scroll: Enchant Weapon or a Scroll: Enchant Weapon with 10 % improved success rate. -->
@@ -103,7 +103,7 @@
 		</skills>
 	</item>
 	<item id="22006" name="Scroll: Enchant Weapon (D-grade)" type="EtcItem">
-		<!-- 10 % increases in enchant success rate. P. Atk. for D-grade sword, one-handed blunt, one-handed dagger, spear, other swords, two-handed sword, two-handed blunt, dualsword, and combat/two-handed weapons increases by 2 when enchanted. P. Atk. for bow weapons increases by 4. M. Atk. for all weapons increases by 2. P. Atk. and M. Atk. Increases two times after +4. -->
+		<!-- 10 % increases in enchant success rate. P. Atk. for D-grade sword, one-handed blunt, one-handed dagger, spear, other swords, two-handed sword, two-handed blunt, dual sword, and combat/ two-handed weapons increases by 2 when enchanted. P. Atk. for bow weapons increases by 4. M. Atk. for all weapons increases by 2. P. Atk. and M. Atk. Increases two times after +4. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scrl_of_ench_wp_d_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -121,7 +121,7 @@
 		</skills>
 	</item>
 	<item id="22007" name="Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- 10 % increases in enchant success rate. P. Atk. for C-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 3 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 4. P. Atk. for bow weapons increases by 6. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. -->
+		<!-- 10 % increases in enchant success rate. P. Atk. for C-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 3 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 4. P. Atk. for bow weapons increases by 6. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scrl_of_ench_wp_c_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -139,7 +139,7 @@
 		</skills>
 	</item>
 	<item id="22008" name="Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- 10 % increases in enchant success rate. P. Atk. for B-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 3 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 4. P. Atk. for bow weapons increases by 6. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. -->
+		<!-- 10 % increases in enchant success rate. P. Atk. for B-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 3 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 4. P. Atk. for bow weapons increases by 6. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scrl_of_ench_wp_b_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -157,7 +157,7 @@
 		</skills>
 	</item>
 	<item id="22009" name="Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- 10 % increases in enchant success rate. P. Atk. for A-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 4 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 5. P. Atk. for bow weapons increases by 8. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. -->
+		<!-- 10 % increases in enchant success rate. P. Atk. for A-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 4 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 5. P. Atk. for bow weapons increases by 8. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scrl_of_ench_wp_a_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
@@ -247,7 +247,7 @@
 		</skills>
 	</item>
 	<item id="22014" name="Ancient Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- 10 % increases in enchant success rate. When enchant fails, the existing enchant value is retained. P. Atk. for B-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 3 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 4. P. Atk. for bow weapons increases by 6. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. Cannot use weapons enchanted by above 16. -->
+		<!-- 10 % increases in enchant success rate. When enchant fails, the existing enchant value is retained. P. Atk. for B-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 3 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 4. P. Atk. for bow weapons increases by 6. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. Cannot use weapons enchanted by above 16. -->
 		<set name="icon" val="br_cashtex.item.br_cash_cry_of_ench_wp_b_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -265,7 +265,7 @@
 		</skills>
 	</item>
 	<item id="22015" name="Ancient Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- 10 % increases in enchant success rate. When enchant fails, the existing enchant value is retained. P. Atk. for A-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 4 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dualsword, and combat and dual-handed weapons increases by 5. P. Atk. for bow weapons increases by 8. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. Weapons enchanted by above 16 can be neither used, exchanged, nor dropped. -->
+		<!-- 10 % increases in enchant success rate. When enchant fails, the existing enchant value is retained. P. Atk. for A-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons increases by 4 when enchanted. P. Atk. for sword, two-handed blunt, two-handed dual sword, and combat and dual-handed weapons increases by 5. P. Atk. for bow weapons increases by 8. M. Atk. for all weapons increases by 3. P. Atk. and M. Atk. Increases two times after +4. Weapons enchanted by above 16 can be neither used, exchanged, nor dropped. -->
 		<set name="icon" val="br_cashtex.item.br_cash_cry_of_ench_wp_a_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -319,7 +319,7 @@
 		</skills>
 	</item>
 	<item id="22018" name="Heavenly Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- Enchant success rate is 100%. Increases P. Atk. for B-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons by 3 when enchanted. Increases P. Atk. for two-handed sword, two-handed blunt, dualswords/daggers, and fist weapons by 4. Increases P. Atk. for bows by 6. Increases M. Atk. for all weapons by 3. P. Atk. and M. Atk. double each time after +4. Can enchant to +16. -->
+		<!-- Enchant success rate is 100%. Increases P. Atk. for B-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons by 3 when enchanted. Increases P. Atk. for two-handed sword, two-handed blunt, dual swords/ daggers, and fist weapons by 4. Increases P. Atk. for bows by 6. Increases M. Atk. for all weapons by 3. P. Atk. and M. Atk. double each time after +4. Can enchant to +16. -->
 		<set name="icon" val="br_cashtex.item.br_cash_blessed_cry_of_ench_wp_b_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -337,7 +337,7 @@
 		</skills>
 	</item>
 	<item id="22019" name="Heavenly Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- Enchant success rate is 100%. Increases P. Atk. for A-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons by 4 when enchanted. Increases P. Atk. for two-handed sword, two-handed blunt, dualswords/daggers, and fist weapons by 5. Increases P. Atk. for bows by 8. Increases M. Atk. for all weapons by 3. P. Atk. and M. Atk. double each time after +4. Can enchant to +16. -->
+		<!-- Enchant success rate is 100%. Increases P. Atk. for A-grade sword, one-handed blunt, one-handed dagger, spear, and other weapons by 4 when enchanted. Increases P. Atk. for two-handed sword, two-handed blunt, dual swords/ daggers, and fist weapons by 5. Increases P. Atk. for bows by 8. Increases M. Atk. for all weapons by 3. P. Atk. and M. Atk. double each time after +4. Can enchant to +16. -->
 		<set name="icon" val="br_cashtex.item.br_cash_blessed_cry_of_ench_wp_a_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
@@ -1049,7 +1049,7 @@
 		</skills>
 	</item>
 	<item id="22052" name="Scroll: Clarity" type="EtcItem">
-		<!-- Decreases physical skill MP consumption by 20%, magic skill's MP consumption by 10%, and song/dance skill's MP consumption by 20%. -->
+		<!-- Decreases physical skill MP consumption by 20%, magic skill's MP consumption by 10%, and song/ dance skill's MP consumption by 20%. -->
 		<set name="icon" val="br_cashtex.item.br_cash_scroll_of_clarity_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />

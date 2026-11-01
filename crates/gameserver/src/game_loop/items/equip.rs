@@ -86,6 +86,7 @@ pub(crate) fn use_equipable_item(
         return;
     }
 
+    let open = open_slots(world, object_id);
     let catalog = &world.data.item_data;
     let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
@@ -100,7 +101,7 @@ pub(crate) fn use_equipable_item(
     let changed = if was_equipped {
         inventory.unequip_item(item_object_id)
     } else {
-        inventory.equip_item(catalog, item_object_id)
+        inventory.equip_item(catalog, item_object_id, open)
     };
     finish_equip_change(world, client_id, object_id, &changed);
     // Java `Player.useEquipableItem`, right after the "you have equipped"
@@ -119,6 +120,22 @@ pub(crate) fn use_equipable_item(
             .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
     {
         crate::game_loop::items::item_mana::on_item_equipped(world, object_id, item_object_id);
+    }
+}
+
+/// The owner's open talisman, brooch-jewel and agathion slots, as
+/// `Inventory.equipItem` reads them off `PlayerStat`.
+pub(crate) fn open_slots(world: &World, object_id: i32) -> crate::model::inventory::OpenSlots {
+    use crate::model::components::stats::StatModifiers;
+    use crate::model::inventory::OpenSlots;
+
+    let entered = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.entered_world);
+    match world.objects.get_component::<StatModifiers>(&object_id) {
+        Some(mods) => OpenSlots::of_player(entered, mods),
+        None => OpenSlots::of_player(entered, &StatModifiers::default()),
     }
 }
 
@@ -203,9 +220,17 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
             .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
         if equipped {
-            crate::game_loop::stats::options::apply_item_options(world, object_id, item_oid);
+            // Java `ItemSkillsListener.notifyEquiped` returns before any of its
+            // grants when the item's grade is above the wearer's expertise —
+            // the augment bonus and the soul crystal skills alike. Unequip has
+            // no such check.
+            if grade_permits_item_skills(world, object_id, item_oid) {
+                crate::game_loop::stats::options::apply_item_options(world, object_id, item_oid);
+                super::ensoul::apply_item(world, object_id, item_oid);
+            }
         } else {
             crate::game_loop::stats::options::remove_item_options(world, object_id, item_oid);
+            super::ensoul::clear_item(world, object_id, item_oid);
         }
     }
     // Memory-first: the paperdoll change already lives in the `Inventory`
@@ -213,6 +238,17 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
     // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB
     // writes.
     refresh_equip_state(world, client_id, object_id);
+}
+
+/// `!item.getCrystalType().isGreater(player.getExpertiseLevel())`.
+fn grade_permits_item_skills(world: &World, object_id: i32, item_oid: i32) -> bool {
+    let grade = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| inv.by_object_id(item_oid))
+        .and_then(|it| world.data.item_data.get(it.item_id))
+        .map_or(0, |t| t.crystal_type.level());
+    grade <= crate::game_loop::skills::expertise::expertise_level(world, object_id)
 }
 
 /// Destroy `count` of `item_id` from `owner_oid`'s bag, running everything the
@@ -347,6 +383,7 @@ pub(crate) fn finish_equipped_item_destroyed(
             object_id,
             &[it.augment_option1, it.augment_option2],
         );
+        super::ensoul::clear_options(world, object_id, &super::ensoul::option_ids(it));
     }
     refresh_equip_state(world, client_id, object_id);
     refresh_after_paperdoll_change(world, object_id);
@@ -421,6 +458,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         vitals.max_hp = crate::model::max_vitals::calc_max_hp(
             &world.data,
             &t,
+            base,
             player.level,
             Some(inventory),
             mods,
@@ -428,6 +466,7 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         vitals.max_mp = crate::model::max_vitals::calc_max_mp(
             &world.data,
             &t,
+            base,
             player.level,
             Some(inventory),
             mods,

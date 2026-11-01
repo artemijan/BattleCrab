@@ -1,21 +1,21 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17200" toLevel="1" name="Potion of Protection: Sleep (Low-grade)">
 		<!-- Use this to increase the defense rate against Sleep by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i05</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37797</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37797</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>5</SLEEP>
@@ -26,18 +26,18 @@
 		<!-- Use this to increase the defense rate against Poison by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i02</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37798</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37798</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>5</POISON>
@@ -45,21 +45,21 @@
 		</effects>
 	</skill>
 	<skill id="17202" toLevel="1" name="Potion of Protection: Knock Back/ Knock Down (Low-grade)">
-		<!-- Use this to increase the defense rate against Knock Back/Knock Down by 5%. Unavailable to use in Olympiad. -->
+		<!-- Use this to increase the defense rate against Knock Back/ Knock Down by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i10</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37799</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37799</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>5</KNOCKBACK>
@@ -71,18 +71,18 @@
 		<!-- Use this to increase the defense rate against Aerial Yoke by 5%. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i11</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>37800</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37800</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>5</AIRBIND>
@@ -115,9 +115,9 @@
 		<!-- For 1 hour, changes the appearance of Metal Shoes to the equipped appearance. -->
 		<icon>icon.etc_whiteday_herb</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>60000</reuseDelay>
 		<effectPoint>100</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>60000</reuseDelay>
 	</skill>
 	<skill id="17209" toLevel="1" name="Metal Suit Hair Accessory Appearance Stone">
 		<icon>icon.skill0000</icon>
@@ -206,28 +206,27 @@
 		<!-- Increases P. Atk. +10%, M. Atk. +21%, P. Def. +15%, M. Def. +15%, Max HP, MP, and CP +15%, and applied time +30 minutes. Does not disappear upon death. -->
 		<icon>icon.etc_cave_page_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<blockedInOlympiad>true</blockedInOlympiad>
+		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF2</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<blockedInOlympiad>true</blockedInOlympiad>
 		<canBeDispelled>false</canBeDispelled>
-		<reuseDelay>1800000</reuseDelay>
-		<abnormalTime>1800</abnormalTime>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>37867</itemConsumeId> <!-- Valiant Scroll -->
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic> <!-- Item Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37867</itemConsumeId> <!-- Valiant Scroll -->
 		<magicLevel>-3</magicLevel>
-		<basicProperty>NONE</basicProperty>
+		<reuseDelay>1800000</reuseDelay>
 		<trait>ETC</trait>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>21</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -261,14 +260,14 @@
 	<skill id="17222" toLevel="2" name="Hero's SP Scroll (Experienced)">
 		<icon>icon.etc_sp_scroll2_i00</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<isDebuff>false</isDebuff>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="17223" toLevel="3" name="Hero's SP Scroll (Expert)">
 		<icon>icon.etc_sp_scroll3_i00</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<isDebuff>false</isDebuff>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="17224" toLevel="1" name="Valentine Appearance Stone: Dagger">
 		<icon>BranchSys3.Icon.g_shape_shifting_dagger</icon>
@@ -314,7 +313,7 @@
 		<icon>BranchSys3.Icon.g_shape_shifting_magic_twohand_blunt</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17235" toLevel="1" name="Valentine Appearance Stone: DualSword">
+	<skill id="17235" toLevel="1" name="Valentine Appearance Stone: Dual Sword">
 		<icon>BranchSys3.Icon.g_shape_shifting_dual</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -378,7 +377,7 @@
 		<icon>BranchSys3.Icon.g_shape_shifting_magic_twohand_blunt</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17251" toLevel="1" name="Valentine Appearance Stone: DualSword">
+	<skill id="17251" toLevel="1" name="Valentine Appearance Stone: Dual Sword">
 		<icon>BranchSys3.Icon.g_shape_shifting_dual</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -431,14 +430,14 @@
 	<skill id="17263" toLevel="1" name="Warrior's Quick Healing Potion">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<itemConsumeId>48624</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>48624</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>7000</power>
@@ -456,7 +455,9 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="17266" toLevel="3" name="SP Rune 10%">
-		<!-- SP Acquisition + 10%. -->
+		<!-- Level 1: SP Acquisition +10%. -->
+		<!-- Level 2: SP Acquisition +20%. -->
+		<!-- Level 3: SP Acquisition +30%. -->
 		<icon>
 			<value level="1">br_cashtex.skill.br_cash_rune_of_sp_buff_1</value>
 			<value level="2">br_cashtex.skill.br_cash_rune_of_sp_buff_2</value>
@@ -465,7 +466,9 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="17267" toLevel="3" name="SP Rune 10%">
-		<!-- SP Acquisition + 10%. -->
+		<!-- Level 1: SP Acquisition +10%. -->
+		<!-- Level 2: SP Acquisition +20%. -->
+		<!-- Level 3: SP Acquisition +30%. -->
 		<icon>
 			<value level="1">br_cashtex.skill.br_cash_rune_of_sp_buff_1</value>
 			<value level="2">br_cashtex.skill.br_cash_rune_of_sp_buff_2</value>
@@ -488,16 +491,16 @@
 	<skill id="17270" toLevel="1" name="Scroll: 1,000,000,000 SP">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>200</hitTime>
-		<reuseDelay>3000</reuseDelay>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>37904</itemConsumeId> <!-- Scroll: 1,000,000,000 SP -->
-		<magicLevel>1</magicLevel>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>1000000000</sp>
@@ -528,7 +531,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17277" toLevel="1" name="Chrono Maracas Appearance Stone: Dualsword">
+	<skill id="17277" toLevel="1" name="Chrono Maracas Appearance Stone: Dual Sword">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -564,7 +567,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17286" toLevel="1" name="Chrono Maracas Appearance Stone: Dualsword (15-day)">
+	<skill id="17286" toLevel="1" name="Chrono Maracas Appearance Stone: Dual Sword (15-day)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -580,20 +583,20 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17290" toLevel="1" name="Player Commendation - Art of Seduction">
-		<!-- Receives the following effects for 30 minutes: increased Maximum HP/MP/CP by 30%, Attack by 10%, M. Atk. by 20%, and P. Def./M. Def. by 30%. -->
+	<skill id="17290" toLevel="1" name="PA - Art of Seduction">
+		<!-- Receives the following effects for 30 minutes: increased Maximum HP/ MP/ CP by 30%, Attack by 10%, M. Atk. by 20%, and P. Defense/ M. Defense by 30%. -->
 		<icon>BranchSys2.icon.br_rosalia_rose_blue_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -615,48 +618,52 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17291" toLevel="1" name="Player Commendation - Prevailing Sonata">
-		<!-- For 60 min., Atk. Spd. +10%, Casting Spd. +20%, Max HP +20%, MP Recovery Bonus +10%. M. Skill MP Consumption - 5%. Decreased chance of cancellation while casting. -->
+	<skill id="17291" toLevel="1" name="PA - Prevailing Sonata">
+		<!-- For 1 hour, Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. PA exclusive. -->
 		<icon>icon.skill11529</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
-			<effect name="DispelByCategory">
+			<effect name="MaxHp">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
 				<rate>100</rate>
 			</effect>
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>15</amount>
+			<effect name="PhysicalAttack">
+				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalAttackSpeed">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -665,105 +672,41 @@
 				<mode>PER</mode>
 			</effect>
 			<effect name="ReduceCancel">
-				<amount>-40</amount>
+				<amount>-53</amount>
 				<mode>DIFF</mode>
-			</effect>
-			<effect name="MaxHp">
-				<amount>30</amount>
-				<mode>PER</mode>
 			</effect>
 			<effect name="MagicMpCost">
 				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
-		</effects>
-	</skill>
-	<skill id="17292" toLevel="1" name="Player Commendation - Daring Sonata">
-		<!-- For 60 min., P. Atk. +5%, M. Atk. +10%, Atk. Spd./ Casting Spd. +5%. P. Def. - 4%, M. Def. - 4%, P. Evasion - 4. Has a chance of applying 5% Vampiric Rage effect, and reflect 10% of received damage to enemy. -->
-		<icon>icon.skill11530</icon>
-		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>696</effectPoint>
-		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
-		<abnormalLevel>5</abnormalLevel>
-		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
-		<effects>
-			<effect name="DispelByCategory">
-				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
-				<rate>100</rate>
-			</effect>
-			<effect name="BlockAbnormalSlot">
-				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
-			</effect>
 			<effect name="VampiricAttack">
 				<amount>9</amount>
 				<chance>30</chance>
 			</effect>
-			<effect name="PAtk">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>16</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>-4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DamageShield">
-				<amount>10</amount>
-			</effect>
 		</effects>
 	</skill>
-	<skill id="17293" toLevel="1" name="Player Commendation - Refreshing Sonata">
-		<!-- For 60 min., HP Recovery Bonus +10%, P. Accuracy +2, P. Evasion +2, Speed +10. Skill MP Consumption - 10%, Skill Cooldown - 5%. -->
-		<icon>icon.skill11532</icon>
+	<skill id="17292" toLevel="1" name="PA - Daring Sonata">
+		<!-- For 1 hour, increases Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. PA exclusive. -->
+		<icon>icon.skill11530</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>696</effectPoint>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>ENCHANTER_MOD</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>696</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
-			<effect name="DispelByCategory">
+			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
 				<rate>100</rate>
 			</effect>
@@ -774,27 +717,21 @@
 				<amount>20</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>3</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="Accuracy">
-				<amount>4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
-			<effect name="MagicMpCost">
-				<amount>-20</amount>
+			<effect name="PhysicalAttackSpeed">
+				<amount>25</amount>
 				<mode>PER</mode>
-				<magicType>0</magicType>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageShield">
+				<amount>10</amount>
 			</effect>
 			<effect name="Reuse">
 				<amount>-10</amount>
@@ -805,27 +742,87 @@
 				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17294" toLevel="1" name="Player Commendation - Knight's Harmony">
-		<!-- For 60 min., P. Atk. +12%, P. Critical Damage +35%, P. Critical Rate +100%, P. Def. +45%, Shield Defense Rate +30%, Shield Defense +50%. -->
-		<icon>icon.skill11523</icon>
+	<skill id="17293" toLevel="1" name="PA - Refreshing Sonata">
+		<!-- For 1 hour, HP Recovery Bonus +75%, MP Recovery Bonus +50%, P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. PA exclusive. -->
+		<icon>icon.skill11532</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>SYNERGY_IS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>696</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
+		<effects>
+			<effect name="DispelBySlotProbability">
+				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
+				<rate>100</rate>
+			</effect>
+			<effect name="BlockAbnormalSlot">
+				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
+			</effect>
+			<effect name="PhysicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="HpRegen">
+				<amount>75</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MpRegen">
+				<amount>50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>0</magicType>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="17294" toLevel="1" name="PA - Knight's Harmony">
+		<!-- For 1 hour, P. Def +45%, M. Def +15%, P. Critical Rate/ M. Critical Rate +100%, P. Critical Damage +35%, Shield Defense Rate +30%, and Shield Def. +50%. PA exclusive. -->
+		<icon>icon.skill11523</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>5</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelByCategory">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -856,24 +853,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17295" toLevel="1" name="Player Commendation - Warrior's Harmony">
-		<!-- For 60 min., P. Atk. +35%, P. Critical Damage +35%, P. Critical Rate +100%, Atk. Spd. +8%, M. Atk. +16%, Casting Spd. +8%, Speed +8. -->
+	<skill id="17295" toLevel="1" name="PA - Warrior's Harmony">
+		<!-- For 1 hour, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. PA exclusive. -->
 		<icon>icon.skill11524</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelByCategory">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -882,11 +879,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -912,24 +909,24 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17296" toLevel="1" name="Player Commendation - Wizard's Harmony">
-		<!-- For 60 min., M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +8%, P. Atk. +8%, Atk. Spd. +8%, Speed +8, M. Def. +14%, MP Recovery Bonus +20%, M. Skill MP Consumption - 15%, P. Skill MP Consumption - 5%, Skill Cooldown -20%. -->
+	<skill id="17296" toLevel="1" name="PA - Wizard's Harmony">
+		<!-- For 1 hour, M. Atk. +40%, M. Critical Rate +100%, Casting Spd. +15%, Skill Cooldown -20%, and Skill MP Consumption -15%. PA exclusive. -->
 		<icon>icon.skill11525</icon>
 		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<effectPoint>687</effectPoint>
-		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<isMagic>22</isMagic>
-		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
+		<abnormalType>BUFF_SPECIAL_CLASS</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelByCategory">
 				<dispel>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</dispel>
@@ -938,7 +935,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>MULTI_BUFF;DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;INSTINCT;BERSERKER;PA_PD_UP;IMPROVE_SHIELD_RATE_DEFENCE_UP;SHIELD_PROB_UP;SHIELD_DEFENCE_UP;CANCEL_PROB_DOWN;MA_UP_SPECIAL</slot>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -991,26 +988,31 @@
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
+			<effect name="Reuse">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="17297" toLevel="1" name="Emperor's Cookie: Prevailing Sonata">
-		<!-- For 1 hr., Atk. Spd. +15%, Casting Spd. +30%, Max HP +30%, MP Recovery Bonus +20%. M. Skill MP Consumption +10%. Decreased chance of cancellation while casting. Cooldown is 1hr. Effect remains after death. -->
+		<!-- For 1 hour, Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to add 8% Vampiric Rage effect. Cooldown is 1hr. Effect remains after death. -->
 		<icon>icon.etc_bm_sonata_cookie</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>687</effectPoint>
 		<affectRange>1000</affectRange>
-		<isMagic>22</isMagic>
-		<magicLevel>85</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
-		<itemConsumeId>37944</itemConsumeId> <!-- Emperor's Cookie -->
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>687</effectPoint>
+		<isMagic>22</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>37944</itemConsumeId> <!-- Emperor's Cookie -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>15</amount>
@@ -1037,59 +1039,10 @@
 				<amount>-40</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="DispelByCategory">
-				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
-				<rate>100</rate>
-			</effect>
-			<effect name="BlockAbnormalSlot">
-				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
-			</effect>
-		</effects>
-	</skill>
-	<skill id="17298" toLevel="1" name="Emperor's Cookie: Daring Sonata">
-		<!-- For 1 hr., P. Atk. +8%, M. Atk. +16%, Atk. Spd. and Casting Spd. +8%. P. Def. - 3%, M. Def. - 11%, P. Evasion - 4. Has a chance of applying 8% Vampiric Rage effect and reflect 10% of received damage to enemy. Cooldown is 1hr. Effect remains after death. -->
-		<icon>icon.etc_bm_sonata_cookie</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>3600</abnormalTime>
-		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>696</effectPoint>
-		<affectRange>1000</affectRange>
-		<isMagic>22</isMagic>
-		<magicLevel>85</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
-		<stayAfterDeath>true</stayAfterDeath>
-		<effects>
-			<effect name="PhysicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>-11</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>-4</amount>
-				<mode>DIFF</mode>
-			</effect>
 			<effect name="VampiricAttack">
 				<amount>9</amount>
 				<chance>30</chance>
 			</effect>
-			<effect name="DamageShield">
-				<amount>10</amount>
-			</effect>
 			<effect name="DispelByCategory">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
 				<rate>100</rate>
@@ -1099,21 +1052,82 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="17299" toLevel="1" name="Emperor's Cookie: Refreshing Sonata">
-		<!-- For 1 hr., HP Recovery Bonus +20%, P. Accuracy +4, P. Evasion +3, Speed +20. Skill MP Consumption - 20%, Skill Cooldown - 10%. Cooldown is 1hr. Effect remains after death. -->
+	<skill id="17298" toLevel="1" name="Daring Sonata - Emperor's Cookie">
+		<!-- For 1 hour, Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. Cooldown is 1hr. Effect remains after death. -->
 		<icon>icon.etc_bm_sonata_cookie</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3600</abnormalTime>
+		<abnormalType>ENCHANTER_MOD</abnormalType>
+		<affectRange>1000</affectRange>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>696</effectPoint>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<stayAfterDeath>true</stayAfterDeath>
+		<effects>
+			<effect name="DispelBySlotProbability">
+				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
+				<rate>100</rate>
+			</effect>
+			<effect name="BlockAbnormalSlot">
+				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
+			</effect>
+			<effect name="Speed">
+				<amount>20</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageShield">
+				<amount>10</amount>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>0</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="17299" toLevel="1" name="Refreshing Sonata - Emperor's Cookie">
+		<!-- For 1 hour, HP Recovery Bonus +75%, MP Recovery Bonus +50%, P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. Cooldown is 1hr. Effect remains after death. -->
+		<icon>icon.etc_bm_sonata_cookie</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>SYNERGY_IS</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>696</effectPoint>
 		<affectRange>1000</affectRange>
-		<isMagic>22</isMagic>
-		<magicLevel>85</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>696</effectPoint>
+		<isMagic>22</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="HpRegen">
@@ -1151,6 +1165,11 @@
 				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
+			</effect>
+			<effect name="Reuse">
+				<amount>-10</amount>
+				<mode>PER</mode>
+				<magicType>22</magicType>
 			</effect>
 			<effect name="DispelByCategory">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>

@@ -1,12 +1,13 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="25500" level="44" type="Monster" name="Alligator of Istary" title="Raid Fighter">
-		<race>BEAST</race>
+		<!-- Confirmed CT2.5 -->
+		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="41" dex="30" wit="20" con="43" men="10">
-			<vitals hp="6064" hpRegen="35.16" mp="584" mpRegen="9" />
-			<attack physical="258.908" magical="29.731" random="30" critical="4" accuracy="20" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="693.8" magical="253.82" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="6064" hpRegen="41.3470424277186" mp="584" mpRegen="2.1" />
+			<attack physical="624.124257296051" magical="130.530898435504" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="260.15328" magical="253.82" evasion="-18" />
 			<speed>
 				<walk ground="70" />
 				<run ground="190" />
@@ -35,7 +36,6 @@
 		</collision>
 	</npc>
 	<npc id="25501" level="30" type="RaidBoss" name="Grave Robber Leader Akata" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25502" count="3" respawnTime="360" weightPoint="1" />
@@ -49,9 +49,9 @@
 		<equipment rhand="8528" /> <!-- Monster Only (Doom Hammer) -->
 		<acquire exp="2417862" sp="580" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="35435" hpRegen="54.2850964385025" mp="329" mpRegen="1.5" />
-			<attack physical="222.437554766423" magical="28.8595106837795" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="355.39281" magical="173.38" evasion="-18" />
+			<vitals hp="35435.111297774" hpRegen="54.2850964385025" mp="329.170829170829" mpRegen="1.5" />
+			<attack physical="307.271635030347" magical="23.2649915900169" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="355.46218487395" magical="173.775804027905" evasion="-18" />
 			<speed>
 				<walk ground="36" />
 				<run ground="190" />
@@ -61,19 +61,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="4722" level="3" /> <!-- BOSS Strike -->
-			<skill id="5025" level="1" /> <!-- Raid Boss - Level 30 -->
+			<skill id="4722" level="3" /> <!-- Power Strike -->
+			<skill id="5025" level="1" /> <!-- Raid Boss (Lv. 30) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -84,11 +77,24 @@
 				<item id="395" min="1" max="1" chance="3.853" /> <!-- Manticore Skin Shirt -->
 				<item id="417" min="1" max="1" chance="1.871" /> <!-- Manticore Skin Gaiters -->
 				<item id="224" min="1" max="1" chance="1.279" /> <!-- Maingauche -->
-				<item id="4554" min="1" max="1" chance="13.41" /> <!-- Greater STR Dye <STR + 1 DEX - 1> -->
-				<item id="4555" min="1" max="1" chance="12.9" /> <!-- Greater CON Dye <Con + 1 Str - 1> -->
-				<item id="4553" min="1" max="1" chance="12.58" /> <!-- Greater STR Dye <STR + 1 CON - 1> -->
+				<item id="4554" min="1" max="1" chance="13.41" /> <!-- Greater STR Dye <STR +1 DEX -1> -->
+				<item id="4555" min="1" max="1" chance="12.9" /> <!-- Greater CON Dye <Con +1 Str -1> -->
+				<item id="4553" min="1" max="1" chance="12.58" /> <!-- Greater STR Dye <STR +1 CON -1> -->
 				<item id="6575" min="1" max="1" chance="0.75" /> <!-- Blessed Scroll: Enchant Weapon (D-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="49.17" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="11" />
@@ -103,7 +109,7 @@
 		<race>UNDEAD</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="8527" /> <!-- Monster Only (Reinforced Bow) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="3798" hpRegen="21.714038575401" mp="329" mpRegen="1.5" />
 			<attack physical="222.437554766423" magical="28.8595106837795" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="177.696405" magical="173.38" evasion="-18" />
@@ -140,7 +146,7 @@
 		<race>HUMANOID</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="8529" /> <!-- Monster Only (Knife) -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2834" hpRegen="21.714038575401" mp="329" mpRegen="1.5" />
 			<attack physical="222.437554766423" magical="28.8595106837795" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="177.696405" magical="173.38" evasion="-18" />
@@ -172,7 +178,6 @@
 		</collision>
 	</npc>
 	<npc id="25504" level="39" type="RaidBoss" name="Nellis' Vengeful Spirit" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25505" count="3" respawnTime="360" weightPoint="1" />
@@ -185,9 +190,9 @@
 		<equipment rhand="8532" /> <!-- Monster Only (Spinebone Sword) -->
 		<acquire exp="5476117" sp="1314" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="57335" hpRegen="81.0293683271628" mp="463" mpRegen="1.8" />
-			<attack physical="439.938707656487" magical="69.1975609087206" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="457.40256" magical="223.14" evasion="-18" />
+			<vitals hp="57335.1532969341" hpRegen="81.0293683271628" mp="463.036963036963" mpRegen="1.8" />
+			<attack physical="607.282251437962" magical="54.7990646521506" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="457.8125" magical="223.214285714286" evasion="-18" />
 			<speed>
 				<walk ground="50" />
 				<run ground="190" />
@@ -197,21 +202,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4197" level="3" /> <!-- Hold -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4278" level="1" /> <!-- Dark Attack -->
+			<skill id="4333" level="3" /> <!-- Dark Attack Resistance -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="4278" level="1" /> <!-- Dark Attack -->
-			<skill id="4333" level="3" /> <!-- Dark Attack Resistance -->
-			<skill id="5026" level="1" /> <!-- Raid Boss - Level 39 -->
+			<skill id="5026" level="1" /> <!-- Raid Boss (Lv. 39) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -233,7 +231,20 @@
 				<item id="952" min="1" max="3" chance="39.26" /> <!-- Scroll: Enchant Armor (C-grade) -->
 				<item id="951" min="1" max="1" chance="10.48" /> <!-- Scroll: Enchant Weapon (C-grade) -->
 				<item id="6573" min="1" max="1" chance="0.3" /> <!-- Blessed Scroll: Enchant Weapon (C-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="50.92" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="10" />
@@ -247,7 +258,7 @@
 		</parameters>
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8668" hpRegen="30.8726873073006" mp="447" mpRegen="1.8" />
 			<attack physical="818.216874587137" magical="258.363037300478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="222.664305" magical="217.24" evasion="-18" />
@@ -282,7 +293,6 @@
 		</collision>
 	</npc>
 	<npc id="25506" level="37" type="RaidBoss" name="Rayito the Looter" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25507" count="1" respawnTime="360" weightPoint="1" />
@@ -296,9 +306,9 @@
 		<equipment rhand="67" lhand="633" /> <!-- Orcish Sword / Zubei's Shield -->
 		<acquire exp="5476117" sp="1314" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="51211" hpRegen="29.4232868171158" mp="432" mpRegen="1.8" />
-			<attack physical="380.124427536806" magical="60.2732663328511" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="433.43274" magical="211.44" evasion="-18" />
+			<vitals hp="51211.2557748845" hpRegen="29.4232868171158" mp="432.067932067932" mpRegen="1.8" />
+			<attack physical="524.644259237521" magical="47.850785477153" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="434.126984126984" magical="211.693068835926" evasion="-18" />
 			<speed>
 				<walk ground="50" />
 				<run ground="190" />
@@ -308,19 +318,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4197" level="3" /> <!-- Hold -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5027" level="1" /> <!-- Raid Boss - Level 37 -->
+			<skill id="5027" level="1" /> <!-- Raid Boss (Lv. 37) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -331,7 +334,20 @@
 				<item id="397" min="1" max="1" chance="3.61" /> <!-- Reinforced Mithril Shirt -->
 				<item id="2387" min="1" max="1" chance="1.753" /> <!-- Reinforced Mithril Gaiters -->
 				<item id="6574" min="1" max="1" chance="9.087" /> <!-- Blessed Scroll: Enchant Armor (C-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="50.17" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -346,7 +362,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="123" lhand="19" /> <!-- Saber / Small Shield -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7749" hpRegen="28.0640450927111" mp="417" mpRegen="1.8" />
 			<attack physical="705.82254740059" magical="224.63891832048" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="210.85917" magical="205.74" evasion="-18" />
@@ -387,7 +403,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="66" lhand="102" /> <!-- Gladius / Round Shield -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5191" hpRegen="28.0640450927111" mp="417" mpRegen="1.8" />
 			<attack physical="470.536601224603" magical="99.8351512745791" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="210.85917" magical="205.74" evasion="-18" />
@@ -421,7 +437,6 @@
 		</collision>
 	</npc>
 	<npc id="25509" level="82" type="Monster" name="Dark Shaman Varangka" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25511" count="4" respawnTime="360" weightPoint="1" />
@@ -437,9 +452,9 @@
 		<equipment rhand="316" /> <!-- Sage's Blood -->
 		<acquire exp="213500" sp="51" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="116158" hpRegen="150.408484299175" mp="832" mpRegen="2.4" />
-			<attack physical="1093.15424907494" magical="322.489091733196" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="642.54978" magical="313.46" evasion="-18" />
+			<vitals hp="179716.672081653" hpRegen="150.408484299175" mp="1287.50494788231" mpRegen="2.4" />
+			<attack physical="2333.99591359103" magical="386.469161029919" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="994.764815306936" magical="485.456610888447" evasion="-18" />
 			<speed>
 				<walk ground="50" />
 				<run ground="190" />
@@ -449,21 +464,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4182" level="5" /> <!-- Poison -->
 			<skill id="4186" level="5" /> <!-- Hold -->
-			<skill id="4195" level="5" /> <!-- BOSS Twister -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4195" level="5" /> <!-- Twister -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5028" level="1" /> <!-- Raid Boss - Level 53 -->
+			<skill id="5028" level="1" /> <!-- Raid Boss (Lv. 53) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -478,6 +486,16 @@
 				<item id="9550" min="1" max="1" chance="0.75" /> <!-- Dark Stone -->
 				<item id="9551" min="1" max="1" chance="0.75" /> <!-- Holy Stone -->
 				<item id="45929" min="1" max="3" chance="0.75" /> <!-- Spirit Stone -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 	</npc>
@@ -489,7 +507,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="74" /> <!-- Katana -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="17850" hpRegen="145.221991187936" mp="804" mpRegen="2.4" />
 			<attack physical="1032.30240396227" magical="293.0909536533" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="628.50318" magical="306.6" evasion="-18" />
@@ -526,7 +544,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="179" /> <!-- Mace of Prayer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8925" hpRegen="145.221991187936" mp="804" mpRegen="2.4" />
 			<attack physical="1032.30240396227" magical="293.0909536533" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="628.50318" magical="306.6" evasion="-18" />
@@ -557,8 +575,7 @@
 			<height normal="18.8" />
 		</collision>
 	</npc>
-	<npc id="25512" level="52" type="GrandBoss" name="Gigantic Chaos Golem" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
+	<npc id="25512" level="52" type="RaidBoss" name="Gigantic Chaos Golem" title="Raid Boss">
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm03_A" />
 			<skill name="SelfRangeCancel_a" id="4177" level="5" />
@@ -570,9 +587,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1156668" sp="277" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="223134" hpRegen="145.221991187936" mp="804" mpRegen="2.4" />
-			<attack physical="1032.30240396227" magical="293.0909536533" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="628.50318" magical="306.6" evasion="-18" />
+			<vitals hp="223134.397312054" hpRegen="145.221991187936" mp="804.195804195804" mpRegen="2.4" />
+			<attack physical="748.087467830972" magical="227.319590431056" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="629.078014184397" magical="306.785413168392" evasion="-18" />
 			<speed>
 				<walk ground="18" />
 				<run ground="190" />
@@ -582,24 +599,17 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4171" level="5" /> <!-- BOSS Spinning Slash -->
-			<skill id="4173" level="5" /> <!-- BOSS Might -->
-			<skill id="4177" level="5" /> <!-- BOSS Cancel Magic -->
-			<skill id="4273" level="5" /> <!-- Resist Daggers/Rapier Weapon -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4171" level="5" /> <!-- Spinning Slasher -->
+			<skill id="4173" level="5" /> <!-- Might -->
+			<skill id="4177" level="5" /> <!-- Cancellation -->
+			<skill id="4273" level="5" /> <!-- Dagger/Rapier Resistance -->
 			<skill id="4415" level="4" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4437" level="5" /> <!-- Greater Resist Bleeding -->
+			<skill id="4437" level="5" /> <!-- Greater Bleed Resistance -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
 			<skill id="4726" level="5" /> <!-- Stun -->
-			<skill id="5029" level="1" /> <!-- Raid Boss - Level 52 -->
+			<skill id="5029" level="1" /> <!-- Raid Boss (Lv. 52) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<corpseTime>8</corpseTime>
@@ -615,7 +625,6 @@
 		</collision>
 	</npc>
 	<npc id="25514" level="84" type="RaidBoss" name="Queen Shyeed" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25516" count="1" respawnTime="360" weightPoint="1" />
@@ -628,9 +637,9 @@
 		<sex>MALE</sex>
 		<acquire exp="4292368" sp="1030" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="300327" hpRegen="230.846907827579" mp="1674" mpRegen="3" />
-			<attack physical="2890.66549373349" magical="1122.08855778928" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="1024.125" magical="499.6" evasion="-18" />
+			<vitals hp="315343.532129357" hpRegen="230.846907827579" mp="1758.04195804196" mpRegen="3" />
+			<attack physical="4188.80942077959" magical="880.097095371039" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="1075.47337278107" magical="524.785865022552" evasion="-18" />
 			<speed>
 				<walk ground="45" />
 				<run ground="190" />
@@ -640,19 +649,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4197" level="8" /> <!-- Hold -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5031" level="1" /> <!-- Raid Boss - Level 80 -->
+			<skill id="5031" level="1" /> <!-- Raid Boss (Lv. 80) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -663,10 +665,46 @@
 		</collision>
 		<dropLists>
 			<drop>
+				<item id="9525" min="1" max="1" chance="1.223" /> <!-- Sealed Dynasty Stockings -->
+				<item id="9514" min="1" max="1" chance="0.75" /> <!-- Sealed Dynasty Breastplate -->
+				<item id="9515" min="1" max="1" chance="0.75" /> <!-- Sealed Dynasty Gaiters -->
+				<item id="9524" min="1" max="1" chance="0.75" /> <!-- Sealed Dynasty Tunic -->
+				<item id="9531" min="6" max="18" chance="11.77" /> <!-- Sealed Dynasty Gaiters Piece -->
 				<item id="960" min="1" max="1" chance="9.963" /> <!-- Scroll: Enchant Armor (S-grade) -->
+				<item id="9530" min="10" max="30" chance="6.953" /> <!-- Sealed Dynasty Breastplate Piece -->
+				<item id="9541" min="16" max="48" chance="4.088" /> <!-- Sealed Dynasty Stockings Piece -->
+				<item id="9540" min="22" max="66" chance="1.931" /> <!-- Sealed Dynasty Tunic Piece -->
 				<item id="959" min="1" max="1" chance="0.75" /> <!-- Scroll: Enchant Weapon (S-grade) -->
+				<item id="46505" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46504" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 1 -->
+				<item id="46491" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46490" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46489" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 1 -->
+				<item id="46476" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46475" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 2 -->
+				<item id="46474" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 1 -->
+				<item id="46461" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46460" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46459" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 1 -->
+				<item id="46446" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46445" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46444" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 1 -->
 				<item id="6577" min="1" max="1" chance="0.3" /> <!-- Blessed Scroll: Enchant Weapon (S-grade) -->
+				<item id="46506" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="90.64" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="25515" level="82" type="Monster" name="Spiked Stakato" title="Raid Fighter">
@@ -678,7 +716,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="123" /> <!-- Saber -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="31866" hpRegen="228.732715753589" mp="1641" mpRegen="3" />
 			<attack physical="2848.82203115447" magical="1105.91356508692" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="1011.21024" magical="493.3" evasion="-18" />
@@ -721,6 +759,9 @@
 				<item id="36882" min="1" max="1" chance="0.03" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="25516" level="82" type="Monster" name="Spiked Stakato" title="Raid Fighter">
@@ -730,7 +771,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="47562" hpRegen="228.732715753589" mp="1641" mpRegen="3" />
 			<attack physical="2848.82203115447" magical="1105.91356508692" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="1011.21024" magical="493.3" evasion="-18" />
@@ -772,10 +813,12 @@
 				<item id="36882" min="1" max="1" chance="0.03" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="25523" level="73" type="RaidBoss" name="Plague Golem" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm01_A" />
 			<skill name="SelfRangeCancel_a" id="4177" level="7" />
@@ -787,9 +830,9 @@
 		<sex>MALE</sex>
 		<acquire exp="252824108" sp="60677" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="776489" hpRegen="216.975797589338" mp="1442" mpRegen="3" />
-			<attack physical="2524.09043696216" magical="971.194375946055" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="930.08877" magical="453.74" evasion="-18" />
+			<vitals hp="776489.290214196" hpRegen="216.975797589338" mp="1442.05794205794" mpRegen="3" />
+			<attack physical="3483.31760958439" magical="731.847559546183" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="930.246913580247" magical="453.867120533787" evasion="-18" />
 			<speed>
 				<walk ground="60" />
 				<run ground="160" />
@@ -798,22 +841,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4172" level="7" /> <!-- Stun -->
-			<skill id="4173" level="7" /> <!-- BOSS Might -->
-			<skill id="4177" level="7" /> <!-- BOSS Cancel Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4173" level="7" /> <!-- Might -->
+			<skill id="4177" level="7" /> <!-- Cancellation -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="4730" level="7" /> <!-- BOSS Mortal Blow -->
-			<skill id="5034" level="1" /> <!-- Raid Boss - Level 73 -->
+			<skill id="4730" level="7" /> <!-- Mortal Blow -->
+			<skill id="5034" level="1" /> <!-- Raid Boss (Lv. 73) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -826,7 +862,35 @@
 				<item id="6367" min="1" max="1" chance="0.75" /> <!-- Angel Slayer -->
 				<item id="6570" min="1" max="1" chance="3.24" /> <!-- Blessed Scroll: Enchant Armor (A-grade) -->
 				<item id="6578" min="1" max="1" chance="1.326" /> <!-- Blessed Scroll: Enchant Armor (S-grade) -->
+				<item id="46505" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46504" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 1 -->
+				<item id="46491" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46490" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46489" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 1 -->
+				<item id="46476" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46475" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 2 -->
+				<item id="46474" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 1 -->
+				<item id="46461" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46460" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46459" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 1 -->
+				<item id="46446" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46445" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46444" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 1 -->
+				<item id="46506" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="78.84" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="35" />
@@ -834,7 +898,6 @@
 		</collision>
 	</npc>
 	<npc id="25524" level="76" type="RaidBoss" name="Flamestone Giant" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25525" count="2" respawnTime="360" weightPoint="1" />
@@ -847,9 +910,9 @@
 		<sex>MALE</sex>
 		<acquire exp="739701575" sp="177528" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="401886" hpRegen="222.70350121227" mp="1540" mpRegen="3" />
-			<attack physical="2703.31385930584" magical="1035.27982116902" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="971.35365" magical="473.86" evasion="-18" />
+			<vitals hp="401886.182276355" hpRegen="222.70350121227" mp="1540.45954045954" mpRegen="3" />
+			<attack physical="3730.73379646921" magical="777.155649893048" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="971.515151515152" magical="474.071383162292" evasion="-18" />
 			<speed>
 				<walk ground="13" />
 				<run ground="190" />
@@ -859,19 +922,12 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4178" level="8" /> <!-- BOSS Flamestrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4178" level="8" /> <!-- Flame Strike -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5035" level="1" /> <!-- Raid Boss - Level 76 -->
+			<skill id="5035" level="1" /> <!-- Raid Boss (Lv. 76) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -890,8 +946,36 @@
 				<item id="960" min="1" max="1" chance="9.88" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="5522" min="36" max="108" chance="5.519" /> <!-- Sealed Armor of Nightmare Pattern -->
 				<item id="959" min="1" max="1" chance="1.076" /> <!-- Scroll: Enchant Weapon (S-grade) -->
+				<item id="46476" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46489" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 1 -->
+				<item id="46490" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46491" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46504" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 1 -->
+				<item id="46505" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46475" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 2 -->
+				<item id="46474" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 1 -->
+				<item id="46461" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46460" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46459" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 1 -->
+				<item id="46446" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46445" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46444" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 1 -->
 				<item id="6577" min="1" max="1" chance="0.3" /> <!-- Blessed Scroll: Enchant Weapon (S-grade) -->
+				<item id="46506" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="78.43" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="38" />
@@ -906,7 +990,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="63589" hpRegen="88.3113176092813" mp="1507" mpRegen="3" />
 			<attack physical="2647.29992219037" magical="1012.41180703477" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="478.869345" magical="467.22" evasion="-18" />
@@ -943,7 +1027,7 @@
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="31794" hpRegen="88.3113176092813" mp="1507" mpRegen="3" />
 			<attack physical="2647.29992219037" magical="1012.41180703477" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="478.869345" magical="467.22" evasion="-18" />
@@ -975,7 +1059,6 @@
 		</collision>
 	</npc>
 	<npc id="25527" level="80" type="RaidBoss" name="Uruka" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm03_A" />
 			<skill name="SelfRangeCancel_a" id="4177" level="10" />
@@ -987,9 +1070,9 @@
 		<sex>MALE</sex>
 		<acquire exp="1670060147" sp="400814" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="675862" hpRegen="230.846907827579" mp="203" mpRegen="3" />
-			<attack physical="2890.66549373349" magical="1122.08855778928" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="1024.125" magical="499.6" evasion="-12" />
+			<vitals hp="675862.242755145" hpRegen="230.846907827579" mp="203.296703296703" mpRegen="3" />
+			<attack physical="3989.34230550437" magical="838.187709877181" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="1024.26035502959" magical="499.79606192624" evasion="-12" />
 			<speed>
 				<walk ground="60" />
 				<run ground="190" />
@@ -998,22 +1081,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4172" level="10" /> <!-- Stun -->
-			<skill id="4173" level="10" /> <!-- BOSS Might -->
-			<skill id="4177" level="10" /> <!-- BOSS Cancel Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4173" level="10" /> <!-- Might -->
+			<skill id="4177" level="10" /> <!-- Cancellation -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="4721" level="10" /> <!-- BOSS Strike -->
-			<skill id="5179" level="1" /> <!-- Raid Boss - Level 80 -->
+			<skill id="4721" level="10" /> <!-- Power Strike -->
+			<skill id="5179" level="1" /> <!-- Raid Boss (Lv. 80) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -1027,7 +1103,35 @@
 				<item id="6366" min="1" max="1" chance="0.3" /> <!-- Imperial Staff -->
 				<item id="6369" min="1" max="1" chance="0.3" /> <!-- Dragon Hunter Axe -->
 				<item id="6579" min="1" max="1" chance="0.3" /> <!-- Arcana Mace -->
+				<item id="46444" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 1 -->
+				<item id="46505" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46504" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 1 -->
+				<item id="46491" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46490" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46489" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 1 -->
+				<item id="46476" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46475" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 2 -->
+				<item id="46474" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 1 -->
+				<item id="46461" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46460" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46459" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 1 -->
+				<item id="46446" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46445" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46506" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="88.33" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="30" />
@@ -1035,7 +1139,6 @@
 		</collision>
 	</npc>
 	<npc id="25528" level="22" type="RaidBoss" name="Tiberias" title="Prime Inspector">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveArounding" value="0" />
 			<param name="Party_Type" value="2" />
@@ -1057,10 +1160,10 @@
 		<race>KAMAEL</race>
 		<sex>MALE</sex>
 		<acquire exp="45112" sp="10" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="20530" hpRegen="16.3719942568938" mp="218" mpRegen="1.5" />
-			<attack physical="87.8963925138357" magical="38.964731121782" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="185.31388" magical="135.60464" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="20530.5993690852" hpRegen="16.3719942568938" mp="218.305084745763" mpRegen="1.5" />
+			<attack physical="121.621621621622" magical="36.9742070241247" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="185.585585585586" magical="136.20400061078" />
 			<speed>
 				<walk ground="28" />
 				<run ground="150" />
@@ -1070,20 +1173,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4032" level="2" /> <!-- NPC Strike -->
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4032" level="2" /> <!-- Power Strike -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="25" /> <!-- Kamael -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5265" level="2" /> <!-- NPC - Soul Emission -->
-			<skill id="5469" level="1" /> <!-- Raid Boss - Level 22 -->
+			<skill id="5265" level="2" /> <!-- Soul Emission -->
+			<skill id="5469" level="1" /> <!-- Raid Boss (Lv. 22) -->
 			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
@@ -1109,6 +1205,9 @@
 				<item id="6576" min="1" max="1" chance="1.873994405389" /> <!-- Blessed Scroll: Enchant Armor (D-grade) -->
 				<item id="6575" min="1" max="1" chance="0.20028440385347" /> <!-- Blessed Scroll: Enchant Weapon (D-grade) -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="41.29" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="10" />
@@ -1133,7 +1232,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1642" hpRegen="3.5" mp="218" mpRegen="1.5" />
 			<attack physical="51.75278" magical="35.34044" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="92.65694" magical="67.80232" />
@@ -1179,7 +1278,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="821" hpRegen="3.5" mp="218" mpRegen="1.5" />
 			<attack physical="51.75278" magical="35.34044" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="92.65694" magical="67.80232" />
@@ -1215,8 +1314,10 @@
 		</collision>
 	</npc>
 	<npc id="25531" level="81" type="RaidBoss" name="Darnel" title="Torture Maiden">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
+			<minions name="Privates">
+				<npc id="22302" count="1" respawnTime="360" weightPoint="1" />
+			</minions>
 			<param name="InzoneRestriction" value="1" />
 			<skill name="SelfRangeDebuff_a" id="4182" level="9" />
 			<skill name="debuff" id="4189" level="9" />
@@ -1224,13 +1325,13 @@
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
 		<acquire exp="1713494" sp="411" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1354779" hpRegen="155.191510697296" mp="1708" mpRegen="3" />
-			<attack physical="5212.71190433689" magical="3559.60647456227" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="622.100286" magical="334.1053" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="1354779.17981073" hpRegen="155.191510697296" mp="1708.47457627119" mpRegen="3" />
+			<attack physical="7193.62745098039" magical="3069.21426611738" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="622.352941176471" magical="334.19740777667" />
 			<attribute>
 				<attack type="DARK" value="200" />
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" default="65" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1241,21 +1342,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4182" level="9" /> <!-- Poison -->
 			<skill id="4189" level="9" /> <!-- Paralysis -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
-			<skill id="5470" level="1" /> <!-- Raid Boss - Level 81 -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="5470" level="1" /> <!-- Raid Boss (Lv. 81) -->
 			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
@@ -1267,7 +1361,6 @@
 		</collision>
 	</npc>
 	<npc id="25532" level="99" type="RaidBoss" name="Kechi" title="Flaming">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="InzoneRestriction" value="1" />
 			<skill name="selfbuff1" id="5418" level="1" />
@@ -1275,13 +1368,13 @@
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<acquire exp="10340290224" sp="20680600" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="338150" hpRegen="192.545054202338" mp="1743" mpRegen="3" />
-			<attack physical="4522.43391272135" magical="3088.23609129627" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="629.594586" magical="338.13" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="408254.458721243" hpRegen="192.545054202338" mp="2104.41504754031" mpRegen="3" />
+			<attack physical="7535.14120667522" magical="3210.94149562544" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="760.397946084724" magical="408.302691412284" />
 			<attribute>
 				<attack type="FIRE" value="200" />
-				<defence fire="200" water="150" wind="200" earth="200" holy="200" dark="200" default="65" />
+				<defence fire="200" water="150" wind="200" earth="200" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="26" />
@@ -1292,20 +1385,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5418" level="1" /> <!-- Invincible -->
-			<skill id="5462" level="1" /> <!-- Fire Attacks -->
-			<skill id="5471" level="1" /> <!-- Raid Boss - Level 82 -->
+			<skill id="5418" level="1" /> <!-- Invincibility -->
+			<skill id="5462" level="1" /> <!-- Fire Attack -->
+			<skill id="5471" level="1" /> <!-- Raid Boss (Lv. 82) -->
 			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
@@ -1374,7 +1460,45 @@
 				<item id="35322" min="1" max="1" chance="0.3" /> <!-- Seraph Shoe Ingredient -->
 				<item id="35321" min="1" max="1" chance="0.3" /> <!-- Seraph Glove Ingredient -->
 				<item id="35320" min="1" max="1" chance="0.3" /> <!-- Seraph Stocking Ingredient -->
+				<item id="46491" min="1" max="1" chance="0.03" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46490" min="1" max="1" chance="0.03" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46478" min="1" max="1" chance="0.03" /> <!-- Leona's Soul Crystal - Stage 5 -->
+				<item id="46477" min="1" max="1" chance="0.03" /> <!-- Leona's Soul Crystal - Stage 4 -->
+				<item id="46492" min="1" max="1" chance="0.03" /> <!-- Pantheon's Soul Crystal - Stage 4 -->
+				<item id="46493" min="1" max="1" chance="0.03" /> <!-- Pantheon's Soul Crystal - Stage 5 -->
+				<item id="46505" min="1" max="1" chance="0.03" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46506" min="1" max="1" chance="0.03" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<item id="46507" min="1" max="1" chance="0.03" /> <!-- Lionel's Soul Crystal - Stage 4 -->
+				<item id="46508" min="1" max="1" chance="0.03" /> <!-- Lionel's Soul Crystal - Stage 5 -->
+				<item id="46476" min="1" max="1" chance="0.03" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46475" min="1" max="1" chance="0.03" /> <!-- Leona's Soul Crystal - Stage 2 -->
+				<item id="46445" min="1" max="1" chance="0.03" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46446" min="1" max="1" chance="0.03" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46461" min="1" max="1" chance="0.03" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46460" min="1" max="1" chance="0.03" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46463" min="1" max="1" chance="0.0075" /> <!-- Mermoden's Soul Crystal - Stage 5 -->
+				<item id="46462" min="1" max="1" chance="0.0075" /> <!-- Mermoden's Soul Crystal - Stage 4 -->
+				<item id="46447" min="1" max="1" chance="0.0075" /> <!-- Kain's Soul Crystal - Stage 4 -->
+				<item id="46448" min="1" max="1" chance="0.0075" /> <!-- Kain's Soul Crystal - Stage 5 -->
+				<item id="46494" min="1" max="1" chance="0.003" /> <!-- Pantheon's Soul Crystal - Stage 6 -->
+				<item id="46449" min="1" max="1" chance="0.003" /> <!-- Kain's Soul Crystal - Stage 6 -->
+				<item id="46479" min="1" max="1" chance="0.003" /> <!-- Leona's Soul Crystal - Stage 6 -->
+				<item id="46464" min="1" max="1" chance="0.003" /> <!-- Mermoden's Soul Crystal - Stage 6 -->
+				<item id="46509" min="1" max="1" chance="0.003" /> <!-- Lionel's Soul Crystal - Stage 6 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="2" max="2" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="25533" level="82" type="Monster" name="Kechi's Subordinate">
@@ -1388,7 +1512,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="18801" hpRegen="192.697893809876" mp="1743" mpRegen="3" />
 			<attack physical="2138.26232247285" magical="1460.15597007277" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="629.594586" magical="614.28" />
@@ -1431,7 +1555,6 @@
 		</collision>
 	</npc>
 	<npc id="25534" level="83" type="RaidBoss" name="Tears" title="Ice">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="InzoneRestriction" value="1" />
 			<skill name="W_LongRangeDDMagic" id="5238" level="1" />
@@ -1442,13 +1565,13 @@
 		<sex>FEMALE</sex>
 		<equipment rhand="9638" lhand="9638" /> <!-- Tears r1 / Tears r1 -->
 		<acquire exp="2010424" sp="482" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1347510" hpRegen="152.563941686569" mp="1777" mpRegen="3" />
-			<attack physical="5327.46513200835" magical="3637.96805289089" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="636.950592" magical="342.081" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="1347510.41009464" hpRegen="152.563941686569" mp="1777.62711864407" mpRegen="3" />
+			<attack physical="7352.22868217054" magical="3129.21395126087" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="637.209302325581" magical="342.136381553015" />
 			<attribute>
 				<attack type="WATER" value="200" />
-				<defence fire="150" water="200" wind="200" earth="200" holy="200" dark="200" default="65" />
+				<defence fire="150" water="200" wind="200" earth="200" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1460,21 +1583,14 @@
 		<status undying="false" />
 		<skillList>
 			<skill id="2369" level="1" /> <!-- Water Dragon Scale -->
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
 			<skill id="5238" level="1" /> <!-- Freezing -->
-			<skill id="5420" level="1" /> <!-- Invincible -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
-			<skill id="5472" level="1" /> <!-- Raid Boss - Level 83 -->
+			<skill id="5420" level="1" /> <!-- Invincibility -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
+			<skill id="5472" level="1" /> <!-- Raid Boss (Lv. 83) -->
 			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
@@ -1486,17 +1602,16 @@
 		</collision>
 	</npc>
 	<npc id="25535" level="83" type="Monster" name="Tears" title="Ice">
-		<!-- Confirmed CT2.5 -->
 		<race>ELEMENTAL</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="9638" lhand="9638" /> <!-- Tears r1 / Tears r1 -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="1347510" hpRegen="152.563941686569" mp="1777" mpRegen="3" />
-			<attack physical="213.098605280334" magical="145.518722115636" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="636.950592" magical="342.081" />
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
+			<vitals hp="1347510.40462428" hpRegen="152.563941686569" mp="1777.55775577558" mpRegen="3" />
+			<attack physical="294.361025393487" magical="123.95670694274" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="637.209302325581" magical="342.313301097552" />
 			<attribute>
 				<attack type="WATER" value="200" />
-				<defence fire="150" water="200" wind="200" earth="200" holy="200" dark="200" default="65" />
+				<defence fire="150" water="200" wind="200" earth="200" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1507,18 +1622,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
-			<skill id="5463" level="1" /> <!-- Water Attacks -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
+			<skill id="5463" level="1" /> <!-- Water Attack -->
 			<skill id="5472" level="1" /> <!-- Raid Boss (Lv. 83) -->
 			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
 		</skillList>
@@ -1530,7 +1638,6 @@
 		</collision>
 	</npc>
 	<npc id="25536" level="81" type="RaidBoss" name="Hannibal" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25537" count="1" respawnTime="60" weightPoint="1" />
@@ -1545,12 +1652,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="5614731" sp="1347" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="431893" hpRegen="132.781870390792" mp="1777" mpRegen="3" />
-			<attack physical="2784.89733763269" magical="1033.42208360058" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="1074.07354729412" magical="523.972705882353" evasion="-18" />
+			<vitals hp="431893.322133557" hpRegen="132.781870390792" mp="1777.22277722278" mpRegen="3" />
+			<attack physical="3843.34670597902" magical="771.008095858252" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="1074.11764705882" magical="524.181700652289" evasion="-18" />
 			<attribute>
 				<attack type="DARK" value="200" />
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" default="90" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1561,22 +1668,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4183" level="9" /> <!-- Decrease P. Atk. -->
 			<skill id="4185" level="9" /> <!-- Sleep -->
-			<skill id="4191" level="9" /> <!-- BOSS Windstrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4191" level="9" /> <!-- (Wind Strike) -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
-			<skill id="4416" level="6" /> <!-- Demons -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
-			<skill id="5473" level="1" /> <!-- Raid Boss - Level 81 -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="5473" level="1" /> <!-- Raid Boss (Lv. 81) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -1590,7 +1690,7 @@
 		<!-- Confirmed CT2.5 -->
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="34551" hpRegen="132.781870390792" mp="1777" mpRegen="3" />
 			<attack physical="5569.79467526538" magical="4133.68833440234" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="537.036773647059" magical="523.972705882353" evasion="-18" />
@@ -1634,7 +1734,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="69102" hpRegen="132.781870390792" mp="1777" mpRegen="3" />
 			<attack physical="5569.79467526538" magical="4133.68833440234" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="537.036773647059" magical="523.972705882353" evasion="-18" />
@@ -1673,7 +1773,6 @@
 		</collision>
 	</npc>
 	<npc id="25539" level="101" type="RaidBoss" name="Typhoon" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
 			<param name="Aggressive_Time" value="0" />
@@ -1692,12 +1791,12 @@
 		<sex>MALE</sex>
 		<acquire exp="5678636" sp="1362" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="872425" hpRegen="335.274222736751" mp="1812" mpRegen="3" />
-			<attack physical="5658.19897447163" magical="4232.88708020006" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="1092.54760217647" magical="532.982470588235" evasion="-18" />
+			<vitals hp="1087838.61952391" hpRegen="335.274222736751" mp="2259.64159297493" mpRegen="3" />
+			<attack physical="9736.52128613702" magical="3937.66080224517" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="1362.80319535221" magical="664.600468522037" evasion="-18" />
 			<attribute>
 				<attack type="WIND" value="200" />
-				<defence fire="200" water="200" wind="200" earth="150" holy="200" dark="200" default="90" />
+				<defence fire="200" water="200" wind="200" earth="150" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1707,21 +1806,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="7" /> <!-- Spirits -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5380" level="4" /> <!-- NPC(party) -Magic Single Long Range DD - Wind -->
-			<skill id="5382" level="4" /> <!-- NPC(party) -Magic Range Close Range DD - Wind -->
-			<skill id="5464" level="1" /> <!-- Wind Attacks -->
-			<skill id="5474" level="1" /> <!-- Raid Boss - Level 81 -->
+			<skill id="5380" level="4" /> <!-- Hurricane -->
+			<skill id="5382" level="4" /> <!-- Tempest -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
+			<skill id="5474" level="1" /> <!-- Raid Boss (Lv. 81) -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -1758,6 +1850,8 @@
 				<item id="35476" min="1" max="1" chance="0.75" /> <!-- Recipe: Eternal Gloves (60%) -->
 				<item id="35477" min="1" max="1" chance="0.75" /> <!-- Recipe: Eternal Shoes (60%) -->
 				<item id="35478" min="1" max="1" chance="0.75" /> <!-- Recipe: Eternal Sigil (60%) -->
+				<item id="46587" min="1" max="1" chance="0.75" /> <!-- Mystic Armor Piece -->
+				<item id="46537" min="1" max="1" chance="0.75" /> <!-- Mystic Soul Crystal Fragment -->
 				<item id="35472" min="1" max="1" chance="0.75" /> <!-- Recipe: Eternal Leather Boots (60%) -->
 				<item id="35471" min="1" max="1" chance="0.75" /> <!-- Recipe: Eternal Leather Gloves (60%) -->
 				<item id="35470" min="1" max="1" chance="0.75" /> <!-- Recipe: Eternal Leather Leggings (60%) -->
@@ -1790,8 +1884,10 @@
 		</dropLists>
 	</npc>
 	<npc id="25540" level="83" type="RaidBoss" name="Demon Prince" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
+			<minions name="Privates">
+				<npc id="25541" count="6" respawnTime="360" weightPoint="1" />
+			</minions>
 			<param name="IsAggressive" value="1" />
 			<param name="Aggressive_Time" value="5" />
 			<param name="Skill01_Target" value="3" />
@@ -1814,13 +1910,13 @@
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<acquire exp="3100451" sp="744" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="3350661.489255" hpRegen="8.5" mp="1497.106" mpRegen="3" />
-			<attack physical="5211.07475815079" magical="3599.86628939184" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="731.989957674419" magical="353.810790697674" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="2230489.58990536" hpRegen="8.5" mp="1846.10169491525" mpRegen="3" />
+			<attack physical="7191.37596899225" magical="3096.46729781611" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="732.558139534884" magical="353.961371698857" />
 			<attribute>
 				<attack type="DARK" value="200" />
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" default="100" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -1831,13 +1927,17 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="5044" level="2" /> <!-- NPC Ultimate Defense -->
-			<skill id="5247" level="9" /> <!-- Seed of Darkness -->
-			<skill id="5249" level="9" /> <!-- Boss Dark Circle -->
-			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5475" level="1" /> <!-- Raid Boss (Lv. 83) -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4494" level="1" /> <!-- Raid Boss -->
+			<skill id="5044" level="2" /> <!-- Ultimate Defense -->
+			<skill id="5247" level="9" /> <!-- Seed of Darkness -->
+			<skill id="5249" level="9" /> <!-- Dark Circle -->
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="5475" level="1" /> <!-- Raid Boss (Lv. 83) -->
+			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
+			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" isAggressive="true" />
@@ -1854,7 +1954,20 @@
 				<item id="6690" min="2" max="6" chance="33" /> <!-- Imperial Staff Head -->
 				<item id="6697" min="3" max="9" chance="31.97" /> <!-- Arcana Mace Head -->
 				<item id="10301" min="1" max="1" chance="0.03" /> <!-- Transformation Sealbook: Demon Prince -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="90.41" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="33" grown="39.6" />
@@ -1865,7 +1978,7 @@
 		<!-- Confirmed CT2.5 -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="55817" hpRegen="187.410040552143" mp="1846" mpRegen="3" />
 			<attack physical="9440.59973604737" magical="6521.66749943455" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="731.989957674419" magical="353.810790697674" />
@@ -1904,7 +2017,6 @@
 		</collision>
 	</npc>
 	<npc id="25542" level="83" type="RaidBoss" name="Ranku" title="Raid Boss">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="IsAggressive" value="1" />
 			<param name="Aggressive_Time" value="5" />
@@ -1922,13 +2034,13 @@
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
 		<acquire exp="3100451" sp="744" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="3350661.489255" hpRegen="8.5" mp="1497.106" mpRegen="3" />
-			<attack physical="3571.03629544474" magical="2466.91014325959" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="731.989957674419" magical="353.810790697674" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="2230489.58990536" hpRegen="8.5" mp="1846.10169491525" mpRegen="3" />
+			<attack physical="4928.29457364341" magical="2121.90278333444" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="732.558139534884" magical="353.961371698857" />
 			<attribute>
 				<attack type="DARK" value="200" />
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" default="100" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="26" />
@@ -1939,12 +2051,16 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="5246" level="9" /> <!-- Boss Dark Explosion -->
-			<skill id="5250" level="1" /> <!-- Stun -->
-			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5476" level="1" /> <!-- Raid Boss (Lv. 83) -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="4494" level="1" /> <!-- Raid Boss -->
+			<skill id="5246" level="9" /> <!-- Dark Explosion -->
+			<skill id="5250" level="1" /> <!-- Stun -->
 			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="5476" level="1" /> <!-- Raid Boss (Lv. 83) -->
+			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
+			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="2000" isAggressive="true">
@@ -1961,7 +2077,20 @@
 				<item id="6696" min="81" max="243" chance="56.85" /> <!-- Heaven's Divider Edge -->
 				<item id="6688" min="40" max="120" chance="54.99" /> <!-- Forgotten Blade Edge -->
 				<item id="10299" min="1" max="1" chance="0.03" /> <!-- Transformation Sealbook: Ranku -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="89.91" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="13" />
@@ -1980,7 +2109,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="55817" hpRegen="187.410040552143" mp="1846" mpRegen="3" />
 			<attack physical="9440.59973604737" magical="6521.66749943455" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="731.989957674419" magical="353.810790697674" />
@@ -2023,8 +2152,10 @@
 		</collision>
 	</npc>
 	<npc id="25544" level="83" type="RaidBoss" name="Tully" title="Steel Citadel">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
+			<minions name="Privates">
+				<npc id="25545" count="3" respawnTime="360" weightPoint="1" />
+			</minions>
 			<param name="IsAggressive" value="1" />
 			<param name="Aggressive_Time" value="5" />
 			<param name="Skill02_Target" value="3" />
@@ -2038,13 +2169,13 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<acquire exp="2522624" sp="605" />
-		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1697736" hpRegen="171.837730607924" mp="1881" mpRegen="3" />
-			<attack physical="5285.98483353792" magical="3672.60126521562" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
-			<defence physical="743.994593023256" magical="359.612790697674" />
+		<stats str="79" int="74" dex="42" wit="65" con="75" men="72">
+			<vitals hp="1697736.27760252" hpRegen="171.837730607924" mp="1881.35593220339" mpRegen="3" />
+			<attack physical="7295.05813953488" magical="3158.94710898985" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
+			<defence physical="744.186046511628" magical="359.873866771778" />
 			<attribute>
 				<attack type="DARK" value="200" />
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" default="120" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -2054,21 +2185,14 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4168" level="10" /> <!-- BOSS Strike -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4168" level="10" /> <!-- Power Strike -->
 			<skill id="4187" level="10" /> <!-- Decrease Speed -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="1" /> <!-- Bare Hands -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4494" level="1" /> <!-- Raid Boss -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
-			<skill id="5477" level="1" /> <!-- Raid Boss - Level 83 -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
+			<skill id="5477" level="1" /> <!-- Raid Boss (Lv. 83) -->
 			<skill id="5479" level="1" /> <!-- Boss Petrification Resistance -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
@@ -2091,7 +2215,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4334645" hpRegen="185.531972616358" mp="1881" mpRegen="3" />
 			<attack physical="5285.98483353792" magical="3672.60126521562" random="5" critical="4" accuracy="4.75" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="743.994593023256" magical="653.307558139535" />
@@ -2130,7 +2254,6 @@
 		</collision>
 	</npc>
 	<npc id="25546" level="95" type="RaidBoss" name="Betrayed Rhianna" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25547" count="2" respawnTime="360" weightPoint="1" />
@@ -2150,9 +2273,9 @@
 		<equipment rhand="3939" /> <!-- Monster Only (Bensh) -->
 		<acquire exp="138831575" sp="33319" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1073425" hpRegen="8.5" mp="44116" mpRegen="30" />
-			<attack physical="39019.9712170142" magical="6908.12226971491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3399.66102851115" magical="1932.74142437597" evasion="-18" />
+			<vitals hp="1073425.03149937" hpRegen="8.5" mp="44116.3836163836" mpRegen="30" />
+			<attack physical="53847.665320996" magical="5069.94445647767" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3400" magical="1932.84975893672" evasion="-18" />
 			<speed>
 				<walk ground="80" />
 				<run ground="170" />
@@ -2162,17 +2285,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4178" level="12" /> <!-- BOSS Flamestrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4178" level="12" /> <!-- Flame Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2191,7 +2308,7 @@
 		</parameters>
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
 			<attack physical="39019.9712170142" magical="6908.12226971491" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="485.665861215878" magical="276.105917767995" />
@@ -2234,7 +2351,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
 			<attack physical="39019.9712170142" magical="6908.12226971491" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="388.532688972703" magical="220.884734214396" />
@@ -2269,7 +2386,6 @@
 		</collision>
 	</npc>
 	<npc id="25549" level="95" type="RaidBoss" name="Tesla the Deceiver" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25550" count="3" respawnTime="360" weightPoint="1" />
@@ -2289,9 +2405,9 @@
 		<equipment rhand="7" /> <!-- Apprentice's Rod -->
 		<acquire exp="138831575" sp="33319" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1073425" hpRegen="8.5" mp="44116" mpRegen="30" />
-			<attack physical="39019.9712170142" magical="6908.12226971491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3399.66102851115" magical="1932.74142437597" evasion="-18" />
+			<vitals hp="1073425.03149937" hpRegen="8.5" mp="44116.3836163836" mpRegen="30" />
+			<attack physical="53847.665320996" magical="5069.94445647767" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3400" magical="1932.84975893672" evasion="-18" />
 			<speed>
 				<walk ground="43" />
 				<run ground="170" />
@@ -2301,17 +2417,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4197" level="12" /> <!-- Hold -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2333,7 +2443,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="291" /> <!-- Trident -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
 			<attack physical="39019.9712170142" magical="6908.12226971491" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="388.532688972703" magical="220.884734214396" />
@@ -2378,7 +2488,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="16" /> <!-- Great Spear -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
 			<attack physical="39019.9712170142" magical="6908.12226971491" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="485.665861215878" magical="276.105917767995" />
@@ -2412,7 +2522,6 @@
 		</collision>
 	</npc>
 	<npc id="25552" level="95" type="RaidBoss" name="Soul Hunter Chakundel" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm01_A" />
 			<param name="CouldDespawn" value="1" />
@@ -2430,12 +2539,12 @@
 		<sex>MALE</sex>
 		<acquire exp="138831575" sp="33319" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1073425" hpRegen="8.5" mp="44116" mpRegen="30" />
-			<attack physical="39019.9712170142" magical="6908.12226971491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3399.66102851115" magical="1932.74142437597" evasion="-18" />
+			<vitals hp="1073425.26833674" hpRegen="8.5" mp="44116.3836163836" mpRegen="30" />
+			<attack physical="53847.665320996" magical="5069.94445647767" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3400" magical="1932.84975893672" evasion="-18" />
 			<attribute>
 				<attack type="EARTH" value="430" />
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" default="85" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -2445,21 +2554,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4172" level="12" /> <!-- Stun -->
-			<skill id="4173" level="12" /> <!-- BOSS Might -->
-			<skill id="4177" level="12" /> <!-- BOSS Cancel Magic -->
+			<skill id="4173" level="12" /> <!-- Might -->
+			<skill id="4177" level="12" /> <!-- Cancellation -->
 			<skill id="4408" level="4" /> <!-- HP High -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
-			<skill id="4730" level="12" /> <!-- BOSS Mortal Blow -->
-			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+			<skill id="4730" level="12" /> <!-- Mortal Blow -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2471,7 +2574,6 @@
 		</collision>
 	</npc>
 	<npc id="25553" level="97" type="RaidBoss" name="Durango the Crusher" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm03_A" />
 			<param name="doSummonNPC" value="1" />
@@ -2490,12 +2592,12 @@
 		<sex>MALE</sex>
 		<acquire exp="217112675" sp="52107" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1169343" hpRegen="8.5" mp="45600" mpRegen="30" />
-			<attack physical="42936.9452133851" magical="7578.69252885478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3537.007334063" magical="2030.586458985" evasion="-18" />
+			<vitals hp="1169343.139453" hpRegen="8.5" mp="45600.3996003996" mpRegen="30" />
+			<attack physical="59253.0990183865" magical="5549.61994289209" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3537.09677419355" magical="2030.76493399074" evasion="-18" />
 			<attribute>
 				<attack type="EARTH" value="430" />
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" default="85" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -2505,21 +2607,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4170" level="12" /> <!-- BOSS Mortal Blow -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4170" level="12" /> <!-- Mortal Blow -->
 			<skill id="4172" level="12" /> <!-- Stun -->
-			<skill id="4175" level="12" /> <!-- BOSS Haste -->
-			<skill id="4177" level="12" /> <!-- BOSS Cancel Magic -->
+			<skill id="4175" level="12" /> <!-- Haste -->
+			<skill id="4177" level="12" /> <!-- Cancellation -->
 			<skill id="4408" level="4" /> <!-- HP High -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2531,7 +2627,6 @@
 		</collision>
 	</npc>
 	<npc id="25554" level="97" type="RaidBoss" name="Brutus the Obstinate" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25555" count="1" respawnTime="360" weightPoint="1" />
@@ -2552,12 +2647,12 @@
 		<sex>MALE</sex>
 		<acquire exp="217112675" sp="52107" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1169343" hpRegen="8.5" mp="45600" mpRegen="30" />
-			<attack physical="42936.9452133851" magical="7578.69252885478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3537.007334063" magical="2030.586458985" evasion="-18" />
+			<vitals hp="1169343.13313734" hpRegen="8.5" mp="45600.3996003996" mpRegen="30" />
+			<attack physical="59253.0990183865" magical="5549.61994289209" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3537.09677419355" magical="2030.76493399074" evasion="-18" />
 			<attribute>
 				<attack type="EARTH" value="430" />
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" default="85" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="37" />
@@ -2568,20 +2663,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4182" level="12" /> <!-- Poison -->
 			<skill id="4190" level="12" /> <!-- Decrease MP -->
-			<skill id="4195" level="12" /> <!-- BOSS Twister -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4195" level="12" /> <!-- Twister -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
-			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2602,7 +2690,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="1472" /> <!-- Dreadbane -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="505.286762009" magical="290.083779855" />
@@ -2650,7 +2738,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="142" /> <!-- Keshanberk -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="505.286762009" magical="290.083779855" />
@@ -2688,7 +2776,6 @@
 		</collision>
 	</npc>
 	<npc id="25557" level="97" type="RaidBoss" name="Ranger Karankawa" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25558" count="3" respawnTime="360" weightPoint="1" />
@@ -2707,12 +2794,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="217112675" sp="52107" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1169343" hpRegen="8.5" mp="45600" mpRegen="30" />
-			<attack physical="42936.9452133851" magical="7578.69252885478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3537.007334063" magical="2030.586458985" evasion="-18" />
+			<vitals hp="1169343.13313734" hpRegen="8.5" mp="45600.3996003996" mpRegen="30" />
+			<attack physical="59253.0990183865" magical="5549.61994289209" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3537.09677419355" magical="2030.76493399074" evasion="-18" />
 			<attribute>
 				<attack type="EARTH" value="430" />
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" default="95" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -2722,18 +2809,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4197" level="12" /> <!-- Hold -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="5" /> <!-- Plants -->
-			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2754,7 +2834,7 @@
 		</parameters>
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="404.2294096072" magical="232.067023884" />
@@ -2803,7 +2883,7 @@
 		</parameters>
 		<race>PLANT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="505.286762009" magical="290.083779855" />
@@ -2842,7 +2922,6 @@
 		</collision>
 	</npc>
 	<npc id="25560" level="97" type="RaidBoss" name="Sargon the Mad" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25561" count="2" respawnTime="360" weightPoint="1" />
@@ -2862,12 +2941,12 @@
 		<equipment rhand="135" /> <!-- Samurai Long Sword -->
 		<acquire exp="217112675" sp="52107" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1169343" hpRegen="8.5" mp="45600" mpRegen="30" />
-			<attack physical="42936.9452133851" magical="7578.69252885478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3537.007334063" magical="2030.586458985" evasion="-18" />
+			<vitals hp="1169343.13313734" hpRegen="8.5" mp="45600.3996003996" mpRegen="30" />
+			<attack physical="59253.0990183865" magical="5549.61994289209" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3537.09677419355" magical="2030.76493399074" evasion="-18" />
 			<attribute>
 				<attack type="EARTH" value="430" />
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" default="95" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="34" />
@@ -2878,18 +2957,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4178" level="12" /> <!-- BOSS Flamestrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4178" level="12" /> <!-- Flame Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2911,7 +2983,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="200" /> <!-- Sage's Staff -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="505.286762009" magical="290.083779855" />
@@ -2960,7 +3032,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="228" /> <!-- Crystal Dagger -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="404.2294096072" magical="232.067023884" />
@@ -2998,7 +3070,6 @@
 		</collision>
 	</npc>
 	<npc id="25563" level="99" type="RaidBoss" name="Beautiful Atrielle" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25564" count="1" respawnTime="360" weightPoint="1" />
@@ -3020,12 +3091,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="376926858" sp="603082" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1222866" hpRegen="8.5" mp="47100" mpRegen="30" />
-			<attack physical="47220.2058789866" magical="8304.88513767892" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3679.90243035914" magical="2133.38489847112" evasion="-18" />
+			<vitals hp="1222866.02267955" hpRegen="8.5" mp="47100.3996003996" mpRegen="30" />
+			<attack physical="65163.9451738667" magical="6067.91848418731" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3680.31914893617" magical="2133.50479307926" evasion="-18" />
 			<attribute>
 				<attack type="DARK" value="430" />
-				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" default="150" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -3036,20 +3107,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4182" level="12" /> <!-- Poison -->
 			<skill id="4188" level="12" /> <!-- Bleed -->
-			<skill id="4194" level="12" /> <!-- BOSS Aura Burn -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4194" level="12" /> <!-- Aura Burn -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3057,6 +3121,16 @@
 		<dropLists>
 			<drop>
 				<item id="36313" min="14" max="21" chance="100" /> <!-- Battleground Scroll: Sleep -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 		<collision>
@@ -3074,7 +3148,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="525.700347194163" magical="304.76927121016" />
@@ -3121,7 +3195,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="420.560277755331" magical="243.815416968128" />
@@ -3159,7 +3233,6 @@
 		</collision>
 	</npc>
 	<npc id="25566" level="99" type="RaidBoss" name="Nagen the Tomboy" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25567" count="3" respawnTime="360" weightPoint="1" />
@@ -3182,12 +3255,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="376926858" sp="603082" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1222866" hpRegen="8.5" mp="47100" mpRegen="30" />
-			<attack physical="47220.2058789866" magical="8304.88513767892" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3679.90243035914" magical="2133.38489847112" evasion="-18" />
+			<vitals hp="1222866.02267955" hpRegen="8.5" mp="47100.3996003996" mpRegen="30" />
+			<attack physical="65163.9451738667" magical="6067.91848418731" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3680.31914893617" magical="2133.50479307926" evasion="-18" />
 			<attribute>
 				<attack type="WIND" value="430" />
-				<defence fire="350" water="350" wind="350" earth="300" holy="350" dark="350" default="150" />
+				<defence fire="350" water="350" wind="350" earth="300" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="80" />
@@ -3198,20 +3271,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4183" level="12" /> <!-- Decrease P. Atk. -->
 			<skill id="4190" level="12" /> <!-- Decrease MP -->
-			<skill id="4194" level="12" /> <!-- BOSS Aura Burn -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4194" level="12" /> <!-- Aura Burn -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="13" /> <!-- Fairies -->
-			<skill id="5464" level="1" /> <!-- Wind Attacks -->
+			<skill id="5464" level="1" /> <!-- Wind Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3219,6 +3285,16 @@
 		<dropLists>
 			<drop>
 				<item id="36311" min="7" max="14" chance="100" /> <!-- Battleground Scroll: Damage Reflect Resistance -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 		<collision>
@@ -3237,7 +3313,7 @@
 		</parameters>
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="525.700347194163" magical="304.76927121016" />
@@ -3287,7 +3363,7 @@
 		</parameters>
 		<race>FAIRY</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="525.700347194163" magical="304.76927121016" />
@@ -3327,7 +3403,6 @@
 		</collision>
 	</npc>
 	<npc id="25569" level="99" type="RaidBoss" name="Jax the Destroyer" title="Forsaken Prisoner">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25570" count="3" respawnTime="360" weightPoint="1" />
@@ -3348,12 +3423,12 @@
 		<equipment rhand="6719" /> <!-- Monster Only (Ketra Orc Chieftain) -->
 		<acquire exp="376926858" sp="603082" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1222866" hpRegen="8.5" mp="47100" mpRegen="30" />
-			<attack physical="47220.2058789866" magical="8304.88513767892" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3679.90243035914" magical="2133.38489847112" evasion="-18" />
+			<vitals hp="1222866.02267955" hpRegen="8.5" mp="47100.3996003996" mpRegen="30" />
+			<attack physical="65163.9451738667" magical="6067.91848418731" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3680.31914893617" magical="2133.50479307926" evasion="-18" />
 			<attribute>
 				<attack type="EARTH" value="430" />
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" default="150" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="24" />
@@ -3364,18 +3439,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4745" level="12" /> <!-- Stun -->
-			<skill id="5465" level="1" /> <!-- Earth Attacks -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3383,6 +3451,16 @@
 		<dropLists>
 			<drop>
 				<item id="36309" min="100" max="150" chance="100" /> <!-- Healing Potion (Battleground) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 		<collision>
@@ -3400,7 +3478,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="279" /> <!-- Reinforced Longbow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="420.560277755331" magical="243.815416968128" />
@@ -3447,7 +3525,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="68" /> <!-- Falchion -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="525.700347194163" magical="304.76927121016" />
@@ -3485,7 +3563,6 @@
 		</collision>
 	</npc>
 	<npc id="25572" level="93" type="RaidBoss" name="Hager the Outlaw" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25573" count="2" respawnTime="360" weightPoint="1" />
@@ -3505,12 +3582,12 @@
 		<equipment rhand="201" /> <!-- Club of Nature -->
 		<acquire exp="133047567" sp="31931" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1014635" hpRegen="8.5" mp="42648" mpRegen="30" />
-			<attack physical="35459.9874241795" magical="6296.76383568414" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3267.64804739634" magical="1839.61111183911" evasion="-18" />
+			<vitals hp="1014635.02729945" hpRegen="8.5" mp="42648.3516483517" mpRegen="30" />
+			<attack physical="48934.9598634726" magical="4631.73356538505" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3268.13186813187" magical="1839.64387261091" evasion="-18" />
 			<attribute>
-				<defence fire="200" water="200" wind="150" earth="200" holy="200" dark="200" />
 				<attack type="EARTH" value="280" />
+				<defence fire="200" water="200" wind="150" earth="200" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="70" />
@@ -3521,17 +3598,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4178" level="12" /> <!-- BOSS Flamestrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4178" level="12" /> <!-- Flame Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3553,7 +3624,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="9" /> <!-- Cedar Staff -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<attack physical="35459.9874241795" magical="6296.76383568414" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="466.806863913762" magical="262.801587405588" />
@@ -3600,7 +3671,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="79" /> <!-- Damascus Sword -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<attack physical="35459.9874241795" magical="6296.76383568414" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="373.44549113101" magical="210.24126992447" />
@@ -3636,7 +3707,6 @@
 		</collision>
 	</npc>
 	<npc id="25575" level="93" type="RaidBoss" name="All-seeing Rango" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25576" count="4" respawnTime="360" weightPoint="1" />
@@ -3657,12 +3727,12 @@
 		<sex>MALE</sex>
 		<acquire exp="133047567" sp="31931" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1014635" hpRegen="8.5" mp="42648" mpRegen="30" />
-			<attack physical="35459.9874241795" magical="6296.76383568414" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3267.64804739634" magical="1839.61111183911" evasion="-18" />
+			<vitals hp="1014635.02729945" hpRegen="8.5" mp="42648.3516483517" mpRegen="30" />
+			<attack physical="48934.9598634726" magical="4631.73356538505" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3268.13186813187" magical="1839.64387261091" evasion="-18" />
 			<attribute>
-				<defence fire="200" water="200" wind="150" earth="200" holy="200" dark="200" />
 				<attack type="EARTH" value="280" />
+				<defence fire="200" water="200" wind="150" earth="200" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -3672,19 +3742,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4187" level="12" /> <!-- Decrease Speed -->
 			<skill id="4190" level="12" /> <!-- Decrease MP -->
-			<skill id="4194" level="12" /> <!-- BOSS Aura Burn -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4194" level="12" /> <!-- Aura Burn -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3703,7 +3767,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<attack physical="35459.9874241795" magical="6296.76383568414" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="373.44549113101" magical="210.24126992447" />
@@ -3749,7 +3813,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="312844" hpRegen="8.5" mp="21324" mpRegen="30" />
 			<attack physical="35459.9874241795" magical="6296.76383568414" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="466.806863913762" magical="262.801587405588" />
@@ -3787,7 +3851,6 @@
 		</collision>
 	</npc>
 	<npc id="25578" level="93" type="RaidBoss" name="Jakard" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm03_A" />
 			<param name="CouldDespawn" value="1" />
@@ -3805,12 +3868,12 @@
 		<sex>MALE</sex>
 		<acquire exp="133047567" sp="31931" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1014635" hpRegen="8.5" mp="42648" mpRegen="30" />
-			<attack physical="35459.9874241795" magical="6296.76383568414" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3267.64804739634" magical="1839.61111183911" evasion="-18" />
+			<vitals hp="1014635.28624164" hpRegen="8.5" mp="42648.3516483517" mpRegen="30" />
+			<attack physical="48934.9598634726" magical="4631.73356538505" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3268.13186813187" magical="1839.64387261091" evasion="-18" />
 			<attribute>
-				<defence fire="200" water="200" wind="150" earth="200" holy="200" dark="200" />
 				<attack type="EARTH" value="280" />
+				<defence fire="200" water="200" wind="150" earth="200" holy="200" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="100" />
@@ -3821,20 +3884,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4176" level="12" /> <!-- BOSS Reflect Damage -->
-			<skill id="4177" level="12" /> <!-- BOSS Cancel Magic -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4176" level="12" /> <!-- Reflect Damage -->
+			<skill id="4177" level="12" /> <!-- Cancellation -->
 			<skill id="4408" level="4" /> <!-- HP High -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
-			<skill id="4730" level="12" /> <!-- BOSS Mortal Blow -->
-			<skill id="4735" level="12" /> <!-- BOSS Spinning Slash -->
+			<skill id="4730" level="12" /> <!-- Mortal Blow -->
+			<skill id="4735" level="12" /> <!-- Spinning Slasher -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3846,7 +3904,6 @@
 		</collision>
 	</npc>
 	<npc id="25579" level="94" type="RaidBoss" name="Helsing" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25580" count="4" respawnTime="360" weightPoint="1" />
@@ -3867,12 +3924,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="203890700" sp="48933" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1037827" hpRegen="8.5" mp="43380" mpRegen="30" />
-			<attack physical="37184.6066131423" magical="6590.82182407988" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3333.00100834426" magical="1885.60138963509" evasion="-18" />
+			<vitals hp="1037827.38345233" hpRegen="8.5" mp="43380.1198801199" mpRegen="30" />
+			<attack physical="51314.9328052948" magical="4842.52032732453" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3333.33333333333" magical="1885.81909893385" evasion="-18" />
 			<attribute>
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 				<attack type="DARK" value="280" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="20" />
@@ -3883,19 +3940,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4185" level="12" /> <!-- Sleep -->
 			<skill id="4190" level="12" /> <!-- Decrease MP -->
 			<skill id="4196" level="12" /> <!-- Decrease Speed -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3915,7 +3966,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="142" /> <!-- Keshanberk -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="313367" hpRegen="8.5" mp="21690" mpRegen="30" />
 			<attack physical="37184.6066131423" magical="6590.82182407988" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="476.143001192038" magical="269.371627090727" />
@@ -3962,7 +4013,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="229" /> <!-- Kris -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="313367" hpRegen="8.5" mp="21690" mpRegen="30" />
 			<attack physical="37184.6066131423" magical="6590.82182407988" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="476.143001192038" magical="269.371627090727" />
@@ -4000,7 +4051,6 @@
 		</collision>
 	</npc>
 	<npc id="25582" level="95" type="RaidBoss" name="Gillien" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25583" count="2" respawnTime="360" weightPoint="1" />
@@ -4020,12 +4070,12 @@
 		<equipment rhand="6723" /> <!-- Monster Only (Vampire Warrior) -->
 		<acquire exp="208251875" sp="49980" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1073425" hpRegen="8.5" mp="44116" mpRegen="30" />
-			<attack physical="39019.9712170142" magical="6908.12226971491" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3399.66102851115" magical="1932.74142437597" evasion="-18" />
+			<vitals hp="1073425.03149937" hpRegen="8.5" mp="44116.3836163836" mpRegen="30" />
+			<attack physical="53847.665320996" magical="5069.94445647767" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3400" magical="1932.84975893672" evasion="-18" />
 			<attribute>
-				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 				<attack type="DARK" value="280" />
+				<defence fire="200" water="200" wind="200" earth="200" holy="150" dark="200" />
 			</attribute>
 			<speed>
 				<walk ground="43" />
@@ -4035,17 +4085,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4178" level="12" /> <!-- BOSS Flamestrike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4178" level="12" /> <!-- Flame Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="9" /> <!-- Demons -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -4067,7 +4111,7 @@
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="99" /> <!-- Apprentice's Spellbook -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
 			<attack physical="39019.9712170142" magical="6908.12226971491" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="485.665861215878" magical="276.105917767995" />
@@ -4115,7 +4159,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="178" /> <!-- Bone Staff -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="321920" hpRegen="8.5" mp="22058" mpRegen="30" />
 			<attack physical="39019.9712170142" magical="6908.12226971491" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="485.665861215878" magical="276.105917767995" />
@@ -4152,7 +4196,6 @@
 		</collision>
 	</npc>
 	<npc id="25585" level="96" type="RaidBoss" name="Medici" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25586" count="3" respawnTime="360" weightPoint="1" />
@@ -4171,12 +4214,12 @@
 		<sex>FEMALE</sex>
 		<acquire exp="212659200" sp="51038" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1098324" hpRegen="8.5" mp="44856" mpRegen="30" />
-			<attack physical="40918.7454632461" magical="7231.0886261522" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3467.65424908137" magical="1981.05995998537" evasion="-18" />
+			<vitals hp="1098324.23351533" hpRegen="8.5" mp="44856.1438561439" mpRegen="30" />
+			<attack physical="56468.0539208066" magical="5300.99041431952" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3468.10810810811" magical="1981.26198126198" evasion="-18" />
 			<attribute>
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 				<attack type="EARTH" value="430" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="50" />
@@ -4187,17 +4230,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4197" level="12" /> <!-- Hold -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
-			<skill id="4416" level="3" /> <!-- Beasts -->
+			<skill id="4416" level="3" /> <!-- Beast -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -4218,7 +4255,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="322511" hpRegen="8.5" mp="22428" mpRegen="30" />
 			<attack physical="40918.7454632461" magical="7231.0886261522" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="396.303342752157" magical="226.406852569756" />
@@ -4267,7 +4304,7 @@
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="229" /> <!-- Kris -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="322511" hpRegen="8.5" mp="22428" mpRegen="30" />
 			<attack physical="40918.7454632461" magical="7231.0886261522" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="495.379178440196" magical="283.008565712195" />
@@ -4305,7 +4342,6 @@
 		</collision>
 	</npc>
 	<npc id="25588" level="96" type="RaidBoss" name="Immortal Muus" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm02_A" />
 			<param name="CouldDespawn" value="1" />
@@ -4324,12 +4360,12 @@
 		<equipment rhand="2500" /> <!-- Dark Legion's Edge -->
 		<acquire exp="212659200" sp="51038" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1098324" hpRegen="8.5" mp="44856" mpRegen="30" />
-			<attack physical="40918.7454632461" magical="7231.0886261522" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3467.65424908137" magical="1981.05995998537" evasion="-18" />
+			<vitals hp="1098324.13878038" hpRegen="8.5" mp="44856.1438561439" mpRegen="30" />
+			<attack physical="56468.0539208066" magical="5300.99041431952" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3468.10810810811" magical="1981.26198126198" evasion="-18" />
 			<attribute>
-				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
 				<attack type="DARK" value="430" />
+				<defence fire="350" water="350" wind="350" earth="350" holy="300" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="70" />
@@ -4340,20 +4376,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4172" level="12" /> <!-- Stun -->
-			<skill id="4175" level="12" /> <!-- BOSS Haste -->
-			<skill id="4177" level="12" /> <!-- BOSS Cancel Magic -->
+			<skill id="4175" level="12" /> <!-- Haste -->
+			<skill id="4177" level="12" /> <!-- Cancellation -->
 			<skill id="4408" level="4" /> <!-- HP High -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="4731" level="12" /> <!-- BOSS Mortal Blow -->
+			<skill id="4731" level="12" /> <!-- Mortal Blow -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -4365,7 +4396,6 @@
 		</collision>
 	</npc>
 	<npc id="25589" level="97" type="RaidBoss" name="Brand the Exile" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25590" count="1" respawnTime="360" weightPoint="1" />
@@ -4388,12 +4418,12 @@
 		<equipment rhand="5131" /> <!-- Monster Only (Parhit Staff) -->
 		<acquire exp="361851322" sp="86844" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1169343" hpRegen="8.5" mp="45600" mpRegen="30" />
-			<attack physical="42936.9452133851" magical="7578.69252885478" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3537.007334063" magical="2030.586458985" evasion="-18" />
+			<vitals hp="1169343.13313734" hpRegen="8.5" mp="45600.3996003996" mpRegen="30" />
+			<attack physical="59253.0990183865" magical="5549.61994289209" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3537.09677419355" magical="2030.76493399074" evasion="-18" />
 			<attribute>
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 				<attack type="EARTH" value="430" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="29" />
@@ -4404,19 +4434,13 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4188" level="12" /> <!-- Bleed -->
 			<skill id="4190" level="12" /> <!-- Decrease MP -->
-			<skill id="4192" level="12" /> <!-- BOSS HP Drain -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4192" level="12" /> <!-- Vampiric Touch -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -4424,6 +4448,16 @@
 		<dropLists>
 			<drop>
 				<item id="36313" min="14" max="21" chance="100" /> <!-- Battleground Scroll: Sleep -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 		<collision>
@@ -4442,7 +4476,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="162" /> <!-- War Axe -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="505.286762009" magical="290.083779855" />
@@ -4489,7 +4523,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="200" /> <!-- Sage's Staff -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="355923" hpRegen="8.5" mp="22800" mpRegen="30" />
 			<attack physical="42936.9452133851" magical="7578.69252885478" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="404.2294096072" magical="232.067023884" />
@@ -4526,7 +4560,6 @@
 		</collision>
 	</npc>
 	<npc id="25592" level="98" type="RaidBoss" name="Commander Koenig" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="RaidSpawnMusic" value="Rm01_A" />
 			<param name="CouldDespawn" value="1" />
@@ -4545,12 +4578,12 @@
 		<sex>MALE</sex>
 		<acquire exp="369350632" sp="88644" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1195586" hpRegen="8.5" mp="46348" mpRegen="30" />
-			<attack physical="45027.4086463771" magical="7933.39078546243" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3607.74748074426" magical="2081.35112045963" evasion="-18" />
+			<vitals hp="1195586.29880034" hpRegen="8.5" mp="46348.1518481519" mpRegen="30" />
+			<attack physical="62137.9828543055" magical="5802.89828311159" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3608.02139037433" magical="2081.60823134085" evasion="-18" />
 			<attribute>
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 				<attack type="EARTH" value="430" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="26" />
@@ -4561,20 +4594,15 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4173" level="12" /> <!-- BOSS Might -->
-			<skill id="4177" level="12" /> <!-- BOSS Cancel Magic -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
+			<skill id="4173" level="12" /> <!-- Might -->
+			<skill id="4177" level="12" /> <!-- Cancellation -->
 			<skill id="4408" level="4" /> <!-- HP High -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="4" /> <!-- Animals -->
-			<skill id="4721" level="12" /> <!-- BOSS Strike -->
-			<skill id="4736" level="12" /> <!-- BOSS Spinning Slash -->
+			<skill id="4721" level="12" /> <!-- Power Strike -->
+			<skill id="4736" level="12" /> <!-- Spinning Slasher -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -4583,6 +4611,16 @@
 		<dropLists>
 			<drop>
 				<item id="36311" min="7" max="14" chance="100" /> <!-- Battleground Scroll: Damage Reflect Resistance -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 		<collision>
@@ -4591,7 +4629,6 @@
 		</collision>
 	</npc>
 	<npc id="25593" level="99" type="RaidBoss" name="Gerg the Hunter" title="Forsaken Inmate">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<minions name="Privates">
 				<npc id="25594" count="3" respawnTime="360" weightPoint="1" />
@@ -4611,12 +4648,12 @@
 		<sex>MALE</sex>
 		<acquire exp="376926858" sp="603082" raidPoints="7" />
 		<stats str="164" int="188" dex="55" wit="78" con="111" men="149">
-			<vitals hp="1222866" hpRegen="8.5" mp="47100" mpRegen="30" />
-			<attack physical="47220.2058789866" magical="8304.88513767892" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="3679.90243035914" magical="2133.38489847112" evasion="-18" />
+			<vitals hp="1222866.02267955" hpRegen="8.5" mp="47100.3996003996" mpRegen="30" />
+			<attack physical="65163.9451738667" magical="6067.91848418731" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="3680.31914893617" magical="2133.50479307926" evasion="-18" />
 			<attribute>
-				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 				<attack type="EARTH" value="430" />
+				<defence fire="350" water="350" wind="300" earth="350" holy="350" dark="350" />
 			</attribute>
 			<speed>
 				<walk ground="60" />
@@ -4626,17 +4663,11 @@
 		</stats>
 		<status undying="false" />
 		<skillList>
-			<skill id="4045" level="1" /> <!-- Resist Full Magic Attack -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4045" level="1" /> <!-- Full Magic Attack Resistance -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="11" /> <!-- Giants -->
 			<skill id="4745" level="12" /> <!-- Stun -->
+			<skill id="5465" level="1" /> <!-- Earth Attack -->
 			<skill id="14765" level="4" /> <!-- Blood Siphon Resistance -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -4644,6 +4675,16 @@
 		<dropLists>
 			<drop>
 				<item id="36309" min="100" max="150" chance="100" /> <!-- Healing Potion (Battleground) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 		</dropLists>
 		<collision>
@@ -4662,7 +4703,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="2507" /> <!-- Lizardspear -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
 			<defence physical="420.560277755331" magical="243.815416968128" />
@@ -4709,7 +4750,7 @@
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
 		<equipment rhand="74" /> <!-- Katana -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="356248" hpRegen="8.5" mp="23550" mpRegen="30" />
 			<attack physical="47220.2058789866" magical="8304.88513767892" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="525.700347194163" magical="304.76927121016" />
@@ -4760,7 +4801,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4656" hpRegen="8.5" mp="1743" mpRegen="3" />
 			<attack physical="1317.4781016378" magical="925.9728055546" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="380.159485380117" magical="278.184210526316" />
@@ -4815,7 +4856,7 @@
 		</parameters>
 		<race>DEMONIC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4656" hpRegen="8.5" mp="1743" mpRegen="3" />
 			<attack physical="1317.4781016378" magical="925.9728055546" random="5" critical="4" accuracy="5" attackSpeed="253" type="FIST" range="40" distance="80" width="120" />
 			<defence physical="380.159485380117" magical="278.184210526316" />
@@ -4867,7 +4908,7 @@
 		</parameters>
 		<race>GIANT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4656" hpRegen="8.5" mp="1743" mpRegen="3" />
 			<attack physical="1317.4781016378" magical="925.9728055546" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="380.159485380117" magical="278.184210526316" />
@@ -4918,7 +4959,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4656" hpRegen="8.5" mp="1743" mpRegen="3" />
 			<attack physical="1317.4781016378" magical="925.9728055546" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
 			<defence physical="380.159485380117" magical="278.184210526316" />

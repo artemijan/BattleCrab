@@ -85,7 +85,7 @@ fn newbie_guide_advice_pages_follow_the_class_suffix() {
     world.objects.add_components(&3001, LastFolkNpc(NPC_OID));
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NewbieGuide 1"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script NewbieGuide 1"));
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))
@@ -95,7 +95,7 @@ fn newbie_guide_advice_pages_follow_the_class_suffix() {
         "30598-1f.htm: {html}"
     );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NewbieGuide 0"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script NewbieGuide 0"));
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))
@@ -127,7 +127,7 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
     world.objects.add_components(&3001, LastFolkNpc(NPC_OID));
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script NpcLocationInfo"));
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))
@@ -137,7 +137,7 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body("Quest NpcLocationInfo 30598-1.htm"),
+        &bypass_body("Script NpcLocationInfo 30598-1.htm"),
     );
     let html = drain(&mut rx)
         .iter()
@@ -145,7 +145,7 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
         .expect("teleporter page");
     assert!(html.contains("Gatekeeper Roxxy"), "30598-1.htm: {html}");
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 30006"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script NpcLocationInfo 30006"));
     let pkts = drain(&mut rx);
     let html = pkts
         .iter()
@@ -167,7 +167,7 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
     assert_eq!(legs[1], (0, 1, 500, 600, 700), "show leg, at the spawn");
 
     // Off-whitelist id: Java returns null, so nothing is sent.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 99999"));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Script NpcLocationInfo 99999"));
     assert!(drain(&mut rx).is_empty(), "no window for an unlisted npc");
 }
 

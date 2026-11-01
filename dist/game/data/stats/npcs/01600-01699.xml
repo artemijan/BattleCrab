@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="1600" level="55" type="Monster" name="Yanzi Agathion">
 		<!-- TODO: Must be confirmed -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" mp="889" hpRegen="6.5" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -143,7 +143,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" mp="889" hpRegen="6.5" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="4.75" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -313,7 +313,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" mp="889" hpRegen="6.5" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="4.75" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -487,7 +487,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" mp="889" hpRegen="6.5" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="4.75" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -522,7 +522,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>ETC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" mp="889" hpRegen="6.5" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -550,7 +550,7 @@
 		<!-- TODO: Must be confirmed -->
 		<race>ETC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" mp="889" hpRegen="6.5" mpRegen="2.4" />
 			<attack physical="388.11142" magical="265.02979" attackSpeed="253" range="40" type="FIST" distance="80" width="120" random="5" critical="4" accuracy="5" />
 			<defence physical="223.6362" magical="163.64727" />
@@ -578,7 +578,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
@@ -607,7 +607,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
@@ -636,7 +636,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
@@ -665,7 +665,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
@@ -694,7 +694,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
@@ -723,7 +723,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />
@@ -752,7 +752,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ANIMAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="1673" hpRegen="6.5" mp="889" mpRegen="2.4" />
 			<speed>
 				<walk ground="60" />

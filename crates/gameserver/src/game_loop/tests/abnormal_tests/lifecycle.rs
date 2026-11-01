@@ -201,6 +201,7 @@ fn an_end_effect_call_skill_lands_on_expiry() {
     first.end_effects = vec![SkillEffect::CallSkill {
         skill_id: 9461,
         skill_level: 1,
+        skill_level_scale_to: 0,
         chance: 100,
     }];
     world.data.skill_data.insert_for_test(first.clone());
@@ -214,6 +215,10 @@ fn an_end_effect_call_skill_lands_on_expiry() {
     effects::handle_buff_expire(&mut world, victim, 9460);
 
     assert!(!has(&world, 9460), "the first stage is gone");
+    // The second stage has a 100 ms `hitTime`: `CallSkill` plays it and
+    // lands it once that has run out.
+    assert!(!has(&world, 9461), "not before its hit time");
+    advance_ticks(&mut world, crate::scheduler::ms_to_ticks(100));
     assert!(
         has(&world, 9461),
         "and its expiry fired the second — the half Anchor was missing"

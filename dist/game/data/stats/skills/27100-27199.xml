@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="27100" toLevel="1" name="+10 Apocalypse Thrower Pack">
 		<icon>icon.skill0000</icon>
@@ -174,43 +174,43 @@
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27129" toLevel="1" name="+4 Apocalypse Dualsword Pack">
+	<skill id="27129" toLevel="1" name="+4 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27130" toLevel="1" name="+5 Apocalypse Dualsword Pack">
+	<skill id="27130" toLevel="1" name="+5 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27131" toLevel="1" name="+6 Apocalypse Dualsword Pack">
+	<skill id="27131" toLevel="1" name="+6 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27132" toLevel="1" name="+7 Apocalypse Dualsword Pack">
+	<skill id="27132" toLevel="1" name="+7 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27133" toLevel="1" name="+8 Apocalypse Dualsword Pack">
+	<skill id="27133" toLevel="1" name="+8 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27134" toLevel="1" name="+9 Apocalypse Dualsword Pack">
+	<skill id="27134" toLevel="1" name="+9 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 	</skill>
-	<skill id="27135" toLevel="1" name="+10 Apocalypse Dualsword Pack">
+	<skill id="27135" toLevel="1" name="+10 Apocalypse Dual Sword Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>

@@ -170,7 +170,7 @@ fn parses_item_icons_with_fallback() {
 fn parses_weapon_and_armor_stats() {
     let data = dist::items();
 
-    // Short Sword (item 1): pAtk/mAtk/rCrit/pAtkSpd + range/random-damage.
+    // Short Sword (item 1): pAtk/mAtk/critRate/pAtkSpd + range/random-damage.
     let sword = data.item_stats(1).expect("item 1 <stats>");
     let get = |s: Stat| {
         sword

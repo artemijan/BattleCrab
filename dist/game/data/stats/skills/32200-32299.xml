@@ -1,0 +1,1121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="32200" toLevel="1" name="Hypnotic Mazurka">
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>5000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<reuseDelay>5000</reuseDelay>
+	</skill>
+	<skill id="32201" toLevel="1" name="Intrusion Alert">
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<reuseDelay>2000</reuseDelay>
+	</skill>
+	<skill id="32202" toLevel="1" name="Dragon's Curse">
+		<!-- Punishes those who enter the Dragon's Curse zone. Decreases their HP and Speed by 90% over time. -->
+		<icon>icon.skill4683</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32203" toLevel="1" name="Limit Barrier">
+		<!-- This barrier can be removed only after hit 600 times. If you fail to hit it 600 times within 15 seconds, the Raid Boss fully recovers HP. -->
+		<icon>icon.skill11621</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>-1</abnormalTime>
+		<abnormalType>INVINCIBILITY_SPECIAL</abnormalType>
+		<abnormalVisualEffect>INFINITE_SHIELD4_AVE_2</abnormalVisualEffect>
+		<affectObject>FRIEND</affectObject>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>0</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>40</magicLevel>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>15000</reuseDelay>
+		<staticReuse>true</staticReuse>
+	</skill>
+	<skill id="32204" toLevel="1" name="Phantom Strike">
+		<!-- Inflicts great physical damage on the target and decreases P. Def by 20% for 15 seconds. -->
+		<icon>icon.dual_t_atkup</icon>
+		<operateType>A1</operateType>
+		<castRange>100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32205" toLevel="1" name="Deadly Shock">
+		<!-- Inflicts great physical damage on the target and stuns it for 3 seconds. -->
+		<icon>icon.skill0029</icon>
+		<operateType>A1</operateType>
+		<castRange>100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32206" toLevel="1" name="Phantom Fire">
+		<!-- Inflicts great magic damage on the target and decreases M. Def by 20% for 10 seconds. -->
+		<icon>icon.skill1399</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32207" toLevel="1" name="Phantom Cure">
+		<!-- Recovers your HP and nearby allies' HP by 10% of Max HP. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32208" toLevel="1" name="Phantom Punishment">
+		<!-- Inflicts great physical damage on the target and decreases P. Atk./ Casting Spd. by 30% and Speed by 70 for 10 seconds. -->
+		<icon>icon.skill19557</icon>
+		<operateType>A1</operateType>
+		<castRange>100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32209" toLevel="1" name="Rage Slasher">
+		<!-- Inflicts great magic damage on the target and nearby enemies and bleeds them for 10 seconds. -->
+		<icon>icon.skill1511</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32210" toLevel="1" name="Chaotic Swing">
+		<!-- Inflicts great physical damage on the target and nearby enemies and knocks them down for 3 seconds. -->
+		<icon>icon.skill10281</icon>
+		<operateType>A1</operateType>
+		<castRange>300</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32211" toLevel="1" name="Seal of Soul">
+		<!-- Throws the target into the Dimensional Prison and expels it for 5 seconds. -->
+		<icon>icon.skill11273</icon>
+		<operateType>A1</operateType>
+		<castRange>300</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32212" toLevel="1" name="Fanatic Cry">
+		<!-- Increases your P. Atk./ M. Atk. and your allies' by 30% for 10 seconds. -->
+		<icon>icon.skill1001</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32213" toLevel="1" name="Chaotic Buster">
+		<!-- Inflicts great magic damage on the target and nearby enemies and bleeds them for 10 seconds. -->
+		<icon>icon.skill0035</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32214" toLevel="1" name="Cannonball of Despair">
+		<!-- Attacks with the Cannonball of Despair, causing Stun for 10 seconds. -->
+		<icon>icon.big_gun_shot_i00</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32215" toLevel="1" name="Crazed Martyr">
+		<!-- Inflicts great fixed damage on nearby enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+	</skill>
+	<skill id="32216" toLevel="1" name="Encroaching Rage">
+		<!-- For 30 seconds, P. Atk./ M. Atk. +50%, P. Def -20000, and M. Def -10000. -->
+		<icon>icon.skill0094</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32217" toLevel="1" name="Spezion's Will">
+		<!-- Significantly increases P. Def/ M. Def/ HP Recovery Bonus/ Debuff Resistance and recovers 5% HP by killing enemy. -->
+		<icon>icon.skill10274</icon>
+		<operateType>A1</operateType>
+		<coolTime>300</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32218" toLevel="1" name="Energy Burst">
+		<!-- Inflicts great magic damage on nearby enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>RANGE</affectScope>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<nextAction>CAST</nextAction>
+		<effects>
+			<effect name="MagicalDamage">
+				<power>553</power>
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32219" toLevel="1" name="Darkest Wave">
+		<!-- Knocks back the target and nearby enemies. -->
+		<icon>icon.skill1625</icon>
+		<operateType>A1</operateType>
+		<castRange>150</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32220" toLevel="1" name="Darkest Reep">
+		<!-- Knocks back the target and nearby enemies. -->
+		<icon>icon.skill5016</icon>
+		<operateType>A1</operateType>
+		<castRange>150</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32221" toLevel="1" name="Spezion's Nightmare">
+		<!-- Deals serious Poison damage over time. -->
+		<icon>icon.skill0444</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32222" toLevel="1" name="Blossom Aroma">
+		<!-- Enticed by Lithra Bud and suffering low P. Atk./ M. Atk./ Speed. -->
+		<icon>icon.skill32100</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32223" toLevel="1" name="Curse of Lithra">
+		<!-- Lithra's curse transforms you into a Rabbitt and limits your action. -->
+		<icon>icon.skill1092</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
+		<conditions>
+			<condition name="CanTransform">
+				<transformId>105</transformId>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="Transformation">
+				<transformationId>105</transformationId>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32224" toLevel="1" name="Trick of Lithra">
+		<!-- Lithra's trick immobilizes you and limits your action. -->
+		<icon>icon.skill1201</icon>
+		<operateType>A1</operateType>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32225" toLevel="1" name="Fatal Reep">
+		<!-- Attack on a single physical target. -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32226" toLevel="1" name="Reep Blast">
+		<!-- Physical attack on enemies near the target. -->
+		<icon>icon.skill0007</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-114</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32227" toLevel="1" name="Fatal Needle">
+		<!-- Attack on a single physical target. -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32228" toLevel="1" name="Needle Blast">
+		<!-- Physical attack on enemies near the target. -->
+		<icon>icon.skill0007</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-114</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32229" toLevel="1" name="Blossom Spike">
+		<!-- Physical and magic attacks on the target. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+			<effect name="MagicalDamage">
+				<power>2000</power> <!-- Fix: Retail Missed -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32230" toLevel="1" name="Blossom Blast">
+		<!-- Physical attack on enemies near the target. -->
+		<icon>icon.skill0007</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-114</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32231" toLevel="1" name="Blossom Poison">
+		<!-- Receives damage for 10 seconds over time as poisoned by Treant Blossom. -->
+		<icon>icon.skill4036</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>POISON</abnormalType>
+		<abnormalVisualEffect>DOT_POISON</abnormalVisualEffect>
+		<activateRate>200</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<subordinationAbnormalType>POISON</subordinationAbnormalType>
+		<trait>POISON</trait>
+		<effects>
+			<effect name="DamOverTime">
+				<power>2000</power> <!-- Fix: Retail Missed -->
+				<ticks>5</ticks>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32232" toLevel="1" name="Fatal Teasle">
+		<!-- Attack on a single physical target. -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32233" toLevel="1" name="Teasle Howling">
+		<!-- AoE attack within a 160-degree radius in front. -->
+		<icon>icon.skill0771</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-686</effectPoint>
+		<effectRange>1500</effectRange>
+		<fanRange>0;0;400;160</fanRange>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>175</mpConsume>
+		<nextAction>ATTACK</nextAction>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<overHit>true</overHit>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32234" toLevel="1" name="Teasle Illusion">
+		<!-- P. Atk., Casting Spd. and Speed are lowered as the Flush Teasle causes hallucinations. -->
+		<icon>icon.skill32100</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>2</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>ALL_SPEED_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="Speed">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32235" toLevel="1" name="Fatal Rampike">
+		<!-- Attack on a single physical target. -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power> <!-- Fix: Retail Missed -->
+				<overHit>true</overHit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32236" toLevel="1" name="Rampike Wave">
+		<!-- Blown away and damaged by Rampike's attack. -->
+		<icon>icon.skill0100</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>1</abnormalTime>
+		<activateRate>60</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>600</affectRange>
+		<affectScope>FAN</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
+		<basicProperty>MAGIC</basicProperty> <!-- Guessed -->
+		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>600</effectRange>
+		<fanRange>0;0;600;180</fanRange>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>1</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<nextAction>ATTACK</nextAction>
+		<trait>PULL</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<chance>15</chance>
+			</effect>
+			<effect name="PullBack">
+				<speed>600</speed>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32237" toLevel="1" name="Rampike Slow">
+		<!-- Suffering damage and low Speed after hit by Rampike's attack. -->
+		<icon>icon.skill0516</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>3</abnormalLevel>
+		<abnormalTime>30</abnormalTime>
+		<abnormalType>SPEED_DOWN</abnormalType>
+		<activateRate>90</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-183</effectPoint>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>105</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<overHit>true</overHit>
+			</effect>
+			<effect name="DamOverTime">
+				<power>5000</power>
+				<ticks>5</ticks>
+			</effect>
+			<effect name="Speed">
+				<amount>-100</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32238" toLevel="1" name="Lithra Blooming">
+		<!-- Presentation skill designed to show that the Casting Bar is filled. It should not be canceled by any attack. -->
+		<icon>icon.etc_flower_i01</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>30000</hitTime>
+	</skill>
+	<skill id="32239" toLevel="1" name="Lithra Aprias">
+		<!-- Presentation skill designed to show that the Casting Bar is filled. It should not be canceled by any attack. -->
+		<icon>icon.etc_flower_i01</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>60000</hitTime>
+	</skill>
+	<skill id="32240" toLevel="1" name="Nerupa Blooming">
+		<!-- Presentation skill designed to show that the Casting Bar is filled. It should not be canceled by any attack. -->
+		<icon>icon.etc_flower_i04</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>120000</hitTime>
+	</skill>
+	<skill id="32241" toLevel="1" name="Nerupa Aprias">
+		<!-- Presentation skill designed to show that the Casting Bar is filled. It should not be canceled by any attack. -->
+		<icon>icon.etc_flower_i04</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>180000</hitTime>
+	</skill>
+	<skill id="32242" toLevel="1" name="Fatal Aprias">
+		<!-- Attack on a single physical target. -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32243" toLevel="1" name="Aprias Blast">
+		<!-- Attack on a single physical target. -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32244" toLevel="1" name="Aprias Wave">
+		<!-- Low P. Atk./ M. Atk./ Speed after hit by Nerupa Aprias. -->
+		<icon>icon.skill32100</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32245" toLevel="1" name="Butterfly Strike">
+		<!-- Strong magic attack on a single target -->
+		<icon>icon.skill1275</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-190</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="MagicalDamage">
+				<power>15000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32246" toLevel="1" name="Butterfly Powder">
+		<!-- Forced to move as drawn by Lithra Butterfly's Magic Powder. -->
+		<icon>icon.skill32101</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32247" toLevel="1" name="Fatal Needle">
+		<!-- Attack on a single physical target (used by Raid Minion). -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32248" toLevel="1" name="Needle Blast">
+		<!-- Range Attack on physical target (used by Raid Minion). -->
+		<icon>icon.skill0007</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-114</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32249" toLevel="1" name="Fatal Aprias">
+		<!-- Attack on a single physical target (used by Raid Minion). -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32250" toLevel="1" name="Aprias Blast">
+		<!-- Range Attack on physical target (used by Raid Minion). -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>900</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32251" toLevel="1" name="Lithra Points Strike">
+		<!-- Attack on a single physical target (used by Raid Boss). -->
+		<icon>icon.skill0005</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-372</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32252" toLevel="1" name="Lithra Fatal Slash">
+		<!-- Attacks enemies in the front and knocks them back with a certain probability. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>1</abnormalTime>
+		<abnormalType>KNOCKDOWN</abnormalType>
+		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<fanRange>0;0;200;180</fanRange>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>1</lvlBonusRate>
+		<trait>KNOCKDOWN</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>10000</power>
+			</effect>
+			<effect name="KnockBack">
+				<speed>700</speed>
+				<distance>50</distance>
+				<knockDown>true</knockDown>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32253" toLevel="1" name="Lithra Blow Up">
+		<!-- Attacks nearby enemies and blows them away. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>5</abnormalTime>
+		<abnormalType>KNOCKDOWN</abnormalType>
+		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>5000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>106</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<trait>KNOCKDOWN</trait>
+		<effects>
+			<effect name="KnockBack">
+				<speed>400</speed>
+				<distance>50</distance>
+				<knockDown>true</knockDown>
+			</effect>
+			<effect name="DefenceTrait">
+				<HOLD>100</HOLD>
+				<KNOCKDOWN>100</KNOCKDOWN>
+				<SHOCK>100</SHOCK>
+				<AIRBIND>100</AIRBIND>
+				<SLEEP>100</SLEEP>
+				<KNOCKBACK>100</KNOCKBACK>
+				<CHANGEBODY>100</CHANGEBODY>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32254" toLevel="1" name="Lithra Leash Net">
+		<!-- Attacks nearby enemies and puts them into Immobile and Action Prohibit states. -->
+		<icon>icon.skill1201</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>4</abnormalLevel>
+		<abnormalTime>2</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>130</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>5000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicLevel>106</magicLevel>
+		<trait>SHOCK</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>50000</power>
+				<criticalChance>15</criticalChance>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32255" toLevel="1" name="Lithra Blossom">
+		<!-- Makes flowers bloom to gather drinking water (Display skill). -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>5000</hitTime>
+		<reuseDelay>10000</reuseDelay>
+	</skill>
+	<skill id="32256" toLevel="1" name="Lithra's Curse Bloom">
+		<!-- Lithra's curse transforms you into a rabbit and limits your action. -->
+		<icon>icon.skill1092</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>CHANGEBODY</abnormalType>
+		<abnormalVisualEffect>CHANGEBODY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<lvlBonusRate>1</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-2</magicLevel>
+		<specialLevel>-2</specialLevel>
+		<trait>CHANGEBODY</trait>
+		<effects>
+			<effect name="ChangeBody">
+				<templates>
+					<item templateId="500" minChance="0" maxChance="20" />
+					<item templateId="501" minChance="20" maxChance="40" />
+					<item templateId="502" minChance="40" maxChance="60" />
+					<item templateId="503" minChance="60" maxChance="80" />
+					<item templateId="504" minChance="80" maxChance="100" />
+				</templates>
+			</effect>
+			<effect name="Fear" />
+			<effect name="BlockControl" />
+		</effects>
+	</skill>
+	<skill id="32257" toLevel="1" name="Lithra's Trick Bloom">
+		<!-- Lithra's trick immobilizes you and limits your action. -->
+		<icon>icon.skill1201</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>9</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>100</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>1100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-687</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>100</magicLevel>
+		<mpConsume>80</mpConsume>
+		<trait>SHOCK</trait>
+		<effects>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32258" toLevel="1" name="Nerupa's Power">
+		<!-- The Mother Tree Guardian conveys Nerupa's Power, which converts Lithra Buds into Nerupa Buds. -->
+		<icon>icon.bm_orfen_doll_30d</icon>
+		<operateType>A1</operateType>
+		<castRange>1500</castRange>
+		<effectPoint>-100</effectPoint>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32259" toLevel="8" name="Raid Boss (Lv. 105)">
+		<!-- Level 1: Recognized for his loyalty and bravery by Eilhalder von Hellmann, Edgar was called Valiant Edgar. He patrols the Forest of the Dead to protect Eilhalder von Hellmann from assassins. -->
+		<!-- Level 2: Blood was a notorious murderer when he was human. After Morrigan made him a vampire, Blood revealed his killer instinct without restraint and was then called Vicious Blood. Blood lurks under the shadow of the Forest of the Dead to suck the blood of careless adventurers. -->
+		<!-- Level 3: Morrigan lures adventurers and turns them into her own kind. It is not certain whether she does so for her loyalty to Eilhalder von Hellmann or for another purpose. -->
+		<!-- Level 4: Croby, an old vassal of Eilhalder von Hellmann, always advises Eilhalder to expand the influence of their clan and rule the Rune Kingdom. However, Eilhalder's recent cold streak has only disappointed Croby. -->
+		<!-- Level 5: Tretan, a knight of the Rune Kingdom, was killed in the battle against Stakatos occupying the Swamp of Screams. However, Evil Spirit Alusion revived Tretan as an Undead and turned him into an Evil Spirit Knight. -->
+		<!-- Level 6: Boros, a knight of the Rune Kingdom, was killed in the battle against Stakatos occupying the Swamp of Screams. However, Evil Spirit Alusion revived Boros as an Undead and turned him into an Evil Spirit Knight. -->
+		<!-- Level 7: Evil Spirit Alusion appeared in the Swamp of Screams and began to resurrect the corpses scattered around to turn them into his servants. No one knows who he is and what his motives are. -->
+		<!-- Level 8: Graff was a noble of the Rune Kingdom and enjoyed an affluent life. Evil Spirit Alusion woke him from his grave. Graff became nothing but an undead monster following Alusion's command. -->
+		<icon>icon.skillraid</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="32260" toLevel="2" name="Raid Soul Plunderer">
+		<!-- These Death Reapers look after souls of brave adventurers and strong monsters. They could appear anywhere at any time. Never lower your guard. They disappear in an hour after spawned, even when the battle is going on. -->
+		<icon>icon.skillraid</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="32261" toLevel="1" name="Lithra">
+		<!-- Lithra was always jealous of her elder swaster Nerupa. When the Mother Tree chose Nerupa, Lithra joined hands with Shilen and ended up being sealed in the Mother Tree by Nerupa. Lithra spins the thread of the "present. -->
+		<icon>icon.skillraid</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="32262" toLevel="1" name="HP Drain">
+		<!-- Restores 5% HP. -->
+		<icon>icon.skill10285</icon>
+		<operateType>A1</operateType>
+		<effectPoint>687</effectPoint>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="32263" toLevel="1" name="Tauti P. Def. Boost">
+		<!-- Tauti has increased its P. Def to maximum to reduce Damage Received to10 for 15 seconds. -->
+		<icon>icon.skill0110</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32264" toLevel="1" name="Red's Elysium Blessing">
+		<!-- For $s1, Max HP/ MP/ CP +$s2, P. Atk./ M. Atk./ P. Def./ M. Def. +$s3, Atk./ Casting Spd. +$s4, Speed +$s5, Attack/ Defense Attribute +$s6, and Skill MP Consumption -$s7. Additionally increases Acquired XP/ SP by $s8. Effect remains after death, but is deleted on entering the Olympiad/ Ceremony of Chaos. Will be deleted during maintenance on November 7, 2018. -->
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
+	</skill>
+	<skill id="32265" toLevel="1" name="Elysium Vital Research Vitality Recovery">
+		<operateType>A1</operateType>
+		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
+	</skill>
+	<skill id="32266" toLevel="24" name="Green's Elysium Vital Research - Stage 1">
+		<!-- Volunteered for Green's research. Gathering Mother Nature's energy recovers some Vitality after $s1 h. $s2 stages in total. Will be deleted during maintenance on November 7, 2018. -->
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
+	</skill>
+	<skill id="32267" toLevel="1" name="Blue's Raid Blessing">
+		<!-- Temporary Raid Herald Blue's blessing increases raid points you gain by $s2 for $s1. Will be deleted during maintenance on Wednesday, July 5th when the Red Libra Merchants leave. -->
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>100</effectPoint>
+		<isMagic>4</isMagic>
+		<mpConsume>1</mpConsume>
+	</skill>
+	<skill id="32268" toLevel="1" name="Ancient Dragon's Blessing">
+		<!-- Ancient Dragon's Blessing increases XP and SP by 100% for 1 hour. It can be stacked with the Fall of the Dragon debuff. It is deleted during the regular maintenance on June 14 (Wed) when Draco leaves. -->
+		<icon>icon.skill6319</icon>
+		<operateType>A1</operateType>
+		<castRange>1200</castRange>
+		<isMagic>4</isMagic>
+	</skill>
+</list>

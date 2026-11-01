@@ -158,19 +158,19 @@
 	<instance id="156" name="Library of Sages" />
 	<instance id="157" name="Underground Library of Sages" />
 	<instance id="158" name="Elcadia's Cabin" />
-	<instance id="159" name="Prison of Darkness" />
-	<instance id="160" name="Teredor Warzone" />
-	<instance id="161" name="Kimerian" />
-	<instance id="162" name="Kimerian (Epic)" />
-	<instance id="163" name="Crystal Caverns" />
-	<instance id="164" name="Crystal Caverns" />
-	<instance id="165" name="Crystal Caverns" />
-	<instance id="166" name="Baylor Warzone" />
-	<instance id="167" name="Balok Warzone" />
+	<instance id="159" name="Spezion's Cavern" />
+	<instance id="160" name="Teredor's Cavern" />
+	<instance id="161" name="Kimerian's Cavern" />
+	<instance id="162" name="Epic Kimerian's Cavern" />
+	<instance id="163" name="Emerald Square" />
+	<instance id="164" name="Steam Corridor" />
+	<instance id="165" name="Coral Garden" />
+	<instance id="166" name="Crystal Prison (Baylor)" />
+	<instance id="167" name="Crystal Prison (Balok)" />
 	<instance id="168" name="Coral Garden Hall" />
 	<instance id="169" name="Istina's Cavern" />
-	<instance id="170" name="Istina's Cavern (Epic)" />
-	<instance id="171" name="Nursery" />
+	<instance id="170" name="Epic Istina's Cavern" />
+	<instance id="171" name="Seed of Annihilation (Nursery)" />
 	<instance id="172" name="Lachik Dwelling Warzone" />
 	<instance id="173" name="Lachik Dwelling Warzone" />
 	<instance id="174" name="Lachik Dwelling Warzone (Epic)" />
@@ -179,10 +179,10 @@
 	<instance id="177" name="Closed Underground Compound" />
 	<instance id="178" name="Labyrinth of Belis" />
 	<instance id="179" name="Fortuna" />
-	<instance id="180" name="Octavis Warzone" />
-	<instance id="181" name="Octavis Warzone (Epic)" />
+	<instance id="180" name="Octavis's Cavern" />
+	<instance id="181" name="Epic Octavis's Cavern" />
 	<instance id="182" name="Museum Dungeon" />
-	<instance id="183" name="Balthus Knights - Antharas Expedition" />
+	<instance id="183" name="Antharas' Nest (Balthus Knights)" />
 	<instance id="184" name="Valakas Warzone" />
 	<instance id="185" name="Evil Incubator" />
 	<instance id="186" name="Orchid Hall" />
@@ -195,7 +195,7 @@
 	<instance id="193" name="Altar of Shilen" />
 	<instance id="194" name="Altar of Shilen" />
 	<instance id="195" name="Harnak Underground Ruins" />
-	<instance id="196" name="Prison of Darkness (Epic)" />
+	<instance id="196" name="Epic Spezion's Cavern" />
 	<instance id="197" name="Elcadia's Cabin" />
 	<instance id="198" name="Legacy of Cruma Tower" />
 	<instance id="199" name="Rim Kamaloka" />
@@ -204,9 +204,9 @@
 	<instance id="202" name="Kimerian" />
 	<instance id="203" name="Kimerian (Epic)" />
 	<instance id="204" name="Evolved Agathion's Place" />
-	<instance id="205" name="Kartia's Labyrinth - Tainted Dimension Attacker" />
-	<instance id="206" name="Kartia's Labyrinth - Tainted Dimension Attacker" />
-	<instance id="207" name="Kartia's Labyrinth - Tainted Dimension Attacker" />
+	<instance id="205" name="Kartia's Labyrinth (Dimension Attacker)" />
+	<instance id="206" name="Kartia's Labyrinth (Dimension Attacker)" />
+	<instance id="207" name="Kartia's Labyrinth (Dimension Attacker)" />
 	<instance id="208" name="Kartia's Labyrinth" />
 	<instance id="209" name="Kartia's Labyrinth" />
 	<instance id="210" name="Kartia's Labyrinth" />
@@ -217,8 +217,8 @@
 	<instance id="215" name="Verdof's Room (Devil's Island)" />
 	<instance id="216" name="Verdof's Room (Devil's Island)" />
 	<instance id="217" name="Eva's Hidden Space" />
-	<instance id="218" name="Tauti Warzone" />
-	<instance id="219" name="Tauti Warzone (Epic)" />
+	<instance id="218" name="Tauti's Cavern" />
+	<instance id="219" name="Epic Tauti's Cavern" />
 	<instance id="220" name="Arena 1" />
 	<instance id="221" name="Arena 2" />
 	<instance id="222" name="Arena 3" />
@@ -230,7 +230,7 @@
 	<instance id="228" name="Ancient Kartia's Labyrinth - A Secret of Two Races" />
 	<instance id="229" name="Ancient Kartia's Labyrinth - A Secret of Two Races" />
 	<instance id="230" name="Ancient Kartia's Labyrinth - A Secret of Two Races" />
-	<instance id="231" name="Nornil's Garden - Spicula Raid" />
+	<instance id="231" name="Nornil's Garden" />
 	<instance id="232" name="Fortress of the Dead" />
 	<instance id="233" name="Fortress of the Dead" />
 	<instance id="234" name="Devastated Castle" />
@@ -258,7 +258,7 @@
 	<instance id="256" name="Infernal Kamaloka" />
 	<instance id="257" name="Lunatic Kamaloka" />
 	<instance id="258" name="Nightmare Kamaloka" />
-	<instance id="259" name="Embryo Command Post" />
+	<instance id="259" name="Command Post" />
 	<instance id="260" name="Ashen Shadow Revolutionaries" />
 	<instance id="261" name="Mystic Tavern" /> <!-- Mystic Tavern (Tauti) -->
 	<instance id="262" name="Mystic Tavern" /> <!-- Mystic Tavern (Kelbim) -->
@@ -267,4 +267,19 @@
 	<instance id="265" name="Outer Messiah's Castle" />
 	<instance id="266" name="Inner Messiah's Castle" />
 	<instance id="267" name="Mystic Tavern" /> <!-- Mystic Tavern (Kain) -->
+	<instance id="268" name="Throne of Heroes" />
+	<instance id="269" name="Hatchling Nest" />
+	<instance id="270" name="Hatchling Cage" />
+	<instance id="271" name="Antharas' Nest" />
+	<instance id="272" name="Power of Abelius" />
+	<instance id="273" name="Power of Sapyros" />
+	<instance id="274" name="Power of Kashnaga" />
+	<instance id="275" name="Power of Cranigg" />
+	<instance id="276" name="Power of Naviarope" />
+	<instance id="277" name="Power of Raister" />
+	<instance id="278" name="Power of Soltkreig" />
+	<instance id="279" name="Power of Lakcis" />
+	<instance id="280" name="Faeron Village" />
+	<instance id="281" name="Eva's Hidden Space" />
+	<instance id="282" name="Nornil's Garden" />
 </list>

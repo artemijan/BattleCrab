@@ -18,6 +18,7 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::config::OlympiadConfig;
+use crate::config::olympiad::OlympiadPeriod;
 use crate::db::{DbCommand, OlympiadEomRow, OlympiadNobleRow};
 use crate::game_loop::time::MILLIS_PER_DAY;
 use crate::model::olympiad::NobleStats;
@@ -44,11 +45,39 @@ const HERO_ACTION_GAINED_HERO: i32 = 2;
 /// end at `HOUR_OF_DAY 12`).
 const NOON_MS_OF_DAY: i64 = 12 * 3600 * 1000;
 
-/// `Olympiad.setNewOlympiadEnd`'s `DAY` branch: noon today plus
-/// `(multiplier - 1)` days (the final day is reserved for validation).
+/// `Olympiad.setNewOlympiadEnd`: noon today, plus `OlympiadPeriodMultiplier`
+/// days, weeks or calendar months, minus one day (the final day is reserved
+/// for validation).
 pub(crate) fn next_olympiad_end(cfg: &OlympiadConfig, now_ms: i64) -> i64 {
     let noon_today = now_ms - ms_of_day(now_ms) + NOON_MS_OF_DAY;
-    noon_today + (cfg.period_days() - 1) * MILLIS_PER_DAY
+    let n = cfg.period_multiplier;
+    match cfg.period {
+        OlympiadPeriod::Day => noon_today + (n - 1) * MILLIS_PER_DAY,
+        OlympiadPeriod::Week => noon_today + (7 * n - 1) * MILLIS_PER_DAY,
+        OlympiadPeriod::Month => add_calendar_months(noon_today, n) - MILLIS_PER_DAY,
+        OlympiadPeriod::Unknown => noon_today,
+    }
+}
+
+/// Java `Calendar.add(MONTH, n)`: same day of month `n` months on, clamped to
+/// the last day of a shorter month (Jan 31 + 1 → Feb 28/29).
+fn add_calendar_months(ms: i64, n: i64) -> i64 {
+    let days = ms.div_euclid(MILLIS_PER_DAY);
+    let (y, m, d) = commons::util::civil_from_days(days);
+    let months = y * 12 + (m - 1) + n;
+    let (ny, nm) = (months.div_euclid(12), months.rem_euclid(12) + 1);
+    let nd = d.min(days_in_month(ny, nm));
+    commons::util::days_from_civil(ny, nm, nd) * MILLIS_PER_DAY + ms.rem_euclid(MILLIS_PER_DAY)
+}
+
+fn days_in_month(y: i64, m: i64) -> i64 {
+    let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+    match m {
+        2 if leap => 29,
+        2 => 28,
+        4 | 6 | 9 | 11 => 30,
+        _ => 31,
+    }
 }
 
 /// The per-character variable holding points earned this round but not yet

@@ -1,26 +1,26 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="7100" toLevel="1" name="Clan-exclusive Pet Stun">
 		<!-- Stuns the target for 3 seconds. -->
 		<icon>icon.skill5168</icon>
 		<operateType>A2</operateType>
-		<mpConsume>5</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>1000</hitTime>
-		<effectPoint>-700</effectPoint>
-		<abnormalType>STUN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
-		<trait>SHOCK</trait>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>-700</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>5</mpConsume>
+		<trait>SHOCK</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -31,25 +31,25 @@
 		<!-- Lifts and holds the target in the air for 3 seconds. -->
 		<icon>icon.skill11276</icon>
 		<operateType>A2</operateType>
-		<mpConsume>5</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>1500</hitTime>
-		<isMagic>1</isMagic>
-		<effectPoint>-700</effectPoint>
-		<abnormalType>AIRBIND</abnormalType>
-		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<effectRange>1100</effectRange>
-		<magicLevel>85</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>3</abnormalTime>
-		<trait>AIRBIND</trait>
-		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
-		<isDebuff>true</isDebuff>
 		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalResists>STUN;TURN_FLEE</abnormalResists>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>AIRBIND</abnormalType>
+		<abnormalVisualEffect>AIRBIND</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<effectPoint>-700</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>5</mpConsume>
+		<trait>AIRBIND</trait>
 		<effects>
 			<effect name="AirBind" />
 			<effect name="BlockActions" />
@@ -68,12 +68,12 @@
 	<skill id="7102" toLevel="1" name="Summon Clan Pet">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>5000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>5000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="CanSummonPet" />
 			<condition name="OpPledge">
@@ -87,47 +87,47 @@
 	<skill id="7103" toLevel="1" name="Helping Tree CP Recovery Range">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>300</hitTime>
-		<effectPoint>635</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<affectRange>1000</affectRange>
-		<affectLimit>5-12</affectLimit>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
+		<affectLimit>5-12</affectLimit>
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<effectPoint>635</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>300</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="7104" toLevel="1" name="Pa'agrio's Hand">
 		<!-- Raise the temperature of the Draco Egg through Pa'agrio's Hand. It raises the temperature by 1 - 10 degrees on a Small Draco Egg and 0.1 - 1.0 degrees on a Large Draco Egg. The Fire Spirit Agathion must be summoned for it to be used. -->
 		<icon>icon.skill11775</icon>
 		<operateType>A1</operateType>
-		<castRange>100</castRange>
-		<hitTime>1000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>-1</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>400</effectRange>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>2000</reuseDelay>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="7105" toLevel="1" name="Incubation Possible">
 		<!-- Incubation Possible -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<castRange>100</castRange>
 		<effectPoint>-1</effectPoint>
-		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<effectRange>700</effectRange>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -143,14 +143,14 @@
 		<!-- Optimal Temperature Incubation Success -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>800</coolTime>
 		<effectPoint>-1</effectPoint>
-		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -166,14 +166,14 @@
 		<!-- Incubation Success -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>800</coolTime>
 		<effectPoint>-1</effectPoint>
-		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -189,14 +189,14 @@
 		<!-- Incubation Failure -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>800</coolTime>
 		<effectPoint>-1</effectPoint>
-		<abnormalResists>TURN_FLEE;KNOCKDOWN;DEPORT;SILENCE;PARALYZE;ABSORB;DISARM;SILENCE_PHYSICAL;SILENCE_ALL;CHANGEBODY;TURN_STONE;DERANGEMENT;AIRBIND;SLEEP;OBLIVION;MIRAGE;MIRAGE_TRAP;ROOT_MAGICALLY;ROOT_PHYSICALLY;STUN;PUBLIC_SLOT</abnormalResists>
 		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -212,17 +212,17 @@
 		<!-- Summon a Bratty Angma. -->
 		<icon>icon.skill0028</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>35650</itemConsumeId> <!-- Summon Scroll: Bratty Angma -->
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>35650</itemConsumeId> <!-- Summon Scroll: Bratty Angma -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>76</minLevel>
@@ -331,17 +331,17 @@
 		<!-- Summon a Bratty Angma. -->
 		<icon>icon.skill0028</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>35651</itemConsumeId> <!-- Summon Scroll: Bratty Angma -->
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>35651</itemConsumeId> <!-- Summon Scroll: Bratty Angma -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>85</minLevel>
@@ -444,15 +444,15 @@
 		<!-- Summon a Bratty Angma. -->
 		<icon>icon.skill0028</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>90</minLevel>
@@ -561,17 +561,17 @@
 		<!-- Summon a Bratty Angma. -->
 		<icon>icon.skill0028</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>100</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>35652</itemConsumeId> <!-- Summon Scroll: Bratty Angma -->
+		<coolTime>500</coolTime>
+		<effectPoint>100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>35652</itemConsumeId> <!-- Summon Scroll: Bratty Angma -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>95</minLevel>
@@ -678,19 +678,19 @@
 		<!-- Invincibility Effect -->
 		<icon>icon.skill0442</icon>
 		<operateType>A2</operateType>
-		<mpConsume>78</mpConsume>
-		<hitTime>500</hitTime>
-		<effectPoint>-100</effectPoint>
-		<abnormalType>INVINCIBILITY</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
+		<abnormalType>INVINCIBILITY</abnormalType>
 		<abnormalVisualEffect>INVINCIBILITY</abnormalVisualEffect>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-100</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>78</mpConsume>
 		<effects>
 			<effect name="DamageBlock">
 				<type>BLOCK_HP</type>
@@ -712,14 +712,14 @@
 	<skill id="7114" toLevel="1" name="Spellbook: Clan Flag">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>1500</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>34895</itemConsumeId> <!-- Spellbook: Clan Flag -->
+		<hitTime>1500</hitTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>34895</itemConsumeId> <!-- Spellbook: Clan Flag -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpMainjob" />
 			<condition name="OpSocialClass">
@@ -741,34 +741,34 @@
 	<skill id="7115" toLevel="1" name="Energy of Chaos">
 		<!-- Character's hair and cloak have been changed due to participation in the Ceremony of Chaos. -->
 		<icon>icon.skill0810</icon>
-		<abnormalTime>600</abnormalTime>
-		<abnormalVisualEffect>CURIOUS_HOUSE</abnormalVisualEffect>
-		<canBeDispelled>false</canBeDispelled>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>CURIOUS_HOUSE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<magicLevel>85</magicLevel>
-		<abnormalLevel>1</abnormalLevel>
-		<isMagic>2</isMagic>
-		<hitTime>500</hitTime>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>600</abnormalTime>
+		<abnormalType>CURIOUS_HOUSE</abnormalType>
+		<abnormalVisualEffect>CURIOUS_HOUSE</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>1</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<specialLevel>-2</specialLevel>
 	</skill>
 	<skill id="7116" toLevel="1" name="Spellbook: Air Bike">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>36952</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>36952</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="OpMainjob" />
 			<condition name="CheckLevel">
@@ -789,16 +789,16 @@
 	</skill>
 	<skill id="7117" toLevel="1" name="Spellbook: Hell Hound">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47148</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47148</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="OpMainjob" />
 			<condition name="CheckLevel">
@@ -819,16 +819,16 @@
 	</skill>
 	<skill id="7118" toLevel="1" name="Spellbook: Pegasus">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47150</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47150</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>99</minLevel>
@@ -848,16 +848,16 @@
 	</skill>
 	<skill id="7119" toLevel="1" name="Spellbook: Wing Hound">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47152</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47152</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>99</minLevel>
@@ -877,16 +877,16 @@
 	</skill>
 	<skill id="7120" toLevel="1" name="Spellbook: War Horse">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47149</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47149</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>99</minLevel>
@@ -906,16 +906,16 @@
 	</skill>
 	<skill id="7121" toLevel="1" name="Spellbook: Griffin">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47151</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>1500</hitTime>
 		<hitCancelTime>0.5</hitCancelTime>
-		<magicLevel>99</magicLevel>
+		<hitTime>1500</hitTime>
 		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47151</itemConsumeId>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<conditions>
 			<condition name="CheckLevel">
 				<minLevel>99</minLevel>

@@ -67,9 +67,12 @@ pub fn stat_for_effect_name(name: &str) -> Option<Stat> {
 }
 
 pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
-    ("PAtk", Stat::PhysicalAttack),
+    // Salvation's `PhysicalAttack`/`MagicalAttack` are the P.Atk/M.Atk stat
+    // effects (Interlude's `PAtk`/`MAtk`); the damage handlers that used to
+    // carry these names are now `PhysicalDamage`/`MagicalDamage`.
+    ("PhysicalAttack", Stat::PhysicalAttack),
     ("PhysicalDefence", Stat::PhysicalDefence),
-    ("MAtk", Stat::MagicalAttack),
+    ("MagicalAttack", Stat::MagicalAttack),
     ("MagicalDefence", Stat::MagicalDefence),
     ("PhysicalAttackSpeed", Stat::PhysicalAttackSpeed),
     ("MagicalAttackSpeed", Stat::MagicAttackSpeed),
@@ -121,10 +124,9 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // registry wiring is all it needs.
     ("ManaCharge", Stat::ManaCharge),
     // Anti Magic (146), M. Def. (147): `ResistDDMagic` →
-    // `Stat.MAGIC_SUCCESS_RES`. An `AbstractStatPercentEffect`, so it is always
-    // `PER` and the generic registry wiring (which honours the effect's own
-    // `<mode>`, `PER` here) is all it needs.
-    ("ResistDDMagic", Stat::MagicSuccessRes),
+    // `Stat.MAGIC_SUCCESS_RES` (Interlude's `ResistDDMagic`). One of the
+    // [`PERCENT_EFFECTS`], so always `PER`.
+    ("MagicalSuccessResistance", Stat::MagicSuccessRes),
     // `PhysicalAbnormalResist` / `MagicalAbnormalResist` — both plain
     // `AbstractStatAddEffect`s over `Stat.ABNORMAL_RESIST_{PHYSICAL,MAGICAL}`,
     // which `Formulas.getAbnormalResist` subtracts from a mesmerizing debuff's
@@ -200,14 +202,9 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("HateAttack", Stat::HateAttack),
     ("PhysicalSkillPower", Stat::PhysicalSkillPower),
     ("MagicalSkillPower", Stat::MagicalSkillPower),
-    (
-        "PhysicalSkillCriticalDamage",
-        Stat::PhysicalSkillCriticalDamage,
-    ),
-    (
-        "DefencePhysicalSkillCriticalDamage",
-        Stat::DefencePhysicalSkillCriticalDamage,
-    ),
+    // `SkillPowerAdd` — an `AbstractStatAddEffect` over `SKILL_POWER_ADD`.
+    ("SkillPowerAdd", Stat::SkillPowerAdd),
+    ("PhysicalSkillCriticalRate", Stat::CriticalRateSkill),
     ("Breath", Stat::Breath),
     ("VitalityPointsRate", Stat::VitalityConsumeRate),
     // Acrobatics (173), the one learnable source: `SafeFallHeight` →
@@ -221,6 +218,57 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("WeightPenalty", Stat::WeightPenalty),
     ("PhysicalAbnormalResist", Stat::AbnormalResistPhysical),
     ("MagicalAbnormalResist", Stat::AbnormalResistMagical),
+    ("DragonWeaponDefence", Stat::DragonWeaponDefence),
+    // `GetDamageLimit` — an `AbstractStatAddEffect` over `DAMAGE_LIMIT`, read
+    // by `combat::damage::damage_taken`.
+    ("GetDamageLimit", Stat::DamageLimit),
+    // `FocusEnergy` — an `AbstractStatAddEffect` over `MAX_MOMENTUM`.
+    ("FocusEnergy", Stat::MaxMomentum),
+];
+
+/// Java's `AbstractStatPercentEffect` subclasses. Their constructor rejects
+/// any `<mode>` but `PER` and defaults to it, and `pump` is always
+/// `mergeMul(stat, (amount / 100) + 1)` with `amount` defaulting to 1 — so a
+/// registry entry named here is built as `PER` whatever the XML declares.
+/// (Two `PvpMagicalSkillDamageBonus` effects on this dist omit `<mode>`, which
+/// the ordinary path would read as `DIFF`.)
+pub(crate) const PERCENT_EFFECTS: &[&str] = &[
+    "AutoAttackDamageBonus",
+    "BonusDropAmount",
+    "BonusDropAdena",
+    "BonusRaidPoints",
+    "BonusDropRate",
+    "BonusSpoilRate",
+    "DragonWeaponDefence",
+    "FishingExpSpBonus",
+    "HateAttack",
+    "ImmobileDamageResist",
+    "ImmobileDamageBonus",
+    "MagicalSuccessResistance",
+    "PveMagicalSkillDefenceBonus",
+    "PveMagicalSkillDamageBonus",
+    "PvePhysicalAttackDefenceBonus",
+    "PvePhysicalSkillDefenceBonus",
+    "PvePhysicalAttackDamageBonus",
+    "PvePhysicalSkillDamageBonus",
+    "PveRaidMagicalSkillDefenceBonus",
+    "PveRaidPhysicalAttackDefenceBonus",
+    "PveRaidMagicalSkillDamageBonus",
+    "PveRaidPhysicalAttackDamageBonus",
+    "PveRaidPhysicalSkillDefenceBonus",
+    "PvpMagicalSkillDefenceBonus",
+    "PveRaidPhysicalSkillDamageBonus",
+    "PvpMagicalSkillDamageBonus",
+    "PvpPhysicalAttackDefenceBonus",
+    "PvpPhysicalSkillDefenceBonus",
+    "PvpPhysicalAttackDamageBonus",
+    "PvpPhysicalSkillDamageBonus",
+    "RearDamage",
+    "RealDamageResist",
+    "SkillMasteryRate",
+    "VitalityPointsRate",
+    "VampiricDefence",
+    "VitalityExpRate",
 ];
 
 /// One category of "the datapack said something this parser doesn't act on",
@@ -1195,18 +1243,15 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
         // pinned here: `getAgathionId() != 0` with no agathions; a
         // `ControllableAirShip` to refuel; a mentee; a fortress under siege
         // (`OpCheckFlag`, whose own "unsuitable terms" line is the generic one
-        // every refusal already sends); an instance of a given template; and
-        // `getChargedSouls() < MAX_SOULS` with both at zero.
+        // every refusal already sends); and an instance of a given template.
         "OpCheckAccountType" | "OpNeedAgathion" | "CanRefuelAirship" | "TargetMyMentee"
-        | "OpCheckFlag" | "OpInstantzone" | "OpSoulMax" => {
-            Some(SkillCondition::Constant { passes: false })
-        }
+        | "OpCheckFlag" | "OpInstantzone" => Some(SkillCondition::Constant { passes: false }),
         // `caster.getInstanceId() == 0` — nobody is ever in an instance.
         "OpNotInstantzone" => Some(SkillCondition::Constant { passes: true }),
-        // `getChargedSouls() >= amount` with no souls to charge.
-        "SoulSaved" => Some(SkillCondition::Constant {
-            passes: num("amount").unwrap_or(0) <= 0,
+        "SoulSaved" => Some(SkillCondition::SoulSaved {
+            amount: num("amount").unwrap_or(0),
         }),
+        "OpSoulMax" => Some(SkillCondition::SoulMax),
         // `getBookMarkSlot() + slots > 18` refuses; the slot count is always 0.
         "CanBookmarkAddSlot" => Some(SkillCondition::Constant {
             passes: num("teleportBookmarkSlots").unwrap_or(0) <= 18,

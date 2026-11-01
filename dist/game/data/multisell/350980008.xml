@@ -1363,4 +1363,84 @@
 		<!-- Dualsword Craft Stamp -->
 		<production count="1" id="5126" />
 	</item>
+	<item>
+		<!-- Mature Great Codran -->
+		<ingredient count="667" id="5124" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Great Codran -->
+		<ingredient count="667" id="5856" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Blue Coba -->
+		<ingredient count="400" id="6555" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Blue Coba -->
+		<ingredient count="400" id="6562" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Gold Coba -->
+		<ingredient count="286" id="6557" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Gold Coba -->
+		<ingredient count="286" id="6564" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Sea Coba -->
+		<ingredient count="222" id="6559" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Sea Coba -->
+		<ingredient count="222" id="6566" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe King Coba -->
+		<ingredient count="182" id="6561" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative King Coba -->
+		<ingredient count="182" id="6568" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
 </list>

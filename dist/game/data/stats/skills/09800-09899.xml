@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="9800" toLevel="1" name="Enchant Scroll Pack (S-grade)">
 		<!-- Enchant Scroll Pack (S-grade) -->
@@ -113,22 +113,22 @@
 	<skill id="9822" toLevel="1" name="Release Seal">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>5000</hitTime>
 		<coolTime>200</coolTime>
+		<hitTime>5000</hitTime>
 		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="9823" toLevel="1" name="Escort's Supply Box">
 		<!-- Supply box. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>36394</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>36394</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -177,20 +177,20 @@
 	<skill id="9828" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Obtained XP +50%. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
-		<itemConsumeId>36400</itemConsumeId>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<itemConsumeId>36400</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -220,30 +220,30 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="9832" toLevel="1" name="Scroll: Midsummer Passion">
-		<!-- For 1 hr., obtained XP/SP +30%. -->
+		<!-- For 1 hr., obtained XP/ SP +30%. -->
 		<icon>icon.etc_aidcharm_cancel_deathfire_i00</icon>
-		<itemConsumeId>36404</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A2</operateType>
-		<reuseDelay>5000</reuseDelay>
 		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>36404</itemConsumeId>
+		<reuseDelay>5000</reuseDelay>
 	</skill>
 	<skill id="9833" toLevel="1" name="Summon Friend">
 		<!-- Summons selected target. Only while in a party. Cooldown is 30 min. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>5000</hitTime>
 		<effectPoint>1000</effectPoint>
+		<hitTime>5000</hitTime>
 		<reuseDelay>1800000</reuseDelay>
 	</skill>
 	<skill id="9834" toLevel="1" name="Yum Yum Candy">
-		<!-- Obtained XP/SP +15%. Same effect as Nom Nom Candy. Effect does not stack. -->
+		<!-- Obtained XP/ SP +15%. Same effect as Nom Nom Candy. Effect does not stack. -->
 		<icon>etc_whiteday_candy_i05</icon>
 		<operateType>P</operateType>
 		<hitTime>500</hitTime>
 	</skill>
 	<skill id="9835" toLevel="1" name="Nom Nom Candy">
-		<!-- Obtained XP/SP +15%. Same effect as Yum Yum Candy. Effect does not stack. -->
+		<!-- Obtained XP/ SP +15%. Same effect as Yum Yum Candy. Effect does not stack. -->
 		<icon>etc_whiteday_candy_i06</icon>
 		<operateType>P</operateType>
 		<hitTime>500</hitTime>
@@ -251,9 +251,9 @@
 	<skill id="9836" toLevel="1" name="Friendship Cube">
 		<!-- Lineage II All Together Friends Cube. -->
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>36573</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>36573</itemConsumeId>
 	</skill>
 	<skill id="9837" toLevel="1" name="Weapon Appearance Stone (R-grade)">
 		<icon>icon.skill0000</icon>
@@ -427,7 +427,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="9880" toLevel="1" name="Emerald Weapon Appearance Stone: Dualsword">
+	<skill id="9880" toLevel="1" name="Emerald Weapon Appearance Stone: Dual Sword">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>

@@ -6941,6 +6941,11 @@
 	<set id="304" minimumPieces="5">
 		<!-- Paulina's Heavy Armor set R garde in 5 pieces -->
 		<requiredItems>
+			<item id="47022" /> <!-- Paulina's Twilight Breastplate Heavy Armor -->
+			<item id="47023" /> <!-- Paulina's Twilight Gaiters Heavy Armor -->
+			<item id="47025" /> <!-- Paulina's Twilight Boots Heavy Armor -->
+			<item id="47024" /> <!-- Paulina's Twilight Gauntlets Heavy Armor -->
+			<item id="47021" /> <!-- Paulina's Twilight Helmet Heavy Armor -->
 			<item id="46865" /> <!-- Paulina's Seraph Breastplate Heavy Armor -->
 			<item id="46866" /> <!-- Paulina's Seraph Gaiters Heavy Armor -->
 			<item id="46868" /> <!-- Paulina's Seraph Boots Heavy Armor -->
@@ -6954,6 +6959,11 @@
 	<set id="305" minimumPieces="5">
 		<!-- Paulina's Light Armor set R garde in 5 pieces -->
 		<requiredItems>
+			<item id="47028" /> <!-- Paulina's Twilight Leather Armor Light Armor -->
+			<item id="47029" /> <!-- Paulina's Twilight Leather Leggings Light Armor -->
+			<item id="47031" /> <!-- Paulina's Twilight Leather Boots Light Armor -->
+			<item id="47030" /> <!-- Paulina's Twilight Leather Gloves Light Armor -->
+			<item id="47027" /> <!-- Paulina's Twilight Leather Helmet Light Armor -->
 			<item id="46871" /> <!-- Paulina's Seraph Leather Armor Light Armor -->
 			<item id="46872" /> <!-- Paulina's Seraph Leather Leggings Light Armor -->
 			<item id="46874" /> <!-- Paulina's Seraph Leather Boots Light Armor -->
@@ -6967,6 +6977,11 @@
 	<set id="306" minimumPieces="5">
 		<!-- Paulina's Robe set R garde in 5 pieces -->
 		<requiredItems>
+			<item id="47033" /> <!-- Paulina's Twilight Tunic Robe -->
+			<item id="47034" /> <!-- Paulina's Twilight Stockings Robe -->
+			<item id="47036" /> <!-- Paulina's Twilight Shoes Robe -->
+			<item id="47035" /> <!-- Paulina's Twilight Gloves Robe -->
+			<item id="47032" /> <!-- Paulina's Twilight Circlet Robe -->
 			<item id="46876" /> <!-- Paulina's Seraph Tunic Robe -->
 			<item id="46877" /> <!-- Paulina's Seraph Stockings Robe -->
 			<item id="46879" /> <!-- Paulina's Seraph Shoes Robe -->
@@ -6975,65 +6990,6 @@
 		</requiredItems>
 		<skills>
 			<skill id="13933" level="3" minimumPieces="5" /> <!-- Set Effect - Paulina's Robe, 5-piece -->
-    </skills>
-  </set>
-  <set id="307" minimumPieces="5">
-    <!-- Paulina's Heavy Armor set R garde in 5 pieces -->
-    <requiredItems>
-      <item id="47022" /> <!-- Paulina's Twilight Breastplate Heavy Armor -->
-      <item id="47023" /> <!-- Paulina's Twilight Gaiters Heavy Armor -->
-      <item id="47025" /> <!-- Paulina's Twilight Boots Heavy Armor -->
-      <item id="47024" /> <!-- Paulina's Twilight Gauntlets Heavy Armor -->
-      <item id="47021" /> <!-- Paulina's Twilight Helmet Heavy Armor -->
-    </requiredItems>
-    <skills>
-      <skill id="13931" level="3" minimumPieces="5" /> <!-- Set Effect - Paulina's Heavy Armor, 5-piece -->
-    </skills>
-  </set>
-  <set id="308" minimumPieces="5">
-    <!-- Paulina's Light Armor set R garde in 5 pieces -->
-    <requiredItems>
-      <item id="47028" /> <!-- Paulina's Twilight Leather Armor Light Armor -->
-      <item id="47029" /> <!-- Paulina's Twilight Leather Leggings Light Armor -->
-      <item id="47031" /> <!-- Paulina's Twilight Leather Boots Light Armor -->
-      <item id="47030" /> <!-- Paulina's Twilight Leather Gloves Light Armor -->
-      <item id="47027" /> <!-- Paulina's Twilight Leather Helmet Light Armor -->
-    </requiredItems>
-    <skills>
-      <skill id="13932" level="3" minimumPieces="5" /> <!-- Set Effect - Paulina's Light Armor, 5-piece -->
-    </skills>
-  </set>
-  <set id="309" minimumPieces="5">
-    <!-- Paulina's Robe set R garde in 5 pieces -->
-    <requiredItems>
-      <item id="47033" /> <!-- Paulina's Twilight Tunic Robe -->
-      <item id="47034" /> <!-- Paulina's Twilight Stockings Robe -->
-      <item id="47036" /> <!-- Paulina's Twilight Shoes Robe -->
-      <item id="47035" /> <!-- Paulina's Twilight Gloves Robe -->
-      <item id="47032" /> <!-- Paulina's Twilight Circlet Robe -->
-    </requiredItems>
-    <skills>
-      <skill id="13933" level="3" minimumPieces="5" /> <!-- Set Effect - Paulina's Robe, 5-piece -->
-    </skills>
-  </set>
-  <set id="310" minimumPieces="2">
-    <requiredItems>
-      <item id="90306" /> <!-- Warrior's Armor -->
-      <item id="90307" /> <!-- Warrior's Gaiters -->
-    </requiredItems>
-    <skills>
-      <skill id="3006" level="1" minimumPieces="2" /> <!-- Equip Set Items -->
-      <skill id="6941" level="1" minimumPieces="2" /> <!-- Warrior's Light Armor Set -->
-    </skills>
-  </set>
-  <set id="311" minimumPieces="2">
-    <requiredItems>
-      <item id="90308" /> <!-- Medium's Tunic -->
-      <item id="90309" /> <!-- Medium's Stockings -->
-    </requiredItems>
-    <skills>
-      <skill id="3006" level="1" minimumPieces="2" /> <!-- Equip Set Items -->
-      <skill id="6940" level="1" minimumPieces="2" /> <!-- Medium's Cloth Armor Set -->
 		</skills>
 	</set>
 	<set id="400" minimumPieces="1">

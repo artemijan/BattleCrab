@@ -41,7 +41,12 @@ fn fire_nuke(id: i32) -> Skill {
         magic_type: 1,
         attribute_type: Some(Element::Fire),
         attribute_value: 20,
-        effects: vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     }
 }

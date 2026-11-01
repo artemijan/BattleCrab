@@ -1,33 +1,33 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="23600" name="Lucky Enchant Stone: Armor (R-grade)" additionalName="Event" type="EtcItem">
 		<!-- Enchant success rate +15% for armor (R-grade). Only for items enchanted between +3 and +9. For one-piece armor, enchant must be between +4 and +9. -->
 		<set name="icon" val="icon.ench_am_potion_violet_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ARMOR_ENCHANT_STONE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9208" level="1" /> <!-- Lucky Clover (R-grade) -->
 		</skills>
 	</item>
-	<item id="23601" name="Premium Account - Gift Box" additionalName="Event" type="EtcItem">
+	<item id="23601" name="PA - Gift Box" additionalName="Event" type="EtcItem">
 		<!-- Gift given after accumulating 1-hr worth of PA Points. Double-click to use. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="PEEL" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="PEEL" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="COTTON" />
 		<capsuled_items>
 			<item id="23490" min="1" max="1" chance="100" /> <!-- PA Vitality (1-hour) - Event -->
-			<item id="22280" min="1" max="1" chance="100" /> <!-- Premium Account - Blessing (1-hour) - Event -->
+			<item id="22280" min="1" max="1" chance="100" /> <!-- PA - Blessing (1-hour) - Event -->
 		</capsuled_items>
 	</item>
 	<item id="23602" name="Hussar's Wing" type="Armor">
@@ -43,12 +43,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="fireRes">7</stat>
 			<stat type="waterRes">7</stat>
@@ -65,8 +65,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="isAppearanceable" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="isAppearanceable" val="true" />
 		<set name="material" val="COTTON" />
 	</item>
 	<item id="23604" name="Automatic Appearance: Japanese Weapon" type="EtcItem">
@@ -76,8 +76,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="isAppearanceable" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="isAppearanceable" val="true" />
 		<set name="material" val="COTTON" />
 	</item>
 	<item id="23605" name="SP Rune 50% Pack (1-hour)" type="EtcItem">
@@ -85,10 +85,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -101,9 +101,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22842" level="1" /> <!-- Extra Pass: Kartia's Labyrinth Lv. 85 Solo -->
@@ -115,9 +115,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22843" level="1" /> <!-- Extra Pass: Kartia's Labyrinth Lv. 90 Solo -->
@@ -129,9 +129,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22844" level="1" /> <!-- Extra Pass: Kartia's Labyrinth Lv. 95 Solo -->
@@ -143,9 +143,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22845" level="1" /> <!-- Extra Pass: Kartia's Labyrinth Lv. 85 Party -->
@@ -157,9 +157,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22846" level="1" /> <!-- Extra Pass: Kartia's Labyrinth Lv. 90 Party -->
@@ -171,9 +171,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22847" level="1" /> <!-- Extra Pass: Kartia's Labyrinth Lv. 95 Party -->
@@ -188,13 +188,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="300000" />
 		<set name="is_event_restricted" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="22044" level="7" /> <!-- Elixir of Life (Novice) -->
@@ -224,11 +224,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="15" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="1800000" />
 		<skills>
@@ -275,10 +275,10 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -291,10 +291,10 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -307,10 +307,10 @@
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -326,10 +326,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="material" val="LIQUID" />
 		<skills>
@@ -346,13 +346,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<set name="shared_reuse_group" val="15" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="22850" level="1" /> <!-- Vitality Suspending Potion -->
@@ -366,9 +366,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="handler" val="Book" />
-		<set name="default_action" val="SHOW_HTML" />
 		<set name="is_stackable" val="true" />
+		<set name="handler" val="Bypass" />
+		<set name="default_action" val="START_QUEST" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="23623" name="Gender Change Ticket" type="EtcItem">
@@ -379,9 +379,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="handler" val="ChangeCharacterNameItem" />
 		<set name="default_action" val="CAPSULE" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="23624" name="Gorale Hat" type="Armor">
@@ -431,10 +431,10 @@
 		<set name="icon" val="BranchSys3.icon1.g_chocolate_doughnut_pl" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -447,10 +447,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="22852" level="1" /> <!-- Piroscki - Replenish Vitality -->
@@ -561,16 +561,16 @@
 		</skills>
 	</item>
 	<item id="23635" name="flint" type="EtcItem">
-		<!-- Creates a campfire that lasts for 30 min. The warmth of the bonfire reduces the amount of MP consumption during skill use, and increases HP/MP/CP Recovery Rate. The closer you sit to the fire, the better the effect. All members. -->
+		<!-- Creates a campfire that lasts for 30 min. The warmth of the bonfire reduces the amount of MP consumption during skill use, and increases HP/ MP/ CP Recovery Rate. The closer you sit to the fire, the better the effect. All members. -->
 		<set name="icon" val="BranchSys2.icon.g_campfire_flint" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_event_restricted" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22860" level="1" /> <!-- Summon Roaring Campfire -->
@@ -589,6 +589,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="pDef">25</stat>
 			<stat type="fireRes">7</stat>
@@ -600,7 +606,7 @@
 		</stats>
 	</item>
 	<item id="23637" name="Blessed Antharas' Earring" additionalName="3-day" type="Armor">
-		<!-- MP +59, Bleed Resistance +50%, Bleed Attack Rate +50%, Stun/Mental Resistance +40%, Stun/Mental Attack +40%, CON +3, and MEN +3. Increases Heal Amount, Vampiric Rage Effect, Earth Resistance, Holy Resistance, P. Def., and M. Def. Decreases P. Skill MP Consumption and M. Skill MP Consumption. Can use Cancel Stun skill, and Stun Resistance +100% temporarily. 3-day. Equipping two will only give the effect of one. -->
+		<!-- MP +59, Bleed Resistance +50%, Bleed Attack Rate +50%, Stun/ Mental Resistance +40%, Stun/ Mental Attack +40%, CON +3, and MEN +3. Increases Heal Amount, Vampiric Rage Effect, Earth Resistance, Holy Resistance, P. Def., and M. Def. Decreases P. Skill MP Consumption and M. Skill MP Consumption. Can use Cancel Stun skill, and Stun Resistance +100% temporarily. 3-day. Equipping two will only give the effect of one. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -613,16 +619,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="4320" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13314" level="1" /> <!-- Blessed Antharas' Earring -->
 			<skill id="13313" level="1" /> <!-- Blessed Antharas' Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="23638" name="Blessed Antharas' Earring" additionalName="7-day" type="Armor">
-		<!-- MP +59, Bleed Resistance +50%, Bleed Attack Rate +50%, Stun/Mental Resistance +40%, Stun/Mental Attack +40%, CON +3, and MEN +3. Increases Heal Amount, Vampiric Rage Effect, Earth Resistance, Holy Resistance, P. Def., and M. Def. Decreases P. Skill MP Consumption and M. Skill MP Consumption. Can use Cancel Stun skill, and Stun Resistance +100% temporarily. 7-day. Equipping two will only give the effect of one. -->
+		<!-- MP +59, Bleed Resistance +50%, Bleed Attack Rate +50%, Stun/ Mental Resistance +40%, Stun/ Mental Attack +40%, CON +3, and MEN +3. Increases Heal Amount, Vampiric Rage Effect, Earth Resistance, Holy Resistance, P. Def., and M. Def. Decreases P. Skill MP Consumption and M. Skill MP Consumption. Can use Cancel Stun skill, and Stun Resistance +100% temporarily. 7-day. Equipping two will only give the effect of one. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -635,13 +641,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">170</stat>
+		</stats>
 		<skills>
 			<skill id="13314" level="1" /> <!-- Blessed Antharas' Earring -->
 			<skill id="13313" level="1" /> <!-- Blessed Antharas' Earring -->
 		</skills>
-		<stats>
-			<stat type="mDef">170</stat>
-		</stats>
 	</item>
 	<item id="23639" name="Blessed Valakas' Necklace" additionalName="3-day" type="Armor">
 		<!-- HP +625, MP +79, Sleep Resistance +50%, Sleep Attack Rate +50%, Fire Resistance +30, Dark Resistance +20, STR +3, INT +3, P. Skill Attack +5%, P. Atk. +10%, M. Atk. +20%. Wild Magic Effect, and Damage Reflect effect. Decreases P. Skill cooldown and M. Skill cooldown. Can use Cancel Hold skill, and Hold Resistance +100% momentarily. 3-day. -->
@@ -657,13 +663,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="4320" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">226</stat>
+		</stats>
 		<skills>
 			<skill id="13316" level="1" /> <!-- Blessed Valakas' Necklace -->
 			<skill id="13315" level="1" /> <!-- Blessed Valakas' Necklace -->
 		</skills>
-		<stats>
-			<stat type="mDef">226</stat>
-		</stats>
 	</item>
 	<item id="23640" name="Blessed Valakas' Necklace" additionalName="7-day" type="Armor">
 		<!-- HP +625, MP +79, Sleep Resistance +50%, Sleep Attack Rate +50%, Fire Resistance +30, Dark Resistance +20, STR +3, INT +3, P. Skill Attack +5%, P. Atk. +10%, M. Atk. +20%. Wild Magic Effect, and Damage Reflect effect. Decreases P. Skill cooldown and M. Skill cooldown. Can use Cancel Hold skill, and Hold Resistance +100% temporarily. 7-day. -->
@@ -679,13 +685,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="GOLD" />
+		<stats>
+			<stat type="mDef">226</stat>
+		</stats>
 		<skills>
 			<skill id="13316" level="1" /> <!-- Blessed Valakas' Necklace -->
 			<skill id="13315" level="1" /> <!-- Blessed Valakas' Necklace -->
 		</skills>
-		<stats>
-			<stat type="mDef">226</stat>
-		</stats>
 	</item>
 	<item id="23641" name="Star Agathion Pack" type="EtcItem">
 		<!-- Double-click to obtain a random Star Agathion (7-day). -->
@@ -694,9 +700,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 		<skills>
 			<skill id="9632" level="1" /> <!-- Star Agathion Pack -->
@@ -707,10 +713,10 @@
 		<set name="icon" val="BranchSys.br_rudolf_food_red_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="9629" level="1" /> <!-- Vitality Replenishing Star Candy -->
@@ -723,10 +729,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="9630" level="1" /> <!-- Vitality Recovering Star Candy -->
@@ -739,16 +745,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="9631" level="1" /> <!-- Vitality Maintaining Star Candy -->
 		</skills>
 	</item>
-	<item id="23645" name="MP Recovery Potion" type="EtcItem">
+	<item id="23645" name="MP Recovery Bonus Potion" type="EtcItem">
 		<!-- Restores 50% of Max MP. -->
 		<set name="icon" val="BranchSys.icon.br_vitality_potion_i00" />
 		<set name="weight" val="5" />
@@ -756,13 +762,13 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_event_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="22214" level="1" /> <!-- MP Recovery Potion -->
+			<skill id="22214" level="1" /> <!-- MP Recovery Bonus Potion -->
 		</skills>
 	</item>
 	<item id="23646" name="High-grade Lucky Enchant Stone: Weapon (R-grade)" type="EtcItem">
@@ -771,9 +777,9 @@
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9573" level="1" /> <!-- High-grade Lucky Enchant Stone: Weapon (R-grade) -->
@@ -785,9 +791,9 @@
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9574" level="1" /> <!-- High-grade Lucky Enchant Stone: Armor (R-grade) -->
@@ -798,11 +804,11 @@
 		<set name="icon" val="br_cashtex.item.br_cash_lucky_cube_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22861" level="1" /> <!-- Knighthood's Fortune Box -->
@@ -813,10 +819,10 @@
 		<set name="icon" val="BranchSys.icon.br_fortuna_cube_s_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22862" level="1" /> <!-- Royal Guard's Fortune Box -->
@@ -1457,8 +1463,8 @@
 		<set name="icon" val="icon.etc_potion_red_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="23687" name="Dimension Traveler's Blue Vitality Potion" type="EtcItem">
@@ -1466,8 +1472,8 @@
 		<set name="icon" val="icon.etc_potion_blue_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="23688" name="Dimension Traveler's Gold Vitality Potion" type="EtcItem">
@@ -1475,8 +1481,8 @@
 		<set name="icon" val="icon.etc_potion_gold_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="23689" name="Dimension Protector's Red Vitality Potion" type="EtcItem">
@@ -1484,8 +1490,8 @@
 		<set name="icon" val="icon.etc_hot_spring_sulfur_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="23690" name="Dimension Protector's Blue Vitality Potion" type="EtcItem">
@@ -1493,8 +1499,8 @@
 		<set name="icon" val="icon.etc_hot_spring_mineral_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="23691" name="Dimension Protector's Gold Vitality Potion" type="EtcItem">
@@ -1502,8 +1508,8 @@
 		<set name="icon" val="icon.etc_hot_spring_nectar_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="23692" name="Ninja Top" additionalName="Modified Set" type="Armor">
@@ -1565,10 +1571,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22900" level="1" /> <!-- Ninja Top Appearance Stone -->
@@ -1581,10 +1587,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22901" level="1" /> <!-- Ninja Pants Appearance Stone -->
@@ -1597,10 +1603,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22902" level="1" /> <!-- Ninja Gloves Appearance Stone -->
@@ -1613,10 +1619,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22903" level="1" /> <!-- Ninja Shoes Appearance Stone -->

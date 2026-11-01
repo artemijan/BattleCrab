@@ -4,7 +4,7 @@
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>NONE</abnormalType>
-		<abnormalVisualEffect>ULTIMATE_DEFENCE</abnormalVisualEffect>
+		<abnormalVisualEffect>RO_GHOST_REFLECT</abnormalVisualEffect>
 		<icon>icon.skill01418</icon>
 		<operateType>A2</operateType>
 		<removedOnAnyActionExceptMove>true</removedOnAnyActionExceptMove>

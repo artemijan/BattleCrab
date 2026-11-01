@@ -1,10 +1,19 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="900" toLevel="6" name="Energy Blast">
-		<!-- Delivers a powerful strike with 15838 Power. -->
+		<!-- Level 1: Delivers a powerful strike with 15838 Power. -->
+		<!-- Level 2: Delivers a powerful strike with 16170 Power. -->
+		<!-- Level 3: Delivers a powerful strike with 16494 Power. -->
+		<!-- Level 4: Delivers a powerful strike with 16807 Power. -->
+		<!-- Level 5: Delivers a powerful strike with 17110 Power. -->
+		<!-- Level 6: Delivers a powerful strike with 17400 Power. -->
 		<icon>icon.skill_transform_etc</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>SQUARE_PB</affectScope>
 		<effectPoint>
 			<value level="1">-676</value>
 			<value level="2">-679</value>
@@ -15,6 +24,7 @@
 		</effectPoint>
 		<fanRange>0;0;200;900</fanRange>
 		<hitTime>4000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -31,11 +41,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">15838</value>
 					<value level="2">16170</value>
@@ -47,7 +55,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">5280</value>
 					<value level="2">5390</value>
@@ -58,13 +66,18 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>SELF</targetType>
-		<affectScope>SQUARE_PB</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="901" toLevel="6" name="Dark Strike">
-		<!-- Delivers a powerful strike with 9503 Power. -->
+		<!-- Level 1: Delivers a powerful strike with 9503 Power. -->
+		<!-- Level 2: Delivers a powerful strike with 9702 Power. -->
+		<!-- Level 3: Delivers a powerful strike with 9896 Power. -->
+		<!-- Level 4: Delivers a powerful strike with 10084 Power. -->
+		<!-- Level 5: Delivers a powerful strike with 10266 Power. -->
+		<!-- Level 6: Delivers a powerful strike with 10440 Power. -->
 		<icon>icon.skill_transform_etc</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<effectPoint>
 			<value level="1">-676</value>
@@ -76,6 +89,7 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -93,11 +107,9 @@
 			<value level="6">75</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">9503</value>
 					<value level="2">9702</value>
@@ -109,7 +121,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">3168</value>
 					<value level="2">3234</value>
@@ -120,12 +132,18 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="902" toLevel="6" name="Bursting Flame">
-		<!-- Inflicts a powerful ranged attack with 9503 Power. -->
+		<!-- Level 1: Inflicts a powerful ranged attack with 9503 Power. -->
+		<!-- Level 2: Inflicts a powerful ranged attack with 9702 Power. -->
+		<!-- Level 3: Inflicts a powerful ranged attack with 9896 Power. -->
+		<!-- Level 4: Inflicts a powerful ranged attack with 10084 Power. -->
+		<!-- Level 5: Inflicts a powerful ranged attack with 10266 Power. -->
+		<!-- Level 6: Inflicts a powerful ranged attack with 10440 Power. -->
 		<icon>icon.skill_transform_etc</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>
 			<value level="1">-676</value>
@@ -137,6 +155,7 @@
 		</effectPoint>
 		<effectRange>1500</effectRange>
 		<hitTime>4000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -153,11 +172,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">9503</value>
 					<value level="2">9702</value>
@@ -169,7 +186,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">3168</value>
 					<value level="2">3234</value>
@@ -180,14 +197,21 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="903" toLevel="6" name="Stratum Explosion">
-		<!-- Inflicts a powerful blow on nearby enemies with 5068 Power. -->
+		<!-- Level 1: Inflicts a powerful blow on nearby enemies with 5068 Power. -->
+		<!-- Level 2: Inflicts a powerful blow on nearby enemies with 5175 Power. -->
+		<!-- Level 3: Inflicts a powerful blow on nearby enemies with 5278 Power. -->
+		<!-- Level 4: Inflicts a powerful blow on nearby enemies with 5379 Power. -->
+		<!-- Level 5: Inflicts a powerful blow on nearby enemies with 5475 Power. -->
+		<!-- Level 6: Inflicts a powerful blow on nearby enemies with 5568 Power. -->
 		<icon>icon.skill_transform_etc</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<effectPoint>
 			<value level="1">-676</value>
 			<value level="2">-679</value>
@@ -197,6 +221,7 @@
 			<value level="6">-689</value>
 		</effectPoint>
 		<hitTime>4000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -213,11 +238,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">5068</value>
 					<value level="2">5175</value>
@@ -229,7 +252,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">1690</value>
 					<value level="2">1725</value>
@@ -240,20 +263,27 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="904" toLevel="6" name="Corpse Burst">
-		<!-- Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 348. -->
+		<!-- Level 1: Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 348. -->
+		<!-- Level 2: Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 351. -->
+		<!-- Level 3: Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 355. -->
+		<!-- Level 4: Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 358. -->
+		<!-- Level 5: Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 361. -->
+		<!-- Level 6: Causes a nearby corpse to burst open, poisoning enemies with 8. Power. Effect 364. -->
 		<icon>icon.skill_transform_debuff</icon>
+		<operateType>A2</operateType>
+		<targetType>NPC_BODY</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<abnormalType>POISON</abnormalType>
 		<activateRate>80</activateRate>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>20</attributeValue>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>400</castRange>
 		<effectPoint>
@@ -265,11 +295,11 @@
 			<value level="6">-345</value>
 		</effectPoint>
 		<effectRange>900</effectRange>
-		<attributeType>DARK</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -286,14 +316,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>5000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isDebuff>true</isDebuff>
+		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<trait>POISON</trait>
-		<targetType>NPC_BODY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="ConsumeBody" />
 		</conditions>
@@ -304,20 +329,20 @@
 			</effect>
 		</effects>
 		<pveEffects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
-					<value level="1">348</value>
-					<value level="2">351</value>
-					<value level="3">355</value>
-					<value level="4">358</value>
-					<value level="5">361</value>
-					<value level="6">364</value>
+					<value level="1">8</value>
+					<value level="2">8</value>
+					<value level="3">8</value>
+					<value level="4">8</value>
+					<value level="5">8</value>
+					<value level="6">8</value>
 				</power>
 			</effect>
 			<effect name="ConsumeBody" />
 		</pveEffects>
 		<pvpEffects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">116</value>
 					<value level="2">117</value>
@@ -330,15 +355,26 @@
 		</pvpEffects>
 	</skill>
 	<skill id="905" toLevel="6" name="Dark Detonation">
-		<!-- Inflicts a powerful continuous attack on nearby enemies, stunning them with 12670 Power. -->
+		<!-- Level 1: Inflicts a powerful continuous attack on nearby enemies, stunning them with 12670 Power. -->
+		<!-- Level 2: Inflicts a powerful continuous attack on nearby enemies, stunning them with 12936 Power. -->
+		<!-- Level 3: Inflicts a powerful continuous attack on nearby enemies, stunning them with 13195 Power. -->
+		<!-- Level 4: Inflicts a powerful continuous attack on nearby enemies, stunning them with 13446 Power. -->
+		<!-- Level 5: Inflicts a powerful continuous attack on nearby enemies, stunning them with 13688 Power. -->
+		<!-- Level 6: Inflicts a powerful continuous attack on nearby enemies, stunning them with 13920 Power. -->
 		<icon>icon.skill_transform_debuff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>80</activateRate>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>20</attributeValue>
 		<basicProperty>PHYSICAL</basicProperty>
 		<effectPoint>
 			<value level="1">-676</value>
@@ -349,7 +385,9 @@
 			<value level="6">-689</value>
 		</effectPoint>
 		<hitTime>4000</hitTime>
+		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -366,20 +404,12 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<attributeType>DARK</attributeType>
-		<attributeValue>20</attributeValue>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="BlockActions" />
 		</effects>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">12670</value>
 					<value level="2">12936</value>
@@ -391,7 +421,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">4224</value>
 					<value level="2">4312</value>
@@ -404,10 +434,19 @@
 		</pvpEffects>
 	</skill>
 	<skill id="906" toLevel="6" name="Lance Step">
-		<!-- Inflicts a mighty straight-line blow with 9503 Power. -->
+		<!-- Level 1: Inflicts a mighty straight-line blow with 9503 Power. -->
+		<!-- Level 2: Inflicts a mighty straight-line blow with 9702 Power. -->
+		<!-- Level 3: Inflicts a mighty straight-line blow with 9896 Power. -->
+		<!-- Level 4: Inflicts a mighty straight-line blow with 10084 Power. -->
+		<!-- Level 5: Inflicts a mighty straight-line blow with 10266 Power. -->
+		<!-- Level 6: Inflicts a mighty straight-line blow with 10440 Power. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>900</affectRange>
+		<affectScope>SQUARE_PB</affectScope>
 		<effectPoint>
 			<value level="1">-676</value>
 			<value level="2">-679</value>
@@ -418,6 +457,7 @@
 		</effectPoint>
 		<fanRange>0;0;900;100</fanRange>
 		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -434,11 +474,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">9503</value>
 					<value level="2">9702</value>
@@ -450,7 +488,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">3168</value>
 					<value level="2">3234</value>
@@ -461,13 +499,20 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>SELF</targetType>
-		<affectScope>SQUARE_PB</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="907" toLevel="6" name="Aqua Blast">
-		<!-- Inflicts a powerful ranged attack with 9503 Power. -->
+		<!-- Level 1: Inflicts a powerful ranged attack with 9503 Power. -->
+		<!-- Level 2: Inflicts a powerful ranged attack with 9702 Power. -->
+		<!-- Level 3: Inflicts a powerful ranged attack with 9896 Power. -->
+		<!-- Level 4: Inflicts a powerful ranged attack with 10084 Power. -->
+		<!-- Level 5: Inflicts a powerful ranged attack with 10266 Power. -->
+		<!-- Level 6: Inflicts a powerful ranged attack with 10440 Power. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
 		<castRange>900</castRange>
 		<effectPoint>
 			<value level="1">-676</value>
@@ -478,9 +523,8 @@
 			<value level="6">-689</value>
 		</effectPoint>
 		<effectRange>1500</effectRange>
-		<attributeType>WATER</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>4000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -497,11 +541,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">9503</value>
 					<value level="2">9702</value>
@@ -513,7 +555,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">3168</value>
 					<value level="2">3234</value>
@@ -524,14 +566,21 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="908" toLevel="6" name="Spin Slash">
-		<!-- Inflicts a powerful blow on nearby enemies with 5068 Power. -->
+		<!-- Level 1: Inflicts a powerful blow on nearby enemies with 5068 Power. -->
+		<!-- Level 2: Inflicts a powerful blow on nearby enemies with 5175 Power. -->
+		<!-- Level 3: Inflicts a powerful blow on nearby enemies with 5278 Power. -->
+		<!-- Level 4: Inflicts a powerful blow on nearby enemies with 5379 Power. -->
+		<!-- Level 5: Inflicts a powerful blow on nearby enemies with 5475 Power. -->
+		<!-- Level 6: Inflicts a powerful blow on nearby enemies with 5568 Power. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<effectPoint>
 			<value level="1">-676</value>
 			<value level="2">-679</value>
@@ -541,6 +590,7 @@
 			<value level="6">-689</value>
 		</effectPoint>
 		<hitTime>4000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -557,11 +607,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">5068</value>
 					<value level="2">5175</value>
@@ -573,7 +621,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">1690</value>
 					<value level="2">1725</value>
@@ -584,20 +632,27 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="909" toLevel="6" name="Ice Fog">
-		<!-- Inflicts continuous damage on nearby enemies with 348 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 1: Inflicts continuous damage on nearby enemies with 348 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 2: Inflicts continuous damage on nearby enemies with 351 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 3: Inflicts continuous damage on nearby enemies with 355 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 4: Inflicts continuous damage on nearby enemies with 358 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 5: Inflicts continuous damage on nearby enemies with 361 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
+		<!-- Level 6: Inflicts continuous damage on nearby enemies with 364 Power, decreasing their Speed, Atk. Spd. and Casting Spd. -->
 		<icon>icon.skill_transform_debuff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<abnormalType>POISON</abnormalType>
 		<activateRate>80</activateRate>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
 		<basicProperty>PHYSICAL</basicProperty>
 		<effectPoint>
 			<value level="1">-338</value>
@@ -607,12 +662,11 @@
 			<value level="5">-344</value>
 			<value level="6">-345</value>
 		</effectPoint>
-		<attributeType>WATER</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -629,13 +683,9 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>5000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
+		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<trait>POISON</trait>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="DamOverTime">
 				<power>230</power>
@@ -655,7 +705,7 @@
 			</effect>
 		</effects>
 		<pveEffects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">348</value>
 					<value level="2">351</value>
@@ -667,7 +717,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">116</value>
 					<value level="2">117</value>
@@ -680,15 +730,25 @@
 		</pvpEffects>
 	</skill>
 	<skill id="910" toLevel="6" name="Water Jet">
-		<!-- Strikes enemies with 12670 Power in a mighty rush of Water. Effect 8. -->
+		<!-- Level 1: Strikes enemies with 12670 Power in a mighty rush of Water. Effect 8. -->
+		<!-- Level 2: Strikes enemies with 12936 Power in a mighty rush of Water. Effect 8. -->
+		<!-- Level 3: Strikes enemies with 13195 Power in a mighty rush of Water. Effect 8. -->
+		<!-- Level 4: Strikes enemies with 13446 Power in a mighty rush of Water. Effect 8. -->
+		<!-- Level 5: Strikes enemies with 13688 Power in a mighty rush of Water. Effect 8. -->
+		<!-- Level 6: Strikes enemies with 13920 Power in a mighty rush of Water. Effect 8. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
 		<abnormalType>BLEEDING</abnormalType>
 		<activateRate>80</activateRate>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>100</affectRange>
+		<affectScope>SQUARE_PB</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
 		<basicProperty>PHYSICAL</basicProperty>
 		<effectPoint>
 			<value level="1">-676</value>
@@ -698,11 +758,11 @@
 			<value level="5">-687</value>
 			<value level="6">-689</value>
 		</effectPoint>
-		<attributeType>WATER</attributeType>
-		<attributeValue>20</attributeValue>
 		<fanRange>0;0;200;900</fanRange>
 		<hitTime>4000</hitTime>
+		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -719,13 +779,11 @@
 			<value level="5">75</value>
 			<value level="6">75</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isDebuff>true</isDebuff>
+		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
 		<trait>BLEED</trait>
 		<pveEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">12670</value>
 					<value level="2">12936</value>
@@ -737,7 +795,7 @@
 			</effect>
 		</pveEffects>
 		<pvpEffects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">4224</value>
 					<value level="2">4312</value>
@@ -748,15 +806,26 @@
 				</power>
 			</effect>
 		</pvpEffects>
-		<targetType>SELF</targetType>
-		<affectScope>SQUARE_PB</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 	</skill>
 	<skill id="911" toLevel="11" name="Energy Burst">
-		<!-- Inflicts a powerful blow on nearby enemies with 469 Power. -->
+		<!-- Level 1: Inflicts a powerful blow on nearby enemies with 469 Power. -->
+		<!-- Level 2: Inflicts a powerful blow on nearby enemies with 482 Power. -->
+		<!-- Level 3: Inflicts a powerful blow on nearby enemies with 494 Power. -->
+		<!-- Level 4: Inflicts a powerful blow on nearby enemies with 505 Power. -->
+		<!-- Level 5: Inflicts a powerful blow on nearby enemies with 517 Power. -->
+		<!-- Level 6: Inflicts a powerful blow on nearby enemies with 528 Power. -->
+		<!-- Level 7: Inflicts a powerful blow on nearby enemies with 539 Power. -->
+		<!-- Level 8: Inflicts a powerful blow on nearby enemies with 550 Power. -->
+		<!-- Level 9: Inflicts a powerful blow on nearby enemies with 561 Power. -->
+		<!-- Level 10: Inflicts a powerful blow on nearby enemies with 571 Power. -->
+		<!-- Level 11: Inflicts a powerful blow on nearby enemies with 580 Power. -->
 		<icon>icon.skill_transform_etc</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
 		<effectPoint>
 			<value level="1">-669</value>
 			<value level="2">-673</value>
@@ -771,6 +840,7 @@
 			<value level="11">-696</value>
 		</effectPoint>
 		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">75</value>
 			<value level="2">76</value>
@@ -797,14 +867,9 @@
 			<value level="10">75</value>
 			<value level="11">75</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>1000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">469</value>
 					<value level="2">482</value>
@@ -824,17 +889,17 @@
 	<skill id="912" toLevel="1" name="Summon Imperial Phoenix">
 		<!-- Summons an Imperial Phoenix. Requires 2 A-grade Crystals. -->
 		<icon>icon.skill0912</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>15000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<itemConsumeCount>2</itemConsumeCount>
 		<itemConsumeId>1461</itemConsumeId> <!-- Crystal (A-Grade) -->
-		<magicLevel>81</magicLevel>
-		<mpConsume>145</mpConsume>
-		<operateType>A1</operateType>
-		<reuseDelay>45000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>83</magicLevel>
+		<mpConsume>145</mpConsume>
+		<reuseDelay>45000</reuseDelay>
 		<conditions>
 			<condition name="CanSummon" />
 		</conditions>
@@ -850,21 +915,21 @@
 	<skill id="913" toLevel="1" name="Deflect Magic">
 		<!-- Increases Magic Attack Resistance by 100% for 20 minutes. -->
 		<icon>icon.skill0913</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>DD_RESIST</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>679</effectPoint>
 		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>81</magicLevel>
 		<mpConsume>37</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="ResistDDMagic">
+			<effect name="MagicalSuccessResistance">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
@@ -873,22 +938,22 @@
 	<skill id="914" toLevel="1" name="Song of Purification">
 		<!-- Provides an 80% chance of removing a party member's debuffs. And for the next 2 minutes, increases Debuff Resistance by 30% and increases the Healing power received by 30%. -->
 		<icon>icon.skill0914</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>SONG_OF_PURIFICATION</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>679</effectPoint>
 		<hitTime>2500</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
-		<magicLevel>81</magicLevel>
-		<mpConsume>60</mpConsume>
-		<operateType>A2</operateType>
-		<reuseDelay>240000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>83</magicLevel>
+		<mpConsume>60</mpConsume>
+		<reuseDelay>240000</reuseDelay>
 		<effects>
 			<effect name="DispelByCategory">
 				<slot>DEBUFF</slot>
@@ -908,22 +973,22 @@
 	<skill id="915" toLevel="1" name="Dance of Berserker">
 		<!-- Decreases a party member's P. Def., M. Def. and Evasion, and increases their P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed for 2 minutes. -->
 		<icon>icon.skill0915</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>DANCE_OF_BERSERKER</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>679</effectPoint>
 		<hitTime>2500</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
-		<magicLevel>81</magicLevel>
-		<mpConsume>60</mpConsume>
-		<operateType>A2</operateType>
-		<reuseDelay>240000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicLevel>83</magicLevel>
+		<mpConsume>60</mpConsume>
+		<reuseDelay>240000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -933,11 +998,11 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>16</amount>
 				<mode>PER</mode>
 			</effect>
@@ -970,11 +1035,16 @@
 	<skill id="916" toLevel="4" name="Shield Deflect Magic">
 		<!-- For 8 seconds, transfers magical damage back to the enemy caster. -->
 		<icon>icon.skill0916</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>8</abnormalTime>
 		<abnormalType>REFLECT_MAGIC_DD</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>204</effectPoint>
 		<hitTime>500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">60</value>
 			<value level="2">64</value>
@@ -987,12 +1057,7 @@
 			<value level="3">29</value>
 			<value level="4">29</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>45000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipShield" />
 		</conditions>
@@ -1010,19 +1075,19 @@
 	<skill id="917" toLevel="1" name="Final Secret">
 		<!-- For 30 sec., you call upon your hidden reserves to increase your skills power and standard attack damage by 30% during PvP. -->
 		<icon>icon.skill0917</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>FINAL_SECRET</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>597</effectPoint>
 		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>81</magicLevel>
 		<mpConsume>37</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>150000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalSkillPower">
 				<amount>30</amount>
@@ -1037,16 +1102,16 @@
 	<skill id="918" toLevel="1" name="Maximum Force Focus">
 		<!-- Immediately increases Momentum to its maximum level. -->
 		<icon>icon.skill0918</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<effectPoint>150</effectPoint>
 		<hitTime>900</hitTime>
 		<hpConsume>80</hpConsume>
-		<magicLevel>81</magicLevel>
-		<mpConsume>20</mpConsume>
-		<operateType>A1</operateType>
-		<reuseDelay>75000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>83</magicLevel>
+		<mpConsume>20</mpConsume>
+		<reuseDelay>75000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1064,16 +1129,16 @@
 	<skill id="919" toLevel="1" name="Maximum Sonic Focus">
 		<!-- Immediately increases Momentum to its maximum level. -->
 		<icon>icon.skill0919</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<effectPoint>150</effectPoint>
 		<hitTime>900</hitTime>
 		<hpConsume>80</hpConsume>
-		<magicLevel>81</magicLevel>
-		<mpConsume>20</mpConsume>
-		<operateType>A1</operateType>
-		<reuseDelay>75000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>83</magicLevel>
+		<mpConsume>20</mpConsume>
+		<reuseDelay>75000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1090,8 +1155,47 @@
 		</effects>
 	</skill>
 	<skill id="920" toLevel="37" name="Power Crush">
-		<!-- Attacks the enemy with 664 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 1: Attacks the enemy with 664 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 2: Attacks the enemy with 706 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 3: Attacks the enemy with 750 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 4: Attacks the enemy with 795 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 5: Attacks the enemy with 843 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 6: Attacks the enemy with 893 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 7: Attacks the enemy with 945 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 8: Attacks the enemy with 998 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 9: Attacks the enemy with 1054 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 10: Attacks the enemy with 1112 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 11: Attacks the enemy with 1172 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 12: Attacks the enemy with 1234 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 13: Attacks the enemy with 1298 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 14: Attacks the enemy with 1365 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 15: Attacks the enemy with 1433 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 16: Attacks the enemy with 1503 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 17: Attacks the enemy with 1575 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 18: Attacks the enemy with 1649 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 19: Attacks the enemy with 1725 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 20: Attacks the enemy with 1803 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 21: Attacks the enemy with 1882 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 22: Attacks the enemy with 1963 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 23: Attacks the enemy with 2045 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 24: Attacks the enemy with 2129 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 25: Attacks the enemy with 2214 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 26: Attacks the enemy with 2301 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 27: Attacks the enemy with 2388 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 28: Attacks the enemy with 2476 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 29: Attacks the enemy with 2565 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 30: Attacks the enemy with 2655 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 31: Attacks the enemy with 2745 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 32: Attacks the enemy with 2836 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 33: Attacks the enemy with 2927 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 34: Attacks the enemy with 3018 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 35: Attacks the enemy with 3108 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 36: Attacks the enemy with 3198 Power added to P. Atk. Over-hit. Critical. -->
+		<!-- Level 37: Attacks the enemy with 3288 Power added to P. Atk. Over-hit. Critical. -->
 		<icon>icon.skill0920</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>80</castRange>
 		<coolTime>720</coolTime>
 		<effectPoint>
@@ -1135,43 +1239,44 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1080</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
-			<value level="1">38</value>
-			<value level="2">39</value>
+			<value level="1">40</value>
+			<value level="2">40</value>
 			<value level="3">40</value>
-			<value level="4">41</value>
-			<value level="5">42</value>
+			<value level="4">43</value>
+			<value level="5">43</value>
 			<value level="6">43</value>
-			<value level="7">44</value>
-			<value level="8">45</value>
+			<value level="7">46</value>
+			<value level="8">46</value>
 			<value level="9">46</value>
-			<value level="10">47</value>
-			<value level="11">48</value>
+			<value level="10">49</value>
+			<value level="11">49</value>
 			<value level="12">49</value>
-			<value level="13">50</value>
-			<value level="14">51</value>
+			<value level="13">52</value>
+			<value level="14">52</value>
 			<value level="15">52</value>
-			<value level="16">53</value>
-			<value level="17">54</value>
+			<value level="16">55</value>
+			<value level="17">55</value>
 			<value level="18">55</value>
-			<value level="19">56</value>
-			<value level="20">57</value>
+			<value level="19">58</value>
+			<value level="20">58</value>
 			<value level="21">58</value>
-			<value level="22">59</value>
+			<value level="22">60</value>
 			<value level="23">60</value>
-			<value level="24">61</value>
+			<value level="24">62</value>
 			<value level="25">62</value>
-			<value level="26">63</value>
+			<value level="26">64</value>
 			<value level="27">64</value>
-			<value level="28">65</value>
+			<value level="28">66</value>
 			<value level="29">66</value>
-			<value level="30">67</value>
+			<value level="30">68</value>
 			<value level="31">68</value>
-			<value level="32">69</value>
+			<value level="32">70</value>
 			<value level="33">70</value>
-			<value level="34">71</value>
+			<value level="34">72</value>
 			<value level="35">72</value>
-			<value level="36">73</value>
+			<value level="36">74</value>
 			<value level="37">74</value>
 		</magicLevel>
 		<mpConsume>
@@ -1214,11 +1319,7 @@
 			<value level="37">77</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1227,7 +1328,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">664</value>
 					<value level="2">706</value>
@@ -1275,19 +1376,19 @@
 	<skill id="921" toLevel="1" name="Cursed Pierce">
 		<!-- Attacks the enemy with 3849 Power added to P. Atk. Over-hit. Ignores Shield Defense. Critical is possible. -->
 		<icon>icon.skill0921</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>80</castRange>
 		<coolTime>720</coolTime>
 		<effectPoint>-337</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1080</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>76</magicLevel>
 		<mpConsume>77</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1296,7 +1397,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>3849</power>
 				<ignoreShieldDefence>true</ignoreShieldDefence>
 				<criticalChance>30</criticalChance>
@@ -1307,21 +1408,21 @@
 	<skill id="922" toLevel="1" name="Hide">
 		<!-- Hides the user. Decreases Speed by 30%, and the effect is canceled if any action other than movement is initiated. -->
 		<icon>icon.skill0922</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>HIDE</abnormalType>
 		<abnormalVisualEffect>STEALTH</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>679</effectPoint>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>81</magicLevel>
-		<operateType>A2</operateType>
 		<removedOnAnyActionExceptMove>true</removedOnAnyActionExceptMove>
 		<removedOnDamage>true</removedOnDamage>
 		<reuseDelay>180000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Hide" />
 			<effect name="Speed">
@@ -1336,16 +1437,16 @@
 	<skill id="923" toLevel="1" name="Dual Dagger Mastery">
 		<!-- When using a dual dagger, increases P. Atk. by 87.5 and the Vital Spot Attack Rate by 5%. -->
 		<icon>icon.skill0923</icon>
-		<magicLevel>81</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
 		<passiveConditions>
 			<condition name="CheckLevel">
 				<minLevel>81</minLevel>
 			</condition>
 		</passiveConditions>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>87.5</amount>
 				<mode>DIFF</mode>
 				<weaponType>
@@ -1361,19 +1462,19 @@
 	<skill id="924" toLevel="1" name="Seven Arrow">
 		<!-- Shoots 7 arrows to attack the enemy with 11440 Power added to P. Atk. Critical. -->
 		<icon>icon.skill0924</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
 		<effectPoint>-1022</effectPoint>
 		<effectRange>1000</effectRange>
+		<hitCancelTime>3</hitCancelTime>
 		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>81</magicLevel>
 		<mpConsume>81</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>300000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>3</hitCancelTime>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1382,7 +1483,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>11440</power>
 				<criticalChance>15</criticalChance>
 			</effect>
@@ -1391,11 +1492,11 @@
 	<skill id="925" toLevel="1" name="Sigil Mastery">
 		<!-- When a Sigil is equipped, increases M. Atk. by 4% and MP Recovery Bonus by 17%. -->
 		<icon>icon.skill0925</icon>
-		<magicLevel>76</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>76</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 				<armorType>
@@ -1414,9 +1515,9 @@
 	<skill id="926" toLevel="1" name="Sigil Mastery">
 		<!-- When a Sigil is equipped, increases heal power by 30 and MP Recovery Bonus by 17%. -->
 		<icon>icon.skill0925</icon>
-		<magicLevel>76</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>76</magicLevel>
 		<effects>
 			<effect name="MpRegen">
 				<amount>17</amount>
@@ -1435,8 +1536,23 @@
 		</effects>
 	</skill>
 	<skill id="927" toLevel="14" name="Burning Chop">
-		<!-- Attacks the enemy with 167 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 43 HP every second. Cannot be used when a bow/crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 1: Attacks the enemy with 167 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 43 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 2: Attacks the enemy with 210 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 43 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 3: Attacks the enemy with 261 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 43 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 4: Attacks the enemy with 319 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 53 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 5: Attacks the enemy with 384 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 53 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 6: Attacks the enemy with 419 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 53 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 7: Attacks the enemy with 455 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 61 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 8: Attacks the enemy with 492 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 61 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 9: Attacks the enemy with 531 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 61 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 10: Attacks the enemy with 570 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 61 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 11: Attacks the enemy with 610 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 61 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 12: Attacks the enemy with 651 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 66 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 13: Attacks the enemy with 691 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 66 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
+		<!-- Level 14: Attacks the enemy with 731 Power added to P. Atk., causes burns for 10 seconds, and makes him consume 66 HP every second. Cannot be used when a bow/ crossbow is equipped. Over-hit. Critical. -->
 		<icon>icon.skill0927</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">5</value>
 			<value level="2">5</value>
@@ -1457,6 +1573,9 @@
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>50</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>FIRE</attributeType>
+		<attributeValue>20</attributeValue>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>40</castRange>
 		<coolTime>720</coolTime>
@@ -1477,10 +1596,10 @@
 			<value level="14">-333</value>
 		</effectPoint>
 		<effectRange>400</effectRange>
-		<attributeType>FIRE</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>1080</hitTime>
+		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">44</value>
@@ -1499,12 +1618,7 @@
 		</magicLevel>
 		<mpConsume>19</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1520,7 +1634,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">167</value>
 					<value level="2">210</value>
@@ -1564,20 +1678,20 @@
 	<skill id="928" toLevel="1" name="Dual Blow">
 		<!-- Attacks the target's vital points with 11234 Power added to P. Atk. Lethal Strike is possible. Half Kill is possible. Critical. Over-hit. Requires a dual dagger to be equipped. -->
 		<icon>icon.skill0928_1</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
+		<coolTime>720</coolTime>
 		<effectPoint>-337</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1800</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>83</magicLevel>
 		<mpConsume>82</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>8000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<coolTime>720</coolTime>
 		<trait>DEATH</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -1599,29 +1713,29 @@
 		</effects>
 	</skill>
 	<skill id="929" toLevel="1" name="Spirit of the Cat">
-		<!-- Harness the spirit of your servitor. This skill transforms you into a Human/Cat hybrid with specialized skills for 5 minutes. -->
+		<!-- Harness the spirit of your servitor. This skill transforms you into a Human/ Cat hybrid with specialized skills for 5 minutes. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>1</effectPoint>
 		<effectRange>1100</effectRange>
+		<hitCancelTime>2.5</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<mpConsume>58</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3600000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>2.5</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>219</transformId>
@@ -1632,11 +1746,11 @@
 			<effect name="Transformation">
 				<transformationId>219</transformationId>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1651,29 +1765,29 @@
 		</effects>
 	</skill>
 	<skill id="930" toLevel="1" name="Spirit of the Phantom">
-		<!-- Harness the spirit of your servitor. This skill transforms you into a Dark Elf/Phantom hybrid with specialized skills for 5 minutes. -->
+		<!-- Harness the spirit of your servitor. This skill transforms you into a Dark Elf/ Phantom hybrid with specialized skills for 5 minutes. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>1</effectPoint>
 		<effectRange>1100</effectRange>
+		<hitCancelTime>2.5</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<mpConsume>58</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3600000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>2.5</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>221</transformId>
@@ -1684,11 +1798,11 @@
 			<effect name="Transformation">
 				<transformationId>221</transformationId>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1703,29 +1817,29 @@
 		</effects>
 	</skill>
 	<skill id="931" toLevel="1" name="Spirit of the Unicorn">
-		<!-- Harness the spirit of your servitor. This skill transforms you into an Elf/Unicorn hybrid with specialized skills for 5 minute. -->
+		<!-- Harness the spirit of your servitor. This skill transforms you into an Elf/ Unicorn hybrid with specialized skills for 5 minute. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>1</effectPoint>
 		<effectRange>1100</effectRange>
+		<hitCancelTime>2.5</hitCancelTime>
 		<hitTime>2500</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<mpConsume>58</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3600000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>2.5</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>220</transformId>
@@ -1736,11 +1850,11 @@
 			<effect name="Transformation">
 				<transformationId>220</transformationId>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1757,16 +1871,16 @@
 	<skill id="932" toLevel="9" name="Star Stone Gathering">
 		<!-- Collects Star Stones. -->
 		<icon>icon.skill_agathion_cute</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>100</castRange>
 		<effectRange>400</effectRange>
 		<hitTime>6000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="OpTargetNpc">
 				<npcIds>
@@ -1785,17 +1899,17 @@
 	<skill id="933" toLevel="1" name="Detection">
 		<!-- Finds any enemies hidden nearby. -->
 		<icon>icon.skill0470</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>INVISIBLE</affectObject>
 		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
 		<effectPoint>-1</effectPoint>
 		<hitTime>2500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>74</magicLevel>
 		<mpConsume>67</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>8000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>INVISIBLE</affectObject>
 		<effects>
 			<effect name="Detection" />
 		</effects>
@@ -1803,9 +1917,9 @@
 	<skill id="934" toLevel="1" name="Sigil Mastery">
 		<!-- When a sigil is equipped, increases Max MP by 5% and MP Recovery Bonus by 17%. -->
 		<icon>icon.skill0925</icon>
-		<magicLevel>76</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>76</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>5</amount>
@@ -1826,9 +1940,9 @@
 	<skill id="935" toLevel="1" name="Sigil Mastery">
 		<!-- When a sigil is equipped, increases Max MP by 5% and MP Recovery Bonus by 17%. -->
 		<icon>icon.skill0925</icon>
-		<magicLevel>76</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>76</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>5</amount>
@@ -1849,6 +1963,8 @@
 	<skill id="936" toLevel="47" name="Ordinary Mercenary">
 		<!-- Mercenary's ability. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">41</value>
@@ -1898,10 +2014,8 @@
 			<value level="46">85</value>
 			<value level="47">86</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">565.79</value>
 					<value level="2">566.08</value>
@@ -1953,7 +2067,7 @@
 				</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">707.24</value>
 					<value level="2">718.68</value>
@@ -2138,6 +2252,8 @@
 	<skill id="937" toLevel="47" name="Elite Mercenary">
 		<!-- Elite Mercenary's ability. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">41</value>
@@ -2187,10 +2303,8 @@
 			<value level="46">85</value>
 			<value level="47">86</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">586.22</value>
 					<value level="2">586.76</value>
@@ -2242,7 +2356,7 @@
 				</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">732.77</value>
 					<value level="2">744.85</value>
@@ -2434,6 +2548,8 @@
 	<skill id="938" toLevel="47" name="Exalted Mercenary">
 		<!-- Exalted Mercenary's ability. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">41</value>
@@ -2483,10 +2599,8 @@
 			<value level="46">85</value>
 			<value level="47">86</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">625.43</value>
 					<value level="2">626.46</value>
@@ -2538,7 +2652,7 @@
 				</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">781.79</value>
 					<value level="2">795.09</value>
@@ -2723,20 +2837,20 @@
 	<skill id="939" toLevel="1" name="Soul Rage">
 		<!-- Gathers souls and attacks the enemy by hurling projectiles. Possible up to level 40. Critical hit and over-hit are possible. -->
 		<icon>icon.skill0939</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
 		<effectPoint>-340</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>1500</hitTime>
 		<hpConsume>25</hpConsume>
-		<magicLevel>78</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<mpConsume>5</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<criticalChance>10</criticalChance>
 				<overHit>true</overHit>
 			</effect>
@@ -2750,71 +2864,71 @@
 	<skill id="940" toLevel="1" name="Fake Attack">
 		<!-- Pretends to attack. -->
 		<icon>icon.skill_transform_s_attack</icon>
-		<hitTime>1000</hitTime>
-		<magicLevel>80</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="941" toLevel="1" name="Special Motion">
 		<!-- Surprises the target. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>2000</hitTime>
-		<magicLevel>80</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="942" toLevel="1" name="Special Motion">
 		<!-- Acts grumpy. -->
 		<icon>icon.skill_transform_s_attack</icon>
-		<effectPoint>100</effectPoint>
-		<hitTime>3000</hitTime>
-		<magicLevel>80</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>100</effectPoint>
+		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="943" toLevel="1" name="Special Motion">
 		<!-- Brings down snow on the target's head. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>2000</hitTime>
-		<magicLevel>80</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="944" toLevel="1" name="Special Motion">
 		<!-- Laughs at target. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>3000</hitTime>
-		<magicLevel>80</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="945" toLevel="1" name="Magician's Will">
 		<!-- Increases M. Atk. by 5%, Casting Spd. by 5% and magical Critical Rate by 5%. Decreases MP Consumption by 5%. -->
 		<icon>icon.skill0945</icon>
-		<magicLevel>81</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>5</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2836,9 +2950,9 @@
 	<skill id="946" toLevel="1" name="Silent Mind">
 		<!-- Allows use of a bow without consuming MP. -->
 		<icon>icon.skill0946</icon>
-		<magicLevel>81</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>81</magicLevel>
 		<effects>
 			<effect name="CheapShot" />
 		</effects>
@@ -2846,22 +2960,22 @@
 	<skill id="947" toLevel="1" name="Lucky Strike">
 		<!-- Inflicts an exploding attack on the enemy with 4312 Power added to P. Atk. Causes damage and spoil at the same time on some nearby enemies. Requires a sword or blunt weapon. Over-hit. -->
 		<icon>icon.skill0947</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
 		<affectLimit>3-6</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>40</castRange>
 		<coolTime>100</coolTime>
 		<effectPoint>-343</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1700</hitTime>
-		<magicLevel>81</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<mpConsume>70</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -2871,7 +2985,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>4312</power>
 				<criticalChance>5</criticalChance>
 			</effect>
@@ -2881,19 +2995,19 @@
 	<skill id="948" toLevel="1" name="Eye for Eye">
 		<!-- For 10 seconds, returns received damage back to the enemy. -->
 		<icon>icon.skill0948</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>COUNTER_SKILL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>340</effectPoint>
 		<hitTime>500</hitTime>
-		<magicLevel>81</magicLevel>
-		<mpConsume>29</mpConsume>
-		<operateType>A2</operateType>
-		<reuseDelay>75000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>83</magicLevel>
+		<mpConsume>29</mpConsume>
+		<reuseDelay>75000</reuseDelay>
 		<effects>
 			<effect name="DamageShield">
 				<amount>90</amount>
@@ -2906,32 +3020,32 @@
 	<skill id="949" toLevel="1" name="Onslaught of Pa'agrio">
 		<!-- Attacks near the enemy with 4312 Power added to P. Atk., causes burns for 15 seconds, and makes him consume 92 HP every second. Requires a blunt weapon. Over-hit. -->
 		<icon>icon.skill0949</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>9</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>DOT_ATTR</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>50</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>FIRE</attributeType>
+		<attributeValue>20</attributeValue>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>40</castRange>
 		<coolTime>720</coolTime>
 		<effectPoint>-343</effectPoint>
 		<effectRange>400</effectRange>
-		<attributeType>FIRE</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>1080</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
-		<magicLevel>81</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
 		<mpConsume>35</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<trait>SHOCK</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -2940,7 +3054,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>4312</power>
 				<overHit>true</overHit>
 			</effect>
@@ -2951,12 +3065,22 @@
 		</effects>
 	</skill>
 	<skill id="950" toLevel="7" name="Nail Attack">
-		<!-- A demonic clawed combo attack. Power 2583. -->
+		<!-- Level 1: A demonic clawed combo attack. Power 2583. -->
+		<!-- Level 2: A demonic clawed combo attack. Power 2640. -->
+		<!-- Level 3: A demonic clawed combo attack. Power 2695. -->
+		<!-- Level 4: A demonic clawed combo attack. Power 2749. -->
+		<!-- Level 5: A demonic clawed combo attack. Power 2802. -->
+		<!-- Level 6: A demonic clawed combo attack. Power 2852. -->
+		<!-- Level 7: A demonic clawed combo attack. Power 2900. -->
 		<icon>icon.skill0539</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<coolTime>720</coolTime>
 		<effectPoint>-1</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1080</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">79</value>
 			<value level="2">80</value>
@@ -2976,13 +3100,9 @@
 			<value level="7">74</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalSoulAttack">
+			<effect name="PhysicalSoulDamage">
 				<power>
 					<value level="1">2583</value>
 					<value level="2">2640</value>
@@ -2996,15 +3116,26 @@
 		</effects>
 	</skill>
 	<skill id="951" toLevel="7" name="Wing Assault">
-		<!-- Charges with outspread wings. Strikes around the attacking target. Power 2067. -->
+		<!-- Level 1: Charges with outspread wings. Strikes around the attacking target. Power 2067. -->
+		<!-- Level 2: Charges with outspread wings. Strikes around the attacking target. Power 2112. -->
+		<!-- Level 3: Charges with outspread wings. Strikes around the attacking target. Power 2156. -->
+		<!-- Level 4: Charges with outspread wings. Strikes around the attacking target. Power 2200. -->
+		<!-- Level 5: Charges with outspread wings. Strikes around the attacking target. Power 2241. -->
+		<!-- Level 6: Charges with outspread wings. Strikes around the attacking target. Power 2282. -->
+		<!-- Level 7: Charges with outspread wings. Strikes around the attacking target. Power 2320. -->
 		<icon>icon.skill0540</icon>
+		<operateType>DA1</operateType>
+		<targetType>ENEMY</targetType>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>600</castRange>
 		<coolTime>200</coolTime>
 		<effectPoint>-676</effectPoint>
 		<effectRange>600</effectRange>
 		<hitTime>800</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">79</value>
 			<value level="2">80</value>
@@ -3024,18 +3155,13 @@
 			<value level="7">74</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>DA1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="OpCheckCastRange">
 				<distance>200</distance>
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalSoulAttack">
+			<effect name="PhysicalSoulDamage">
 				<power>
 					<value level="1">2067</value>
 					<value level="2">2112</value>
@@ -3049,8 +3175,14 @@
 		</effects>
 	</skill>
 	<skill id="952" toLevel="5" name="Collector's Experience">
-		<!-- Increases P. Atk. by 72.7 when using a sword/blunt weapon. Increases Shield Defense by 10% when using a shield. There's a chance that Collector's Fortune will be activated on yourself when using Crushing Strike. -->
+		<!-- Level 1: Increases P. Atk. by 72.7 when using a sword/ blunt weapon. Increases Shield Defense by 10% when using a shield. There's a chance that Collector's Fortune will be activated on yourself when using Crushing Strike. -->
+		<!-- Level 2: Increases P. Atk. by 86.1 when using a sword/ blunt weapon. Increases Shield Defense by 15% when using a shield. There's a chance that Collector's Fortune will be activated on yourself when using Crushing Strike. -->
+		<!-- Level 3: Increases P. Atk. by 100.2 when using a sword/ blunt weapon. Increases Shield Defense by 20% when using a shield. There's a chance that Collector's Fortune will be activated on yourself when using Crushing Strike. -->
+		<!-- Level 4: Increases P. Atk. by 114.8 when using a sword/ blunt weapon. Increases Shield Defense by 25% when using a shield. There's a chance that Collector's Fortune will be activated on yourself when using Crushing Strike. -->
+		<!-- Level 5: Increases P. Atk. by 129.3 when using a sword/ blunt weapon. Increases Shield Defense by 30% when using a shield. There's a chance that Collector's Fortune will be activated on yourself when using Crushing Strike. -->
 		<icon>BranchSys2.icon.skill0952</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">62</value>
@@ -3058,8 +3190,6 @@
 			<value level="4">70</value>
 			<value level="5">74</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="TriggerSkillBySkill">
 				<!-- Crushing Strike -->
@@ -3070,7 +3200,7 @@
 				<chance>30</chance>
 				<targetType>SELF</targetType>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">72.7</value>
 					<value level="2">86.1</value>
@@ -3099,15 +3229,15 @@
 	<skill id="953" toLevel="1" name="Life to Soul">
 		<!-- Consumes HP in order to increase the soul. -->
 		<icon>icon.skill0502</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<effectPoint>150</effectPoint>
 		<hitTime>900</hitTime>
 		<hpConsume>328</hpConsume>
-		<magicLevel>82</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>11000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>82</magicLevel>
+		<reuseDelay>11000</reuseDelay>
 		<conditions>
 			<condition name="OpSoulMax" />
 		</conditions>
@@ -3120,12 +3250,14 @@
 	<skill id="954" toLevel="1" name="Strider Bite">
 		<!-- Commands the mounted strider to bite the enemies in front. Attacks the enemy with 1649 Power added to P. Atk., causes Bleed for 20 seconds, and makes him consume 54 HP every second. Over-hit. Critical. -->
 		<icon>icon.skill00954</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>6</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
-		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
 		<abnormalType>BLEEDING</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
 		<activateRate>100</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>40</castRange>
 		<coolTime>720</coolTime>
@@ -3134,17 +3266,15 @@
 		<hitTime>1080</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>55</magicLevel>
 		<mpConsume>68</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
+		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
 		<trait>BLEED</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>1649</power>
 				<overHit>true</overHit>
 			</effect>
@@ -3157,19 +3287,19 @@
 	<skill id="955" toLevel="1" name="Strider Dash">
 		<!-- Increases Speed by 66 for 15 seconds. -->
 		<icon>icon.skill000955</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>SPEED_UP_SPECIAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>438</effectPoint>
 		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>56</magicLevel>
 		<mpConsume>25</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>30000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>66</amount>
@@ -3178,25 +3308,27 @@
 		</effects>
 	</skill>
 	<skill id="956" toLevel="3" name="Boost Morale">
-		<!-- For 2 minutes when using a sword/blunt weapon/dualsword, increases one's own Accuracy by 4, Critical Rate by 50, and Critical Damage by 10%. -->
+		<!-- Level 1: For 2 minutes when using a sword/ blunt weapon/ dual sword, increases one's own Accuracy by 4, Critical Rate by 50, and Critical Damage by 10%. -->
+		<!-- Level 2: For 2 minutes when using a sword/ blunt weapon/ dual sword, increases one's own Accuracy by 6, Critical Rate by 100, and Critical Damage by 20%. -->
+		<!-- Level 3: For 2 minutes when using a sword/ blunt weapon/ dual sword, increases one's own Accuracy by 8, Critical Rate by 150, and Critical Damage by 30%. -->
 		<icon>icon.skill956</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>POSSESSION</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>408</effectPoint>
 		<hitTime>2000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">43</value>
 			<value level="2">55</value>
 			<value level="3">66</value>
 		</magicLevel>
 		<mpConsume>133</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>300000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Accuracy">
 				<amount>
@@ -3240,8 +3372,47 @@
 		</effects>
 	</skill>
 	<skill id="957" toLevel="37" name="Guillotine Attack">
-		<!-- Attacks the target with 2057 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 1: Attacks the target with 2057 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 2: Attacks the target with 2164 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 3: Attacks the target with 2274 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 4: Attacks the target with 2388 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 5: Attacks the target with 2505 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 6: Attacks the target with 2625 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 7: Attacks the target with 2748 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 8: Attacks the target with 2875 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 9: Attacks the target with 3004 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 10: Attacks the target with 3136 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 11: Attacks the target with 3271 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 12: Attacks the target with 3408 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 13: Attacks the target with 3548 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 14: Attacks the target with 3690 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 15: Attacks the target with 3834 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 16: Attacks the target with 3980 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 17: Attacks the target with 4127 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 18: Attacks the target with 4275 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 19: Attacks the target with 4425 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 20: Attacks the target with 4575 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 21: Attacks the target with 4726 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 22: Attacks the target with 4878 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 23: Attacks the target with 5029 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 24: Attacks the target with 5180 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 25: Attacks the target with 5330 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 26: Attacks the target with 5479 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 27: Attacks the target with 5627 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 28: Attacks the target with 5773 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 29: Attacks the target with 5918 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 30: Attacks the target with 6060 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 31: Attacks the target with 6199 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 32: Attacks the target with 6335 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 33: Attacks the target with 6468 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 34: Attacks the target with 6598 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 35: Attacks the target with 6723 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 36: Attacks the target with 6844 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
+		<!-- Level 37: Attacks the target with 6960 Power added to P. Atk. Requires a sword or blunt weapon to be equipped. Ignores Shield Defense. Over-hit. -->
 		<icon>icon.skill957</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<coolTime>1080</coolTime>
 		<effectPoint>
@@ -3285,6 +3456,7 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1620</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">49</value>
 			<value level="2">50</value>
@@ -3364,11 +3536,7 @@
 			<value level="37">99</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>7000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="Op2hWeapon">
 				<weaponType>
@@ -3378,7 +3546,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">2057</value>
 					<value level="2">2164</value>
@@ -3425,8 +3593,47 @@
 		</effects>
 	</skill>
 	<skill id="958" toLevel="37" name="Triple Blade Slash">
-		<!-- Attacks the enemy with 2057 Power added to P. Atk. Requires a dualsword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 1: Attacks the enemy with 2057 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 2: Attacks the enemy with 2164 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 3: Attacks the enemy with 2274 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 4: Attacks the enemy with 2388 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 5: Attacks the enemy with 2505 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 6: Attacks the enemy with 2625 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 7: Attacks the enemy with 2748 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 8: Attacks the enemy with 2875 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 9: Attacks the enemy with 3004 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 10: Attacks the enemy with 3136 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 11: Attacks the enemy with 3271 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 12: Attacks the enemy with 3408 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 13: Attacks the enemy with 3548 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 14: Attacks the enemy with 3690 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 15: Attacks the enemy with 3834 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 16: Attacks the enemy with 3980 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 17: Attacks the enemy with 4127 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 18: Attacks the enemy with 4275 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 19: Attacks the enemy with 4425 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 20: Attacks the enemy with 4575 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 21: Attacks the enemy with 4726 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 22: Attacks the enemy with 4878 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 23: Attacks the enemy with 5029 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 24: Attacks the enemy with 5180 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 25: Attacks the enemy with 5330 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 26: Attacks the enemy with 5479 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 27: Attacks the enemy with 5627 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 28: Attacks the enemy with 5773 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 29: Attacks the enemy with 5918 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 30: Attacks the enemy with 6060 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 31: Attacks the enemy with 6199 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 32: Attacks the enemy with 6335 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 33: Attacks the enemy with 6468 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 34: Attacks the enemy with 6598 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 35: Attacks the enemy with 6723 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 36: Attacks the enemy with 6844 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
+		<!-- Level 37: Attacks the enemy with 6960 Power added to P. Atk. Requires a dual sword. Over-hit. Ignores Shield Defense. -->
 		<icon>icon.skill958</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<coolTime>167</coolTime>
 		<effectPoint>
@@ -3470,6 +3677,7 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1733</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">49</value>
 			<value level="2">50</value>
@@ -3549,11 +3757,7 @@
 			<value level="37">99</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -3563,7 +3767,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">2057</value>
 					<value level="2">2164</value>
@@ -3612,19 +3816,19 @@
 	<skill id="959" toLevel="1" name="Frog Jump">
 		<!-- Increases Speed by 33 for 15 seconds. -->
 		<icon>icon.skill_transform_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>SIGNAL_A</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>495</effectPoint>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>24</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>30000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>33</amount>
@@ -3635,19 +3839,19 @@
 	<skill id="960" toLevel="1" name="Race Running">
 		<!-- Increases Speed by 33 for 15 seconds. -->
 		<icon>icon.skill_transform_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>SIGNAL_A</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>495</effectPoint>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>24</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>30000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>33</amount>
@@ -3658,19 +3862,19 @@
 	<skill id="961" toLevel="1" name="Swift Dash">
 		<!-- Increases Speed by 33 for 15 seconds. -->
 		<icon>icon.skill_transform_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>SIGNAL_A</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>495</effectPoint>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>24</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>30000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>33</amount>
@@ -3681,21 +3885,21 @@
 	<skill id="962" toLevel="1" name="Guard's March">
 		<!-- Increases Speed by 33 for 5 seconds. -->
 		<icon>icon.skill_transform_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>SIGNAL_A</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>495</effectPoint>
 		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>19</mpConsume>
 		<mpInitialConsume>5</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>600000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>33</amount>
@@ -3706,21 +3910,21 @@
 	<skill id="963" toLevel="1" name="Guard's Ambush">
 		<!-- Hides the user. Decreases Speed by 30%, and the effect is canceled if any action other than movement is initiated. -->
 		<icon>icon.skill_transform_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>20</abnormalTime>
 		<abnormalType>STEALTH</abnormalType>
 		<abnormalVisualEffect>STEALTH</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>679</effectPoint>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>19</mpConsume>
 		<mpInitialConsume>5</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>15000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SilentMove">
 				<chance>100</chance>
@@ -3734,9 +3938,9 @@
 	<skill id="964" toLevel="1" name="Children of Shilen">
 		<!-- Increases Casting Spd. by 13 and MP Recovery Bonus by 2%. -->
 		<icon>icon.skill0294</icon>
-		<magicLevel>14</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>14</magicLevel>
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>13</amount>
@@ -3751,53 +3955,52 @@
 	<skill id="965" toLevel="1" name="Fake Attack">
 		<!-- Pretends to attack. -->
 		<icon>icon.skill_transform_s_attack</icon>
-		<hitTime>1000</hitTime>
-		<magicLevel>80</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="966" toLevel="1" name="Special Motion">
 		<!-- Plays harp. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
 		<hitTime>3000</hitTime>
-		<magicLevel>80</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>80</magicLevel>
 	</skill>
 	<skill id="967" toLevel="1" name="Cursed Body">
 		<!-- Cursed body. Recovery is not possible. -->
 		<icon>icon.skill0967</icon>
-		<magicLevel>85</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<!-- TODO: Implement and use proper effects. -->
+		<magicLevel>85</magicLevel>
 	</skill>
 	<skill id="968" toLevel="1" name="Treykan Claw">
 		<!-- Attack targets with 6960 Power added to P. Atk. -->
 		<icon>icon.skill_transform_s_attack</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>20</castRange>
 		<coolTime>167</coolTime>
 		<effectPoint>-354</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>2000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>99</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>7000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>6960</power>
 			</effect>
 		</effects>
@@ -3805,21 +4008,21 @@
 	<skill id="969" toLevel="1" name="Treykan Dash">
 		<!-- Increases your Speed by 100% for 5 seconds. -->
 		<icon>icon.skill_transform_buff</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>SPEED_UP_SPECIAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>495</effectPoint>
+		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<mpConsume>30</mpConsume>
 		<mpInitialConsume>8</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>30000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isDebuff>true</isDebuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>100</amount>
@@ -3830,21 +4033,21 @@
 	<skill id="970" toLevel="1" name="Dash">
 		<!-- Increases your Speed by 66 for 15 seconds. -->
 		<icon>icon.skill0004</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>SPEED_UP_SPECIAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>400</castRange>
 		<effectPoint>438</effectPoint>
+		<effectRange>900</effectRange>
 		<hitTime>1000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>46</magicLevel>
 		<mpConsume>20</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>30000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>900</effectRange>
-		<castRange>400</castRange>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>66</amount>
@@ -3855,23 +4058,23 @@
 	<skill id="971" toLevel="1" name="Acumen">
 		<!-- Increases Casting Spd. by 30% for 20 minutes. -->
 		<icon>icon.skill1085</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>CASTING_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectPoint>438</effectPoint>
 		<effectRange>900</effectRange>
 		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>48</magicLevel>
 		<mpConsume>30</mpConsume>
 		<mpInitialConsume>8</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>30</amount>
@@ -3882,22 +4085,22 @@
 	<skill id="972" toLevel="1" name="Snipe">
 		<!-- For 2 minutes, increases Accuracy by 6, P. Atk. by 199, bow's range by 200 and Critical Rate by 20% when using a bow. The player cannot move while the effect lasts. -->
 		<icon>icon.skill0313</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>SNIPE</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>655</effectPoint>
 		<hitTime>2000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>74</magicLevel>
 		<mpConsume>35</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>75000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="BlockMove" />
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>199</amount>
 				<mode>DIFF</mode>
 				<weaponType>
@@ -3928,13 +4131,23 @@
 		</effects>
 	</skill>
 	<skill id="973" toLevel="8" name="Stun Attack">
-		<!-- Attack targets with Power 455 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 1: Attack targets with Power 455 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 2: Attack targets with Power 651 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 3: Attack targets with Power 845 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 4: Attack targets with Power 863 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 5: Attack targets with Power 880 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 6: Attack targets with Power 897 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 7: Attack targets with Power 913 added to P. Atk. Stuns the enemy for 9 seconds. -->
+		<!-- Level 8: Attack targets with Power 928 added to P. Atk. Stuns the enemy for 9 seconds. -->
 		<icon>icon.skill0100</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>40</castRange>
 		<coolTime>720</coolTime>
@@ -3952,6 +4165,7 @@
 		<hitTime>1080</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">60</value>
 			<value level="2">70</value>
@@ -3973,14 +4187,10 @@
 			<value level="8">79</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<trait>SHOCK</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">455</value>
 					<value level="2">651</value>
@@ -3998,13 +4208,22 @@
 		</effects>
 	</skill>
 	<skill id="974" toLevel="7" name="Stun Shot">
-		<!-- Fires arrows of 1951 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 1: Fires arrows of 1951 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 2: Fires arrows of 2534 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 3: Fires arrows of 2588 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 4: Fires arrows of 2639 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 5: Fires arrows of 2690 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 6: Fires arrows of 2738 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
+		<!-- Level 7: Fires arrows of 2784 power added to P. Atk.. Inflicts Stun on the enemy for 9 seconds. Cancels target. -->
 		<icon>icon.skill0101</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>900</castRange>
 		<coolTime>1000</coolTime>
@@ -4013,6 +4232,7 @@
 		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">70</value>
 			<value level="2">80</value>
@@ -4031,14 +4251,10 @@
 			<value level="6">112</value>
 			<value level="7">112</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<trait>SHOCK</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">1951</value>
 					<value level="2">2534</value>
@@ -4058,8 +4274,27 @@
 		</effects>
 	</skill>
 	<skill id="975" toLevel="7" name="Aqua Swirl">
-		<!-- Creates a powerful vortex of water and inflicts Water damage on the enemy with 102 Power added to M. Atk. -->
+		<!-- Level 1: Creates a powerful vortex of water and inflicts Water damage on the enemy with 102 Power added to M. Atk. -->
+		<!-- Level 2: Creates a powerful vortex of water and inflicts Water damage on the enemy with 116 Power added to M. Atk. -->
+		<!-- Level 3: Creates a powerful vortex of water and inflicts Water damage on the enemy with 117 Power added to M. Atk. -->
+		<!-- Level 4: Creates a powerful vortex of water and inflicts Water damage on the enemy with 119 Power added to M. Atk. -->
+		<!-- Level 5: Creates a powerful vortex of water and inflicts Water damage on the enemy with 120 Power added to M. Atk. -->
+		<!-- Level 6: Creates a powerful vortex of water and inflicts Water damage on the enemy with 121 Power added to M. Atk. -->
+		<!-- Level 7: Creates a powerful vortex of water and inflicts Water damage on the enemy with 122 Power added to M. Atk. -->
 		<icon>icon.skill1175</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>
+			<value level="1">25</value>
+			<value level="2">25</value>
+			<value level="3">30</value>
+			<value level="4">35</value>
+			<value level="5">40</value>
+			<value level="6">45</value>
+			<value level="7">50</value>
+		</attributeValue>
 		<castRange>750</castRange>
 		<effectPoint>
 			<value level="1">-673</value>
@@ -4071,18 +4306,9 @@
 			<value level="7">-689</value>
 		</effectPoint>
 		<effectRange>1250</effectRange>
-		<attributeType>WATER</attributeType>
-		<attributeValue>
-			<value level="1">25</value>
-			<value level="2">25</value>
-			<value level="3">30</value>
-			<value level="4">35</value>
-			<value level="5">40</value>
-			<value level="6">45</value>
-			<value level="7">50</value>
-		</attributeValue>
 		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">70</value>
 			<value level="2">80</value>
@@ -4102,13 +4328,9 @@
 			<value level="7">60</value>
 		</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>1200</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MagicalAttackRange">
+			<effect name="MagicalDamageRange">
 				<power>
 					<value level="1">102</value>
 					<value level="2">116</value>
@@ -4123,8 +4345,27 @@
 		</effects>
 	</skill>
 	<skill id="976" toLevel="7" name="(Wind Strike)">
-		<!-- Creates a powerful hurricane and inflicts Wind damage on the enemy with 102 Power added to M. Atk. -->
+		<!-- Level 1: Creates a powerful hurricane and inflicts Wind damage on the enemy with 102 Power added to M. Atk. -->
+		<!-- Level 2: Creates a powerful hurricane and inflicts Wind damage on the enemy with 116 Power added to M. Atk. -->
+		<!-- Level 3: Creates a powerful hurricane and inflicts Wind damage on the enemy with 117 Power added to M. Atk. -->
+		<!-- Level 4: Creates a powerful hurricane and inflicts Wind damage on the enemy with 119 Power added to M. Atk. -->
+		<!-- Level 5: Creates a powerful hurricane and inflicts Wind damage on the enemy with 120 Power added to M. Atk. -->
+		<!-- Level 6: Creates a powerful hurricane and inflicts Wind damage on the enemy with 121 Power added to M. Atk. -->
+		<!-- Level 7: Creates a powerful hurricane and inflicts Wind damage on the enemy with 122 Power added to M. Atk. -->
 		<icon>icon.skill1177</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>WIND</attributeType>
+		<attributeValue>
+			<value level="1">25</value>
+			<value level="2">25</value>
+			<value level="3">30</value>
+			<value level="4">35</value>
+			<value level="5">40</value>
+			<value level="6">45</value>
+			<value level="7">50</value>
+		</attributeValue>
 		<castRange>600</castRange>
 		<effectPoint>
 			<value level="1">-669</value>
@@ -4136,18 +4377,9 @@
 			<value level="7">-687</value>
 		</effectPoint>
 		<effectRange>1100</effectRange>
-		<attributeType>WIND</attributeType>
-		<attributeValue>
-			<value level="1">25</value>
-			<value level="2">25</value>
-			<value level="3">30</value>
-			<value level="4">35</value>
-			<value level="5">40</value>
-			<value level="6">45</value>
-			<value level="7">50</value>
-		</attributeValue>
 		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">70</value>
 			<value level="2">80</value>
@@ -4167,13 +4399,9 @@
 			<value level="7">60</value>
 		</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>1200</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">102</value>
 					<value level="2">116</value>
@@ -4187,12 +4415,29 @@
 		</effects>
 	</skill>
 	<skill id="977" toLevel="6" name="Ice Bolt">
-		<!-- Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 93 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
+		<!-- Level 1: Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 93 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
+		<!-- Level 2: Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 94 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
+		<!-- Level 3: Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 95 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
+		<!-- Level 4: Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 96 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
+		<!-- Level 5: Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 97 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
+		<!-- Level 6: Temporarily freezes the surrounding air, inflicting Water damage on the enemy with 98 Power added to M. Atk., and decreasing their Speed by 20% for 1 minute. -->
 		<icon>icon.skill1184</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
 		<abnormalType>SPEED_DOWN</abnormalType>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>
+			<value level="1">25</value>
+			<value level="2">30</value>
+			<value level="3">35</value>
+			<value level="4">40</value>
+			<value level="5">45</value>
+			<value level="6">50</value>
+		</attributeValue>
 		<basicProperty>MAGIC</basicProperty>
 		<castRange>600</castRange>
 		<coolTime>200</coolTime>
@@ -4205,19 +4450,11 @@
 			<value level="6">-689</value>
 		</effectPoint>
 		<effectRange>1100</effectRange>
-		<attributeType>WATER</attributeType>
-		<attributeValue>
-			<value level="1">25</value>
-			<value level="2">30</value>
-			<value level="3">35</value>
-			<value level="4">40</value>
-			<value level="5">45</value>
-			<value level="6">50</value>
-		</attributeValue>
 		<hitTime>3100</hitTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -4235,13 +4472,9 @@
 			<value level="6">60</value>
 		</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">93</value>
 					<value level="2">94</value>
@@ -4260,11 +4493,14 @@
 	<skill id="978" toLevel="7" name="Shoulder Charge">
 		<!-- Charges forward and hit the enemies hard with your shoulder to inflict Stun for 9 seconds. Soul consumption boosts the power. Up to 5 souls can be consumed. Over-hit. -->
 		<icon>icon.skill0494</icon>
+		<operateType>DA2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>600</castRange>
 		<coolTime>200</coolTime>
@@ -4281,6 +4517,7 @@
 		<hitTime>800</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">70</value>
 			<value level="2">80</value>
@@ -4300,19 +4537,15 @@
 			<value level="7">58</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>DA2</operateType>
 		<reuseDelay>4000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<trait>SHOCK</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckCastRange">
 				<distance>200</distance>
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalSoulAttack">
+			<effect name="PhysicalSoulDamage">
 				<power>1</power>
 				<overHit>true</overHit>
 			</effect>
@@ -4322,11 +4555,20 @@
 		</effects>
 	</skill>
 	<skill id="979" toLevel="6" name="Aggression">
-		<!-- Provokes the target with 7427 power. -->
+		<!-- Level 1: Provokes the selected target with 7427 Power into attacking you. -->
+		<!-- Level 2: Provokes the selected target with 8137 Power into attacking you. -->
+		<!-- Level 3: Provokes the selected target with 8851 Power into attacking you. -->
+		<!-- Level 4: Provokes the selected target with 9570 Power into attacking you. -->
+		<!-- Level 5: Provokes the selected target with 10292 Power into attacking you. -->
+		<!-- Level 6: Provokes the selected target with 11018 Power into attacking you. -->
 		<icon>icon.skill0028</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>TARGET_LOCK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>800</castRange>
 		<coolTime>200</coolTime>
 		<effectPoint>
@@ -4340,6 +4582,7 @@
 		<effectRange>1300</effectRange>
 		<hitTime>700</hitTime>
 		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -4348,26 +4591,31 @@
 			<value level="5">84</value>
 			<value level="6">85</value>
 		</magicLevel>
-		<operateType>A2</operateType>
 		<reuseDelay>6000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="TargetMe" />
 			<effect name="GetAgro" />
 		</effects>
 	</skill>
 	<skill id="980" toLevel="6" name="Aggression Aura">
-		<!-- Provokes nearby enemies to attack with 6752 Power. -->
+		<!-- Level 1: Provokes nearby enemies with 6752 Power into attacking you. -->
+		<!-- Level 2: Provokes nearby enemies with 7459 Power into attacking you. -->
+		<!-- Level 3: Provokes nearby enemies with 8170 Power into attacking you. -->
+		<!-- Level 4: Provokes nearby enemies with 8886 Power into attacking you. -->
+		<!-- Level 5: Provokes nearby enemies with 9606 Power into attacking you. -->
+		<!-- Level 6: Provokes nearby enemies with 10330 Power into attacking you. -->
 		<icon>icon.skill0018</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>TARGET_LOCK</abnormalType>
 		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>
 			<value level="1">-7427</value>
 			<value level="2">-8137</value>
@@ -4378,6 +4626,7 @@
 		</effectPoint>
 		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -4394,14 +4643,8 @@
 			<value level="5">112</value>
 			<value level="6">112</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>40000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="TargetMe" />
 			<effect name="GetAgro" />
@@ -4410,11 +4653,14 @@
 	<skill id="981" toLevel="6" name="Sleep">
 		<!-- Causes the enemy to sleep for 30 seconds. -->
 		<icon>icon.skill1069</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>SLEEP</abnormalType>
 		<abnormalVisualEffect>SLEEP</abnormalVisualEffect>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>
@@ -4430,6 +4676,7 @@
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
 		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">80</value>
 			<value level="2">81</value>
@@ -4447,13 +4694,9 @@
 			<value level="6">60</value>
 		</mpConsume>
 		<mpInitialConsume>15</mpInitialConsume>
-		<operateType>A2</operateType>
 		<removedOnDamage>true</removedOnDamage>
 		<reuseDelay>4000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<trait>SLEEP</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -4464,8 +4707,12 @@
 		</effects>
 	</skill>
 	<skill id="982" toLevel="3" name="Combat Aura">
-		<!-- Increases party member's P. Atk. by 3% and Atk. Spd. by 3% for 20 minutes. -->
+		<!-- Level 1: Increases party member's P. Atk. by 3% and Atk. Spd. by 3% for 20 minutes. -->
+		<!-- Level 2: Increases party member's P. Atk. by 4% and Atk. Spd. by 4% for 20 minutes. -->
+		<!-- Level 3: Increases party member's P. Atk. by 5% and Atk. Spd. by 5% for 20 minutes. -->
 		<icon>icon.skill0982</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -4473,13 +4720,17 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>KNIGHT_AURA</abnormalType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>
 			<value level="1">300</value>
 			<value level="2">400</value>
 			<value level="3">500</value>
 		</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
 		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">52</value>
 			<value level="2">64</value>
@@ -4490,15 +4741,9 @@
 			<value level="2">48</value>
 			<value level="3">52</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">3</value>
 					<value level="2">4</value>
@@ -4519,11 +4764,11 @@
 	<skill id="983" toLevel="1" name="Patience">
 		<!-- Increases Skill Power by 20% when being attacked. -->
 		<icon>icon.skill0983</icon>
-		<magicLevel>60</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Patience -->
 				<attackerType>Creature</attackerType>
 				<chance>10</chance>
@@ -4535,9 +4780,37 @@
 		</effects>
 	</skill>
 	<skill id="984" toLevel="25" name="Shield Strike">
-		<!-- Attacks the enemy using a shield with 833 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 1: Attacks the enemy using a shield with 833 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 2: Attacks the enemy using a shield with 992 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 3: Attacks the enemy using a shield with 1171 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 4: Attacks the enemy using a shield with 1371 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 5: Attacks the enemy using a shield with 1592 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 6: Attacks the enemy using a shield with 1832 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 7: Attacks the enemy using a shield with 2091 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 8: Attacks the enemy using a shield with 2272 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 9: Attacks the enemy using a shield with 2460 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 10: Attacks the enemy using a shield with 2653 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 11: Attacks the enemy using a shield with 2850 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 12: Attacks the enemy using a shield with 3050 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 13: Attacks the enemy using a shield with 3252 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 14: Attacks the enemy using a shield with 3453 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 15: Attacks the enemy using a shield with 3653 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 16: Attacks the enemy using a shield with 3849 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 17: Attacks the enemy using a shield with 3945 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 18: Attacks the enemy using a shield with 4040 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 19: Attacks the enemy using a shield with 4133 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 20: Attacks the enemy using a shield with 4224 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 21: Attacks the enemy using a shield with 4312 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 22: Attacks the enemy using a shield with 4399 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 23: Attacks the enemy using a shield with 4482 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 24: Attacks the enemy using a shield with 4563 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
+		<!-- Level 25: Attacks the enemy using a shield with 4640 Power added to P. Atk, and provokes the enemy. Requires a shield. -->
 		<icon>icon.skill0984</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
+		<coolTime>500</coolTime>
 		<effectPoint>
 			<value level="1">-3787</value>
 			<value level="2">-4080</value>
@@ -4567,6 +4840,7 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1080</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">43</value>
@@ -4622,17 +4896,12 @@
 			<value level="25">83</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>6000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<coolTime>500</coolTime>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipShield" />
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">833</value>
 					<value level="2">992</value>
@@ -4667,28 +4936,28 @@
 	<skill id="985" toLevel="1" name="Challenge for Fate">
 		<!-- Challenges and provokes nearby enemies. Increases your P. Def. and M. Def. for 15 seconds. -->
 		<icon>icon.skill0985</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>TARGET_LOCK</abnormalType>
 		<affectLimit>10-0</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>400</affectRange>
-		<fanRange>0;0;400;60</fanRange>
+		<affectScope>FAN</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
+		<coolTime>200</coolTime>
 		<effectPoint>-10330</effectPoint>
 		<effectRange>900</effectRange>
+		<fanRange>0;0;400;60</fanRange>
 		<hitTime>1000</hitTime>
-		<magicLevel>83</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>45000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<trait>DERANGEMENT</trait>
-		<coolTime>200</coolTime>
 		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>83</magicLevel>
+		<reuseDelay>45000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<trait>DERANGEMENT</trait>
 		<effects>
 			<effect name="TargetMe" />
 			<effect name="GetAgro" />
@@ -4702,9 +4971,37 @@
 		</selfEffects>
 	</skill>
 	<skill id="986" toLevel="25" name="Deadly Strike">
-		<!-- Attacks the enemy with 833 Power added to P. Atk. Cannot be used when a bow/crossbow/fist weapon is equipped. Over-hit. -->
+		<!-- Level 1: Attacks the enemy with 833 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 2: Attacks the enemy with 992 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 3: Attacks the enemy with 1171 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 4: Attacks the enemy with 1371 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 5: Attacks the enemy with 1592 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 6: Attacks the enemy with 1832 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 7: Attacks the enemy with 2091 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 8: Attacks the enemy with 2272 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 9: Attacks the enemy with 2460 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 10: Attacks the enemy with 2653 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 11: Attacks the enemy with 2850 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 12: Attacks the enemy with 3050 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 13: Attacks the enemy with 3252 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 14: Attacks the enemy with 3453 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 15: Attacks the enemy with 3653 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 16: Attacks the enemy with 3849 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 17: Attacks the enemy with 3945 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 18: Attacks the enemy with 4040 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 19: Attacks the enemy with 4133 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 20: Attacks the enemy with 4224 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 21: Attacks the enemy with 4312 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 22: Attacks the enemy with 4399 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 23: Attacks the enemy with 4482 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 24: Attacks the enemy with 4563 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
+		<!-- Level 25: Attacks the enemy with 4640 Power added to P. Atk. Cannot be used when a bow/ crossbow/ fist weapon is equipped. Over-hit. -->
 		<icon>icon.skill0986</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
+		<coolTime>500</coolTime>
 		<effectPoint>
 			<value level="1">-417</value>
 			<value level="2">-496</value>
@@ -4734,6 +5031,7 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>1500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">43</value>
@@ -4789,12 +5087,7 @@
 			<value level="25">83</value>
 		</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A1</operateType>
 		<reuseDelay>5000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<coolTime>500</coolTime>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -4808,7 +5101,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">833</value>
 					<value level="2">992</value>
@@ -4843,24 +5136,24 @@
 	<skill id="987" toLevel="1" name="Multiple Shot">
 		<!-- Attack multiple enemies at the front with 11030 Power added to P. Atk. Over-hit. Critical. Requires a bow or crossbow to be equipped. -->
 		<icon>icon.skill0987</icon>
-		<affectLimit>8-0-1</affectLimit>
-		<affectRange>900</affectRange>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
 		<affectHeight>-200;200</affectHeight>
+		<affectLimit>8-0-1</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
 		<castRange>900</castRange>
+		<coolTime>1000</coolTime>
 		<effectPoint>-686</effectPoint>
 		<effectRange>1400</effectRange>
 		<fanRange>0;0;900;60</fanRange>
 		<hitTime>3000</hitTime>
-		<magicLevel>83</magicLevel>
-		<mpConsume>162</mpConsume>
-		<operateType>A1</operateType>
-		<reuseDelay>12000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<coolTime>1000</coolTime>
+		<magicLevel>82</magicLevel>
+		<mpConsume>162</mpConsume>
+		<reuseDelay>12000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -4871,7 +5164,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>11030</power>
 				<overHit>true</overHit>
 				<criticalChance>15</criticalChance>
@@ -4879,9 +5172,21 @@
 		</effects>
 	</skill>
 	<skill id="988" toLevel="3" name="Battle Whisper">
-		<!-- For 2 minutes, increases P. Atk. by 5%, Critical Damage by 5%, and Atk. Spd. by 5%. Increases the additional MP Consumption when singing while sing/dance effect lasts. -->
+		<!-- Level 1: For 2 minutes, increases P. Atk. by 5%, Critical Damage by 5%, and Atk. Spd. by 5%. Increases the additional MP Consumption when singing while sing/ dance effect lasts. -->
+		<!-- Level 2: For 2 minutes, increases P. Atk. by 10%, Critical Damage by 7%, and Atk. Spd. by 7%. Increases the additional MP Consumption when singing while sing/ dance effect lasts. -->
+		<!-- Level 3: For 2 minutes, increases P. Atk. by 15%, Critical Damage by 10%, and Atk. Spd. by 10%. Increases the additional MP Consumption when singing while sing/ dance effect lasts. -->
 		<icon>icon.skill0988</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>
+			<value level="1">1</value>
+			<value level="2">2</value>
+			<value level="3">3</value>
+		</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
+		<abnormalType>WISPERING_OF_BATTLE</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>
 			<value level="1">486</value>
 			<value level="2">566</value>
@@ -4889,26 +5194,16 @@
 		</effectPoint>
 		<hitTime>2500</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">46</value>
 			<value level="2">52</value>
 			<value level="3">60</value>
 		</magicLevel>
 		<mpConsume>30</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<abnormalType>WISPERING_OF_BATTLE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<abnormalLevel>
-			<value level="1">1</value>
-			<value level="2">2</value>
-			<value level="3">3</value>
-		</abnormalLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -4935,22 +5230,22 @@
 		</effects>
 	</skill>
 	<skill id="989" toLevel="1" name="Defense Motion">
-		<!-- For 2 minutes, increases your P. Def. by 25%, Evasion by 3, and M. Def. by 10%. Increases the additional MP Consumption when singing while sing/dance effect lasts. -->
+		<!-- For 2 minutes, increases your P. Def. by 25%, Evasion by 3, and M. Def. by 10%. Increases the additional MP Consumption when singing while sing/ dance effect lasts. -->
 		<icon>icon.skill0989</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
+		<abnormalType>MOTION_OF_DEFENCE</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
 		<hitTime>2500</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>30</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<abnormalType>MOTION_OF_DEFENCE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<abnormalLevel>1</abnormalLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>10</amount>
@@ -4967,21 +5262,21 @@
 		</effects>
 	</skill>
 	<skill id="990" toLevel="1" name="Death Sting">
-		<!-- Shoots an arrow that is aimed to kill. Attacks the enemy with 24306 Power added to P. Atk. Over-hit possible. Critical hit possible. Requires a bow/crossbow to be equipped. -->
+		<!-- Shoots an arrow that is aimed to kill. Attacks the enemy with 24306 Power added to P. Atk. Over-hit possible. Critical hit possible. Requires a bow/ crossbow to be equipped. -->
 		<icon>icon.skill0990</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>900</castRange>
+		<coolTime>500</coolTime>
 		<effectPoint>-1387</effectPoint>
 		<effectRange>1400</effectRange>
 		<hitTime>3500</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>83</magicLevel>
 		<mpConsume>165</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>12000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<coolTime>500</coolTime>
 		<staticReuse>true</staticReuse>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -4992,7 +5287,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>24306</power>
 				<overHit>true</overHit>
 				<criticalChance>30</criticalChance>
@@ -5002,10 +5297,13 @@
 	<skill id="991" toLevel="1" name="Throwing Dagger">
 		<!-- Attacks the enemy by throwing a dagger with 3488 Power added to P. Atk. and decreases Speed by 80% for 10 seconds. Requires a dagger to be equipped. -->
 		<icon>icon.skill0991</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>SPEED_DOWN</abnormalType>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
 		<castRange>300</castRange>
 		<effectPoint>-345</effectPoint>
@@ -5013,15 +5311,12 @@
 		<hitTime>1080</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
-		<magicLevel>82</magicLevel>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<mpConsume>82</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>A2</operateType>
 		<reuseDelay>45000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -5031,7 +5326,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>3488</power>
 				<criticalChance>15</criticalChance>
 			</effect>
@@ -5042,8 +5337,17 @@
 		</effects>
 	</skill>
 	<skill id="992" toLevel="8" name="Sonic Mastery">
-		<!-- Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dualsword is equipped. Up to stage 1 of Momentum can be absorbed. -->
+		<!-- Level 1: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 1 of Momentum can be absorbed. -->
+		<!-- Level 2: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 2 of Momentum can be absorbed. -->
+		<!-- Level 3: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 3 of Momentum can be absorbed. -->
+		<!-- Level 4: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 4 of Momentum can be absorbed. -->
+		<!-- Level 5: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 5 of Momentum can be absorbed. -->
+		<!-- Level 6: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 6 of Momentum can be absorbed. -->
+		<!-- Level 7: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 7 of Momentum can be absorbed. -->
+		<!-- Level 8: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a sword, blunt weapon, or dual sword is equipped. Up to stage 8 of Momentum can be absorbed. -->
 		<icon>icon.skill0992</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">43</value>
@@ -5054,8 +5358,6 @@
 			<value level="7">70</value>
 			<value level="8">79</value>
 		</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
-		<operateType>P</operateType>
 		<passiveConditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -5078,7 +5380,7 @@
 					<value level="8">8</value>
 				</amount>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Focus Sonic -->
 				<isCritical>false</isCritical>
 				<skillId>6813</skillId> <!-- Sonic Focus -->
@@ -5098,7 +5400,7 @@
 				<minDamage>1</minDamage>
 				<chance>15</chance>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Focus Sonic -->
 				<isCritical>true</isCritical>
 				<skillId>6813</skillId> <!-- Sonic Focus -->
@@ -5121,8 +5423,17 @@
 		</effects>
 	</skill>
 	<skill id="993" toLevel="8" name="Force Mastery">
-		<!-- Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 1 of Momentum can be absorbed. -->
+		<!-- Level 1: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 1 of Momentum can be absorbed. -->
+		<!-- Level 2: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 2 of Momentum can be absorbed. -->
+		<!-- Level 3: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 3 of Momentum can be absorbed. -->
+		<!-- Level 4: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 4 of Momentum can be absorbed. -->
+		<!-- Level 5: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 5 of Momentum can be absorbed. -->
+		<!-- Level 6: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 6 of Momentum can be absorbed. -->
+		<!-- Level 7: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 7 of Momentum can be absorbed. -->
+		<!-- Level 8: Absorbs the target's Momentum. Momentum can be absorbed with a 15% chance for regular physical attacks and 30% during a critical attack. Applies when a fist weapon is equipped. Up to stage 8 of Momentum can be absorbed. -->
 		<icon>icon.skill0993</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">24</value>
 			<value level="2">32</value>
@@ -5133,8 +5444,6 @@
 			<value level="7">72</value>
 			<value level="8">79</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="FocusEnergy">
 				<amount>
@@ -5148,7 +5457,7 @@
 					<value level="8">8</value>
 				</amount>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Focus Force -->
 				<isCritical>false</isCritical>
 				<skillId>6814</skillId> <!-- Focus Force -->
@@ -5168,7 +5477,7 @@
 				<minDamage>1</minDamage>
 				<chance>15</chance>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Focus Force -->
 				<isCritical>true</isCritical>
 				<skillId>6814</skillId> <!-- Focus Force -->
@@ -5191,21 +5500,21 @@
 		</effects>
 	</skill>
 	<skill id="994" toLevel="1" name="Rush">
-		<!-- Charges toward the enemy. Cannot be used when a bow/crossbow is equipped. -->
+		<!-- Charges toward the enemy. Cannot be used when a bow/ crossbow is equipped. -->
 		<icon>icon.skill0484</icon>
+		<operateType>DA1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
 		<coolTime>200</coolTime>
 		<effectPoint>-379</effectPoint>
 		<effectRange>600</effectRange>
 		<hitTime>800</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>40</magicLevel>
 		<mpConsume>38</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>DA1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -5225,34 +5534,34 @@
 		</conditions>
 	</skill>
 	<skill id="995" toLevel="1" name="Rush Impact">
-		<!-- Charges forward to attack the enemies in front with 4224 power added to P. Atk. and inflicts Stun for 9 seconds. Unavailable to use when a bow/crossbow is equipped. -->
+		<!-- Charges forward to attack the enemies in front with 4224 power added to P. Atk. and inflicts Stun for 9 seconds. Unavailable to use when a bow/ crossbow is equipped. -->
 		<icon>icon.skill0793</icon>
+		<operateType>DA2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>60</activateRate>
 		<affectLimit>5-12-1</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>600</affectRange>
+		<affectScope>FAN</affectScope>
 		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>600</castRange>
 		<coolTime>200</coolTime>
 		<effectPoint>-681</effectPoint>
 		<effectRange>800</effectRange>
+		<fanRange>0;0;600;60</fanRange>
 		<hitTime>800</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>83</magicLevel>
 		<mpConsume>82</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>DA2</operateType>
 		<reuseDelay>20000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<fanRange>0;0;600;60</fanRange>
 		<trait>SHOCK</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -5271,7 +5580,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>4224</power>
 			</effect>
 			<effect name="BlockActions">
@@ -5282,26 +5591,26 @@
 	<skill id="996" toLevel="1" name="Disarm">
 		<!-- Disarms the enemy and prevents him from equipping a weapon for 5 seconds. -->
 		<icon>icon.skill0485</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>DISARM</abnormalType>
 		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
+		<activateRate>70</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
 		<castRange>40</castRange>
+		<effectPoint>-673</effectPoint>
 		<effectRange>200</effectRange>
 		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
 		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>82</magicLevel>
 		<mpConsume>55</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>8000</reuseDelay>
-		<effectPoint>-673</effectPoint>
-		<basicProperty>PHYSICAL</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<activateRate>70</activateRate>
 		<trait>DISARM</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -5313,19 +5622,49 @@
 		<effects>
 			<effect name="Disarm">
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>-40</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="997" toLevel="25" name="Crushing Strike">
-		<!-- Impacts the enemy with 1041 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 1: Impacts the enemy with 1041 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 2: Impacts the enemy with 1240 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 3: Impacts the enemy with 1464 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 4: Impacts the enemy with 1714 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 5: Impacts the enemy with 1990 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 6: Impacts the enemy with 2290 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 7: Impacts the enemy with 2614 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 8: Impacts the enemy with 2840 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 9: Impacts the enemy with 3075 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 10: Impacts the enemy with 3316 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 11: Impacts the enemy with 3563 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 12: Impacts the enemy with 3813 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 13: Impacts the enemy with 4065 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 14: Impacts the enemy with 4316 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 15: Impacts the enemy with 4566 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 16: Impacts the enemy with 4689 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 17: Impacts the enemy with 4811 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 18: Impacts the enemy with 4931 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 19: Impacts the enemy with 5050 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 20: Impacts the enemy with 5166 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 21: Impacts the enemy with 5280 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 22: Impacts the enemy with 5390 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 23: Impacts the enemy with 5498 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 24: Impacts the enemy with 5603 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
+		<!-- Level 25: Impacts the enemy with 5704 Power added to P. Atk, decreasing the target's P. Def. and M. Def. by 10% for 3 seconds. Requires a sword or blunt weapon to be equipped. Over-hit. -->
 		<icon>icon.skill0997</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
+		<abnormalType>PD_DOWN</abnormalType>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
 		<castRange>40</castRange>
+		<coolTime>500</coolTime>
 		<effectPoint>
 			<value level="1">-625</value>
 			<value level="2">-744</value>
@@ -5355,6 +5694,9 @@
 		</effectPoint>
 		<effectRange>400</effectRange>
 		<hitTime>800</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">40</value>
 			<value level="2">43</value>
@@ -5409,16 +5751,7 @@
 			<value level="24">82</value>
 			<value level="25">83</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>5000</reuseDelay>
-		<abnormalType>PD_DOWN</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<lvlBonusRate>30</lvlBonusRate>
-		<abnormalLevel>3</abnormalLevel>
-		<coolTime>500</coolTime>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -5428,7 +5761,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">1041</value>
 					<value level="2">1240</value>
@@ -5469,21 +5802,21 @@
 		</effects>
 	</skill>
 	<skill id="998" toLevel="1" name="Blazing Boost">
-		<!-- Quickly approaches the enemy. Cannot be used when a bow/crossbow is equipped. -->
+		<!-- Quickly approaches the enemy. Cannot be used when a bow/ crossbow is equipped. -->
 		<icon>icon.skill0998</icon>
+		<operateType>DA1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
 		<coolTime>200</coolTime>
 		<effectPoint>-630</effectPoint>
 		<effectRange>600</effectRange>
 		<hitTime>800</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>40</magicLevel>
 		<mpConsume>38</mpConsume>
 		<nextAction>ATTACK</nextAction>
-		<operateType>DA1</operateType>
 		<reuseDelay>3000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>

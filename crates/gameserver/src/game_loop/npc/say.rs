@@ -14,6 +14,21 @@ pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
     npc_say_param(world, npc_oid, npc_string_id, None);
 }
 
+/// `npc.broadcastSay(chatType, npcStringId)` — [`npc_say`] in another
+/// `ChatType` (`NPC_SHOUT` 23, `WHISPER` 2, …).
+pub(crate) fn npc_say_typed(world: &World, npc_oid: i32, chat_type: i32, npc_string_id: i32) {
+    let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) else {
+        return;
+    };
+    let pkt = crate::network::server_packets::npc_say_typed(
+        npc_oid,
+        npc.npc_id,
+        chat_type,
+        npc_string_id,
+    );
+    broadcast::broadcast_from(world, npc_oid, &pkt);
+}
+
 /// [`npc_say`] with the line's single `$s1` substitution — Java
 /// `broadcastSay(NPC_GENERAL, id, param)`.
 ///

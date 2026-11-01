@@ -1,26 +1,46 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
-	<skill id="11600" toLevel="1" name="Frenzied Prevailing Sonata">
-		<!-- For 5 minutes, increases clan members' Atk. Spd. + 15%, Casting Spd. + 30%, Max HP + 30%, and MP recovery bonus + 20%. Decreases MP Consumption for magic skills - 10% and the magic cancel rate. -->
-		<icon>icon.skill11600</icon>
+	<skill id="11600" toLevel="1" name="Combat Frenzy">
+		<!-- For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, clan members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and Magic Cancel Rate -40. A chance to add 8% Vampiric Rage effect. -->
+		<icon>icon.skill11600_2</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
 		</abnormalTime>
-		<affectRange>1000</affectRange>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PLEDGE</affectScope>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<mpInitialConsume>28</mpInitialConsume>
-		<hitTime>700</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PLEDGE</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>687</effectPoint>
-		<reuseDelay>2000</reuseDelay>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<mpConsume>140</mpConsume>
+		<mpInitialConsume>28</mpInitialConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -54,29 +74,53 @@
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="11601" toLevel="1" name="Frenzied Daring Sonata">
-		<!-- For 5 minutes, increases clan members' P. Atk. + 8%, M. Atk. + 16%, Atk. Spd. and Casting Spd. + 8%. Decreases P. Def. - 3%, M. Def. - 11%, and P. Evasion - 4. Also bestows a chance of applying 8% Vampiric Rage effect and reflects 10% of received damage back to the enemy. -->
-		<icon>icon.skill11601</icon>
-		<affectRange>1000</affectRange>
+	<skill id="11601" toLevel="1" name="Marching Frenzy">
+		<!-- For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, clan members' Speed +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<icon>icon.skill11601_2</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>ENCHANTER_MOD</abnormalType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
 		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PLEDGE</affectScope>
+		<abnormalType>ENCHANTER_MOD</abnormalType>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<mpInitialConsume>28</mpInitialConsume>
-		<hitTime>700</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PLEDGE</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>696</effectPoint>
-		<reuseDelay>2000</reuseDelay>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<mpConsume>140</mpConsume>
+		<mpInitialConsume>28</mpInitialConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -85,12 +129,7 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="VampiricAttack">
-				<!-- Custom chance -->
-				<amount>8</amount>
-				<chance>30</chance>
-			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>8</amount>
 				<mode>PER</mode>
 			</effect>
@@ -119,27 +158,47 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11602" toLevel="1" name="Frenzied Refreshing Sonata">
-		<!-- For 5 minutes, increases clan members' HP Recovery Bonus + 20%, P.?Accuracy + 4, P.?Evasion + 3, and Spd. + 20. Decreases skill MP Consumption - 20% and skill Cooldown - 10%. -->
-		<icon>icon.skill11602</icon>
-		<affectRange>1000</affectRange>
+	<skill id="11602" toLevel="1" name="Relax Frenzy">
+		<!-- For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, clan members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<icon>icon.skill11602_2</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>SYNERGY_IS</abnormalType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
 		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PLEDGE</affectScope>
+		<abnormalType>SYNERGY_IS</abnormalType>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<mpInitialConsume>28</mpInitialConsume>
-		<hitTime>700</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PLEDGE</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>696</effectPoint>
-		<reuseDelay>2000</reuseDelay>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<mpConsume>140</mpConsume>
+		<mpInitialConsume>28</mpInitialConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -191,72 +250,128 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11603" toLevel="4" name="Mass Restriction">
-		<!-- During PvP, limits the CP, HP, and MP recovery of the target and nearby enemies to maximum 60% for 30 seconds. -->
-		<icon>icon.skill11603</icon>
+	<skill id="11603" toLevel="7" name="Seal of Extortion">
+		<!-- Level 1: For 10 seconds, Heal received by the target and nearby enemies -80%. -->
+		<!-- Level 2: For 10 seconds, Heal received by the target and nearby enemies -80%. -->
+		<!-- Level 3: For 10 seconds, Heal received by the target and nearby enemies -85%. -->
+		<!-- Level 4: For 10 seconds, Heal received by the target and nearby enemies -85%. For PvPs near the Dominant Flag, applies the effect of limiting the maximum HP/ MP/ CP Recovery to 40%. -->
+		<!-- Level 5: For 10 seconds, Heal received by the target and nearby enemies -85%. For PvPs near the Dominant Flag, applies the effect of limiting the maximum HP/ MP/ CP Recovery to 40%. -->
+		<!-- Level 6: For 10 seconds, Heal received by the target and nearby enemies -90%. For PvPs near the Dominant Flag, applies the effect of limiting the maximum HP/ MP/ CP Recovery to 30%. -->
+		<!-- Level 7: For 10 seconds, Heal received by the target and nearby enemies -90%. For PvPs near the Dominant Flag, applies the effect of limiting the maximum HP/ MP/ CP Recovery to 30%. -->
+		<icon>
+			<value level="1">icon.skill11559</value>
+			<value level="2">icon.skill11559</value>
+			<value level="3">icon.skill11559</value>
+			<value level="4">icon.skill1509</value>
+			<value level="5">icon.skill1509</value>
+			<value level="6">icon.skill1509</value>
+			<value level="7">icon.skill1509</value>
+		</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>4</abnormalLevel> <!-- Custom -->
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>LIMIT</abnormalType>
 		<activateRate>60</activateRate> <!-- Custom -->
 		<affectLimit>10-10</affectLimit> <!-- Custom -->
-		<affectRange>200</affectRange> <!-- Custom -->
-		<basicProperty>MAGIC</basicProperty> <!-- Guessed -->
-		<operateType>A2</operateType>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange> <!-- Custom -->
+		<affectScope>RANGE</affectScope>
+		<basicProperty>MAGIC</basicProperty> <!-- Guessed -->
+		<castRange>900</castRange>
+		<coolTime>200</coolTime>
+		<effectPoint>
+			<value level="1">-379</value>
+			<value level="2">-379</value>
+			<value level="3">-379</value>
+			<value level="4">-679</value>
+			<value level="5">-679</value>
+			<value level="6">-679</value>
+			<value level="7">-679</value>
+		</effectPoint>
+		<hitTime>
+			<value level="1">2000</value>
+			<value level="2">2000</value>
+			<value level="3">2000</value>
+			<value level="4">2110</value>
+			<value level="5">2110</value>
+			<value level="6">2110</value>
+			<value level="7">2110</value>
+		</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 		<mpConsume>
 			<value level="1">252</value>
 			<value level="2">278</value>
 			<value level="3">306</value>
 			<value level="4">332</value>
 		</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>2110</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>120000</reuseDelay>
-		<isMagic>1</isMagic>
-		<effectPoint>-679</effectPoint>
-		<isDebuff>true</isDebuff>
+		<reuseDelay>60000</reuseDelay>
 		<effects>
+			<effect name="HealEffect">
+				<amount>
+					<value level="1">-80</value>
+					<value level="2">-80</value>
+					<value level="3">-85</value>
+					<value level="4">-85</value>
+					<value level="5">-85</value>
+					<value level="6">-90</value>
+					<value level="7">-90</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
 			<effect name="LimitHp">
 				<amount>
-					<value level="1">-40</value>
-					<value level="2">-50</value>
-					<value level="3">-60</value>
-					<value level="4">-70</value>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">-40</value>
+					<value level="5">-40</value>
+					<value level="6">-30</value>
+					<value level="7">-30</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="LimitMp">
 				<amount>
-					<value level="1">-40</value>
-					<value level="2">-50</value>
-					<value level="3">-60</value>
-					<value level="4">-70</value>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">-40</value>
+					<value level="5">-40</value>
+					<value level="6">-30</value>
+					<value level="7">-30</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="LimitCp">
 				<amount>
-					<value level="1">-40</value>
-					<value level="2">-50</value>
-					<value level="3">-60</value>
-					<value level="4">-70</value>
+					<value level="1">0</value>
+					<value level="2">0</value>
+					<value level="3">0</value>
+					<value level="4">-40</value>
+					<value level="5">-40</value>
+					<value level="6">-30</value>
+					<value level="7">-30</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11604" toLevel="7" name="Shocking Blow">
+	<skill id="11604" toLevel="7" name="Curse of Mortalize">
 		<!-- Removes Invincibility of target and nearby enemies during PvP. -->
 		<icon>icon.skill11604</icon>
-		<affectLimit>10-10</affectLimit> <!-- Custom -->
-		<affectRange>200</affectRange> <!-- Custom -->
 		<operateType>A1</operateType>
 		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
+		<affectLimit>10-10</affectLimit> <!-- Custom -->
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange> <!-- Custom -->
+		<affectScope>RANGE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-2036</effectPoint>
+		<hitTime>2110</hitTime>
+		<isMagic>1</isMagic>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -275,12 +390,7 @@
 			<value level="6">385</value>
 			<value level="7">412</value>
 		</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>2110</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>120000</reuseDelay>
-		<effectPoint>-2036</effectPoint>
-		<isMagic>1</isMagic>
 		<conditions>
 			<condition name="OpTargetPc" />
 		</conditions>
@@ -292,25 +402,66 @@
 		</effects>
 	</skill>
 	<skill id="11605" toLevel="1" name="Shield Song">
-		<!-- For 30 minutes, P. Def. + 5%, Attribute Def. + 6, Resistance to bows/crossbows + 20, and Debuff Resistance + 10%. -->
+		<!-- For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2001 (+ 1% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2002 (+ 1.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2003 (+ 2% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2004 (+ 2.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2005 (+ 3% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2006 (+ 3.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2007 (+ 4% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2008 (+ 4.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2009 (+ 5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2010 (+ 5.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2011 (+ 6% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2012 (+ 6.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2013 (+ 7% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2014 (+ 7.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2015 (+ 8% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2016 (+ 8.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2017 (+ 9% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2018 (+ 9.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2019 (+ 10% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
+		<!-- Level 1 - SubLevel 2020 (+ 10.5% Counter): For 30 minutes, P. Def. +5%, Attribute Def. +6, Resistance to bows/ crossbows +20, and Debuff Resistance +10%. -->
 		<icon>icon.skill11606new</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">1800</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 90}</value>
 		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>83</mpConsume>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>566</effectPoint>
-		<reuseDelay>30000</reuseDelay>
+		<hitTime>1000</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<mpConsume>83</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 		<effects>
 			<effect name="DefenceTrait">
 				<BOW>10</BOW>
 				<CROSSBOW>10</CROSSBOW>
+				<TWOHANDCROSSBOW>10</TWOHANDCROSSBOW>
 			</effect>
 			<effect name="PhysicalDefence">
 				<amount>5</amount>
@@ -344,27 +495,73 @@
 				<amount>20</amount>
 				<attribute>DARK</attribute>
 			</effect>
+			<effect name="DefenceCriticalDamage" fromLevel="1" toLevel="1" fromSubLevel="2001" toSubLevel="2020">
+				<amount>
+					<value fromLevel="1" toLevel="1" fromSubLevel="2001" toSubLevel="2020">{1 + ((subIndex - 1) * 0.5)}</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
 		</effects>
 	</skill>
-	<skill id="11606" toLevel="1" name="Dance of Might">
-		<!-- For 30 minutes, P. Atk. + 5%, Atk. Spd. + 5%, P. Critical Rate + 10, and Speed + 10. -->
+	<skill id="11606" toLevel="1" name="Waltz of Sword">
+		<!-- For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1001 (+90 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1002 (+180 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1003 (+270 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1004 (+360 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1005 (+450 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1006 (+540 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1007 (+630 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1008 (+720 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1009 (+810 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1010 (+900 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1011 (+990 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1012 (+1080 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1013 (+1170 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1014 (+1260 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1015 (+1350 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1016 (+1440 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1017 (+1530 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1018 (+1620 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1019 (+1710 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 1020 (+1800 seconds time): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2001 (+1% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2002 (+1.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2003 (+2% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2004 (+2.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2005 (+3% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2006 (+3.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2007 (+4% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2008 (+4.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2009 (+5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2010 (+5.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2011 (+6% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2012 (+6.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2013 (+7% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2014 (+7.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2015 (+8% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2016 (+8.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2017 (+9% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2018 (+9.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2019 (+10% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
+		<!-- Level 1 - SubLevel 2020 (+10.5% Counter): For 30 minutes, increases your P. Atk. and Atk. Spd. by 15% and P. Critical Rate/ Speed by 10. A chance to apply the Spectral Slash effect on the target when a basic attack is made. -->
 		<icon>icon.skill11605new</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">1800</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 90}</value>
 		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>83</mpConsume>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>566</effectPoint>
-		<reuseDelay>30000</reuseDelay>
+		<hitTime>1000</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<mpConsume>83</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
-				<amount>5</amount>
+			<effect name="PhysicalAttack">
+				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="Speed">
@@ -372,36 +569,64 @@
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="PhysicalAttackSpeed">
-				<amount>5</amount>
+				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="CriticalRate">
 				<amount>10</amount>
 				<mode>DIFF</mode>
 			</effect>
+			<effect name="TriggerSkillByDamageDealt">
+				<isCritical>false</isCritical>
+				<chance>30</chance>
+				<targetType>ENEMY</targetType>
+				<affectScope>SINGLE</affectScope>
+				<skillId>19435</skillId> <!-- Spectral Slash -->
+				<skillLevel>5</skillLevel>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="11607" toLevel="1" name="Prevailing Song">
-		<!-- Increases party members' Atk. Spd. by 15%, Casting Spd. by 30%, Max HP by 30%, MP recovery bonus by 20% and decreases MP Consumption for magic skill by 10% and the magic cancel rate for 5 minutes. -->
+		<!-- For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
 		<icon>icon.skill11607</icon>
-		<affectRange>1000</affectRange>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
 		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
-		<reuseDelay>2000</reuseDelay>
-		<magicLevel>85</magicLevel>
 		<effectPoint>687</effectPoint>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicLevel>85</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -414,11 +639,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>15</amount>
+			<effect name="PhysicalAttack">
+				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalAttackSpeed">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -434,97 +659,54 @@
 				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
+			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="11608" toLevel="1" name="Daring Song">
-		<!-- Increases party members' P. Atk. by 8%, M. Atk. by 16%, Atk. Spd. and Casting Spd. by 8% and decreases P. Def. by 3%, M. Def. by 11% and P. Evasion by 4 for 5 minutes. Also bestows a chance of applying 8% Vampiric Rage effect and reflects 10% of received damage back to the enemy. -->
+		<!-- For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
 		<icon>icon.skill11608</icon>
-		<affectRange>1000</affectRange>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>
+			<value fromLevel="1" toLevel="1">300</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
+		</abnormalTime>
 		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<abnormalTime>
-			<value fromLevel="1" toLevel="1">300</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
-		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>2000</reuseDelay>
-		<magicLevel>85</magicLevel>
-		<effectPoint>696</effectPoint>
-		<isMagic>3</isMagic> <!-- Dance Skill -->
-		<effects>
-			<effect name="DispelBySlotProbability">
-				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
-				<rate>100</rate>
-			</effect>
-			<effect name="BlockAbnormalSlot">
-				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
-			</effect>
-			<effect name="VampiricAttack">
-				<!-- Custom chance -->
-				<amount>8</amount>
-				<chance>30</chance>
-			</effect>
-			<effect name="PAtk">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>16</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>-4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DamageShield">
-				<amount>10</amount>
-			</effect>
-		</effects>
-	</skill>
-	<skill id="11609" toLevel="1" name="Refreshing Song">
-		<!-- Increases party members' HP Recovery Bonus by 20%, P.?Accuracy by 4, P.?Evasion by 3, Speed by 20, and decreases MP Consumption for skills by 20% and skill Cooldown by 10% for 5 minutes. -->
-		<icon>icon.skill11609</icon>
 		<affectRange>1000</affectRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<abnormalTime>
-			<value fromLevel="1" toLevel="1">300</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
-		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>2000</reuseDelay>
-		<magicLevel>85</magicLevel>
 		<effectPoint>696</effectPoint>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicLevel>85</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -537,27 +719,21 @@
 				<amount>20</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>3</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="Accuracy">
-				<amount>4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
-			<effect name="MagicMpCost">
-				<amount>-20</amount>
+			<effect name="PhysicalAttackSpeed">
+				<amount>25</amount>
 				<mode>PER</mode>
-				<magicType>0</magicType>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageShield">
+				<amount>10</amount>
 			</effect>
 			<effect name="Reuse">
 				<amount>-10</amount>
@@ -571,27 +747,124 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11610" toLevel="1" name="Prevailing Dance">
-		<!-- Increases party members' Atk. Spd. by 15%, Casting Spd. by 30%, Max HP by 30%, MP recovery bonus by 20% and decreases MP Consumption for magic skill by 10% and the magic cancel rate for 5 minutes. -->
-		<icon>icon.skill11610</icon>
-		<affectRange>1000</affectRange>
+	<skill id="11609" toLevel="1" name="Refreshing Song">
+		<!-- For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<icon>icon.skill11609</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">300</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
 		</abnormalTime>
+		<abnormalType>SYNERGY_IS</abnormalType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>300</coolTime>
+		<effectPoint>696</effectPoint>
+		<hitTime>700</hitTime>
+		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicLevel>85</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
+		<effects>
+			<effect name="DispelBySlotProbability">
+				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
+				<rate>100</rate>
+			</effect>
+			<effect name="BlockAbnormalSlot">
+				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
+			</effect>
+			<effect name="PhysicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="HpRegen">
+				<amount>75</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MpRegen">
+				<amount>50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>0</magicType>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="11610" toLevel="1" name="Prevailing Dance">
+		<!-- For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, party members' Max HP +30%, P. Atk. +25%, M. Atk. +30%, and magic cancel rate -40. A chance to apply 8% Vampiric Rage effect. -->
+		<icon>icon.skill11610</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>
+			<value fromLevel="1" toLevel="1">300</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
+		</abnormalTime>
+		<abnormalType>BUFF_SPECIAL_AURA</abnormalType>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
-		<reuseDelay>2000</reuseDelay>
-		<magicLevel>85</magicLevel>
 		<effectPoint>687</effectPoint>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicLevel>85</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -604,11 +877,11 @@
 			<effect name="BlockAbnormalSlot">
 				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
 			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>15</amount>
+			<effect name="PhysicalAttack">
+				<amount>25</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MagicalAttackSpeed">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -625,96 +898,53 @@
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
+			<effect name="VampiricAttack">
+				<amount>9</amount>
+				<chance>30</chance>
+			</effect>
 		</effects>
 	</skill>
 	<skill id="11611" toLevel="1" name="Daring Dance">
-		<!-- Increases party members' P. Atk. by 8%, M. Atk. by 16%, Atk. Spd. and Casting Spd. by 8% and decreases P. Def. by 3%, M. Def. by 11% and P. Evasion by 4 for 5 minutes. Also bestows a chance of applying 8% Vampiric Rage effect and reflects 10% of received damage back to the enemy. -->
+		<!-- For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, party members' Atk. Spd. +25%, Casting Spd. +25%, Speed +20, Damage Reflection +10%, and Skill Cooldown -10%. -->
 		<icon>icon.skill11611</icon>
-		<affectRange>1000</affectRange>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>
+			<value fromLevel="1" toLevel="1">300</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
+		</abnormalTime>
 		<abnormalType>ENCHANTER_MOD</abnormalType>
-		<abnormalTime>
-			<value fromLevel="1" toLevel="1">300</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
-		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
 		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>2000</reuseDelay>
-		<magicLevel>85</magicLevel>
-		<effectPoint>696</effectPoint>
-		<isMagic>3</isMagic> <!-- Dance Skill -->
-		<effects>
-			<effect name="DispelBySlotProbability">
-				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
-				<rate>100</rate>
-			</effect>
-			<effect name="BlockAbnormalSlot">
-				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
-			</effect>
-			<effect name="VampiricAttack">
-				<!-- Custom chance -->
-				<amount>8</amount>
-				<chance>30</chance>
-			</effect>
-			<effect name="PAtk">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>16</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>-3</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>-4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>8</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="DamageShield">
-				<amount>10</amount>
-			</effect>
-		</effects>
-	</skill>
-	<skill id="11612" toLevel="1" name="Refreshing Dance">
-		<!-- Increases party members' HP Recovery Bonus by 20%, P.?Accuracy by 4, P.?Evasion by 3, Speed by 20, and decreases MP Consumption for skills by 20% and skill Cooldown by 10% for 5 minutes. -->
-		<icon>icon.skill11612</icon>
 		<affectRange>1000</affectRange>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalType>SYNERGY_IS</abnormalType>
-		<abnormalTime>
-			<value fromLevel="1" toLevel="1">300</value>
-			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
-		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>2000</reuseDelay>
-		<magicLevel>85</magicLevel>
 		<effectPoint>696</effectPoint>
+		<hitTime>700</hitTime>
 		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicLevel>85</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="DispelBySlotProbability">
 				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
@@ -727,27 +957,21 @@
 				<amount>20</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PhysicalEvasion">
-				<amount>3</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="Accuracy">
-				<amount>4</amount>
-				<mode>DIFF</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
 			<effect name="MagicMpCost">
-				<amount>-20</amount>
+				<amount>-10</amount>
 				<mode>PER</mode>
 				<magicType>1</magicType>
 			</effect>
-			<effect name="MagicMpCost">
-				<amount>-20</amount>
+			<effect name="PhysicalAttackSpeed">
+				<amount>25</amount>
 				<mode>PER</mode>
-				<magicType>0</magicType>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>25</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="DamageShield">
+				<amount>10</amount>
 			</effect>
 			<effect name="Reuse">
 				<amount>-10</amount>
@@ -761,9 +985,131 @@
 			</effect>
 		</effects>
 	</skill>
+	<skill id="11612" toLevel="1" name="Refreshing Dance">
+		<!-- For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1001 (+15 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1002 (+30 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1003 (+45 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1004 (+60 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1005 (+75 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1006 (+90 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1007 (+105 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1008 (+120 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1009 (+135 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1010 (+150 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1011 (+165 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1012 (+180 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1013 (+195 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1014 (+210 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1015 (+225 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1016 (+240 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1017 (+255 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1018 (+270 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1019 (+285 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<!-- Level 1 - SubLevel 1020 (+300 seconds time): For 5 minutes, party members' HP Recovery Bonus +75%, MP Recovery Bonus +50%, and P. Evasion/ M. Evasion +5, and Skill MP Consumption -20%. -->
+		<icon>icon.skill11612</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>
+			<value fromLevel="1" toLevel="1">300</value>
+			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 30}</value>
+		</abnormalTime>
+		<abnormalType>SYNERGY_IS</abnormalType>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>300</coolTime>
+		<effectPoint>696</effectPoint>
+		<hitTime>700</hitTime>
+		<isMagic>3</isMagic> <!-- Dance Skill -->
+		<magicLevel>85</magicLevel>
+		<mpConsume>140</mpConsume>
+		<reuseDelay>2000</reuseDelay>
+		<effects>
+			<effect name="DispelBySlotProbability">
+				<dispel>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</dispel>
+				<rate>100</rate>
+			</effect>
+			<effect name="BlockAbnormalSlot">
+				<slot>DANCE_OF_BLADESTORM;SONG_OF_CHAMPION;SONG_OF_EARTH;SONG_OF_HUNTER;SONG_OF_LIFE;SONG_OF_MEDITATION;SONG_OF_RENEWAL;SONG_OF_VENGEANCE;SONG_OF_VITALITY;SONG_OF_WARDING;SONG_OF_WATER;SONG_OF_WIND;DANCE_OF_BERSERKER;DANCE_OF_CONCENTRATION;DANCE_OF_FIRE;DANCE_OF_FURY;DANCE_OF_INSPIRATION;DANCE_OF_MYSTIC;DANCE_OF_SIREN;DANCE_OF_VAMPIRE;DANCE_OF_WARRIOR;SONG_OF_PURIFICATION;WISPERING_OF_BATTLE;SONG_OF_WINDSTORM;MOTION_OF_DEFENCE;BUFF_UNICORN_SERAPHIM;BUFF_QUEEN_OF_CAT;KNIGHT_AURA;DMG_SHIELD;AVOID_UP</slot>
+			</effect>
+			<effect name="PhysicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicalEvasion">
+				<amount>5</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="HpRegen">
+				<amount>75</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MpRegen">
+				<amount>50</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>-20</amount>
+				<mode>PER</mode>
+				<magicType>0</magicType>
+			</effect>
+		</effects>
+	</skill>
 	<skill id="11613" toLevel="4" name="Song of Protection">
-		<!-- For 30 seconds, increases your P. Def. + 5000 and M. Def. + 5000. Restores 1000 HP. -->
+		<!-- Level 1: For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 1000 HP. -->
+		<!-- Level 2: For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 2000 HP. -->
+		<!-- Level 3: For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 4: For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 3 - SubLevel 1001 (+ 1 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1002 (+ 2 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1003 (+ 3 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1004 (+ 4 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1005 (+ 5 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1006 (+ 6 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1007 (+ 7 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1008 (+ 8 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1009 (+ 9 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1010 (+ 10 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1011 (+ 10.5 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1012 (+ 11 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1013 (+ 11.5 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1014 (+ 12 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1015 (+ 12.5 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1016 (+ 13 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1017 (+ 13.5 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1018 (+ 14 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1019 (+ 14.5 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 3 - SubLevel 1020 (+ 15 Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 3000 HP. -->
+		<!-- Level 4 - SubLevel 1001 (+ 1 second Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1002 (+ 2 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1003 (+ 3 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1004 (+ 4 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1005 (+ 5 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1006 (+ 6 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1007 (+ 7 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1008 (+ 8 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1009 (+ 9 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1010 (+ 10 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1011 (+ 10.5 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1012 (+ 11 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1013 (+ 11.5 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1014 (+ 12 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1015 (+ 12.5 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1016 (+ 13 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1017 (+ 13.5 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1018 (+ 14 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1019 (+ 14.5 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
+		<!-- Level 4 - SubLevel 1020 (+ 15 seconds Time): For 30 seconds, increases your P. Def. +5000 and M. Def. +5000. Restores 5000 HP. -->
 		<icon>icon.skill11613</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel> <!-- Guessed -->
 		<abnormalTime>
 			<value fromLevel="1" toLevel="4">30</value>
@@ -772,20 +1118,18 @@
 		</abnormalTime>
 		<abnormalType>PD_UP_SPECIAL</abnormalType> <!-- Guessed -->
 		<abnormalVisualEffect>ULTIMATE_DEFENCE</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>689</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<mpConsume>
 			<value level="1">319</value>
 			<value level="2">427</value>
 			<value level="3">534</value>
 			<value level="4">640</value>
 		</mpConsume>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>689</effectPoint>
 		<reuseDelay>600000</reuseDelay>
-		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<effects>
 			<effect name="Heal">
 				<power>
@@ -806,30 +1150,73 @@
 		</effects>
 	</skill>
 	<skill id="11614" toLevel="4" name="Battle Rhapsody Dance">
-		<!-- For 30 seconds, increases your P. Atk./M. Atk./Atk. Spd./Casting Spd. + 50%. -->
+		<!-- Level 1: For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +50%. -->
+		<!-- Level 2: For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +60%. -->
+		<!-- Level 3: For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 4: For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 3 - SubLevel 1001 (+ 1 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1002 (+ 2 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1003 (+ 3 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1004 (+ 4 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1005 (+ 5 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1006 (+ 6 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1007 (+ 7 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1008 (+ 8 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1009 (+ 9 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1010 (+ 10 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1011 (+ 10.5 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1012 (+ 11 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1013 (+ 11.5 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1014 (+ 12 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1015 (+ 12.5 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1016 (+ 13 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1017 (+ 13.5 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1018 (+ 14 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1019 (+ 14.5 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 3 - SubLevel 1020 (+ 15 Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +70%. -->
+		<!-- Level 4 - SubLevel 1001 (+ 1 second Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1002 (+ 2 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1003 (+ 3 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1004 (+ 4 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1005 (+ 5 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1006 (+ 6 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1007 (+ 7 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1008 (+ 8 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1009 (+ 9 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1010 (+ 10 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1011 (+ 10.5 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1012 (+ 11 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1013 (+ 11.5 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1014 (+ 12 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1015 (+ 12.5 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1016 (+ 13 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1017 (+ 13.5 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1018 (+ 14 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1019 (+ 14.5 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
+		<!-- Level 4 - SubLevel 1020 (+ 15 seconds Time): For 30 seconds, increases your P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. +100%. -->
 		<icon>icon.skill11614</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="4">30</value>
 			<value fromLevel="3" toLevel="4" fromSubLevel="1001" toSubLevel="1010">{base + subIndex}</value>
 			<value fromLevel="3" toLevel="4" fromSubLevel="1011" toSubLevel="1020">{base + 10 + 0.5 * subIndex}</value>
 		</abnormalTime>
 		<abnormalType>RHAPSODY</abnormalType>
-		<operateType>A2</operateType>
-		<isMagic>3</isMagic> <!-- Dance Skill -->
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>687</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>3</isMagic> <!-- Dance Skill -->
 		<mpConsume>
 			<value level="1">319</value>
 			<value level="2">427</value>
 			<value level="3">534</value>
 			<value level="4">640</value>
 		</mpConsume>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<effectPoint>687</effectPoint>
 		<reuseDelay>600000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">50</value>
 					<value level="2">60</value>
@@ -838,7 +1225,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">50</value>
 					<value level="2">60</value>
@@ -868,24 +1255,44 @@
 		</effects>
 	</skill>
 	<skill id="11615" toLevel="1" name="Battle Ditty">
-		<!-- For 30 minutes, selected party member's PvP Damage + 10%, Attribute Attack + 10, MP Recovery Bonus + 10%. Consumes 10 Spirit Ore. -->
+		<!-- For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+ 90 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+ 180 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+ 270 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+ 360 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+ 450 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+ 540 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+ 630 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+ 720 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+ 810 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+ 900 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+ 990 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+ 1080 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+ 1170 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+ 1260 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+ 1350 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+ 1440 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+ 1530 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+ 1620 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+ 1710 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+ 1800 seconds Time): For 30 minutes, selected party member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
 		<icon>icon.skill11615</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">1800</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 90}</value>
 		</abnormalTime>
-		<abnormalLevel>1</abnormalLevel>
 		<abnormalType>DITTY</abnormalType>
-		<itemConsumeCount>10</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
-		<operateType>A2</operateType>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>181</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
+		<itemConsumeCount>10</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>181</mpConsume>
 		<reuseDelay>2000</reuseDelay>
 		<conditions>
 			<condition name="TargetMyParty">
@@ -915,24 +1322,44 @@
 		</effects>
 	</skill>
 	<skill id="11616" toLevel="1" name="Protective Ditty">
-		<!-- For 30 minutes, selected party member's Received PvP Damage - 10%, Speed + 4, HP Recovery Bonus + 10%. Consumes 10 Spirit Ore. -->
+		<!-- For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+90 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+180 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+270 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+360 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+450 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+540 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+630 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+720 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+810 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+900 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+990 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+1080 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+1170 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+1260 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+1350 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+1440 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+1530 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+1620 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+1710 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+1800 seconds time): For 30 minutes, selected party member's Received PvP Damage -10%, Speed +10, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
 		<icon>icon.skill11616</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">1800</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 90}</value>
 		</abnormalTime>
-		<abnormalLevel>1</abnormalLevel>
 		<abnormalType>DITTY</abnormalType>
-		<itemConsumeCount>10</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
-		<operateType>A2</operateType>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>181</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
+		<itemConsumeCount>10</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>181</mpConsume>
 		<reuseDelay>2000</reuseDelay>
 		<conditions>
 			<condition name="TargetMyParty">
@@ -962,25 +1389,45 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11617" toLevel="1" name="Frezied Battle Ditty">
-		<!-- For 30 minutes, selected clan member's PvP Damage + 10%, Attribute Attack + 10, MP Recovery Bonus + 10%. Consumes 10 Spirit Ore. -->
+	<skill id="11617" toLevel="1" name="Command for Battle">
+		<!-- For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+90 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+180 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+270 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+360 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+450 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+540 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+630 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+720 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+810 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+900 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+990 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+1080 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+1170 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+1260 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+1350 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+1440 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+1530 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+1620 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+1710 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+1800 seconds time): For 10 minutes, selected clan member's PvP Damage +10%, Attribute Attack +10, MP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
 		<icon>icon.skill11617</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">1800</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 90}</value>
 		</abnormalTime>
-		<abnormalLevel>1</abnormalLevel>
 		<abnormalType>DITTY</abnormalType>
-		<itemConsumeCount>10</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
-		<operateType>A2</operateType>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>181</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
+		<itemConsumeCount>10</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>181</mpConsume>
 		<reuseDelay>2000</reuseDelay>
 		<conditions>
 			<condition name="TargetMyPledge" />
@@ -1007,25 +1454,45 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11618" toLevel="1" name="Frenzied Protective Ditty">
-		<!-- For 30 minutes, selected clan member's Received PvP Damage - 10%, Speed + 4, HP Recovery Bonus + 10%. Consumes 10 Spirit Ore. -->
+	<skill id="11618" toLevel="1" name="Command for Defense">
+		<!-- For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1001 (+90 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1002 (+180 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1003 (+270 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1004 (+360 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1005 (+450 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1006 (+540 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1007 (+630 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1008 (+720 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1009 (+810 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1010 (+900 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1011 (+990 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1012 (+1080 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1013 (+1170 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1014 (+1260 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1015 (+1350 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1016 (+1440 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1017 (+1530 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1018 (+1620 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1019 (+1710 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
+		<!-- Level 1 - SubLevel 1020 (+1800 seconds time): For 10 minutes, selected clan member's Received PvP Damage -10%, Speed +4, HP Recovery Bonus +10%. Consumes 10 Spirit Ore. -->
 		<icon>icon.skill11618</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value fromLevel="1" toLevel="1">1800</value>
 			<value fromLevel="1" toLevel="1" fromSubLevel="1001" toSubLevel="1020">{base + subIndex * 90}</value>
 		</abnormalTime>
-		<abnormalLevel>1</abnormalLevel>
 		<abnormalType>DITTY</abnormalType>
-		<itemConsumeCount>10</itemConsumeCount>
-		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
-		<operateType>A2</operateType>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<mpConsume>181</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1000</hitTime>
+		<itemConsumeCount>10</itemConsumeCount>
+		<itemConsumeId>3031</itemConsumeId> <!-- Spirit Ore -->
+		<mpConsume>181</mpConsume>
 		<reuseDelay>2000</reuseDelay>
 		<conditions>
 			<condition name="TargetMyPledge" />
@@ -1053,93 +1520,86 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="11619" toLevel="3" name="Soul Ditty">
-		<!-- Entire party's P. Atk. + 3%, P. Critical Damage + 3%, Atk. Spd. + 2%, M. Atk. + 2%, Casting Spd. + 2%, P. Def. + 2%, M. Def. + 2%, Skill Power + 2%. -->
+	<skill id="11619" toLevel="1" name="Soul Ditty">
+		<!-- Entire party's P. Atk. +3%, P. Critical Damage +3%, Atk. Spd. +2%, M. Atk. +2%, Casting Spd. +2%, P. Def. +2%, M. Def. +2%, Skill Power +2%. -->
 		<icon>icon.skill11529</icon>
-		<abnormalTime>1800</abnormalTime> <!-- Custom -->
-		<affectRange>1000</affectRange>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<abnormalTime>1800</abnormalTime> <!-- Custom -->
 		<affectLimit>10-10</affectLimit> <!-- Custom -->
-		<affectRange>1000</affectRange> <!-- Custom -->
-		<mpConsume>140</mpConsume>
-		<hitTime>700</hitTime>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<coolTime>300</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>700</hitTime>
+		<mpConsume>140</mpConsume>
 		<reuseDelay>2000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">3</value>
-					<value level="2">5</value>
-					<value level="3">7</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MagicalDefence">
 				<amount>
 					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="PhysicalDefence">
 				<amount>
 					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="PhysicalAttackSpeed">
 				<amount>
 					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MagicalAttackSpeed">
 				<amount>
 					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="CriticalDamage">
 				<amount>
 					<value level="1">3</value>
-					<value level="2">5</value>
-					<value level="3">7</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="PhysicalSkillPower">
 				<amount>
 					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="11620" toLevel="10" name="Superior Shield Mastery">
-		<!-- Shield Def. Success Rate +50%, Shield Def. +40%. -->
+		<!-- Level 1: Shield Def. Success Rate +50%, Shield Def. +40%. -->
+		<!-- Level 2: Shield Def. Success Rate +50%, Shield Def. +45%. -->
+		<!-- Level 3: Shield Def. Success Rate +50%, Shield Def. +50%. -->
+		<!-- Level 4: Shield Def. Success Rate +50%, Shield Def. +55%. -->
+		<!-- Level 5: Shield Def. Success Rate +50%, Shield Def. +60%. -->
+		<!-- Level 6: Shield Def. Success Rate +50%, Shield Def. +65%. -->
+		<!-- Level 7: Shield Def. Success Rate +50%, Shield Def. +70%. -->
+		<!-- Level 8: Shield Def. Success Rate +50%, Shield Def. +75%. -->
+		<!-- Level 9: Shield Def. Success Rate +50%, Shield Def. +80%. -->
+		<!-- Level 10: Shield Def. Success Rate +50%, Shield Def. +85%. -->
 		<icon>icon.skill10003</icon>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -1148,11 +1608,10 @@
 			<value level="5">100</value>
 			<value level="6">102</value>
 			<value level="7">104</value>
-			<value level="8">106</value>
-			<value level="9">108</value>
-			<value level="10">110</value>
+			<value level="8">105</value>
+			<value level="9">106</value>
+			<value level="10">107</value>
 		</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<passiveConditions>
 			<condition name="EquipShield" />
 		</passiveConditions>
@@ -1179,33 +1638,38 @@
 		</effects>
 	</skill>
 	<skill id="11621" toLevel="1" name="Blessing Barrier">
-		<!-- A chance of a damage-absorbing barrier being generated when damage is received. -->
+		<!-- Creates a defense barrier that absorbs damage as much as 200% of your P. Def. for 10 seconds. -->
 		<icon>icon.skill11621</icon>
-		<operateType>P</operateType>
-		<magicLevel>99</magicLevel>
-		<effects>
-			<effect name="TriggerSkillByDamage">
-				<chance>80</chance> <!-- Chance appears almost 100% -->
-				<targetType>SELF</targetType>
-				<minDamage>1</minDamage>
-				<skillId>11622</skillId> <!-- Blessing Barrier -->
-				<skillLevel>1</skillLevel>
-			</effect>
-		</effects>
-	</skill>
-	<skill id="11622" toLevel="1" name="Blessing Barrier">
-		<!-- Protected by a divine barrier. The barrier absorbs 20000 damage for 10 seconds. -->
-		<icon>icon.skill11621</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>BARRIER</abnormalType>
 		<abnormalVisualEffect>ABSORB_SHIELD</abnormalVisualEffect>
-		<operateType>A2</operateType>
-		<magicLevel>99</magicLevel>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>30000</reuseDelay>
 		<isMagic>4</isMagic>
+		<magicLevel>99</magicLevel>
+		<mpConsume>114</mpConsume>
+		<reuseDelay>60000</reuseDelay>
+		<effects>
+			<effect name="AbsorbDamage">
+				<damage>20000</damage>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="11622" toLevel="1" name="Blessing Barrier">
+		<!-- The barrier absorbs 20000 damage for 10 seconds. -->
+		<icon>icon.skill11621</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>BARRIER</abnormalType>
+		<abnormalVisualEffect>ABSORB_SHIELD</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<magicLevel>99</magicLevel>
+		<reuseDelay>30000</reuseDelay>
 		<effects>
 			<effect name="AbsorbDamage">
 				<damage>20000</damage>

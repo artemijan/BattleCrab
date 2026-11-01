@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="26200" name="+9 Blessed Apocalypse Retributer Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
@@ -10,7 +10,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27323" level="1" /> <!-- + 9 Blessed Apocalypse Retributer Pack -->
+			<skill id="27323" level="1" /> <!-- +9 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
 	<item id="26201" name="+10 Blessed Apocalypse Retributer Pack" type="EtcItem">
@@ -23,10 +23,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27324" level="1" /> <!-- + 10 Blessed Apocalypse Retributer Pack -->
+			<skill id="27324" level="1" /> <!-- +10 Blessed Apocalypse Retributer Pack -->
 		</skills>
 	</item>
-	<item id="26202" name="+4 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26202" name="+4 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -36,10 +36,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27325" level="1" /> <!-- + 4 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27325" level="1" /> <!-- +4 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
-	<item id="26203" name="+5 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26203" name="+5 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -49,10 +49,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27326" level="1" /> <!-- + 5 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27326" level="1" /> <!-- +5 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
-	<item id="26204" name="+6 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26204" name="+6 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -62,10 +62,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27327" level="1" /> <!-- + 6 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27327" level="1" /> <!-- +6 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
-	<item id="26205" name="+7 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26205" name="+7 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -75,10 +75,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27328" level="1" /> <!-- + 7 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27328" level="1" /> <!-- +7 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
-	<item id="26206" name="+8 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26206" name="+8 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -88,10 +88,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27329" level="1" /> <!-- + 8 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27329" level="1" /> <!-- +8 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
-	<item id="26207" name="+9 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26207" name="+9 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -101,10 +101,10 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27330" level="1" /> <!-- + 9 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27330" level="1" /> <!-- +9 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
-	<item id="26208" name="+10 Blessed Apocalypse Dualsword Pack" type="EtcItem">
+	<item id="26208" name="+10 Blessed Apocalypse Dual Sword Pack" type="EtcItem">
 		<!-- Double-click to obtain the item as described in the pack name. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
@@ -114,7 +114,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27331" level="1" /> <!-- + 10 Blessed Apocalypse Dualsword Pack -->
+			<skill id="27331" level="1" /> <!-- +10 Blessed Apocalypse Dual Sword Pack -->
 		</skills>
 	</item>
 	<item id="26209" name="+4 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -127,7 +127,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27332" level="1" /> <!-- + 4 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27332" level="1" /> <!-- +4 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26210" name="+5 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -140,7 +140,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27333" level="1" /> <!-- + 5 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27333" level="1" /> <!-- +5 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26211" name="+6 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -153,7 +153,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27334" level="1" /> <!-- + 6 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27334" level="1" /> <!-- +6 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26212" name="+7 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -166,7 +166,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27335" level="1" /> <!-- + 7 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27335" level="1" /> <!-- +7 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26213" name="+8 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -179,7 +179,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27336" level="1" /> <!-- + 8 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27336" level="1" /> <!-- +8 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26214" name="+9 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -192,7 +192,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27337" level="1" /> <!-- + 9 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27337" level="1" /> <!-- +9 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26215" name="+10 Blessed Apocalypse Dual Dagger Pack" type="EtcItem">
@@ -205,7 +205,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27338" level="1" /> <!-- + 10 Blessed Apocalypse Dual Dagger Pack -->
+			<skill id="27338" level="1" /> <!-- +10 Blessed Apocalypse Dual Dagger Pack -->
 		</skills>
 	</item>
 	<item id="26216" name="+4 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -218,7 +218,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27339" level="1" /> <!-- + 4 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27339" level="1" /> <!-- +4 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26217" name="+5 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -231,7 +231,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27340" level="1" /> <!-- + 5 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27340" level="1" /> <!-- +5 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26218" name="+6 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -244,7 +244,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27341" level="1" /> <!-- + 6 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27341" level="1" /> <!-- +6 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26219" name="+7 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -257,7 +257,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27342" level="1" /> <!-- + 7 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27342" level="1" /> <!-- +7 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26220" name="+8 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -270,7 +270,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27343" level="1" /> <!-- + 8 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27343" level="1" /> <!-- +8 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26221" name="+9 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -283,7 +283,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27344" level="1" /> <!-- + 9 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27344" level="1" /> <!-- +9 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26222" name="+10 Blessed Apocalypse Dual Blunt Weapon Pack" type="EtcItem">
@@ -296,7 +296,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="27345" level="1" /> <!-- + 10 Blessed Apocalypse Dual Blunt Weapon Pack -->
+			<skill id="27345" level="1" /> <!-- +10 Blessed Apocalypse Dual Blunt Weapon Pack -->
 		</skills>
 	</item>
 	<item id="26223" name="Steel Support Box" type="EtcItem">
@@ -336,7 +336,7 @@
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -361,7 +361,7 @@
 			<stat type="mAtk">134</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -386,7 +386,7 @@
 			<stat type="mAtk">157</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -411,7 +411,7 @@
 			<stat type="mAtk">193</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -436,7 +436,7 @@
 			<stat type="mAtk">222</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -464,9 +464,9 @@
 			<item id="37135" min="1" max="1" chance="100" /> <!-- Steel Plate Helmet (60-day) -->
 			<item id="26231" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Wizard (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26230" name="Fated Support Box: Ertheia Fighter (C-grade)" type="EtcItem">
 		<!-- Double-click to receive C-grade equipment items necessary for Ertheia fighter-type characters. Can be used by characters Lv. 40 - 84. -->
@@ -492,9 +492,9 @@
 			<item id="37135" min="1" max="1" chance="100" /> <!-- Steel Plate Helmet (60-day) -->
 			<item id="26232" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Fighter (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26231" name="Fated Support Box: Ertheia Wizard (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for Ertheia wizard-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -519,9 +519,9 @@
 			<item id="37257" min="1" max="1" chance="100" /> <!-- Steel Wizard's Tear (60-day) -->
 			<item id="26233" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Wizard (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26232" name="Fated Support Box: Ertheia Fighter (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for Ertheia fighter-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -546,9 +546,9 @@
 			<item id="37148" min="1" max="1" chance="100" /> <!-- Steel Doom Helmet (60-day) -->
 			<item id="26234" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Fighter (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26233" name="Fated Support Box: Ertheia Wizard (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for Ertheia wizard-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -573,9 +573,9 @@
 			<item id="37167" min="1" max="1" chance="100" /> <!-- Steel Dark Crystal Helmet (60-day) -->
 			<item id="26235" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Wizard - Stage 1 (S-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26234" name="Fated Support Box: Ertheia Fighter (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for Ertheia fighter-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -601,9 +601,9 @@
 			<item id="37167" min="1" max="1" chance="100" /> <!-- Steel Dark Crystal Helmet (60-day) -->
 			<item id="26236" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Fighter - Stage 1 (S-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26235" name="Fated Support Box: Ertheia Wizard - Stage 1 (S-grade)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for Ertheia wizard-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -628,9 +628,9 @@
 			<item id="37281" min="1" max="1" chance="100" /> <!-- Steel Arcana Mace (60-day) -->
 			<item id="26237" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Wizard - Stage 2 (S-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26236" name="Fated Support Box: Ertheia Fighter - Stage 1 (S-grade)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for Ertheia fighter-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -656,9 +656,9 @@
 			<item id="37189" min="1" max="1" chance="100" /> <!-- Steel Draconic Leather Helmet (60-day) -->
 			<item id="26238" min="1" max="1" chance="100" /> <!-- Fated Support Box: Ertheia Fighter - Stage 2 (S-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26237" name="Fated Support Box: Ertheia Wizard - Stage 2 (S-grade)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for Ertheia wizard-type characters. Can be used by characters Lv. 81 - 84. -->
@@ -684,9 +684,9 @@
 			<item id="37289" min="1" max="1" chance="100" /> <!-- Steel Dynasty Phantom (60-day) -->
 			<item id="26239" min="1" max="1" chance="100" /> <!-- Fated Support Box: Sayha's Seer (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26238" name="Fated Support Box: Ertheia Fighter - Stage 2 (S-grade)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for Ertheia fighter-type characters. Can be used by characters Lv. 81 - 84. -->
@@ -712,9 +712,9 @@
 			<item id="37204" min="1" max="1" chance="100" /> <!-- Steel Dynasty Leather Helmet (60-day) -->
 			<item id="37240" min="1" max="1" chance="100" /> <!-- Steel Immortal Necklace (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26239" name="Fated Support Box: Sayha's Seer (R-grade)" type="EtcItem">
 		<!-- Double-click to receive equipment items necessary for Sayha's Seer characters. Can be used by characters Lv. 85 - 99. -->
@@ -741,9 +741,9 @@
 			<item id="37300" min="1" max="1" chance="100" /> <!-- Steel Requiem Caster (30-day) -->
 			<item id="37301" min="1" max="1" chance="100" /> <!-- Steel Requiem Buster (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26240" name="Fated Support Box: Eviscerator (R-grade)" type="EtcItem">
 		<!-- Double-click to receive equipment items necessary for Eviscerator characters. Can be used by characters Lv. 85 - 99. -->
@@ -768,9 +768,9 @@
 			<item id="37213" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Armor (30-day) -->
 			<item id="37215" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Helmet (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="26241" name="Lost Gloves" type="EtcItem">
 		<!-- Lost gloves. -->
@@ -780,8 +780,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="26242" name="Lost Boots" type="EtcItem">
@@ -792,8 +792,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="26243" name="Lost Armor" type="EtcItem">
@@ -804,8 +804,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="26244" name="Symbol of Courage" type="EtcItem">
@@ -816,8 +816,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="26245" name="Symbol of Courage" type="EtcItem">
@@ -828,12 +828,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="26246" name="Returning Hero's Support Box" type="EtcItem">
-		<!-- Double-click to get an XP Rune 50% (7-day), Prestine Rune 100%(7-day), Superior Minion Coupon (5-hr), Returning Hero's Vitality Replenishing Juice x5, Heavenly Cocktail x10, My Teleport Book (Event) x1, My Teleport Scroll (Event) x10, Returning Hero's Mark x250, Returning Hero's High-grade Support Box x1. -->
+		<!-- Double-click to get XP Rune 50% (7-day) x1, Blessed Scroll of Resurrection x10, Blessed Scroll of Escape x10, Returning Hero's Mark x250, Heavenly Cocktail x10, Returning Hero's High-grade Support Box x1. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -857,7 +857,7 @@
 		</capsuled_items>
 	</item>
 	<item id="26247" name="Returning Hero's High-grade Support Box" type="EtcItem">
-		<!-- Double-click to get Scroll: Enchant Weapon (R-grade) x4, Blessed Lucky Enchant Stone: Armor (R-grade) x5, Blessed Lucky Enchant Stone: Weapon Pack (R-grade) x1, Returning Hero's Vitality Replenishing Juice (1-hr) x5, Returning Hero's Support Cube x1. Lv. 85 or above. -->
+		<!-- Double-click to get Dandy's Home Run Ball x10, Freya's Frozen Scroll (Event) x20, Returning Hero's Vitality Replenishing Juice x5, My Teleport Book (Event) x1, My Teleport Scroll (Event) x10, Returning Hero's Support Cube (15-day) x1, Top-grade Returning Hero's Support Box x1. Lv. 85 or above. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -879,7 +879,7 @@
 		</capsuled_items>
 	</item>
 	<item id="26248" name="Returning Hero's Support Cube" type="EtcItem">
-		<!-- Double-click to get a Blessed Antharas' Earring Pack (7-day), Blessed Valakas' Necklace Pack (7-day), Tauti's Ring Pack (7-day), Earth Wyrm Heart Ring Pack (7-day), Blessed Zaken's Earring Pack (7-day), Luxury Fortune Reading Coupon, Returning Hero's Vitality Replenishing Juice (1-hr), Traces of Ancient Kartia's Labyrinth, Mysterious Wind Scroll, Blessed Scroll: Enchant Weapon (R-grade) x1, or a Blessed Scroll: Enchant Armor (R-grade) x3. All levels. Once a day. -->
+		<!-- Double-click to get a Blessed Antharas' Earring Pack (7-day), Blessed Valakas' Necklace Pack (7-day), Tauti's Ring Pack (7-day), Earth Wyrm Heart Ring Pack (7-day), Blessed Zaken's Earring Pack (7-day), Luxury Fortune Reading Coupon, Returning Hero's Vitality Replenishing Juice (1-hr), High-grade Love Potion, Mysterious Wind Scroll, Blessed Scroll: Enchant Weapon (R-grade) x1, or a Blessed Scroll: Enchant Armor (R-grade) x3. All levels. Once a day. -->
 		<set name="icon" val="icon.cube_upgrade" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
@@ -895,7 +895,7 @@
 		</skills>
 	</item>
 	<item id="26249" name="Cloak of Light for the Chosen" type="Armor">
-		<!-- Cloak of Light for those who have proven themselves as testers in Lineage II. P. Def. +100, M. Def. +80, and STR/MEN/DEX/WIT/INT/CON +2. Damage received during PvP decreases by 5%. Can use Blessed Escape. -->
+		<!-- Cloak of Light for those who have proven themselves as testers in Lineage II. P. Def. +100, M. Def. +80, and STR/ MEN/ DEX/ WIT/ INT/ CON +2. Damage received during PvP decreases by 5%. Can use Blessed Escape. -->
 		<set name="icon" val="icon.amor_goodness_cloak" />
 		<set name="bodypart" val="back" />
 		<set name="immediate_effect" val="true" />
@@ -905,17 +905,23 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
 		<set name="default_action" val="EQUIP" />
-		<skills>
-			<skill id="21476" level="1" /> <!-- Cloak of the Chosen -->
-			<skill id="21410" level="1" /> <!-- Cloak of the Chosen: Blessed Escape -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">80</stat>
 		</stats>
+		<skills>
+			<skill id="21476" level="1" /> <!-- Cloak of the Chosen -->
+			<skill id="21410" level="1" /> <!-- Cloak of the Chosen: Blessed Escape -->
+		</skills>
 	</item>
 	<item id="26250" name="Cloak of Darkness for the Chosen" type="Armor">
-		<!-- Cloak of Darkness for those who have proven themselves as testers in Lineage II. P. Def. +100, M. Def. +80, and STR/MEN/DEX/WIT/INT/CON +2. Damage received during PvP decreases by 5%. Can use Blessed Escape. -->
+		<!-- Cloak of Darkness for those who have proven themselves as testers in Lineage II. P. Def. +100, M. Def. +80, and STR/ MEN/ DEX/ WIT/ INT/ CON +2. Damage received during PvP decreases by 5%. Can use Blessed Escape. -->
 		<set name="icon" val="icon.amor_evilness_cloak" />
 		<set name="bodypart" val="back" />
 		<set name="immediate_effect" val="true" />
@@ -925,16 +931,22 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
 		<set name="default_action" val="EQUIP" />
-		<skills>
-			<skill id="21476" level="1" /> <!-- Cloak of the Chosen -->
-			<skill id="21410" level="1" /> <!-- Cloak of the Chosen: Blessed Escape -->
-		</skills>
+		<conditions msgId="2453">
+			<player cloakStatus="true" />
+		</conditions>
+		<conditions>
+			<player level="80" />
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">80</stat>
 		</stats>
+		<skills>
+			<skill id="21476" level="1" /> <!-- Cloak of the Chosen -->
+			<skill id="21410" level="1" /> <!-- Cloak of the Chosen: Blessed Escape -->
+		</skills>
 	</item>
-	<item id="26251" name="Lilith Arrival's Mask" type="Armor">
+	<item id="26251" name="Lilith Arrival? Mask" type="Armor">
 		<!-- Mask for players who came from the Lilith server. Uses 2 hair accessory slots. -->
 		<set name="icon" val="icon.accessory_middle_age_party_mask2_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -949,8 +961,8 @@
 		<!-- Changes the appearance of the entire armor into that of a Halloween Outfit. The Halloween Skill is applied when the appearance is changed. Tops and one-pieces only. -->
 		<set name="icon" val="BranchSys3.lcon.g_scrl_change_co_swimsuit_01" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -960,8 +972,8 @@
 		<!-- Changes the appearance of a weapon to that of a Halloween weapon. Can be used on shields and sigils. The Halloween Skill is applied when the appearance is changed.. Note: Appearance may reset when the Change Weapon skill is used. -->
 		<set name="icon" val="BranchSys3.icon1.g_auto_shape_shift_stone" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
 		<set name="handler" val="Appearance" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -1003,7 +1015,7 @@
 			<stat type="pAtk">685</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -1027,7 +1039,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1050,7 +1062,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1074,7 +1086,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1098,7 +1110,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -1118,18 +1130,18 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="26262" name="Halloween Thrower" type="Weapon">
 		<!-- Halloween weapon. -->
@@ -1149,7 +1161,7 @@
 			<stat type="pAtk">1481</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -1158,7 +1170,7 @@
 	<item id="26263" name="Halloween Shooter" type="Weapon">
 		<!-- Halloween weapon. -->
 		<set name="icon" val="icon.ev_wp_halloween" />
-		<set name="weapon_type" val="CROSSBOW" />
+		<set name="weapon_type" val="TWOHANDCROSSBOW" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="bodypart" val="lrhand" />
 		<set name="is_tradable" val="false" />
@@ -1174,7 +1186,7 @@
 			<stat type="pAtk">1333</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
@@ -1199,7 +1211,7 @@
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1224,7 +1236,7 @@
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1249,12 +1261,12 @@
 			<stat type="mAtk">535</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
-	<item id="26267" name="Halloween Dualsword" type="Weapon">
+	<item id="26267" name="Halloween Dual Sword" type="Weapon">
 		<!-- Halloween weapon. -->
 		<set name="icon" val="icon.ev_wp_halloween" />
 		<set name="weapon_type" val="DUAL" />
@@ -1272,7 +1284,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1297,7 +1309,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
@@ -1322,7 +1334,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1370,8 +1382,8 @@
 		<!-- Changes the appearance of the entire armor into that of a Halloween Outfit. Tops and one-pieces only. -->
 		<set name="icon" val="BranchSys3.lcon.g_scrl_change_co_swimsuit_01" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="default_action" val="SKILL_REDUCE" />
@@ -1405,7 +1417,7 @@
 			<stat type="pAtk">685</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
@@ -1429,7 +1441,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1452,7 +1464,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1476,7 +1488,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1500,7 +1512,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -1520,18 +1532,18 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="26281" name="Halloween Thrower" type="Weapon">
 		<!-- Halloween weapon. -->
@@ -1551,7 +1563,7 @@
 			<stat type="pAtk">1481</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -1560,7 +1572,7 @@
 	<item id="26282" name="Halloween Shooter" type="Weapon">
 		<!-- Halloween weapon. -->
 		<set name="icon" val="icon.ev_wp_halloween" />
-		<set name="weapon_type" val="CROSSBOW" />
+		<set name="weapon_type" val="TWOHANDCROSSBOW" />
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="bodypart" val="lrhand" />
 		<set name="is_tradable" val="false" />
@@ -1576,7 +1588,7 @@
 			<stat type="pAtk">1333</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 			<stat type="randomDamage">5</stat>
@@ -1601,7 +1613,7 @@
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1626,7 +1638,7 @@
 			<stat type="mAtk">486</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1651,12 +1663,12 @@
 			<stat type="mAtk">535</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
-	<item id="26286" name="Halloween Dualsword" type="Weapon">
+	<item id="26286" name="Halloween Dual Sword" type="Weapon">
 		<!-- Halloween weapon. -->
 		<set name="icon" val="icon.ev_wp_halloween" />
 		<set name="weapon_type" val="DUAL" />
@@ -1674,7 +1686,7 @@
 			<stat type="pAtk">916</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1699,7 +1711,7 @@
 			<stat type="pAtk">752</stat>
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
@@ -1724,7 +1736,7 @@
 			<stat type="mAtk">414</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1768,7 +1780,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="26292" name="Agathion - Minion Eye" additionalName="7-day" type="Armor">
-		<!-- Can summon Agathion - Minion Eye. You can receive Minion Eye's Encouragement (CON +3, MEN +3, Weight Gauge +10000, Max HP/MP/CP/ +300, Skill Cooldown - 3%, Skill MP Consumption - 3%). Active Skill: Minion Eye's Blessed Resurrection. -->
+		<!-- Can summon Agathion - Minion Eye. You can receive Minion Eye's Encouragement (CON +3, MEN +3, Weight Gauge +10000, Max HP/ MP/ CP/ +300, Skill Cooldown -3%, Skill MP Consumption -3%). Active Skill: Minion Eye's Blessed Resurrection. -->
 		<set name="icon" val="icon.etc_rbracelet_aga_agit_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1780,7 +1792,7 @@
 		<set name="bodypart" val="lbracelet" />
 	</item>
 	<item id="26293" name="Agathion - Matryoshka" additionalName="7-day" type="Armor">
-		<!-- Can summon Agathion - Matryoshka. Active Skills: 1. Teleport to Talking Island Village / Aden / Ancient City Arcan / Keucereus Alliance Base. 2. Matryoshka's Gift: Receive a special gift from matryoshka every 12 hours. 3. Matryoshka's Blessing: XP/SP +30% for 60 minutes. -->
+		<!-- Can summon Agathion - Matryoshka. Active Skills: 1. Teleport to Talking Island Village/ Aden/ Ancient City Arcan/ Keucereus Alliance Base. 2. Matryoshka's Gift: Receive a special gift from matryoshka every 12 hours. 3. Matryoshka's Blessing: XP/ SP +30% for 60 minutes. -->
 		<set name="icon" val="icon.etc_rbracelet_aga_agit_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1792,7 +1804,7 @@
 		<set name="bodypart" val="lbracelet" />
 	</item>
 	<item id="26294" name="Agathion - Minion Eye" additionalName="30-day" type="Armor">
-		<!-- Can summon Agathion - Minion Eye. You can receive Minion Eye's Encouragement (CON +3, MEN +3, Weight Gauge +10000, Max HP/MP/CP/ +300, Skill Cooldown - 3%, Skill MP Consumption - 3%). Active Skill: Minion Eye's Blessed Resurrection. -->
+		<!-- Can summon Agathion - Minion Eye. You can receive Minion Eye's Encouragement (CON +3, MEN +3, Weight Gauge +10000, Max HP/ MP/ CP/ +300, Skill Cooldown -3%, Skill MP Consumption -3%). Active Skill: Minion Eye's Blessed Resurrection. -->
 		<set name="icon" val="icon.etc_rbracelet_aga_agit_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1804,7 +1816,7 @@
 		<set name="bodypart" val="lbracelet" />
 	</item>
 	<item id="26295" name="Agathion - Matryoshka" additionalName="30-day" type="Armor">
-		<!-- Can summon Agathion - Matryoshka. Active Skills: 1. Teleport to Talking Island Village / Aden / Ancient City Arcan / Keucereus Alliance Base. 2. Matryoshka's Gift: Receive a special gift from matryoshka every 12 hours. 3. Matryoshka's Blessing: XP/SP +30% for 60 minutes. -->
+		<!-- Can summon Agathion - Matryoshka. Active Skills: 1. Teleport to Talking Island Village/ Aden/ Ancient City Arcan/ Keucereus Alliance Base. 2. Matryoshka's Gift: Receive a special gift from matryoshka every 12 hours. 3. Matryoshka's Blessing: XP/ SP +30% for 60 minutes. -->
 		<set name="icon" val="icon.etc_rbracelet_aga_agit_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />

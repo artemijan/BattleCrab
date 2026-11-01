@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="46000" name="Apocalypse Avenger Focus Capsule" additionalName="Event" type="EtcItem">
 		<!-- When double clicked, generates a +6 enchanted 30-day Apocalypse Avenger Focus. -->
@@ -143,8 +143,8 @@
 			<item id="45853" min="1" max="1" chance="100" /> <!-- Specter Slasher - Focus - 30-day -->
 		</capsuled_items>
 	</item>
-	<item id="46011" name="Specter Dualsword Damage Up Capsule" additionalName="Event" type="EtcItem">
-		<!-- When double clicked, generates a +6 enchanted 30-day Specter Dualsword Damage Up. -->
+	<item id="46011" name="Specter Dual Sword Damage Up Capsule" additionalName="Event" type="EtcItem">
+		<!-- When double clicked, generates a +6 enchanted 30-day Specter dual sword Damage Up. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -153,7 +153,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
-			<item id="45862" min="1" max="1" chance="100" /> <!-- Specter Dualsword - Damage Up - 30-day -->
+			<item id="45862" min="1" max="1" chance="100" /> <!-- Specter Dual Sword - Damage Up - 30-day -->
 		</capsuled_items>
 	</item>
 	<item id="46012" name="Specter Dual Dagger Focus Capsule" additionalName="Event" type="EtcItem">
@@ -325,8 +325,8 @@
 			<item id="45881" min="1" max="1" chance="100" /> <!-- Helios Slasher - Focus - 30-day -->
 		</capsuled_items>
 	</item>
-	<item id="46025" name="Helios Dualsword Damage Up Capsule" additionalName="Event" type="EtcItem">
-		<!-- When double clicked, generates a +6 enchanted 30-day Helios Dualsword Damage Up. -->
+	<item id="46025" name="Helios Dual Sword Damage Up Capsule" additionalName="Event" type="EtcItem">
+		<!-- When double clicked, generates a +6 enchanted 30-day Helios dual sword Damage Up. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i21" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -335,7 +335,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
-			<item id="45890" min="1" max="1" chance="100" /> <!-- Helios Dualsword - Damage Up - 30-day -->
+			<item id="45890" min="1" max="1" chance="100" /> <!-- Helios Dual Sword - Damage Up - 30-day -->
 		</capsuled_items>
 	</item>
 	<item id="46026" name="Helios Dual Dagger Focus Capsule" additionalName="Event" type="EtcItem">
@@ -469,19 +469,24 @@
 		</capsuled_items>
 	</item>
 	<item id="46036" name="Spellbook: Fate of the Exalted" type="EtcItem">
-		<!-- Needed to learn passive skill, Fate of the Exalted Lv. 1, with the effect of +3 LUC. Can be obtained in the main class status. -->
+		<!-- Needed to learn passive skill, Fate of the Exalted Lv. 1, with the effect of STR/ DEX/ CON/ MEN/ INT/ WIT/ CHA +1. Can be obtained if main class is over level 99. -->
 		<set name="icon" val="icon.giant_book_i02" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="20" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<set name="handler" val="ItemSkills" />
+		<conditions msgId="113" addName="1">
+			<and>
+				<player subclass="false" />
+				<player level="100" />
+			</and>
+		</conditions>
 		<skills>
-			<skill id="18266" level="1" /> <!-- Fate of the Exalted -->
+			<skill id="18266" level="1" /> <!-- Spellbook: Fate of the Exalted -->
 		</skills>
 	</item>
 	<item id="46037" name="Awakened Hero's Olympiad Gift" type="EtcItem">
@@ -493,6 +498,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
+		<skills>
+			<skill id="18378" level="1" /> <!-- Awakened Hero's Olympiad Gift -->
+		</skills>
 	</item>
 	<item id="46038" name="Indomitable Hero's Olympiad Gift" type="EtcItem">
 		<!-- An Olympiad gift for heroes who have participated in 50 Olympiad matches. -->
@@ -502,8 +510,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
+		<skills>
+			<skill id="18379" level="1" /> <!-- Indomitable Hero's Olympiad Gift -->
+		</skills>
 	</item>
-	<item id="46039" name="Premium Account Talisman - STR" additionalName="PA exclusive" type="Armor">
+	<item id="46039" name="PA Talisman - STR" additionalName="PA exclusive" type="Armor">
 		<!-- STR +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -515,12 +526,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18380" level="1" /> <!-- Player Commendation - Talisman - STR -->
+			<skill id="18380" level="1" /> <!-- PA - Talisman - STR -->
 		</skills>
 	</item>
-	<item id="46040" name="Premium Account Talisman - INT" additionalName="PA exclusive" type="Armor">
+	<item id="46040" name="PA Talisman - INT" additionalName="PA exclusive" type="Armor">
 		<!-- INT +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -532,12 +544,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18381" level="1" /> <!-- Player Commendation - Talisman - INT -->
+			<skill id="18381" level="1" /> <!-- PA - Talisman - INT -->
 		</skills>
 	</item>
-	<item id="46041" name="Premium Account Talisman - DEX" additionalName="PA exclusive" type="Armor">
+	<item id="46041" name="PA Talisman - DEX" additionalName="PA exclusive" type="Armor">
 		<!-- DEX +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -549,12 +562,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18382" level="1" /> <!-- Player Commendation - Talisman - DEX -->
+			<skill id="18382" level="1" /> <!-- PA - Talisman - DEX -->
 		</skills>
 	</item>
-	<item id="46042" name="Premium Account Talisman - WIT" additionalName="PA exclusive" type="Armor">
+	<item id="46042" name="PA Talisman - WIT" additionalName="PA exclusive" type="Armor">
 		<!-- WIT +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -566,12 +580,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18383" level="1" /> <!-- Player Commendation - Talisman - WIT -->
+			<skill id="18383" level="1" /> <!-- PA - Talisman - WIT -->
 		</skills>
 	</item>
-	<item id="46043" name="Premium Account Talisman - CON" additionalName="PA exclusive" type="Armor">
+	<item id="46043" name="PA Talisman - CON" additionalName="PA exclusive" type="Armor">
 		<!-- CON +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -583,12 +598,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18384" level="1" /> <!-- Player Commendation - Talisman - CON -->
+			<skill id="18384" level="1" /> <!-- PA - Talisman - CON -->
 		</skills>
 	</item>
-	<item id="46044" name="Premium Account Talisman - MEN" additionalName="PA exclusive" type="Armor">
+	<item id="46044" name="PA Talisman - MEN" additionalName="PA exclusive" type="Armor">
 		<!-- MEN +5 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -600,12 +616,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18385" level="1" /> <!-- Player Commendation - Talisman - MEN -->
+			<skill id="18385" level="1" /> <!-- PA - Talisman - MEN -->
 		</skills>
 	</item>
-	<item id="46045" name="Premium Account Talisman - Atk. Attribute Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46045" name="PA Talisman - Atk. Attribute Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Attack Attribute Bonus +50 when wearing the Talisman. Effect does not stack with identical ones. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -617,12 +634,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18386" level="1" /> <!-- Player Commendation - Talisman - Attack Attribute -->
+			<skill id="18386" level="1" /> <!-- PA - Talisman - Attack Attribute -->
 		</skills>
 	</item>
-	<item id="46046" name="Premium Account Talisman - Fire Resistance Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46046" name="PA Talisman - Fire Resistance Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Fire Resistance +50 when equipped. Only one effect is applied even when wearing two talismans with the same effect. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -634,12 +652,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18387" level="1" /> <!-- Player Commendation - Talisman - Fire Resistance -->
+			<skill id="18387" level="1" /> <!-- PA - Talisman - Fire Resistance -->
 		</skills>
 	</item>
-	<item id="46047" name="Premium Account Talisman - Water Resistance Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46047" name="PA Talisman - Water Resistance Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Water Resistance +50 when equipped. Only one effect is applied even when wearing two talismans with the same effect. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -651,12 +670,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18388" level="1" /> <!-- Player Commendation - Talisman - Water Resistance -->
+			<skill id="18388" level="1" /> <!-- PA - Talisman - Water Resistance -->
 		</skills>
 	</item>
-	<item id="46048" name="Premium Account Talisman - Wind Resistance Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46048" name="PA Talisman - Wind Resistance Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Wind Resistance +50 when equipped. Only one effect is applied even when wearing two talismans with the same effect. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -668,12 +688,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18389" level="1" /> <!-- Player Commendation - Talisman - Wind Resistance -->
+			<skill id="18389" level="1" /> <!-- PA - Talisman - Wind Resistance -->
 		</skills>
 	</item>
-	<item id="46049" name="Premium Account Talisman - Earth Resistance Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46049" name="PA Talisman - Earth Resistance Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Earth Resistance +50 when equipped. Only one effect is applied even when wearing two talismans with the same effect. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -685,12 +706,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18390" level="1" /> <!-- Player Commendation - Talisman - Earth Resistance -->
+			<skill id="18390" level="1" /> <!-- PA - Talisman - Earth Resistance -->
 		</skills>
 	</item>
-	<item id="46050" name="Premium Account Talisman - Holy Resistance Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46050" name="PA Talisman - Holy Resistance Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Holy Resistance +50 when equipped. Only one effect is applied even when wearing two talismans with the same effect. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -702,12 +724,13 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18391" level="1" /> <!-- Player Commendation - Talisman - Holy Resistance -->
+			<skill id="18391" level="1" /> <!-- PA - Talisman - Holy Resistance -->
 		</skills>
 	</item>
-	<item id="46051" name="Premium Account Talisman - Dark Resistance Boost" additionalName="PA exclusive" type="Armor">
+	<item id="46051" name="PA Talisman - Dark Resistance Boost" additionalName="PA exclusive" type="Armor">
 		<!-- Dark Resistance +50 when equipped. Only one effect is applied even when wearing two talismans with the same effect. -->
 		<set name="icon" val="Icon.etc_allstat_talisman_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -719,9 +742,10 @@
 		<set name="equip_reuse_delay" val="30" />
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
+		<set name="duration" val="60" />
 		<set name="material" val="GOLD" />
 		<skills>
-			<skill id="18392" level="1" /> <!-- Player Commendation - Talisman - Dark Resistance -->
+			<skill id="18392" level="1" /> <!-- PA - Talisman - Dark Resistance -->
 		</skills>
 	</item>
 	<item id="46052" name="Veridan's Soul Stone" type="EtcItem">
@@ -823,6 +847,7 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="crystal_type" val="R" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="bodypart" val="rhand" />
@@ -830,18 +855,19 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13816" level="1" /> <!-- Kelbim Dagger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">707</stat>
 			<stat type="mAtk">352</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
+			<stat type="darkPower">450</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13816" level="1" /> <!-- Kelbim's Dagger -->
+		</skills>
 	</item>
 	<item id="46061" name="Kelbim Dual Dagger" type="Weapon">
 		<!-- A weapon made using Kelbim's Atelia Fragment. When equipped, increases PVP Damage by 15%, Max HP by 25%, P. Atk. by 10%, Atk. Spd. by 15%, and P. Critical Damage by 15%. In addition, returns 20% of received damage to the attacker. Enchantment, Augment, Appearance Modification, Crystallization, Attribute Assignment are not allowed. 1 special Soul Crystal can be used. -->
@@ -850,6 +876,7 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="crystal_type" val="R" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="bodypart" val="lrhand" />
@@ -857,18 +884,19 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13817" level="1" /> <!-- Kelbim Dual Dagger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">809</stat>
 			<stat type="mAtk">352</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
+			<stat type="darkPower">450</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
+		<skills>
+			<skill id="13817" level="1" /> <!-- Kelbim's Dual Dagger -->
+		</skills>
 	</item>
 	<item id="46062" name="Kelbim Bow" type="Weapon">
 		<!-- A weapon made using Kelbim's Atelia Fragment. When equipped, increases PVP Damage by 15%, Max HP by 25%, P. Atk. by 10%, Atk. Spd. by 15%, and P. Critical Damage by 15%. In addition, returns 20% of received damage to the attacker. Enchantment, Augment, Appearance Modification, Crystallization, Attribute Assignment are not allowed. 1 special Soul Crystal can be used. -->
@@ -877,6 +905,7 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="crystal_type" val="R" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="bodypart" val="lrhand" />
@@ -885,18 +914,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="1500" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13818" level="1" /> <!-- Kelbim Bow -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1592</stat>
 			<stat type="mAtk">352</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
+			<stat type="darkPower">450</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13818" level="1" /> <!-- Kelbim's Bow -->
+		</skills>
 	</item>
 	<item id="46063" name="Kelbim Crossbow" type="Weapon">
 		<!-- A weapon made using Kelbim's Atelia Fragment. When equipped, increases PVP Damage by 15%, Max HP by 25%, P. Atk. by 10%, Atk. Spd. by 15%, and P. Critical Damage by 15%. In addition, returns 20% of received damage to the attacker. Enchantment, Augment, Appearance Modification, Crystallization, Attribute Assignment are not allowed. 1 special Soul Crystal can be used. -->
@@ -905,6 +935,7 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="crystal_type" val="R" />
 		<set name="is_sellable" val="false" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="soulshots" val="1" />
 		<set name="spiritshots" val="1" />
 		<set name="bodypart" val="lrhand" />
@@ -913,18 +944,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="1350" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13819" level="1" /> <!-- Kelbim Crossbow -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1434</stat>
 			<stat type="mAtk">352</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
+			<stat type="darkPower">450</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
+		<skills>
+			<skill id="13819" level="1" /> <!-- Kelbim's Crossbow -->
+		</skills>
 	</item>
 	<item id="46064" name="Dimensional Gludio Badge" type="EtcItem">
 		<!-- Badge bearing the mark of the Town of Gludio. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -935,6 +967,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46065" name="Dimensional Gludin Badge" type="EtcItem">
 		<!-- Badge bearing the mark of Gludin Village. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -945,6 +978,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46066" name="Dimensional Giran Badge" type="EtcItem">
 		<!-- Badge bearing the mark of the Town of Giran. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -955,6 +989,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46067" name="Dimensional Oren Badge" type="EtcItem">
 		<!-- Badge bearing the mark of the Town of Oren. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -965,6 +1000,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46068" name="Dimensional Aden Badge" type="EtcItem">
 		<!-- Badge bearing the mark of the Town of Aden. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -975,6 +1011,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46069" name="Dimensional Gainak Badge" type="EtcItem">
 		<!-- Badge bearing the mark of Gainak. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -985,6 +1022,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46070" name="Dimensional Goddard Badge" type="EtcItem">
 		<!-- Badge bearing the mark of the Town of Goddard. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -995,6 +1033,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46071" name="Dimensional Schuttgart Badge" type="EtcItem">
 		<!-- Badge bearing the mark of the Town of Schuttgart. You must have the corresponding badge when running the Dimensional Raid in order to receive the reward from that town's raid boss. -->
@@ -1005,6 +1044,7 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CRYSTAL" />
+		<set name="time" val="120" />
 	</item>
 	<item id="46072" name="Bloody Helios Enhancement Stone Coupon" type="EtcItem">
 		<!-- A coupon given to one of the warriors who participated in the Dimensional Raid and had top scores. Exchange it for a Bloody Helios Enhancement Stone through Merlot in Hunters' Village. -->
@@ -1027,40 +1067,55 @@
 	<item id="46074" name="Dimensional Elcyum Pack" type="EtcItem">
 		<!-- Double-click to get 1 of the following: Elcyum Powder, Elcyum Crystal, or Elcyum. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
+		<set name="default_action" val="CAPSULE" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="18393" level="1" /> <!-- Dimensional Elcyum Pack -->
+		</skills>
 	</item>
 	<item id="46075" name="Dimensional Augment Pack" type="EtcItem">
 		<!-- Double-click to get 1 of the following: High-grade Spirit Stone, Top-grade Spirit Stone, Spirit Stone: Hair Accessory, Life Stone Instilled with Giants' Power. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
+		<set name="default_action" val="CAPSULE" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="18394" level="1" /> <!-- Dimensional Augment Pack -->
+		</skills>
 	</item>
 	<item id="46076" name="Dimensional Enhancement Pack" type="EtcItem">
 		<!-- Double-click to get 1 of the following: Scroll: Enchant Armor (R-grade), Lucky Enchant Stone: Armor (S-grade), Scroll: Enchant Weapon (R-grade), Blessed Scroll: Enchant Armor (R-grade), Lucky Enchant Stone: Armor (R-grade), Lucky Enchant Stone: Weapon (S-grade), Blessed Scroll: Enchant Weapon (R-grade), or Lucky Enchant Stone: Weapon (R-grade). -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
+		<set name="default_action" val="CAPSULE" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ItemSkills" />
+		<skills>
+			<skill id="18395" level="1" /> <!-- Dimensional Enhancement Pack -->
+		</skills>
 	</item>
 	<item id="46077" name="Lucky Enchant Stone: Weapon (R-grade)" type="EtcItem">
 		<!-- Enchant success rate +10% for weapons (R-grade). Only for items enchanted between +3 and +9. -->
 		<set name="icon" val="icon.ench_wp_potion_violet_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46078" name="Lucky Enchant Stone: Armor (R-grade)" type="EtcItem">
@@ -1068,8 +1123,8 @@
 		<set name="icon" val="icon.ench_am_potion_violet_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46079" name="Kelbim's Atelia Fragment" type="EtcItem">
@@ -1107,11 +1162,11 @@
 		<set name="default_action" val="SOULSHOT" />
 		<set name="price" val="380" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="crystal_type" val="R" />
 		<set name="handler" val="SoulShots" />
 		<set name="etcitem_type" val="SOULSHOT" />
-		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
 		<skills>
 			<skill id="9193" level="1" /> <!-- Soulshot (R-grade) -->
@@ -1123,18 +1178,18 @@
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="price" val="1100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="crystal_type" val="R" />
 		<set name="handler" val="BlessedSpiritShot" />
 		<set name="etcitem_type" val="SOULSHOT" />
-		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
 		<skills>
 			<skill id="9195" level="1" /> <!-- Blessed Spiritshot (R-grade) -->
 		</skills>
 	</item>
-	<item id="46084" name="Premium Account Special Bait" additionalName="PA exclusive" type="EtcItem">
-		<!-- Bait that can no longer be used. Can be exchanged through Village Fishing Guild Members for a new Premium Account Bait Exchange. -->
+	<item id="46084" name="PA Special Bait" additionalName="PA exclusive" type="EtcItem">
+		<!-- Bait that can no longer be used. Can be exchanged through Village Fishing Guild Members for a new PA Bait Exchange. -->
 		<set name="icon" val="icon.etc_bait_i02" />
 		<set name="bodypart" val="lhand" />
 		<set name="default_action" val="EQUIP" />
@@ -1147,7 +1202,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="46085" name="Treasure Map Piece - 1" type="EtcItem">
-		<!-- A Map Piece obtained using a Premium Account Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
+		<!-- A Map Piece obtained using a PA Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
 		<set name="icon" val="icon.etc_map_piece_yellow_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1156,7 +1211,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46086" name="Treasure Map Piece - 2" type="EtcItem">
-		<!-- A Map Piece obtained using a Premium Account Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
+		<!-- A Map Piece obtained using a PA Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
 		<set name="icon" val="icon.etc_map_piece_yellow_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1165,7 +1220,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46087" name="Treasure Map Piece - 3" type="EtcItem">
-		<!-- A Map Piece obtained using a Premium Account Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
+		<!-- A Map Piece obtained using a PA Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
 		<set name="icon" val="icon.etc_map_piece_yellow_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1174,7 +1229,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46088" name="Treasure Map Piece - 4" type="EtcItem">
-		<!-- A Map Piece obtained using a Premium Account Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
+		<!-- A Map Piece obtained using a PA Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
 		<set name="icon" val="icon.etc_map_piece_yellow_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1183,7 +1238,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46089" name="Treasure Map Piece - 5" type="EtcItem">
-		<!-- A Map Piece obtained using a Premium Account Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
+		<!-- A Map Piece obtained using a PA Special Bait. Collect Treasure Map Pieces 1 - 4 and exchange them through a Fishing Guild Member. Then collect Treasure Map Pieces 1 - 5and take them to Fishing Guild Leader Santiago to exchange them for a Treasure Chest. -->
 		<set name="icon" val="icon.etc_map_piece_yellow_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />

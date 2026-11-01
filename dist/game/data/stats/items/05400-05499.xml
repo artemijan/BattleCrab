@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="5400" name="Recipe: Sealed Red Flame Gloves(60%)" type="EtcItem">
 		<!-- For Dwarves only. Recipe for the Sealed Red Flame Gloves. Requires Create Item - Skill Lv. 7. The success rate is 60%. -->
@@ -1196,8 +1196,8 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="5472" name="Recipe: Metallic Thread" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Metallic Thread. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="5472" name="Recipe: Corroded Metallic Thread" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Metallic Thread. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1213,8 +1213,8 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="5473" name="Recipe: Reinforced Metal Plate" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Reinforced Metal Plate. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="5473" name="Recipe: Corroded Reinforced Metal Plate" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Reinforced Metal Plate. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1230,8 +1230,8 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="5474" name="Recipe: Reorin's Mold" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Reorin's Mold. Requires Create Item - Skill Lv. 5. The success rate is 100%. -->
+	<item id="5474" name="Recipe: Corroded Reorin's Mold" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Reorin's Mold. Requires Create Item - Skill Lv. 5. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_yellow_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1247,8 +1247,8 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="5475" name="Recipe: Warsmith' Mold" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Warsmith' Mold. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
+	<item id="5475" name="Recipe: Corroded Warsmith' Mold" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Warsmith' Mold. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_violet_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1264,8 +1264,8 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="5476" name="Recipe: Arcsmith' Anvil" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Arcsmith' Anvil. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
+	<item id="5476" name="Recipe: Corroded Arcsmith' Anvil" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Corroded Arcsmith' Anvil. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_violet_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -1281,8 +1281,8 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="5477" name="Recipe: Warsmith' Holder" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Warsmith' Holder. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
+	<item id="5477" name="Recipe: Corroded Warsmith' Holder" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Warsmith' Holder. Requires Create Item - Skill Lv. 6. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_violet_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />

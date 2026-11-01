@@ -1,90 +1,86 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="38500" name="Agathion - Twinkling Cancer" type="Armor">
-		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine.(Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Atk.: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. each increases by 30. -->
+		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine.(Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Atk.: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. each increases by 30. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17621" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
-			<skill id="17567" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
+			<skill id="17567" level="1" /> <!-- Enchant Attribute Attack -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38501" name="Agathion - Radiant Cancer" type="Armor">
-		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine.(Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Resistance: Fire/ Water/ Earth/ Wind/ Dark/ Holy Def. each increases by 30. -->
+		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine.(Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Resistance: Fire/ Water/ Earth/ Wind/ Dark/ Holy Def. each increases by 30. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17621" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
-			<skill id="17568" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
+			<skill id="17568" level="1" /> <!-- Enchant Attribute Defense -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38502" name="Agathion - Cancer" type="Armor">
-		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. -->
+		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.). <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17621" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
 	</item>
 	<item id="38503" name="Agathion - Faint Cancer" type="Armor">
-		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/Town of Rune/Town of Giran/Heine. (Cooldown is 30min.) -->
+		<!-- Summons Cancer. <Active Skill>. 1. Agathion Teleport: Town of Aden/ Town of Rune/ Town of Giran/ Heine. (Cooldown is 30min.) -->
 		<set name="icon" val="icon.agathion_magmeld_teleport" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_sellable" val="false" />
-		<set name="weight" val="150" />
 		<set name="weight" val="150" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="SILVER" />
 		<skills>
-			<skill id="17621" level="1" /> <!-- Release Agathion's Seal -->
+			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="17547" level="1" /> <!-- Agathion Teleport: Town of Aden -->
 			<skill id="17548" level="1" /> <!-- Agathion Teleport: Town of Rune -->
 			<skill id="17549" level="1" /> <!-- Agathion Teleport: Town of Giran -->
-			<skill id="17550" level="1" /> <!-- Agathion Teleport: Town of Heine -->
-			<skill id="17622" level="1" /> <!-- Agathion Cute Trick -->
+			<skill id="17550" level="1" /> <!-- Agathion Teleport: Heine -->
+			<skill id="17622" level="1" /> <!-- Agathion Cute Trick - Virgo -->
 			<skill id="9606" level="1" /> <!-- Sealing Agathion -->
 			<skill id="9606" level="1" type="ON_UNEQUIP" /> <!-- Sealing Agathion -->
 		</skills>
@@ -877,7 +873,7 @@
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -900,7 +896,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -959,7 +955,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">5</stat>
 		</stats>
@@ -1103,8 +1099,8 @@
 		<set name="icon" val="icon.etc_feather_black_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="38576" name="Freed Soul Crystal" type="EtcItem">
@@ -1112,8 +1108,8 @@
 		<set name="icon" val="icon.freed_soul_essense_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="38577" name="Keucereus' Introduction - Seed of Destruction" type="EtcItem">
@@ -1164,25 +1160,25 @@
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
 		<set name="for_npc" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="22928" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22930" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22932" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22934" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22936" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22938" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="17297" level="1" /> <!-- Emperor Cookie -->
-			<skill id="17298" level="1" /> <!-- Emperor Cookie -->
-			<skill id="17299" level="1" /> <!-- Emperor Cookie -->
-			<skill id="9569" level="1" /> <!-- Heavenly Cookie -->
+			<skill id="22928" level="2" /> <!-- Horn Melody - Heavenly Cocktail -->
+			<skill id="22930" level="2" /> <!-- Drum Melody - Heavenly Cocktail -->
+			<skill id="22932" level="2" /> <!-- Lute Melody - Heavenly Cocktail -->
+			<skill id="22934" level="2" /> <!-- Pipe Organ Melody - Heavenly Cocktail -->
+			<skill id="22936" level="2" /> <!-- Guitar Melody - Heavenly Cocktail -->
+			<skill id="22938" level="2" /> <!-- Harp Melody - Heavenly Cocktail -->
+			<skill id="17297" level="1" /> <!-- Emperor's Cookie: Prevailing Sonata -->
+			<skill id="17298" level="1" /> <!-- Daring Sonata - Emperor's Cookie -->
+			<skill id="17299" level="1" /> <!-- Refreshing Sonata - Emperor's Cookie -->
+			<skill id="9569" level="1" /> <!-- Heavenly P. Atk. Cookie -->
 		</skills>
 	</item>
 	<item id="38582" name="Emperor's Dessert Set (Magic Type)" type="EtcItem">
@@ -1191,25 +1187,25 @@
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
 		<set name="for_npc" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="22928" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22930" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22932" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22934" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22936" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22938" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="17297" level="1" /> <!-- Emperor Cookie -->
-			<skill id="17298" level="1" /> <!-- Emperor Cookie -->
-			<skill id="17299" level="1" /> <!-- Emperor Cookie -->
-			<skill id="9571" level="1" /> <!-- Heavenly Cookie -->
+			<skill id="22928" level="2" /> <!-- Horn Melody - Heavenly Cocktail -->
+			<skill id="22930" level="2" /> <!-- Drum Melody - Heavenly Cocktail -->
+			<skill id="22932" level="2" /> <!-- Lute Melody - Heavenly Cocktail -->
+			<skill id="22934" level="2" /> <!-- Pipe Organ Melody - Heavenly Cocktail -->
+			<skill id="22936" level="2" /> <!-- Guitar Melody - Heavenly Cocktail -->
+			<skill id="22938" level="2" /> <!-- Harp Melody - Heavenly Cocktail -->
+			<skill id="17297" level="1" /> <!-- Emperor's Cookie: Prevailing Sonata -->
+			<skill id="17298" level="1" /> <!-- Daring Sonata - Emperor's Cookie -->
+			<skill id="17299" level="1" /> <!-- Refreshing Sonata - Emperor's Cookie -->
+			<skill id="9571" level="1" /> <!-- Heavenly Magic Cookie -->
 		</skills>
 	</item>
 	<item id="38583" name="Emperor's Dessert Set (Defense Type)" type="EtcItem">
@@ -1218,25 +1214,25 @@
 		<set name="weight" val="1" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
 		<set name="for_npc" val="true" />
 		<set name="reuse_delay" val="3000" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="22928" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22930" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22932" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22934" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22936" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="22938" level="2" /> <!-- Heavenly Cocktail -->
-			<skill id="17297" level="1" /> <!-- Emperor Cookie -->
-			<skill id="17298" level="1" /> <!-- Emperor Cookie -->
-			<skill id="17299" level="1" /> <!-- Emperor Cookie -->
-			<skill id="9570" level="1" /> <!-- Heavenly Cookie -->
+			<skill id="22928" level="2" /> <!-- Horn Melody - Heavenly Cocktail -->
+			<skill id="22930" level="2" /> <!-- Drum Melody - Heavenly Cocktail -->
+			<skill id="22932" level="2" /> <!-- Lute Melody - Heavenly Cocktail -->
+			<skill id="22934" level="2" /> <!-- Pipe Organ Melody - Heavenly Cocktail -->
+			<skill id="22936" level="2" /> <!-- Guitar Melody - Heavenly Cocktail -->
+			<skill id="22938" level="2" /> <!-- Harp Melody - Heavenly Cocktail -->
+			<skill id="17297" level="1" /> <!-- Emperor's Cookie: Prevailing Sonata -->
+			<skill id="17298" level="1" /> <!-- Daring Sonata - Emperor's Cookie -->
+			<skill id="17299" level="1" /> <!-- Refreshing Sonata - Emperor's Cookie -->
+			<skill id="9570" level="1" /> <!-- Heavenly P. Def. Cookie -->
 		</skills>
 	</item>
 	<item id="38584" name="Emperor's Dessert Set Pack (Attack Type)" type="EtcItem">
@@ -1314,7 +1310,7 @@
 		<set name="bodypart" val="hairall" />
 	</item>
 	<item id="38591" name="Tiat's Belt" type="Armor">
-		<!-- Belt instilled with Tiat's power. Max HP/CP +398, Max MP +176, weight gauge +12800, additional damage +5%, inventory slot +18. Received damage - 6%. -->
+		<!-- Belt instilled with Tiat's power. Max HP/ CP +398, Max MP +176, weight gauge +12800, additional damage +5%, Inventory Slots +18. Received damage -6%. -->
 		<set name="icon" val="icon.belt_of_tiat" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1323,15 +1319,15 @@
 		<set name="weight" val="440" />
 		<set name="enchant_enabled" val="true" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13652" level="1" /> <!-- Tiat's Belt Skill -->
-		</skills>
 		<stats>
 			<stat type="pDef">25</stat>
 		</stats>
+		<skills>
+			<skill id="13652" level="1" /> <!-- Tiat's Belt -->
+		</skills>
 	</item>
 	<item id="38592" name="Ekimus' Belt" type="Armor">
-		<!-- Belt instilled with Ekimus' power. Max HP/CP +398, Max MP +176, weight gauge +12800, additional damage +5%, inventory slot +18. Received damage - 6%. -->
+		<!-- Belt instilled with Ekimus' power. Max HP/ CP +398, Max MP +176, weight gauge +12800, additional damage +5%, Inventory Slots +18. Received damage -6%. -->
 		<set name="icon" val="icon.belt_of_echimus" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -1340,12 +1336,12 @@
 		<set name="weight" val="440" />
 		<set name="enchant_enabled" val="true" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13653" level="1" /> <!-- Ekimus' Belt Skill -->
-		</skills>
 		<stats>
 			<stat type="pDef">25</stat>
 		</stats>
+		<skills>
+			<skill id="13653" level="1" /> <!-- Ekimus' Belt -->
+		</skills>
 	</item>
 	<item id="38593" name="Professional Friend Catcher Pack" type="EtcItem">
 		<!-- You've caught a friend like a true pro! A special gift is prepared for you. Now try catching some fish for a change! -->
@@ -1364,8 +1360,8 @@
 			<item id="38159" min="50" max="50" chance="100" /> <!-- Entrance Pass: Fantasy Fishing Dock (1-hour) -->
 		</capsuled_items>
 	</item>
-	<item id="38594" name="Detecting WiFi Helmet" type="Armor">
-		<!-- The Wi-Fi on your head will prevent you from getting caught! Do try to be careful from now on. -->
+	<item id="38594" name="Detecting Wi-Fi Helmet" type="Armor">
+		<!-- The wifi on your head will prevent you from getting caught! Do try to be careful from now on. -->
 		<set name="icon" val="icon.wifi_event_goggle_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -1393,13 +1389,13 @@
 			<stat type="pAtk">175</stat>
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
 	</item>
 	<item id="38596" name="Steel Bow of Peril" type="Weapon">
-		<!-- <Special Option>. Has a 42% chance of consuming 1 MP during a standard attack. Cannot augment or bestow a Soul Crystal option. -->
+		<!-- <Special Option>. Has a 42% chance of consuming 1 MP during a normal attack. Cannot augment or bestow a Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_hazard_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1417,7 +1413,7 @@
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -1441,7 +1437,7 @@
 			<stat type="pAtk">213</stat>
 			<stat type="mAtk">107</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>
@@ -1465,7 +1461,7 @@
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -1489,7 +1485,7 @@
 			<stat type="pAtk">333</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">10</stat>
 		</stats>

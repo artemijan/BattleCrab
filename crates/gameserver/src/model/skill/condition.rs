@@ -49,6 +49,11 @@ pub enum SkillCondition {
     /// cap, with its own "force has reached maximum capacity" message. This is
     /// what stops a charge skill from being cast at full charges.
     EnergyMax { amount: i32 },
+    /// `SoulSaved` — a player caster holding at least `amount` souls.
+    SoulSaved { amount: i32 },
+    /// `OpSoulMax` — the caster's souls are still below `MAX_SOULS`, so a
+    /// soul-gaining skill has room to fill.
+    SoulMax,
     /// `TargetRace` — `Creature.getRace()`, so it reads the NPC template's race
     /// for a monster and the character race for a player.
     TargetRace { race: crate::enums::Race },

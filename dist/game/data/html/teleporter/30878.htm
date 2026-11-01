@@ -1,6 +1,10 @@
 <html><body>Gatekeeper Angelina:<br>
 Impressive port, isn't it? This is the gateway to everything that comes and goes in Giran.<br>
-So, where do you want to go? Don't tell me you fancy that demon island belonging to Beleth.<br>
-<Button ALIGN=LEFT ICON="TELEPORT" action="bypass -h npc_%objectId%_showTeleports">"I want to teleport."</Button>
-<Button ALIGN=LEFT ICON="QUEST" action="bypass -h npc_%objectId%_Quest">Quest</Button>
+Som where so you want to go? Don't tell me you fancy that demon island belonging to Beleth<br>
+(If your <font color="LEVEL">Main Class</font> is Lv. 94 or below, you can teleport for free.)<br>
+<Button ALIGN=LEFT ICON="TELEPORT" action="bypass npc_%objectId%_showTeleports">"Uh, can I teleport?"</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_multisell 002">"I want to exchange some Dimensional Diamonds."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass npc_%objectId%_showNoblesSelect">[Noblesse Only] "Teleport me, please."</Button>
+<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h Script CharacterBirthday">"I need to call Alegria."</Button>
+<Button ALIGN=LEFT ICON="QUEST" action="bypass Script">Quest</Button>
 </body></html>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="1300" name="Apprentice's Rod" type="Weapon">
 		<!-- Temporary item for Kamex -->
@@ -19,7 +19,7 @@
 		<stats>
 			<stat type="pAtk">22</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -45,7 +45,7 @@
 		<stats>
 			<stat type="pAtk">22</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -68,18 +68,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">22</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="1303" name="Lance" type="Weapon">
 		<!-- Temporary item for Kamex -->
@@ -97,18 +97,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_depositable" val="false" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
-			<stat type="pAtk">30000</stat>
-			<stat type="mAtk">6</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="pAtk">-5536</stat>
+			<stat type="mAtk">10000</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="1304" name="Conjuror's Staff" type="Weapon">
 		<!-- Temporary item for Kamex -->
@@ -129,7 +129,7 @@
 		<stats>
 			<stat type="pAtk">15</stat>
 			<stat type="mAtk">17</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -153,9 +153,9 @@
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
 		<stats>
-			<stat type="pAtk">30000</stat>
-			<stat type="mAtk">6</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="pAtk">-5536</stat>
+			<stat type="mAtk">10000</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -181,7 +181,7 @@
 		<stats>
 			<stat type="pAtk">22</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -209,7 +209,7 @@
 		<stats>
 			<stat type="pAtk">120</stat>
 			<stat type="mAtk">6</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -586,7 +586,7 @@
 			<stat type="sDef">71</stat>
 		</stats>
 	</item>
-	<item id="1330" name="Zubei's Shield" type="Armor">
+	<item id="1330" name="Zubei's Shield for Kamex" type="Armor">
 		<!-- Temporary item for Kamex -->
 		<set name="icon" val="icon.shield_buckler_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -622,7 +622,7 @@
 			<stat type="sDef">71</stat>
 		</stats>
 	</item>
-	<item id="1332" name="Knight's Shield" type="Armor">
+	<item id="1332" name="Knight's Shield for Kamex" type="Armor">
 		<!-- Temporary item for Kamex -->
 		<set name="icon" val="icon.shield_tower_shield_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -658,7 +658,7 @@
 		<stats>
 			<stat type="pAtk">21</stat>
 			<stat type="mAtk">12</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -693,8 +693,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="80" />
 		<set name="price" val="200" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -705,8 +705,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="80" />
 		<set name="price" val="10000" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -717,8 +717,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="80" />
 		<set name="price" val="1000" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -729,8 +729,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="80" />
 		<set name="price" val="600" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -741,8 +741,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="3" />
 		<set name="price" val="20" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -1164,9 +1164,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2034" level="1" /> <!-- Greater Wind Walk Potion -->
 		</skills>
@@ -1186,9 +1186,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="POTION" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2035" level="1" /> <!-- Greater Haste Potion -->
 		</skills>
@@ -1211,18 +1211,18 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">50</stat>
 			<stat type="mAtk">26</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="1377" name="Spellbook: Poison Recovery" type="EtcItem">
 		<!-- Spellbook needed to learn Poison Recovery. Used by Elven Knights and Elven Scouts. Required level: Elven Knight - 20, Elven Scout - 24 -->

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="27300" name="Pirate Captain Outfit" additionalName="Low-grade / Speed Increase" type="Armor">
 		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Speed +3. -->
@@ -43,7 +43,7 @@
 		</skills>
 	</item>
 	<item id="27303" name="Pirate Captain Outfit" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +3. -->
+		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_captain_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -85,7 +85,7 @@
 		</skills>
 	</item>
 	<item id="27306" name="Pirate Captain Outfit" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_captain_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -239,7 +239,7 @@
 		</skills>
 	</item>
 	<item id="27317" name="Pirate Captain Outfit" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +4. -->
+		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_captain_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -281,7 +281,7 @@
 		</skills>
 	</item>
 	<item id="27320" name="Pirate Captain Outfit" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_captain_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -435,7 +435,7 @@
 		</skills>
 	</item>
 	<item id="27331" name="Pirate Captain Outfit" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +8. -->
+		<!-- Pirate Captain's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_captain_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -477,7 +477,7 @@
 		</skills>
 	</item>
 	<item id="27334" name="Pirate Crew Outfit" additionalName="Low-grade / Ranged Resistance" type="Armor">
-		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_pirate_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -631,7 +631,7 @@
 		</skills>
 	</item>
 	<item id="27345" name="Pirate Crew Outfit" additionalName="Low-grade / Evasion Increase" type="Armor">
-		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +3. -->
+		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_pirate_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -673,7 +673,7 @@
 		</skills>
 	</item>
 	<item id="27348" name="Pirate Crew Outfit" additionalName="Mid-grade / Ranged Resistance" type="Armor">
-		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_pirate_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -827,7 +827,7 @@
 		</skills>
 	</item>
 	<item id="27359" name="Pirate Crew Outfit" additionalName="Mid-grade / Evasion Increase" type="Armor">
-		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +4. -->
+		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +4. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_pirate_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -869,7 +869,7 @@
 		</skills>
 	</item>
 	<item id="27362" name="Pirate Crew Outfit" additionalName="Top-grade / Ranged Resistance" type="Armor">
-		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/Crossbow Resistance +10%. -->
+		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, Bow/ Crossbow Resistance +10%. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_pirate_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1023,7 +1023,7 @@
 		</skills>
 	</item>
 	<item id="27373" name="Pirate Crew Outfit" additionalName="Top-grade / Evasion Increase" type="Armor">
-		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./M. Evasion +8. -->
+		<!-- Pirate crew memeber's outfit. When equipped, armor is unequipped and cannot be used. Hair accessories, weapons, and magic armor remain equipped. When modified, P./ M. Evasion +8. -->
 		<set name="icon" val="BranchSys3.iconArmor.g_co_pirate_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1048,7 +1048,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27452" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27452" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27375" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Damage Reflect Resistance" type="EtcItem">
@@ -1063,11 +1063,11 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27453" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27453" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27376" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, Bow/Crossbow Resistance +3%. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, Bow/ Crossbow Resistance +3%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1078,7 +1078,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27454" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27454" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27377" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / P. Def. Increase" type="EtcItem">
@@ -1093,7 +1093,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27455" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27455" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27378" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / M. Def. Increase" type="EtcItem">
@@ -1108,7 +1108,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27456" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27456" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27379" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Attribute Resistance" type="EtcItem">
@@ -1123,7 +1123,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27457" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27457" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27380" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Received Heal Amount Increase" type="EtcItem">
@@ -1138,7 +1138,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27458" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27458" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27381" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Max. HP Increase" type="EtcItem">
@@ -1153,7 +1153,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27459" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27459" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27382" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Max. MP Increase" type="EtcItem">
@@ -1168,7 +1168,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27460" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27460" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27383" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Max CP Increase" type="EtcItem">
@@ -1183,7 +1183,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27461" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27461" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27384" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Speed Increase" type="EtcItem">
@@ -1198,7 +1198,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27462" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27462" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27385" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / HP Recovery Bonus Increase" type="EtcItem">
@@ -1213,7 +1213,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27463" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27463" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27386" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / MP Recovery Bonus Increase" type="EtcItem">
@@ -1228,11 +1228,11 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27464" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27464" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27387" name="Pirate Captain Appeareance Stone" additionalName="Low-grade / Evasion Increase" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, P./M. Evasion +3. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, P./ M. Evasion +3. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1243,7 +1243,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27465" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27465" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27388" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Debuff Reflect" type="EtcItem">
@@ -1258,7 +1258,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27466" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27466" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27389" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Damage Reflect Resistance" type="EtcItem">
@@ -1273,11 +1273,11 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27467" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27467" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27390" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Ranged Resistance" type="EtcItem">
-		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, Bow/Crossbow Resistance +5%. -->
+		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. When modified, Bow/ Crossbow Resistance +5%. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -1288,7 +1288,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27468" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27468" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27391" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / P. Def. Increase" type="EtcItem">
@@ -1303,7 +1303,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27469" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27469" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27392" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / M. Def. Increase" type="EtcItem">
@@ -1318,7 +1318,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27470" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27470" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27393" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Attribute Resistance" type="EtcItem">
@@ -1333,7 +1333,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27471" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27471" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27394" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Received Heal Amount Increase" type="EtcItem">
@@ -1348,7 +1348,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27472" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27472" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27395" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Max. HP Increase" type="EtcItem">
@@ -1363,7 +1363,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27473" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27473" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27396" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Max. MP Increase" type="EtcItem">
@@ -1378,7 +1378,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27474" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27474" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27397" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Max CP Increase" type="EtcItem">
@@ -1393,7 +1393,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27475" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27475" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27398" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / Speed Increase" type="EtcItem">
@@ -1408,7 +1408,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27476" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27476" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 	<item id="27399" name="Pirate Captain Appeareance Stone" additionalName="Mid-grade / HP Recovery Bonus Increase" type="EtcItem">
@@ -1423,7 +1423,7 @@
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="27477" level="1" /> <!-- Pirate Captain Appeareance Stone -->
+			<skill id="27477" level="1" /> <!-- Pirate Captain Appearance Stone -->
 		</skills>
 	</item>
 </list>

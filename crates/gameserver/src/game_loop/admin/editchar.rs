@@ -608,7 +608,7 @@ fn stat_from_name(name: &str) -> Option<crate::model::stats::Stat> {
         "mDef" => Stat::MagicalDefence,
         "pAtkSpd" => Stat::PhysicalAttackSpeed,
         "mAtkSpd" => Stat::MagicAttackSpeed,
-        "rCrit" => Stat::CriticalRate,
+        "critRate" => Stat::CriticalRate,
         "mCritRate" => Stat::MagicCriticalRate,
         "accCombat" => Stat::AccuracyCombat,
         "accMagic" => Stat::AccuracyMagic,
@@ -858,7 +858,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         send_message(world, client_id, "This pet carries no inventory.");
         return;
     };
-    let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
+    let pkt = crate::network::enter_world::gm_view_item_list(1, &name, inv, &world.data, limit);
     helpers::send_to_client(world, client_id, pkt);
 }
 
@@ -888,7 +888,7 @@ fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
 ///
 /// Java tells the modes apart by the argument: `0`/`1`/`2`/`3` are numbers, and
 /// anything containing `_` is a quest name (every quest here is
-/// `Q00258_BringWolfPelts`-shaped). This used to render a single flat table of
+/// `Q00623_TheFinestFood`-shaped). This used to render a single flat table of
 /// every quest with no buttons and no navigation — none of the pages above,
 /// which is what "looks broken" meant (GitHub #9).
 ///

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="7500" name="Halisha's Badge" type="EtcItem">
 		<!-- Cursed badge that summons minion of Halisha. -->
@@ -659,9 +659,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2214" level="1" /> <!-- Scroll of Escape: Talking Island Village -->
 		</skills>
@@ -677,9 +677,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2214" level="2" /> <!-- Scroll of Escape: Elven Village -->
 		</skills>
@@ -695,9 +695,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2214" level="3" /> <!-- Scroll of Escape: Dark Elf Village -->
 		</skills>
@@ -713,9 +713,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2214" level="4" /> <!-- Scroll of Escape: Orc Village -->
 		</skills>
@@ -731,9 +731,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2214" level="5" /> <!-- Scroll of Escape: Dwarven Village -->
 		</skills>
@@ -749,9 +749,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2214" level="10" /> <!-- Scroll of Escape: Town of Giran -->
 		</skills>
@@ -945,6 +945,7 @@
 		<set name="is_questitem" val="true" />
 	</item>
 	<item id="7575" name="Draconic Bow" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_draconic_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -965,10 +966,12 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -976,7 +979,7 @@
 		</stats>
 	</item>
 	<item id="7576" name="Draconic Bow" additionalName="Cheap Shot" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 26% chance of decreasing MP consumption to 1 during a standard attack. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_draconic_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -998,21 +1001,23 @@
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
 		<set name="reduced_mp_consume" val="26,1" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="7577" name="Draconic Bow" additionalName="Focus" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 88. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_draconic_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1033,21 +1038,23 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
-		<skills>
-			<skill id="3567" level="1" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3567" level="1" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="7578" name="Draconic Bow" additionalName="Critical Slow" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a chance of casting Slow during a Critical Attack. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="icon.weapon_draconic_bow_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1068,19 +1075,21 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="commissionItemType" val="BOW" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3574" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3574" level="1" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Slow -->
+		</skills>
 	</item>
 	<item id="7579" name="Draconic Bow Shaft" type="EtcItem">
 		<!-- Main ingredient essentially required for a Dwarf to make a Draconic Bow. Can also be sold at ordinary shops. -->
@@ -1134,9 +1143,9 @@
 		<set name="handler" val="PetFood" />
 		<set name="commissionItemType" val="PET_SUPPLIES" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions msgId="600">
 			<player categoryType="BABY_PET_GROUP" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2048" level="1" /> <!-- Wolf Food -->
 		</skills>

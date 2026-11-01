@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="35900" name="Refined Devil Horn" additionalName="Evasion" type="Armor">
 		<!-- Evasion +5 when equipped. -->
@@ -27,7 +27,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9554" level="1" /> <!-- skill -->
+			<skill id="9554" level="1" /> <!-- Hair Accessory: STR -->
 		</skills>
 	</item>
 	<item id="35902" name="DEX Pendant" type="EtcItem">
@@ -42,7 +42,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9555" level="1" /> <!-- skill -->
+			<skill id="9555" level="1" /> <!-- Hair Accessory: DEX -->
 		</skills>
 	</item>
 	<item id="35903" name="CON Pendant" type="EtcItem">
@@ -57,7 +57,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9556" level="1" /> <!-- skill -->
+			<skill id="9556" level="1" /> <!-- Hair Accessory: CON -->
 		</skills>
 	</item>
 	<item id="35904" name="MEN Pendant" type="EtcItem">
@@ -72,7 +72,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9557" level="1" /> <!-- skill -->
+			<skill id="9557" level="1" /> <!-- Hair Accessory: MEN -->
 		</skills>
 	</item>
 	<item id="35905" name="INT Pendant" type="EtcItem">
@@ -87,7 +87,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9558" level="1" /> <!-- skill -->
+			<skill id="9558" level="1" /> <!-- Hair Accessory: INT -->
 		</skills>
 	</item>
 	<item id="35906" name="WIT Pendant" type="EtcItem">
@@ -102,7 +102,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9559" level="1" /> <!-- skill -->
+			<skill id="9559" level="1" /> <!-- Hair Accessory: WIT -->
 		</skills>
 	</item>
 	<item id="35907" name="Critical Rate Pendant" type="EtcItem">
@@ -117,7 +117,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9560" level="1" /> <!-- skill -->
+			<skill id="9560" level="1" /> <!-- Hair Accessory: Critical Rate -->
 		</skills>
 	</item>
 	<item id="35908" name="Critical Damage Pendant" type="EtcItem">
@@ -132,7 +132,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9561" level="1" /> <!-- skill -->
+			<skill id="9561" level="1" /> <!-- Hair Accessory: Critical Damage -->
 		</skills>
 	</item>
 	<item id="35909" name="P. Def. Pendant" type="EtcItem">
@@ -147,7 +147,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9562" level="1" /> <!-- skill -->
+			<skill id="9562" level="1" /> <!-- Hair Accessory Circlet: P. Def. -->
 		</skills>
 	</item>
 	<item id="35910" name="M. Def. Pendant" type="EtcItem">
@@ -162,7 +162,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9563" level="1" /> <!-- skill -->
+			<skill id="9563" level="1" /> <!-- Hair Accessory: M. Def. -->
 		</skills>
 	</item>
 	<item id="35911" name="Evasion Pendant" type="EtcItem">
@@ -177,7 +177,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9564" level="1" /> <!-- skill -->
+			<skill id="9564" level="1" /> <!-- Hair Accessory: Evasion -->
 		</skills>
 	</item>
 	<item id="35912" name="P. Atk. Pendant" type="EtcItem">
@@ -192,7 +192,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9565" level="1" /> <!-- skill -->
+			<skill id="9565" level="1" /> <!-- Hair Accessory: P. Atk. -->
 		</skills>
 	</item>
 	<item id="35913" name="M. Atk. Pendant" type="EtcItem">
@@ -207,7 +207,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9566" level="1" /> <!-- skill -->
+			<skill id="9566" level="1" /> <!-- Hair Accessory: M. Atk. -->
 		</skills>
 	</item>
 	<item id="35914" name="Accuracy Pendant" type="EtcItem">
@@ -222,7 +222,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9567" level="1" /> <!-- skill -->
+			<skill id="9567" level="1" /> <!-- Hair Accessory: Accuracy -->
 		</skills>
 	</item>
 	<item id="35915" name="Draco's Hat" additionalName="STR (Event)" type="Armor">
@@ -494,10 +494,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="1800000" />
 		<skills>
@@ -505,18 +505,18 @@
 		</skills>
 	</item>
 	<item id="35932" name="Dragon Vitality Replenishing Potion" type="EtcItem">
-		<!-- Replenishes some vitality upon use. Cooldown is 60 min. For 1 week, up to 5 uses do not apply to the limit. -->
+		<!-- Replenishes some vitality upon use. Cooldown is 60 min. No weekly usage limit. -->
 		<set name="icon" val="icon.etc_potion_of_energy_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="106" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -531,10 +531,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -580,13 +580,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="21600" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9407" level="1" /> <!-- Release Agathion's Seal - Jang Heejin -->
-			<skill id="9412" level="1" /> <!-- Agathion Cute Trick - Jang Heejin -->
-			<skill id="9530" level="1" /> <!-- Jang Heejin Agathion's Effect -->
-			<skill id="9531" level="1" /> <!-- Jang Heejin Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -595,6 +588,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9407" level="1" /> <!-- Release Agathion's Seal - Jang Heejin -->
+			<skill id="9412" level="1" /> <!-- Agathion Cute Trick - Jang Heejin -->
+			<skill id="9530" level="1" /> <!-- Jang Heejin Agathion's Effect -->
+			<skill id="9531" level="1" /> <!-- Jang Heejin Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35937" name="Star Agathion - Hyuk Jang" additionalName="15-day" type="Armor">
 		<!-- 15-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, P. Def. 5%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -610,13 +610,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="21600" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9408" level="1" /> <!-- Release Agathion's Seal - Jang Hyuk -->
-			<skill id="9413" level="1" /> <!-- Agathion Cute Trick - Jang Hyuk -->
-			<skill id="9532" level="1" /> <!-- Jang Hyuk Agathion's Effect -->
-			<skill id="9533" level="1" /> <!-- Jang Hyuk Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -625,6 +618,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9408" level="1" /> <!-- Release Agathion's Seal - Jang Hyuk -->
+			<skill id="9413" level="1" /> <!-- Agathion Cute Trick - Jang Hyuk -->
+			<skill id="9532" level="1" /> <!-- Jang Hyuk Agathion's Effect -->
+			<skill id="9533" level="1" /> <!-- Jang Hyuk Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35938" name="Star Agathion - Sooro Kim" additionalName="15-day" type="Armor">
 		<!-- 15-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, P. Def. 5%, Max HP 5%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -640,13 +640,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="21600" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9409" level="1" /> <!-- Release Agathion's Seal - Kim Sooro -->
-			<skill id="9414" level="1" /> <!-- Agathion Cute Trick - Kim Sooro -->
-			<skill id="9534" level="1" /> <!-- Kim Sooro Agathion's Effect -->
-			<skill id="9535" level="1" /> <!-- Kim Sooro Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -655,6 +648,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9409" level="1" /> <!-- Release Agathion's Seal - Kim Sooro -->
+			<skill id="9414" level="1" /> <!-- Agathion Cute Trick - Kim Sooro -->
+			<skill id="9534" level="1" /> <!-- Kim Sooro Agathion's Effect -->
+			<skill id="9535" level="1" /> <!-- Kim Sooro Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35939" name="Star Agathion - Jaebum Park" additionalName="15-day" type="Armor">
 		<!-- 15-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, P. Atk. 6%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -670,13 +670,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="21600" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9410" level="1" /> <!-- Release Agathion's Seal - Park Jaebum -->
-			<skill id="9415" level="1" /> <!-- Agathion Cute Trick - Park Jaebum -->
-			<skill id="9536" level="1" /> <!-- Park Jaebum Agathion's Effect -->
-			<skill id="9537" level="1" /> <!-- Park Jaebum Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -685,9 +678,16 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9410" level="1" /> <!-- Release Agathion's Seal - Park Jaebum -->
+			<skill id="9415" level="1" /> <!-- Agathion Cute Trick - Park Jaebum -->
+			<skill id="9536" level="1" /> <!-- Park Jaebum Agathion's Effect -->
+			<skill id="9537" level="1" /> <!-- Park Jaebum Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35940" name="Star Agathion - Shin-young Kim" additionalName="15-day" type="Armor">
-		<!-- 15-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, and Attribute Resistance +10. Skill cooldown 3% and skill MP consumption - 3%. Used skill: Blessed Escape ability. -->
+		<!-- 15-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, and Attribute Resistance +10. Skill cooldown 3% and skill MP consumption -3%. Used skill: Blessed Escape ability. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -700,13 +700,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="21600" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9411" level="1" /> <!-- Release Agathion's Seal - Kim Shinyoung -->
-			<skill id="9416" level="1" /> <!-- Agathion Cute Trick - Kim Shinyoung -->
-			<skill id="9538" level="1" /> <!-- Kim Shinyoung Agathion's Effect -->
-			<skill id="9539" level="1" /> <!-- Kim Shinyoung Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -715,6 +708,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9411" level="1" /> <!-- Release Agathion's Seal - Kim Shinyoung -->
+			<skill id="9416" level="1" /> <!-- Agathion Cute Trick - Kim Shinyoung -->
+			<skill id="9538" level="1" /> <!-- Kim Shinyoung Agathion's Effect -->
+			<skill id="9539" level="1" /> <!-- Kim Shinyoung Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35941" name="Star Agathion - Heejin Jang" additionalName="30-day" type="Armor">
 		<!-- 30-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, M. Def. 5%, Max HP 5%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -730,13 +730,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9407" level="1" /> <!-- Release Agathion's Seal - Jang Heejin -->
-			<skill id="9412" level="1" /> <!-- Agathion Cute Trick - Jang Heejin -->
-			<skill id="9530" level="1" /> <!-- Jang Heejin Agathion's Effect -->
-			<skill id="9531" level="1" /> <!-- Jang Heejin Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -745,6 +738,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9407" level="1" /> <!-- Release Agathion's Seal - Jang Heejin -->
+			<skill id="9412" level="1" /> <!-- Agathion Cute Trick - Jang Heejin -->
+			<skill id="9530" level="1" /> <!-- Jang Heejin Agathion's Effect -->
+			<skill id="9531" level="1" /> <!-- Jang Heejin Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35942" name="Star Agathion - Hyuk Jang" additionalName="30-day" type="Armor">
 		<!-- 30-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, P. Def. 5%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -760,13 +760,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9408" level="1" /> <!-- Release Agathion's Seal - Jang Hyuk -->
-			<skill id="9413" level="1" /> <!-- Agathion Cute Trick - Jang Hyuk -->
-			<skill id="9532" level="1" /> <!-- Jang Hyuk Agathion's Effect -->
-			<skill id="9533" level="1" /> <!-- Jang Hyuk Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -775,6 +768,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9408" level="1" /> <!-- Release Agathion's Seal - Jang Hyuk -->
+			<skill id="9413" level="1" /> <!-- Agathion Cute Trick - Jang Hyuk -->
+			<skill id="9532" level="1" /> <!-- Jang Hyuk Agathion's Effect -->
+			<skill id="9533" level="1" /> <!-- Jang Hyuk Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35943" name="Star Agathion - Sooro Kim" additionalName="30-day" type="Armor">
 		<!-- 30-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, P. Def. 5%, Max HP 5%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -790,13 +790,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9409" level="1" /> <!-- Release Agathion's Seal - Kim Sooro -->
-			<skill id="9414" level="1" /> <!-- Agathion Cute Trick - Kim Sooro -->
-			<skill id="9534" level="1" /> <!-- Kim Sooro Agathion's Effect -->
-			<skill id="9535" level="1" /> <!-- Kim Sooro Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -805,6 +798,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9409" level="1" /> <!-- Release Agathion's Seal - Kim Sooro -->
+			<skill id="9414" level="1" /> <!-- Agathion Cute Trick - Kim Sooro -->
+			<skill id="9534" level="1" /> <!-- Kim Sooro Agathion's Effect -->
+			<skill id="9535" level="1" /> <!-- Kim Sooro Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35944" name="Star Agathion - Jaebum Park" additionalName="30-day" type="Armor">
 		<!-- 30-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, P. Atk. 6%, and Attribute Resistance +10. Used skill: Blessed Escape ability. -->
@@ -820,13 +820,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9410" level="1" /> <!-- Release Agathion's Seal - Park Jaebum -->
-			<skill id="9415" level="1" /> <!-- Agathion Cute Trick - Park Jaebum -->
-			<skill id="9536" level="1" /> <!-- Park Jaebum Agathion's Effect -->
-			<skill id="9537" level="1" /> <!-- Park Jaebum Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -835,9 +828,16 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9410" level="1" /> <!-- Release Agathion's Seal - Park Jaebum -->
+			<skill id="9415" level="1" /> <!-- Agathion Cute Trick - Park Jaebum -->
+			<skill id="9536" level="1" /> <!-- Park Jaebum Agathion's Effect -->
+			<skill id="9537" level="1" /> <!-- Park Jaebum Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35945" name="Star Agathion - Shin-young Kim" additionalName="30-day" type="Armor">
-		<!-- 30-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, and Attribute Resistance+10. Skill cooldown 3% and skill MP consumption - 3%. Used skill: Blessed Escape ability. -->
+		<!-- 30-day. When equipped, it increases CON +3, MEN +3, weight gauge +10000, Max HP, MP, and CP 300, and Attribute Resistance+10. Skill cooldown 3% and skill MP consumption -3%. Used skill: Blessed Escape ability. -->
 		<set name="icon" val="icon.bracelet_agathion_bm_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -850,13 +850,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="43200" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="9411" level="1" /> <!-- Release Agathion's Seal - Kim Shinyoung -->
-			<skill id="9416" level="1" /> <!-- Agathion Cute Trick - Kim Shinyoung -->
-			<skill id="9538" level="1" /> <!-- Kim Shinyoung Agathion's Effect -->
-			<skill id="9539" level="1" /> <!-- Kim Shinyoung Agathion's Blessed Escape -->
-			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
-		</skills>
 		<stats>
 			<stat type="fireRes">10</stat>
 			<stat type="waterRes">10</stat>
@@ -865,6 +858,13 @@
 			<stat type="holyRes">10</stat>
 			<stat type="darkRes">10</stat>
 		</stats>
+		<skills>
+			<skill id="9411" level="1" /> <!-- Release Agathion's Seal - Kim Shinyoung -->
+			<skill id="9416" level="1" /> <!-- Agathion Cute Trick - Kim Shinyoung -->
+			<skill id="9538" level="1" /> <!-- Kim Shinyoung Agathion's Effect -->
+			<skill id="9539" level="1" /> <!-- Kim Shinyoung Agathion's Blessed Escape -->
+			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
+		</skills>
 	</item>
 	<item id="35946" name="Agathion - Heejin Jang Pack (7-day)" type="EtcItem">
 		<!-- Box containing Agathion - Heejin Jang (7-day). -->
@@ -875,9 +875,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -893,9 +893,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -911,16 +911,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="34937" min="1" max="1" chance="100" /> <!-- Star Agathion - Sooro Kim - 7-day -->
 		</capsuled_items>
 	</item>
-	<item id="35949" name="Agathion - Jaebum Park Pack (7-day)" type="EtcItem">
+	<item id="35949" name="Agathion - Jaebum Pack (7-day)" type="EtcItem">
 		<!-- Box containing Agathion - Jaebum Park (7-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="weight" val="100" />
@@ -929,9 +929,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -947,9 +947,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -965,9 +965,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -983,9 +983,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1001,16 +1001,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="35938" min="1" max="1" chance="100" /> <!-- Star Agathion - Sooro Kim - 15-day -->
 		</capsuled_items>
 	</item>
-	<item id="35954" name="Agathion - Jaebum Park Pack (15-day)" type="EtcItem">
+	<item id="35954" name="Agathion - Jaebum Pack (15-day)" type="EtcItem">
 		<!-- Box containing Agathion - Jaebum Park (15-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="weight" val="100" />
@@ -1019,9 +1019,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1037,9 +1037,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1055,9 +1055,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1073,9 +1073,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1091,16 +1091,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="35943" min="1" max="1" chance="100" /> <!-- Star Agathion - Sooro Kim - 30-day -->
 		</capsuled_items>
 	</item>
-	<item id="35959" name="Agathion - Jaebum Park Pack (30-day)" type="EtcItem">
+	<item id="35959" name="Agathion - Jaebum Pack (30-day)" type="EtcItem">
 		<!-- Box containing Agathion - Jaebum Park (30-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="weight" val="100" />
@@ -1109,9 +1109,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1127,9 +1127,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1145,9 +1145,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1163,9 +1163,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1181,16 +1181,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="34937" min="1" max="1" chance="100" /> <!-- Star Agathion - Sooro Kim - 7-day -->
 		</capsuled_items>
 	</item>
-	<item id="35964" name="Agathion - Jaebum Park Pack (7-day)" additionalName="Event" type="EtcItem">
+	<item id="35964" name="Agathion - Jaebum Pack (7-day)" additionalName="Event" type="EtcItem">
 		<!-- Box containing Agathion - Jaebum Park (7-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="weight" val="100" />
@@ -1199,9 +1199,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1217,9 +1217,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1235,9 +1235,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1253,9 +1253,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1271,16 +1271,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="35938" min="1" max="1" chance="100" /> <!-- Star Agathion - Sooro Kim - 15-day -->
 		</capsuled_items>
 	</item>
-	<item id="35969" name="Agathion - Jaebum Park Pack (15-day)" additionalName="Event" type="EtcItem">
+	<item id="35969" name="Agathion - Jaebum Pack (15-day)" additionalName="Event" type="EtcItem">
 		<!-- Box containing Agathion - Jaebum Park (15-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="weight" val="100" />
@@ -1289,9 +1289,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1307,9 +1307,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1325,9 +1325,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1343,9 +1343,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1361,16 +1361,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
 			<item id="35943" min="1" max="1" chance="100" /> <!-- Star Agathion - Sooro Kim - 30-day -->
 		</capsuled_items>
 	</item>
-	<item id="35974" name="Agathion - Jaebum Park Pack (30-day)" additionalName="Event" type="EtcItem">
+	<item id="35974" name="Agathion - Jaebum Pack (30-day)" additionalName="Event" type="EtcItem">
 		<!-- Box containing Agathion - Jaebum Park (30-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="weight" val="100" />
@@ -1379,9 +1379,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1397,9 +1397,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1407,18 +1407,18 @@
 		</capsuled_items>
 	</item>
 	<item id="35976" name="Dragon Vitality Replenishing Potion" additionalName="Event" type="EtcItem">
-		<!-- Replenishes some vitality upon use. Cooldown is 60 min. For 1 week, up to 5 uses do not apply to the limit. -->
+		<!-- Replenishes some vitality upon use. Cooldown is 60 min. No weekly usage limit. -->
 		<set name="icon" val="icon.etc_potion_of_energy_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="106" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -1434,10 +1434,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1469,9 +1469,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1479,7 +1479,7 @@
 		</capsuled_items>
 	</item>
 	<item id="35980" name="Talisman - Annihilation" additionalName="3-day (Event)" type="Armor">
-		<!-- Talisman - Annihilation (3-day). When equipped, increases Max HP, MP, and CP by 300, P./M. Accuracy by 2, P./M. Evasion by 2, Vampiric Rage 3%, Atk. Spd./Casting Spd. by 20, Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 103, and M. Atk. by 156. -->
+		<!-- Talisman - Annihilation (3-day). When equipped, increases Max HP, MP, and CP by 300, P./ M. Accuracy by 2, P./ M. Evasion by 2, Vampiric Rage 3%, Atk. Spd./ Casting Spd. by 20, Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 103, and M. Atk. by 156. -->
 		<set name="icon" val="icon.accessory_extermination_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1498,7 +1498,7 @@
 		</skills>
 	</item>
 	<item id="35981" name="Talisman - Annihilation" additionalName="7-day (Event)" type="Armor">
-		<!-- Talisman - Annihilation (7-day). When equipped, increases Max HP, MP, and CP by 300, P./M. Accuracy by 2, P./M. Evasion by 2, Vampiric Rage 3%, Atk. Spd./Casting Spd. by 20, Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 103, and M. Atk. by 156. -->
+		<!-- Talisman - Annihilation (7-day). When equipped, increases Max HP, MP, and CP by 300, P./ M. Accuracy by 2, P./ M. Evasion by 2, Vampiric Rage 3%, Atk. Spd./ Casting Spd. by 20, Critical Rate by 30, M. Critical Rate by 10, P. Atk. by 103, and M. Atk. by 156. -->
 		<set name="icon" val="icon.accessory_extermination_talisman_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="150" />
@@ -1524,9 +1524,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1542,13 +1542,13 @@
 			<item id="19469" min="1" max="1" chance="0.13" /> <!-- Purple Soul Crystal Fragment (R99-grade) -->
 		</capsuled_items>
 	</item>
-	<item id="35983" name="HP Recovery Herb" type="EtcItem">
+	<item id="35983" name="HP Recovery Bonus Herb" type="EtcItem">
 		<set name="for_npc" val="true" />
 		<set name="ex_immediate_effect" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="9543" level="1" /> <!-- HP Recovery Herb -->
+			<skill id="9543" level="1" /> <!-- HP Recovery Bonus Herb -->
 		</skills>
 	</item>
 	<item id="35984" name="Power Herb" type="EtcItem">
@@ -1600,10 +1600,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1618,10 +1618,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1639,12 +1639,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="35990" name="Circlet of Ice" additionalName="Ceremony of Chaos" type="Armor">
 		<set name="icon" val="icon.accessory_ice_circlet_i00" />
@@ -1666,24 +1666,22 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="1000" />
 		<set name="shared_reuse_group" val="7" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="224,225,226,227" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9546" level="1" /> <!-- Ceremony of Chaos - Drum Melody -->
 			<skill id="9547" level="1" /> <!-- Ceremony of Chaos - Pipe Organ Melody -->
 			<skill id="9548" level="1" /> <!-- Ceremony of Chaos - Guitar Melody -->
-			<skill id="9549" level="1" /> <!-- Ceremony of Chaos - Harp Melody -->
-			<skill id="9550" level="1" /> <!-- Ceremony of Chaos - Lute Melody -->
-			<skill id="9552" level="1" /> <!-- Ceremony of Chaos - Warrior's Harmony -->
+			<skill id="9552" level="1" /> <!-- Warrior's Harmony - Ceremony of Chaos -->
 			<skill id="9545" level="1" /> <!-- Ceremony of Chaos - Horn Melody -->
 		</skills>
 	</item>
@@ -1695,24 +1693,22 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="1000" />
 		<set name="shared_reuse_group" val="7" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="224,225,226,227" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9546" level="1" /> <!-- Ceremony of Chaos - Drum Melody -->
 			<skill id="9547" level="1" /> <!-- Ceremony of Chaos - Pipe Organ Melody -->
 			<skill id="9548" level="1" /> <!-- Ceremony of Chaos - Guitar Melody -->
-			<skill id="9549" level="1" /> <!-- Ceremony of Chaos - Harp Melody -->
-			<skill id="9550" level="1" /> <!-- Ceremony of Chaos - Lute Melody -->
-			<skill id="9553" level="1" /> <!-- Ceremony of Chaos - Wizard's Harmony -->
+			<skill id="9553" level="1" /> <!-- Wizard's Harmony - Ceremony of Chaos -->
 			<skill id="9545" level="1" /> <!-- Ceremony of Chaos - Horn Melody -->
 		</skills>
 	</item>
@@ -1724,24 +1720,22 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="1000" />
 		<set name="shared_reuse_group" val="7" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="224,225,226,227" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9546" level="1" /> <!-- Ceremony of Chaos - Drum Melody -->
 			<skill id="9547" level="1" /> <!-- Ceremony of Chaos - Pipe Organ Melody -->
 			<skill id="9548" level="1" /> <!-- Ceremony of Chaos - Guitar Melody -->
-			<skill id="9549" level="1" /> <!-- Ceremony of Chaos - Harp Melody -->
-			<skill id="9550" level="1" /> <!-- Ceremony of Chaos - Lute Melody -->
-			<skill id="9551" level="1" /> <!-- Ceremony of Chaos - Knight's Harmony -->
+			<skill id="9551" level="1" /> <!-- Knight's Harmony - Ceremony of Chaos -->
 			<skill id="9545" level="1" /> <!-- Ceremony of Chaos - Horn Melody -->
 		</skills>
 	</item>
@@ -1752,9 +1746,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9568" level="1" /> <!-- Tauti's Treasure Chest -->
@@ -1788,19 +1782,19 @@
 		<set name="damage_range" val="0;0;200;500" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="8856" level="1" /> <!-- PvE Damage Increase -->
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1067</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="8856" level="1" /> <!-- PvE Damage Increase -->
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="35997" name="Test - M. Accuracy Heavy Armor" type="Armor">
 		<!-- Rough stat data inserted -->
@@ -1816,15 +1810,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="100" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">385</stat>
+			<stat type="accMagic">10</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="8806" level="1" /> <!-- PvP Defense -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">385</stat>
-			<stat type="accMagic">10</stat>
-		</stats>
 	</item>
 	<item id="35998" name="Test - M. Evasion Heavy Armor" type="Armor">
 		<!-- Rough stat data inserted -->
@@ -1840,18 +1834,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="100" />
 		<set name="material" val="BRONZE" />
+		<stats>
+			<stat type="pDef">385</stat>
+			<stat type="mEvas">11</stat>
+		</stats>
 		<skills>
 			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
 			<skill id="8806" level="1" /> <!-- PvP Defense -->
 			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
 		</skills>
-		<stats>
-			<stat type="pDef">385</stat>
-			<stat type="mEvas">11</stat>
-		</stats>
 	</item>
 	<item id="35999" name="Heavenly P. Atk. Cookie" type="EtcItem">
-		<!-- For 1 hour, increases P. Atk. by 35%, P. Critical Damage by 35%, P. Critical Rate by 100%, Atk. Spd. by 8%, M. Atk. by 16%, Casting Spd. by 8%, and Speed by 8. Cooldown is 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
+		<!-- Dimensional Item. For 1 hour, P. Atk. +22%, P. Critical Rate +100%, P. Critical Damage +70%, Atk. Spd. +10%, and Speed +10. Cooldown 60 min. Buff does not get deleted even after death. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_bm_attack_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />

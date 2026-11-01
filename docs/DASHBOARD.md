@@ -496,7 +496,7 @@ Keys: `BindAddress`, `Port`, `PublicBaseUrl`, `URL`, `MaximumDatabaseConnections
 `MaxLoginLength`, `LoginRateLimit`, `LoginRateWindowSecs`, and (once D3 lands)
 `SmtpHost/User/Password/From`.
 
-`URL` and `MaximumDatabaseConnections` deliberately reuse `LoginServer.ini`'s key names so the
+`URL` and `MaximumDatabaseConnections` deliberately reuse `Database.ini`'s key names so the
 value can be copied across verbatim. It must point at the *same* `interlude_classic.db` the
 login/game servers use.
 
@@ -609,7 +609,7 @@ the next person doesn't trust a spec the implementation has already moved past.
 | Plan said | Built instead | Why |
 | --- | --- | --- |
 | Env override prefix `CONFIG_DASHBOARD_<KEY>` | **`DIST_GAME_CONFIG_DASHBOARD_<KEY>`** | `PropertiesParser` derives the prefix from the config file's *path*, not a fixed string. The plan was simply wrong; moving the ini file changes the variable names. |
-| Config key `DatabaseUrl` | **`URL`** + `MaximumDatabaseConnections` | Matches `LoginServer.ini` verbatim, so the value can be copied across without translation. |
+| Config key `DatabaseUrl` | **`URL`** + `MaximumDatabaseConnections` | Matches `Database.ini` verbatim, so the value can be copied across without translation. |
 | `tower_governor` for rate limiting | Small in-process `RateLimiter` | governor keys on IP; we need per-IP **and** per-account. ~50 lines with tests beat bending a dep. Caveat: per-instance, so it assumes the single-instance deployment §9 already requires. |
 | `validator` derive | Hand-written `validate_login` / `validate_password` / `validate_email` | The rules are client-compatibility rules (ASCII-only, length caps), not generic ones, and each needs a comment explaining the *game* constraint behind it. |
 | shadcn/ui + react-hook-form + zod | Hand-built `Panel`/`Button`/`Field`/`Alert`, plain controlled inputs | Four forms did not justify three dependencies, and shadcn's CLI assumes Vite/Next (§8.2 caveat 1). Revisit if the surface grows. |

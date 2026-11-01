@@ -1,7 +1,2211 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="35001" toLevel="3" name="Augment Topaz">
+		<!-- Level 1: When Topaz Lv. 4+ is equipped, PvP Damage +1%. -->
+		<!-- Level 2: When Topaz Lv. 4+ is equipped, PvP Damage +2%. -->
+		<!-- Level 3: When Topaz Lv. 4+ is equipped, PvP Damage +5%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35002" toLevel="3" name="Augment Ruby">
+		<!-- Level 1: When Ruby Lv. 4+ is equipped, P. Atk. +1%. -->
+		<!-- Level 2: When Ruby Lv. 4+ is equipped, P. Atk. +2%. -->
+		<!-- Level 3: When Ruby Lv. 4+ is equipped, P. Atk. +5%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35003" toLevel="3" name="Augment Sapphire">
+		<!-- Level 1: When Sapphire Lv. 4+ is equipped, M. Atk. +2%. -->
+		<!-- Level 2: When Sapphire Lv. 4+ is equipped, M. Atk. +4%. -->
+		<!-- Level 3: When Sapphire Lv. 4+ is equipped, M. Atk. +7%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35004" toLevel="3" name="Augment Obsidian">
+		<!-- Level 1: When Obsidian Lv. 4+ is equipped, PVP Damage Received -1%. -->
+		<!-- Level 2: When Obsidian Lv. 4+ is equipped, PVP Damage Received -2%. -->
+		<!-- Level 3: When Obsidian Lv. 4+ is equipped, PVP Damage Received -5%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35005" toLevel="3" name="Augment Opal">
+		<!-- Level 1: When Opal Lv. 4+ is equipped, Attack Attribute Bonus +10. -->
+		<!-- Level 2: When Opal Lv. 4+ is equipped, Attack Attribute Bonus +20. -->
+		<!-- Level 3: When Opal Lv. 4+ is equipped, Attack Attribute Bonus +50. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35006" toLevel="3" name="Augment Emerald">
+		<!-- Level 1: When Emerald Lv. 4+ is equipped, MEN +1. -->
+		<!-- Level 2: When Emerald Lv. 4+ is equipped, CON/ MEN +1. -->
+		<!-- Level 3: When Emerald Lv. 4+ is equipped, CON/ MEN/ LUC/ CHA +1. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35007" toLevel="3" name="Augment Aquamarine">
+		<!-- Level 1: When Aquamarine Lv. 4+ is equipped, Max MP +5%. -->
+		<!-- Level 2: When Aquamarine Lv. 4+ is equipped, Max MP +10%. -->
+		<!-- Level 3: When Aquamarine Lv. 4+ is equipped, Max MP +20%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35008" toLevel="3" name="Augment Diamond">
+		<!-- Level 1: When Diamond Lv. 4+ is equipped, P. Def +283. -->
+		<!-- Level 2: When Diamond Lv. 4+ is equipped, P. Def +567. -->
+		<!-- Level 3: When Diamond Lv. 4+ is equipped, P. Def +945. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35009" toLevel="3" name="Augment Pearl">
+		<!-- Level 1: When Pearl Lv. 4+ is equipped, M. Def +283. -->
+		<!-- Level 2: When Pearl Lv. 4+ is equipped, M. Def +328. -->
+		<!-- Level 3: When Pearl Lv. 4+ is equipped, M. Def +548. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35010" toLevel="3" name="Augment Tanzanite">
+		<!-- Level 1: When Tanzanite Lv. 4+ is equipped, Damage Received -1%. -->
+		<!-- Level 2: When Tanzanite Lv. 4+ is equipped, Damage Received -2%. -->
+		<!-- Level 3: When Tanzanite Lv. 4+ is equipped, Damage Received -3%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35011" toLevel="3" name="Augment Garnet">
+		<!-- Level 1: When Garnet Lv. 4+ is equipped, Max HP +2%. -->
+		<!-- Level 2: When Garnet Lv. 4+ is equipped, Max HP +5%. -->
+		<!-- Level 3: When Garnet Lv. 4+ is equipped, Max HP +10%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35012" toLevel="3" name="Augment Vital Stone">
+		<!-- Level 1: When Vital Stone Lv. 4+ is equipped, Vitality: XP +1%. -->
+		<!-- Level 2: When Vital Stone Lv. 4+ is equipped, Vitality: XP +2%. -->
+		<!-- Level 3: When Vital Stone Lv. 4+ is equipped, Vitality: XP +5%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35013" toLevel="3" name="Augment Red Cat's Eye">
+		<!-- Level 1: When Red Cat's Eye Lv. 4+ is equipped, P. Skill Power +1%. -->
+		<!-- Level 2: When Red Cat's Eye Lv. 4+ is equipped, P. Skill Power +2%. -->
+		<!-- Level 3: When Red Cat's Eye Lv. 4+ is equipped, P. Skill Power +5%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35014" toLevel="3" name="Augment Blue Cat's Eye">
+		<!-- Level 1: When Blue Cat's Eye Lv. 4+ is equipped, M. Skill Power +1%. -->
+		<!-- Level 2: When Blue Cat's Eye Lv. 4+ is equipped, M. Skill Power +2%. -->
+		<!-- Level 3: When Blue Cat's Eye Lv. 4+ is equipped, M. Skill Power +5%. -->
+		<icon>icon.etc_bm_brooch_lavianrose_i05</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35015" toLevel="3" name="Augment Topaz">
+		<!-- Level 1: PvP Damage +1%. -->
+		<!-- Level 2: PvP Damage +2%. -->
+		<!-- Level 3: PvP Damage +5%. -->
+		<icon>icon.etc_bm_jewel_topaz_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35016" toLevel="3" name="Augment Ruby">
+		<!-- Level 1: P. Atk. +1%. -->
+		<!-- Level 2: P. Atk. +2%. -->
+		<!-- Level 3: P. Atk. +5%. -->
+		<icon>icon.etc_bm_jewel_ruby_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35017" toLevel="3" name="Augment Sapphire">
+		<!-- Level 1: M. Atk. +2%. -->
+		<!-- Level 2: M. Atk. +4%. -->
+		<!-- Level 3: M. Atk. +7%. -->
+		<icon>icon.etc_bm_jewel_sapphire_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35018" toLevel="3" name="Augment Obsidian">
+		<!-- Level 1: PVP Damage Received -1%. -->
+		<!-- Level 2: PVP Damage Received -2%. -->
+		<!-- Level 3: PVP Damage Received -5%. -->
+		<icon>icon.etc_bm_jewel_obsidian_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35019" toLevel="3" name="Augment Opal">
+		<!-- Level 1: Attack Attribute Bonus +10. -->
+		<!-- Level 2: Attack Attribute Bonus +20. -->
+		<!-- Level 3: Attack Attribute Bonus +50. -->
+		<icon>icon.etc_bm_jewel_opal_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35020" toLevel="3" name="Augment Emerald">
+		<!-- Level 1: MEN +1. -->
+		<!-- Level 2: CON/ MEN +1. -->
+		<!-- Level 3: CON/ MEN/ LUC/ CHA +1. -->
+		<icon>icon.etc_bm_jewel_emerald_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35021" toLevel="3" name="Augment Aquamarine">
+		<!-- Level 1: Max MP +5%. -->
+		<!-- Level 2: Max MP +10%. -->
+		<!-- Level 3: Max MP +20%. -->
+		<icon>icon.etc_bm_jewel_aquamarine_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35022" toLevel="3" name="Augment Diamond">
+		<!-- Level 1: P. Def. +283. -->
+		<!-- Level 2: P. Def. +567. -->
+		<!-- Level 3: P. Def. +945. -->
+		<icon>icon.etc_bm_jewel_diamond_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35023" toLevel="3" name="Augment Pearl">
+		<!-- Level 1: M. Def +283. -->
+		<!-- Level 2: M. Def +328. -->
+		<!-- Level 3: M. Def +548. -->
+		<icon>icon.etc_bm_jewel_pearl_i00</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35024" toLevel="3" name="Augment Tanzanite">
+		<!-- Level 1: Damaged received -1%. -->
+		<!-- Level 2: Damaged received -2%. -->
+		<!-- Level 3: Damaged received -3%. -->
+		<icon>icon.etc_bm_jewel_tanzanite</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35025" toLevel="3" name="Augment Garnet">
+		<!-- Level 1: Max HP +2%. -->
+		<!-- Level 2: Max HP +5%. -->
+		<!-- Level 3: Max HP +10%. -->
+		<icon>icon.etc_bm_jewel_garnet</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35026" toLevel="3" name="Augment Vital Stone">
+		<!-- Level 1: Vitality XP +1%. -->
+		<!-- Level 2: Vitality XP +2%. -->
+		<!-- Level 3: Vitality XP +5%. -->
+		<icon>icon.etc_bm_jewel_vital</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35027" toLevel="3" name="Augment Red Cat's Eye">
+		<!-- Level 1: P. Skill Power +1%. -->
+		<!-- Level 2: P. Skill Power +2%. -->
+		<!-- Level 3: P. Skill Power +5%. -->
+		<icon>icon.bm_jewel_red_catseye</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35028" toLevel="3" name="Augment Blue Cat's Eye">
+		<!-- Level 1: M. Skill Power +1%. -->
+		<!-- Level 2: M. Skill Power +2%. -->
+		<!-- Level 3: M. Skill Power +5%. -->
+		<icon>Icon.bm_jewel_blue_catseye</icon>
+		<operateType>P</operateType>
+	</skill>
+	<skill id="35029" toLevel="1" name="Freya's Dark Rune">
+		<!-- Inflicts 15% more damage on PC if stored in the inventory. -->
+		<icon>icon.bm_freya_dark_rune</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35030" toLevel="1" name="Freya's CHA Potion">
+		<!-- Changes the appearance to that of Teddy Bear and increases CHA +5 for 30 minutes. Cannot be stacked with Einhasad's CHA Potion or Maphr's Luck Potion. Cooldown of 5 min. Buff effect persists through death. Cannot be used in the Olympiad. -->
+		<icon>icon.bm_freya_charisma_potion1</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
 	<skill id="35031" toLevel="1" name="Entrance Pass: Shilen's Altar">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+	</skill>
+	<skill id="35032" toLevel="1" name="Summon Virgo Agathion">
+		<!-- Summons the Virgo Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13500</npcId> <!-- Virgo -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35033" toLevel="1" name="Summon Virgo Agathion">
+		<!-- Summons the Virgo Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13512</npcId> <!-- Virgo -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35034" toLevel="1" name="Summon Capricorn Agathion">
+		<!-- Summons the Capricorn Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13514</npcId> <!-- Capricorn -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35035" toLevel="1" name="Summon Libra Agathion">
+		<!-- Summons the Libra Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13517</npcId> <!-- Libra -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35036" toLevel="1" name="Summon Aries Agathion">
+		<!-- Summons the Aries Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13513</npcId> <!-- Aries -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35037" toLevel="1" name="Summon Taurus Agathion">
+		<!-- Summons the Taurus Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13520</npcId> <!-- Taurus -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35038" toLevel="1" name="Summon Leo Agathion">
+		<!-- Summons the Leo Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13516</npcId> <!-- Leo -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35039" toLevel="1" name="Summon Gemini Agathion">
+		<!-- Summons the Gemini Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13515</npcId> <!-- Gemini -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35040" toLevel="1" name="Summon Scorpio Agathion">
+		<!-- Summons the Scorpio Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13519</npcId> <!-- Scorpio -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35041" toLevel="1" name="Summon Aquarius Agathion">
+		<!-- Summons the Aquarius Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13408</npcId> <!-- Aquarius -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35042" toLevel="1" name="Summon Pisces Agathion">
+		<!-- Summons the Pisces Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13407</npcId> <!-- Pisces -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35043" toLevel="1" name="Summon Sagittarius Agathion">
+		<!-- Summons the Sagittarius Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13518</npcId> <!-- Sagittarius -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35044" toLevel="1" name="Summon Cancer Agathion">
+		<!-- Summons the Cancer Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<effects>
+			<effect name="SummonAgathion">
+				<npcId>13511</npcId> <!-- Cancer -->
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35045" toLevel="11" name="Virgo Agathion Unique Ability">
+		<!-- Level 1: Increases P. Critical Rate with the growth of the Agathion. -->
+		<!-- Level 2: P. Critical Rate +10. -->
+		<!-- Level 3: P. Critical Rate +20. -->
+		<!-- Level 4: P. Critical Rate +30. -->
+		<!-- Level 5: P. Critical Rate +40. -->
+		<!-- Level 6: P. Critical Rate +50. -->
+		<!-- Level 7: P. Critical Rate +60. -->
+		<!-- Level 8: P. Critical Rate +70. -->
+		<!-- Level 9: P. Critical Rate +80. -->
+		<!-- Level 10: P. Critical Rate +90. -->
+		<!-- Level 11: P. Critical Rate +100. -->
+		<icon>icon.agathion_virgo_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">10</value>
+					<value level="3">20</value>
+					<value level="4">30</value>
+					<value level="5">40</value>
+					<value level="6">50</value>
+					<value level="7">60</value>
+					<value level="8">70</value>
+					<value level="9">80</value>
+					<value level="10">90</value>
+					<value level="11">100</value>
+				</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35046" toLevel="11" name="Capricorn Agathion Unique Ability">
+		<!-- Level 1: Increases M. Critical Rate with the growth of the Agathion. -->
+		<!-- Level 2: M. Critical Rate +10. -->
+		<!-- Level 3: M. Critical Rate +20. -->
+		<!-- Level 4: M. Critical Rate +30. -->
+		<!-- Level 5: M. Critical Rate +40. -->
+		<!-- Level 6: M. Critical Rate +50. -->
+		<!-- Level 7: M. Critical Rate +60. -->
+		<!-- Level 8: M. Critical Rate +70. -->
+		<!-- Level 9: M. Critical Rate +80. -->
+		<!-- Level 10: M. Critical Rate +90. -->
+		<!-- Level 11: M. Critical Rate +100. -->
+		<icon>icon.agathion_capr_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MagicCriticalRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">10</value>
+					<value level="3">20</value>
+					<value level="4">30</value>
+					<value level="5">40</value>
+					<value level="6">50</value>
+					<value level="7">60</value>
+					<value level="8">70</value>
+					<value level="9">80</value>
+					<value level="10">90</value>
+					<value level="11">100</value>
+				</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35047" toLevel="11" name="Libra Agathion Unique Ability">
+		<!-- Level 1: Increases M. Critical Damage with the growth of the Agathion. -->
+		<!-- Level 2: M. Critical Damage +1%. -->
+		<!-- Level 3: M. Critical Damage +2%. -->
+		<!-- Level 4: M. Critical Damage +3%. -->
+		<!-- Level 5: M. Critical Damage +4%. -->
+		<!-- Level 6: M. Critical Damage +5%. -->
+		<!-- Level 7: M. Critical Damage +6%. -->
+		<!-- Level 8: M. Critical Damage +7%. -->
+		<!-- Level 9: M. Critical Damage +8%. -->
+		<!-- Level 10: M. Critical Damage +9%. -->
+		<!-- Level 11: M. Critical Damage +10%. -->
+		<icon>icon.agathion_lib_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MagicCriticalDamage">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35048" toLevel="11" name="Aries Agathion Unique Ability">
+		<!-- Level 1: Increases P. Skill Critical Damage with the growth of the Agathion. -->
+		<!-- Level 2: P. Skill Critical Damage +1%. -->
+		<!-- Level 3: P. Skill Critical Damage +2%. -->
+		<!-- Level 4: P. Skill Critical Damage +3%. -->
+		<!-- Level 5: P. Skill Critical Damage +4%. -->
+		<!-- Level 6: P. Skill Critical Damage +5%. -->
+		<!-- Level 7: P. Skill Critical Damage +6%. -->
+		<!-- Level 8: P. Skill Critical Damage +7%. -->
+		<!-- Level 9: P. Skill Critical Damage +8%. -->
+		<!-- Level 10: P. Skill Critical Damage +9%. -->
+		<!-- Level 11: P. Skill Critical Damage +10%. -->
+		<icon>icon.agathion_aries_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalSkillCriticalDamage">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35049" toLevel="11" name="Taurus Agathion Unique Ability">
+		<!-- Level 1: Increases P. Def with the growth of the Agathion. -->
+		<!-- Level 2: P. Def. +1%. -->
+		<!-- Level 3: P. Def. +2%. -->
+		<!-- Level 4: P. Def. +3%. -->
+		<!-- Level 5: P. Def. +4%. -->
+		<!-- Level 6: P. Def. +5%. -->
+		<!-- Level 7: P. Def. +6%. -->
+		<!-- Level 8: P. Def. +7%. -->
+		<!-- Level 9: P. Def. +8%. -->
+		<!-- Level 10: P. Def. +9%. -->
+		<!-- Level 11: P. Def. +10%. -->
+		<icon>icon.agathion_tau_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalDefence">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35050" toLevel="11" name="Leo Agathion Unique Ability">
+		<!-- Level 1: Increases P. Atk. with the growth of the Agathion. -->
+		<!-- Level 2: P. Atk. +1%. -->
+		<!-- Level 3: P. Atk. +2%. -->
+		<!-- Level 4: P. Atk. +3%. -->
+		<!-- Level 5: P. Atk. +4%. -->
+		<!-- Level 6: P. Atk. +5%. -->
+		<!-- Level 7: P. Atk. +6%. -->
+		<!-- Level 8: P. Atk. +7%. -->
+		<!-- Level 9: P. Atk. +8%. -->
+		<!-- Level 10: P. Atk. +9%. -->
+		<!-- Level 11: P. Atk. +10%. -->
+		<icon>icon.agathion_leo_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalAttack">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35051" toLevel="11" name="Gemini Agathion Unique Ability">
+		<!-- Level 1: Increases M. Def with the growth of the Agathion. -->
+		<!-- Level 2: M. Def. +1%. -->
+		<!-- Level 3: M. Def. +2%. -->
+		<!-- Level 4: M. Def. +3%. -->
+		<!-- Level 5: M. Def. +4%. -->
+		<!-- Level 6: M. Def. +5%. -->
+		<!-- Level 7: M. Def. +6%. -->
+		<!-- Level 8: M. Def. +7%. -->
+		<!-- Level 9: M. Def. +8%. -->
+		<!-- Level 10: M. Def. +9%. -->
+		<!-- Level 11: M. Def. +10%. -->
+		<icon>icon.agathion_gem_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MagicalDefence">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35052" toLevel="11" name="Scorpio Agathion Unique Ability">
+		<!-- Level 1: Increases P. Critical Damage with the growth of the Agathion. -->
+		<!-- Level 2: P. Critical Damage +1%. -->
+		<!-- Level 3: P. Critical Damage +2%. -->
+		<!-- Level 4: P. Critical Damage +3%. -->
+		<!-- Level 5: P. Critical Damage +4%. -->
+		<!-- Level 6: P. Critical Damage +5%. -->
+		<!-- Level 7: P. Critical Damage +6%. -->
+		<!-- Level 8: P. Critical Damage +7%. -->
+		<!-- Level 9: P. Critical Damage +8%. -->
+		<!-- Level 10: P. Critical Damage +9%. -->
+		<!-- Level 11: P. Critical Damage +10%. -->
+		<icon>icon.agathion_sco_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="CriticalDamage">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35053" toLevel="11" name="Aquarius Agathion Unique Ability">
+		<!-- Level 1: Increases M. Atk with the growth of the Agathion. -->
+		<!-- Level 2: M. Atk. +1%. -->
+		<!-- Level 3: M. Atk. +2%. -->
+		<!-- Level 4: M. Atk. +3%. -->
+		<!-- Level 5: M. Atk. +5%. -->
+		<!-- Level 6: M. Atk. +7%. -->
+		<!-- Level 7: M. Atk. +9%. -->
+		<!-- Level 8: M. Atk. +12%. -->
+		<!-- Level 9: M. Atk. +14%. -->
+		<!-- Level 10: M. Atk. +16%. -->
+		<!-- Level 11: M. Atk. +18%. -->
+		<icon>icon.agathion_aqu_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MagicalAttack">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">5</value>
+					<value level="6">7</value>
+					<value level="7">9</value>
+					<value level="8">12</value>
+					<value level="9">14</value>
+					<value level="10">16</value>
+					<value level="11">18</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35054" toLevel="11" name="Pisces Agathion Unique Ability">
+		<!-- Level 1: Increases Casting Spd. with the growth of the Agathion. -->
+		<!-- Level 2: Increases Casting Spd. +1%. -->
+		<!-- Level 3: Increases Casting Spd. +2%. -->
+		<!-- Level 4: Increases Casting Spd. +3%. -->
+		<!-- Level 5: Increases Casting Spd. +4%. -->
+		<!-- Level 6: Increases Casting Spd. +5%. -->
+		<!-- Level 7: Increases Casting Spd. +6%. -->
+		<!-- Level 8: Increases Casting Spd. +7%. -->
+		<!-- Level 9: Increases Casting Spd. +8%. -->
+		<!-- Level 10: Increases Casting Spd. +9%. -->
+		<!-- Level 11: Increases Casting Spd. +10%. -->
+		<icon>icon.agathion_pis_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MagicalAttackSpeed">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35055" toLevel="11" name="Sagittarius Agathion Unique Ability">
+		<!-- Level 1: Increases Atk. Spd. with the growth of the Agathion. -->
+		<!-- Level 2: Atk. Spd. +1%. -->
+		<!-- Level 3: Atk. Spd. +2%. -->
+		<!-- Level 4: Atk. Spd. +3%. -->
+		<!-- Level 5: Atk. Spd. +4%. -->
+		<!-- Level 6: Atk. Spd. +5%. -->
+		<!-- Level 7: Atk. Spd. +6%. -->
+		<!-- Level 8: Atk. Spd. +7%. -->
+		<!-- Level 9: Atk. Spd. +8%. -->
+		<!-- Level 10: Atk. Spd. +9%. -->
+		<!-- Level 11: Atk. Spd. +10%. -->
+		<icon>icon.agathion_sag_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalAttackSpeed">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35056" toLevel="11" name="Cancer Agathion Unique Ability">
+		<!-- Level 1: Increases P. Skill Critical Rate with the growth of the Agathion. -->
+		<!-- Level 2: P. Skill Critical Rate +1%. -->
+		<!-- Level 3: P. Skill Critical Rate +2%. -->
+		<!-- Level 4: P. Skill Critical Rate +3%. -->
+		<!-- Level 5: P. Skill Critical Rate +4%. -->
+		<!-- Level 6: P. Skill Critical Rate +5%. -->
+		<!-- Level 7: P. Skill Critical Rate +6%. -->
+		<!-- Level 8: P. Skill Critical Rate +7%. -->
+		<!-- Level 9: P. Skill Critical Rate +8%. -->
+		<!-- Level 10: P. Skill Critical Rate +9%. -->
+		<!-- Level 11: P. Skill Critical Rate +10%. -->
+		<icon>icon.agathion_can_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalSkillCriticalRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">2</value>
+					<value level="4">3</value>
+					<value level="5">4</value>
+					<value level="6">5</value>
+					<value level="7">6</value>
+					<value level="8">7</value>
+					<value level="9">8</value>
+					<value level="10">9</value>
+					<value level="11">10</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>
+					<value fromLevel="1" toLevel="9">0</value>
+					<value fromLevel="10" toLevel="11">1</value>
+				</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="PveMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvePhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalAttackDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpMagicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PvpPhysicalSkillDamageBonus">
+				<amount>
+					<value fromLevel="1" toLevel="10">0</value>
+					<value fromLevel="11" toLevel="11">1</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35057" toLevel="4" name="Virgo Agathion Special Ability">
+		<!-- Level 1: Increases XP gain with the growth of the Agathion. -->
+		<!-- Level 2: XP gain +2%. -->
+		<!-- Level 3: XP gain +4%. -->
+		<!-- Level 4: XP gain +7%. -->
+		<icon>icon.agathion_virgo_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="ExpModify">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35058" toLevel="4" name="Capricorn Agathion Special Ability">
+		<!-- Level 1: Increases XP bonus gained in Vitality with the growth of the Agathion. -->
+		<!-- Level 2: XP bonus gained in Vitality +2%. -->
+		<!-- Level 3: XP bonus gained in Vitality +4%. -->
+		<!-- Level 4: XP bonus gained in Vitality +7%. -->
+		<icon>icon.agathion_capr_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="VitalityExpRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35059" toLevel="4" name="Libra Agathion Special Ability">
+		<!-- Level 1: Decreases Skill MP Consumption with the growth of the Agathion. -->
+		<!-- Level 2: Skill MP Consumption -2%. -->
+		<!-- Level 3: Skill MP Consumption -4%. -->
+		<!-- Level 4: Skill MP Consumption -7%. -->
+		<icon>icon.agathion_lib_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MagicMpCost">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">-2</value>
+					<value level="3">-4</value>
+					<value level="4">-7</value>
+				</amount>
+				<mode>PER</mode>
+				<magicType>1</magicType>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">-2</value>
+					<value level="3">-4</value>
+					<value level="4">-7</value>
+				</amount>
+				<mode>PER</mode>
+				<magicType>0</magicType>
+			</effect>
+			<effect name="MagicMpCost">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">-2</value>
+					<value level="3">-4</value>
+					<value level="4">-7</value>
+				</amount>
+				<mode>PER</mode>
+				<magicType>3</magicType>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35060" toLevel="4" name="Aries Agathion Special Ability">
+		<!-- Level 1: Increases Damage Reflect Resistance with the growth of the Agathion. -->
+		<!-- Level 2: Damage Reflect Resistance +2%. -->
+		<!-- Level 3: Damage Reflect Resistance +4%. -->
+		<!-- Level 4: Damage Reflect Resistance +7%. -->
+		<icon>icon.agathion_aries_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="DamageShieldResist">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35061" toLevel="4" name="Taurus Agathion Special Ability">
+		<!-- Level 1: Increases Max HP with the growth of the Agathion. -->
+		<!-- Level 2: Max HP +2%. -->
+		<!-- Level 3: Max HP +4%. -->
+		<!-- Level 4: Max HP +7%. -->
+		<icon>icon.agathion_tau_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MaxHp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35062" toLevel="4" name="Leo Agathion Special Ability">
+		<!-- Level 1: Increases Max MP with the growth of the Agathion. -->
+		<!-- Level 2: Max MP +2%. -->
+		<!-- Level 3: Max MP +4%. -->
+		<!-- Level 4: Max MP +7%. -->
+		<icon>icon.agathion_leo_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MaxMp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35063" toLevel="4" name="Gemini Agathion Special Ability">
+		<!-- Level 1: Increases Debuff Resistance with the growth of the Agathion. -->
+		<!-- Level 2: Debuff Resistance +2%. -->
+		<!-- Level 3: Debuff Resistance +4%. -->
+		<!-- Level 4: Debuff Resistance +7%. -->
+		<icon>icon.agathion_gem_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="ResistAbnormalByCategory">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">-2</value>
+					<value level="3">-4</value>
+					<value level="4">-7</value>
+				</amount>
+				<slot>DEBUFF</slot>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35064" toLevel="4" name="Scorpio Agathion Special Ability">
+		<!-- Level 1: Increases Vampiric Rage with the growth of the Agathion. -->
+		<!-- Level 2: Increases Vampiric Rage +1%. -->
+		<!-- Level 3: Increases Vampiric Rage +3%. -->
+		<!-- Level 4: Increases Vampiric Rage +5%. -->
+		<icon>icon.agathion_sco_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="VampiricAttack">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">1</value>
+					<value level="3">3</value>
+					<value level="4">5</value>
+				</amount>
+				<chance>80</chance>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35065" toLevel="4" name="Aquarius Agathion Special Ability">
+		<!-- Level 1: Increases Max CP with the growth of the Agathion. -->
+		<!-- Level 2: Increases Max CP +2%. -->
+		<!-- Level 3: Increases Max CP +4%. -->
+		<!-- Level 4: Increases Max CP +7%. -->
+		<icon>icon.agathion_aqu_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MaxCp">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35066" toLevel="4" name="Pisces Agathion Special Ability">
+		<!-- Level 1: Increases Bow/ Crossbow Resistance with the growth of the Agathion. -->
+		<!-- Level 2: Bow/ Crossbow Resistance +2%. -->
+		<!-- Level 3: Bow/ Crossbow Resistance +4%. -->
+		<!-- Level 4: Bow/ Crossbow Resistance +7%. -->
+		<icon>icon.agathion_pis_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="DefenceTrait">
+				<BOW>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</BOW>
+				<CROSSBOW>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</CROSSBOW>
+				<TWOHANDCROSSBOW>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</TWOHANDCROSSBOW>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35067" toLevel="4" name="Sagittarius Agathion Special Ability">
+		<!-- Level 1: Increases Dagger Resistance with the growth of the Agathion. -->
+		<!-- Level 2: Dagger Resistance +2%. -->
+		<!-- Level 3: Dagger Resistance +4%. -->
+		<!-- Level 4: Dagger Resistance +7%. -->
+		<icon>icon.agathion_sag_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="DefenceTrait">
+				<DAGGER>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</DAGGER>
+				<DUALDAGGER>
+					<value level="1">0</value>
+					<value level="2">2</value>
+					<value level="3">4</value>
+					<value level="4">7</value>
+				</DUALDAGGER>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35068" toLevel="4" name="Cancer Agathion Special Ability">
+		<!-- Level 1: Slows the Vitality consumption rate with the growth of the Agathion. -->
+		<!-- Level 2: Slows the Vitality consumption rate by 1%. -->
+		<!-- Level 3: Slows the Vitality consumption rate by 3%. -->
+		<!-- Level 4: Slows the Vitality consumption rate by 5%. -->
+		<icon>icon.agathion_can_star_1</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="VitalityPointsRate">
+				<amount>
+					<value level="1">0</value>
+					<value level="2">-1</value>
+					<value level="3">-3</value>
+					<value level="4">-5</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35069" toLevel="2" name="Expand Primary Agathion Slot">
+		<!-- Unlocks the primary Agathion slot. -->
+		<icon>icon.agathion_base</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>1</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35070" toLevel="4" name="Expand Secondary Agathion Slot">
+		<!-- Level 1: Unlocks 1 secondary Agathion slots. -->
+		<!-- Level 2: Unlocks 2 secondary Agathion slots. -->
+		<!-- Level 3: Unlocks 3 secondary Agathion slots. -->
+		<!-- Level 4: Unlocks 4 secondary Agathion slots. -->
+		<icon>icon.agathion_base</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>
+					<value level="1">2</value>
+					<value level="2">3</value>
+					<value level="3">4</value>
+					<value level="4">5</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35071" toLevel="4" name="Expand Primary and Secondary Agathion Slots">
+		<!-- Level 1: Unlocks the primary Agathion slot and expands secondary Agathion slots to 1. -->
+		<!-- Level 2: Unlocks the primary Agathion slot and expands secondary Agathion slots to 2. -->
+		<!-- Level 3: Unlocks the primary Agathion slot and expands secondary Agathion slots to 3. -->
+		<!-- Level 4: Unlocks the primary Agathion slot and expands secondary Agathion slots to 4. -->
+		<icon>icon.agathion_base</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>
+					<value level="1">2</value>
+					<value level="2">3</value>
+					<value level="3">4</value>
+					<value level="4">5</value>
+				</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35072" toLevel="1" name="Zodiac Agathion Book of Growth">
+		<icon>icon.star_scrl_of_ench_ag</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35073" toLevel="1" name="Ancient Zodiac Agathion Book of Growth">
+		<icon>icon.star_giantscrl_of_ench_ag</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35074" toLevel="1" name="Zodiac Agathion Cube">
+		<icon>icon.star_agathion_cube</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+	</skill>
+	<skill id="35075" toLevel="1" name="Agathion Summon - Zaken's Spirit Sword">
+		<!-- Removes the Agathion's seal. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35076" toLevel="1" name="Agathion Cute Trick - Zaken's Spirit Swords">
+		<!-- See the summoned spirit perform cute tricks. -->
+		<icon>icon.skill_agathion_cute</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35077" toLevel="1" name="Lantern Agathion's Gift">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35078" toLevel="1" name="Elementary Seed Bracelet">
+		<!-- Activates the primary Agathion slot. -->
+		<icon>icon.lbracelet_agathion_charm</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>1</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35079" toLevel="1" name="Intermediate Seed Bracelet">
+		<!-- Activates the primary Agathion slot and increases STR/ DEX/ CON/ INT/ WIT/ MEN +1. -->
+		<icon>icon.lbracelet_agathion_charm</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>1</amount>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>DEX</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>WIT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>MEN</stat>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35080" toLevel="1" name="Advanced Seed Bracelet">
+		<!-- Activates the primary Agathion slot and STR/ DEX/ CON/ INT/ WIT/ MEN +and all Defense Attributes +30. -->
+		<icon>icon.lbracelet_agathion_charm</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>1</amount>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>DEX</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>WIT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>MEN</stat>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>DARK</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35081" toLevel="1" name="Top-grade Seed Bracelet">
+		<!-- Activates the primary Agathion slot, STR/ DEX/ CON/ INT/ WIT/ MEN +1, Attack Attribute +30, and all Defense Attributes +30. -->
+		<icon>icon.lbracelet_agathion_charm</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>1</amount>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>DEX</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>WIT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>MEN</stat>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>30</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>30</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>30</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>30</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>30</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>30</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WIND</attribute>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35082" toLevel="1" name="Super Advanced Seed Bracelet">
+		<!-- Activates the primary Agathion slot and adds 1 secondary slots. Also increases Vitality bonus +5%, all basic stats +1, Attack Attribute +50, and all Defense Attributes +30. -->
+		<icon>icon.lbracelet_agathion_charm</icon>
+		<operateType>A1</operateType>
+		<effects>
+			<effect name="AgathionSlot">
+				<amount>
+					<value level="1">2</value>
+				</amount>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>50</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>HOLY</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>50</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>FIRE</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>50</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WATER</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>50</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>DARK</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>50</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>EARTH</attribute>
+			</effect>
+			<effect name="AttackAttribute">
+				<amount>50</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="DefenceAttribute">
+				<amount>30</amount>
+				<attribute>WIND</attribute>
+			</effect>
+			<effect name="VitalityExpRate">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>STR</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>INT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>CON</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>DEX</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>WIT</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>MEN</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>CHA</stat>
+			</effect>
+			<effect name="StatUp">
+				<amount>1</amount>
+				<stat>LUC</stat>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35083" toLevel="1" name="Seed Teleport: Town of Aden">
+		<!-- Teleports you to the Town of Aden. -->
+		<icon>icon.noblessescape_scroll_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<conditions>
+			<condition name="OpCanEscape" />
+		</conditions>
+		<effects>
+			<effect name="Teleport">
+				<x>147450</x>
+				<y>27064</y>
+				<z>-2208</z>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35084" toLevel="1" name="Seed Teleport: Town of Rune">
+		<!-- Teleports you to the Town of Rune. -->
+		<icon>icon.noblessescape_scroll_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<conditions>
+			<condition name="OpCanEscape" />
+		</conditions>
+		<effects>
+			<effect name="Teleport">
+				<x>44070</x>
+				<y>-50243</y>
+				<z>-791</z>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35085" toLevel="1" name="Seed Teleport: Town of Giran">
+		<!-- Teleports you to the Town of Giran. -->
+		<icon>icon.noblessescape_scroll_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<conditions>
+			<condition name="OpCanEscape" />
+		</conditions>
+		<effects>
+			<effect name="Teleport">
+				<x>82698</x>
+				<y>148638</y>
+				<z>-3468</z>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35086" toLevel="1" name="Seed Teleport: Heine">
+		<!-- Teleports you to Heine. -->
+		<icon>icon.noblessescape_scroll_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
+		<conditions>
+			<condition name="OpCanEscape" />
+		</conditions>
+		<effects>
+			<effect name="Teleport">
+				<x>111115</x>
+				<y>219017</y>
+				<z>-3542</z>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="35087" toLevel="1" name="Agathion's Trick">
+		<!-- Watch the Agathion's trick. -->
+		<icon>icon.skill_agathion_cute</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35088" toLevel="1" name="Notifier">
+		<!-- Displays the number of currently received gifts and number of remaining gifts. The gift delivery time is reset every day at 6:30 AM. -->
+		<icon>icon.skill5239</icon>
+		<operateType>A1</operateType>
+		<reuseDelay>15000</reuseDelay>
+	</skill>
+	<skill id="35089" toLevel="1" name="Summon Agathion - Makeshift Bat">
+		<!-- Summons Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35090" toLevel="1" name="Summon Agathion - Cow">
+		<!-- Summons Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35091" toLevel="1" name="Summon Agathion - Griffin">
+		<!-- Summons Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35092" toLevel="1" name="Summon Agathion - Pegasus">
+		<!-- Summons Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35093" toLevel="1" name="Summon Agathion - Lantern">
+		<!-- Summons Agathion. -->
+		<icon>icon.etc_summon_aga_agit_i00</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="35094" toLevel="1" name="Secret Embryo Bait Cube">
+		<!-- Double-click to obtain 300 Secret Embryo Bait Coupons. Can be used once a day. -->
+		<icon>icon.bm_daily_lure_cube</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35095" toLevel="1" name="Elysium Special Stew">
+		<!-- For 30 minutes, all basic abilities +3 and bonus XP/ SP +30%. -->
+		<icon>icon.red_libra_pochouse</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="35096" toLevel="1" name="R99 Bait Cube">
+		<!-- Double-click to obtain 60 R99 Baits. There is also a low chance to obtain a Zodiac Cube Fragment. Can be used once a day. -->
+		<icon>icon.special_cube_i00</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35097" toLevel="1" name="Hunter's Stone">
+		<!-- Neutralizes the effect of Superion Barrier for 90 min. -->
+		<icon>icon.etc_chaser_stone</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35098" toLevel="1" name="Fire Stone for Practice">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+	</skill>
+	<skill id="35099" toLevel="1" name="Practice Weapon Enchant Scroll">
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ITEM</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 </list>

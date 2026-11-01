@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance id="3050" name="Capture The Flag" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/instance.xsd">
+	<time empty="0" />
+	<misc isPvP="true" />
+	<removeBuffs type="ALL" />
+	<locations>
+		<exit type="ORIGIN" />
+	</locations>
+	<doorlist>
+		<door id="24190001">
+			<openStatus default="close" />
+		</door>
+		<door id="24190002">
+			<openStatus default="close" />
+		</door>
+		<door id="24190003">
+			<openStatus default="close" />
+		</door>
+		<door id="24190004">
+			<openStatus default="close" />
+		</door>
+	</doorlist>
+	<spawnlist>
+		<group>
+			<npc id="82018" x="148487" y="46703" z="-3414" heading="297" /> <!-- Blue Team Spot -->
+		</group>
+		<group>
+			<npc id="82018" x="150452" y="46714" z="-3414" heading="34490" /> <!-- Red Team Spot -->
+		</group>
+	</spawnlist>
+</instance>

@@ -11,6 +11,27 @@ pub fn class_id_by_name(name: &str) -> Option<i32> {
         .map(|&(_, id)| id)
 }
 
+/// `PlayerClass.getPlayerClass(id).toString()`, the enum name.
+pub fn class_name(class_id: i32) -> Option<&'static str> {
+    CLASS_IDS
+        .iter()
+        .find(|&&(_, id)| id == class_id)
+        .map(|&(n, _)| n)
+}
+
+/// `PlayerClass.isMage()`, the enum's own flag (`Player.isMageClass`). It is
+/// not `MAGE_GROUP`: the category also lists 143, 145 and 146, and lacks
+/// 171, 174, 175 and 191.
+pub fn is_mage(class_id: i32) -> bool {
+    MAGE_CLASS_IDS.contains(&class_id)
+}
+
+const MAGE_CLASS_IDS: &[i32] = &[
+    10, 11, 12, 13, 14, 15, 16, 17, 25, 26, 27, 28, 29, 30, 38, 39, 40, 41, 42, 43, 49, 50, 51, 52,
+    94, 95, 96, 97, 98, 103, 104, 105, 110, 111, 112, 115, 116, 166, 167, 168, 169, 170, 171, 174,
+    175, 176, 177, 178, 179, 180, 181, 183, 185, 187, 189, 191,
+];
+
 const CLASS_IDS: &[(&str, i32)] = &[
     ("FIGHTER", 0),
     ("WARRIOR", 1),
@@ -177,5 +198,7 @@ mod tests {
         assert_eq!(class_id_by_name("WARCRYER"), Some(52));
         assert_eq!(class_id_by_name("YUL_SAGITTARIUS"), Some(162));
         assert_eq!(class_id_by_name("NOT_A_CLASS"), None);
+        assert_eq!(class_name(130), Some("ARBALESTER"));
+        assert!(is_mage(11) && !is_mage(1) && is_mage(191) && !is_mage(143));
     }
 }

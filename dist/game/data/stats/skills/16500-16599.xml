@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="16500" toLevel="1" name="Raid Boss (Lv. 99)">
 		<!-- Part of the Bamonti was affected by the darkness of Nemis and was reborn as Vengeful Edaire. Currently aiming for Gludin from another dimension in order to carry out Nemis' will. -->
@@ -56,11 +56,11 @@
 		<operateType>P</operateType>
 	</skill>
 	<skill id="16511" toLevel="6" name="Solo Fighter Monster">
-		<!-- Monster's P./M. Atk. and P./M. Def. increase. -->
+		<!-- Monster's P./ M. Atk. and P./ M. Def. increase. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -71,7 +71,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -107,11 +107,11 @@
 		</effects>
 	</skill>
 	<skill id="16512" toLevel="6" name="Solo Mage Monster">
-		<!-- Monster's P./M. Atk. and P./M. Def. increase. -->
+		<!-- Monster's P./ M. Atk. and P./ M. Def. increase. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -122,7 +122,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -158,11 +158,11 @@
 		</effects>
 	</skill>
 	<skill id="16513" toLevel="6" name="Solo Archer Monster">
-		<!-- Monster's P./M. Atk. and P./M. Def. increase. -->
+		<!-- Monster's P./ M. Atk. and P./ M. Def. increase. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -173,7 +173,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -209,11 +209,11 @@
 		</effects>
 	</skill>
 	<skill id="16514" toLevel="6" name="Party Fighter Monster">
-		<!-- Monster's P./M. Atk. and P./M. Def. increase. -->
+		<!-- Monster's P./ M. Atk. and P./ M. Def. increase. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -224,7 +224,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -260,11 +260,11 @@
 		</effects>
 	</skill>
 	<skill id="16515" toLevel="6" name="Party Mage Monster">
-		<!-- Monster's P./M. Atk. and P./M. Def. increase. -->
+		<!-- Monster's P./ M. Atk. and P./ M. Def. increase. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -275,7 +275,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -311,11 +311,11 @@
 		</effects>
 	</skill>
 	<skill id="16516" toLevel="6" name="Party Archer Monster">
-		<!-- Monster's P./M. Atk. and P./M. Def. increase. -->
+		<!-- Monster's P./ M. Atk. and P./ M. Def. increase. -->
 		<icon>icon.skill0335</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -326,7 +326,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">10</value>
@@ -362,12 +362,13 @@
 		</effects>
 	</skill>
 	<skill id="16517" toLevel="2" name="Kelbim">
-		<!-- One of the seven disciples of Embryo. Received the power of the Seal of Calamity froM Etis van Etina, and is in control of the Atelia Fortress. Materializes the power of the Seal of Calamity. Currently, in charge of turning the Atelia obtained from the Garden of Spirits into Dark Atelia. -->
+		<!-- Level 1: One of the seven disciples of Embryo. Received the power of the Seal of Calamity froM Etis van Etina, and is in control of the Atelia Fortress. Materializes the power of the Seal of Calamity. Currently, in charge of turning the Atelia obtained from the Garden of Spirits into Dark Atelia. -->
+		<!-- Level 2: With the transfer of the Garden of Spirits, the Queen of Spirits of the Wind Realm has been awakened. She used to be very intelligent and detached, but her instinct is all that is left. She considers anyone who gets near the Garden of Spirits as a threat, including the Ertheia. -->
 		<icon>icon.skillraid</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="16518" toLevel="1" name="Event Invincibility">
-		<!-- Invincible to regular hits and skills, as well as buffs/debuffs. No HP Recovery. -->
+		<!-- Invincible to regular hits and skills, as well as buffs/ debuffs. No HP Recovery Bonus. -->
 		<icon>icon.skill0000</icon>
 		<operateType>P</operateType>
 	</skill>
@@ -375,86 +376,92 @@
 		<!-- Inflicts great physical damage to nearby enemies and makes them bleed for 15 seconds. -->
 		<icon>icon.skill0096</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
-		<hitTime>3000</hitTime>
-		<reuseDelay>30000</reuseDelay>
 		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
-	<skill id="16520" toLevel="4" name="Shild of Atelia">
-		<!-- Increases P./M. Def. by 30%. -->
+	<skill id="16520" toLevel="4" name="Shield of Atelia">
+		<!-- Level 1: Increases P./ M. Def. by 30%. -->
+		<!-- Level 2: Increases P./ M. Def. by 35%. -->
+		<!-- Level 3: Increases P./ M. Def. by 40%. -->
+		<!-- Level 4: Increases P./ M. Def. by 50%. -->
 		<icon>icon.skill1418</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
-		<hitTime>4000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16521" toLevel="1" name="Embryo's Call">
 		<!-- Temporarily increases P. Atk. And Atk. Spd. by 50%. -->
 		<icon>icon.skill1147</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>350</castRange>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>3000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16522" toLevel="1" name="Shield Swing">
-		<!-- Inflicts great physical damage and decreases P./M. Def by 50% for 15 seconds. -->
+		<!-- Inflicts great physical damage and decreases P./ M. Def by 50% for 15 seconds. -->
 		<icon>icon.skill1170</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>500</castRange>
-		<hitTime>3000</hitTime>
-		<reuseDelay>30000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="16523" toLevel="1" name="Magma Splash">
 		<!-- Inflicts great physical damage around the target and burns enemies for 10 seconds. -->
 		<icon>icon.skill11066</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
-		<hitTime>3700</hitTime>
 		<coolTime>800</coolTime>
+		<hitTime>3700</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="16524" toLevel="4" name="Full Swing Crusher">
-		<!-- Inflicts great physical damage to target and decreases P./M. Def by 20% for 10 seconds. -->
+		<!-- Level 1: Inflicts great physical damage to target and decreases P./ M. Def by 20% for 10 seconds. -->
+		<!-- Level 2: Inflicts great physical damage to target and decreases P./ M. Def by 25% for 10 seconds. -->
+		<!-- Level 3: Inflicts great physical damage to target and decreases P./ M. Def by 30% for 10 seconds. -->
+		<!-- Level 4: Inflicts great physical damage to target and decreases P./ M. Def by 35% for 10 seconds. -->
 		<icon>icon.skill1418</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
+		<abnormalTime>10</abnormalTime>
 		<castRange>350</castRange>
-		<hitTime>2000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>1</effectPoint>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
-		<abnormalTime>10</abnormalTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="16525" toLevel="1" name="Spirit of Master">
-		<!-- Temporarily increases P. Atk. And Atk. Spd. by 25% and decreases P./M. Def. by 30% for 15 seconds. -->
+		<!-- Temporarily increases P. Atk. And Atk. Spd. by 25% and decreases P./ M. Def. by 30% for 15 seconds. -->
 		<icon>icon.skill1086</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<hitTime>2000</hitTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>60000</reuseDelay>
 	</skill>
 	<skill id="16526" toLevel="4" name="Supply Blockade">
-		<!-- The supplies to the camp have been blocked. Decreases P./M. Atk. and Atk./Casting Spd. by 10%. -->
+		<!-- The supplies to the camp have been blocked. Decreases P./ M. Atk. and Atk./ Casting Spd. by 10%. -->
 		<icon>icon.skill1263</icon>
 		<operateType>A2</operateType>
 		<effectPoint>-2</effectPoint>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16527" toLevel="1" name="Poor Equipment">
-		<!-- The supplies to the camp have been blocked and the equipment haven't been repaired. Decreases P./M. Atk. by 20%. -->
+		<!-- The supplies to the camp have been blocked and the equipment haven't been repaired. Decreases P./ M. Atk. by 20%. -->
 		<icon>icon.skill1263</icon>
 		<operateType>A2</operateType>
 		<effectPoint>-2</effectPoint>
@@ -473,119 +480,118 @@
 		<icon>icon.skill10105</icon>
 		<operateType>A1</operateType>
 		<castRange>350</castRange>
-		<hitTime>5000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>-200</effectPoint>
+		<hitTime>5000</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16530" toLevel="1" name="Adolph's Will of Steel">
 		<!-- With Aden Vanguard Captain Adolph's help, launch a strong hit to Commander Burnstein and stun him for 15 seconds. Can only be used inside the Command Post. -->
 		<icon>icon.skill19211</icon>
 		<operateType>A2</operateType>
-		<mpConsume>46</mpConsume>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>867</effectPoint>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic>
+		<mpConsume>46</mpConsume>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16531" toLevel="1" name="Barton's Potential Force">
-		<!-- Increases P. Atk. by 20% for 60 seconds when a dualsword/dual blunt is equipped. Critical Rate of skills that consume Momentum greatly increases, and their Power increases by 20%. -->
+		<!-- Increases P. Atk. by 20% for 60 seconds when a dual sword/ dual blunt is equipped. Critical Rate of skills that consume Momentum greatly increases, and their Power increases by 20%. -->
 		<icon>icon.skill10332</icon>
 		<operateType>A2</operateType>
-		<mpConsume>64</mpConsume>
-		<hitTime>2000</hitTime>
 		<coolTime>200</coolTime>
 		<effectPoint>673</effectPoint>
+		<hitTime>2000</hitTime>
+		<mpConsume>64</mpConsume>
 		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16532" toLevel="1" name="Barton's Lunatic Hit">
-		<!-- Aden Vanguard Barton appears and attacks Commander Burnstein's pawns Guardian Sinistra and Guardian Destra, killing them. Can only be used inside the Command Post. -->
 		<icon>icon.skill10274</icon>
 		<operateType>A1</operateType>
-		<mpConsume>45</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>5000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-200</effectPoint>
+		<hitTime>5000</hitTime>
+		<mpConsume>45</mpConsume>
 		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16533" toLevel="1" name="Barton's Sonic Star">
 		<!-- Attacks nearby enemies and knocks them down. Over-hit. Critical. -->
 		<icon>icon.skill10281</icon>
 		<operateType>A2</operateType>
-		<mpConsume>29</mpConsume>
-		<hitTime>5000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>30000</reuseDelay>
 		<effectPoint>-700</effectPoint>
+		<hitTime>5000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>29</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="16534" toLevel="1" name="Elise's Protection Prayer">
 		<!-- Recovers party members' HP by 100%. Aden Vanguard Elise appears and makes all party members invincible and recovers HP by 100%. Can only be used inside the Command Post. -->
 		<icon>icon.skill11759</icon>
 		<operateType>A2</operateType>
-		<mpConsume>36</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>5000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1760</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>36</mpConsume>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16535" toLevel="1" name="Elise's Summon Tree of Life">
 		<!-- Summons an Enchanted Tree of Life that cannot be targeted. The summoned tree heals nearby party members for 30 seconds and casts a debuff canceling blessing. -->
 		<icon>icon.skill19210</icon>
 		<operateType>A1</operateType>
-		<mpConsume>243</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>5000</hitTime>
 		<coolTime>2000</coolTime>
-		<reuseDelay>180000</reuseDelay>
 		<effectPoint>1733</effectPoint>
+		<hitTime>5000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>243</mpConsume>
+		<reuseDelay>180000</reuseDelay>
 	</skill>
 	<skill id="16536" toLevel="1" name="Hayuk's Phoenix Arrow">
 		<!-- Powerful bomb attack on enemies in selected area. -->
 		<icon>icon.skill10781</icon>
 		<operateType>A1</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>1100</castRange>
-		<hitTime>5000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-706</effectPoint>
+		<hitTime>5000</hitTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16537" toLevel="1" name="Hayuk's Quick Fire">
-		<!-- For 30 sec., Atk. Spd. +40% when equipped with a bow/crossbow. -->
+		<!-- For 30 sec., Atk. Spd. +40% when equipped with a bow/ crossbow. -->
 		<icon>icon.skill10779</icon>
 		<operateType>A2</operateType>
-		<mpConsume>46</mpConsume>
-		<hitTime>800</hitTime>
 		<coolTime>200</coolTime>
 		<effectPoint>2</effectPoint>
+		<hitTime>800</hitTime>
+		<mpConsume>46</mpConsume>
 		<reuseDelay>120000</reuseDelay>
 	</skill>
 	<skill id="16538" toLevel="1" name="Eliyah's Shadow Hell">
 		<!-- Shadow Hell. -->
 		<icon>icon.skill11058</icon>
 		<operateType>A1</operateType>
-		<mpConsume>267</mpConsume>
 		<castRange>1100</castRange>
-		<hitTime>1000</hitTime>
-		<reuseDelay>15000</reuseDelay>
 		<effectPoint>-709</effectPoint>
+		<hitTime>1000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>267</mpConsume>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="16539" toLevel="1" name="Eliyah's Elemental Detonation">
 		<!-- Aden Vanguard Eliyah appears and launches an Elemental bomb to Commander Burnstein. Decrease Burnstein's HP by 200% and Resistance to all elements by 30% for 30 seconds. Can only be used inside the Command Post. -->
 		<icon>icon.skill11011</icon>
 		<operateType>A2</operateType>
-		<mpConsume>45</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>5000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>-100</effectPoint>
+		<hitTime>5000</hitTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic>
+		<mpConsume>45</mpConsume>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16540" toLevel="1" name="Revolutionaries' Petrification">
 		<!-- Petrify status. -->
@@ -598,12 +604,14 @@
 		<!-- Stigma that proves that Commander Burnstein in Atelia Fortress' 3rd floor has withdrawn. -->
 		<icon>icon.skill0015</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
 		<effectPoint>532</effectPoint>
 		<hitTime>4000</hitTime>
+		<mpConsume>50</mpConsume>
 	</skill>
 	<skill id="16542" toLevel="3" name="Supply Blockade">
-		<!-- The supplies to the 1st floor have been blocked because of Quartermaster Hummel's death, decreasing their Max HP by 15%. The effect disappears when Quartermaster Hummel respawns. -->
+		<!-- Level 1: The supplies to the 1st floor have been blocked because of Quartermaster Hummel's death, decreasing their Max HP by 15%. The effect disappears when Quartermaster Hummel respawns. -->
+		<!-- Level 2: The weapons of the soldiers on the 2nd floor haven't been repared because of Master Artisan Geork's death, decreasing their HP by 15%. The effect disappears when Master Artisan Geork respawns. -->
+		<!-- Level 3: The morale of the soldiers on the 3rd and 4th floors has dropped because of Commander Burnstein's disappearance, decreasing their Max HP by 15%. The effect disappears when Commander Burnstein respawns. -->
 		<icon>icon.skill1263</icon>
 		<operateType>A2</operateType>
 		<castRange>900</castRange>
@@ -614,8 +622,8 @@
 		<!-- When the Fortress Spy finds infiltrators inside the fortress will request aid and summon Fortress Raider, Atelia Passionate Soldier, and Atelia Elite Captain. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>10000</hitTime>
 		<effectPoint>-700</effectPoint>
+		<hitTime>10000</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="16544" toLevel="1" name="Rescue Captive">
@@ -628,20 +636,29 @@
 		<icon>icon.skill0922</icon>
 		<operateType>A2</operateType>
 		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
 		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16546" toLevel="1" name="Banished Captive">
 		<!-- Banished from battle for 60 minutes by Geork. -->
 		<icon>icon.skill11273</icon>
 		<operateType>A2</operateType>
-		<mpConsume>78</mpConsume>
 		<effectPoint>-687</effectPoint>
 		<isMagic>1</isMagic>
+		<mpConsume>78</mpConsume>
 	</skill>
 	<skill id="16547" toLevel="10" name="Danger Zone Attack Resistance">
-		<!-- Slightly resistant to Danger Zone Attack. -->
+		<!-- Level 1: Slightly resistant to Danger Zone Attack. -->
+		<!-- Level 2: Slightly resistant to Danger Zone Attack. -->
+		<!-- Level 3: Slightly resistant to Danger Zone Attack. -->
+		<!-- Level 4: Resistant to Danger Zone Attack. -->
+		<!-- Level 5: Resistant to Danger Zone Attack. -->
+		<!-- Level 6: Resistant to Danger Zone Attack. -->
+		<!-- Level 7: Highly resistant to Danger Zone Attack. -->
+		<!-- Level 8: Highly resistant to Danger Zone Attack. -->
+		<!-- Level 9: Highly resistant to Danger Zone Attack. -->
+		<!-- Level 10: Danger Zone Immunity -->
 		<icon>icon.skill0289</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -664,11 +681,11 @@
 	<skill id="16548" toLevel="1" name="Eternal Blizzard">
 		<icon>icon.skill6274</icon>
 		<operateType>A1</operateType>
-		<hitTime>7000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>7000</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16549" toLevel="1" name="Freeze - Eternal Ice">
 		<!-- Frozen and unable to move. -->
@@ -681,22 +698,22 @@
 		<!-- 2-second Knock Back effect and broad physical damage to surroundings. -->
 		<icon>icon.skill1172</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalTime>2</abnormalTime>
 		<abnormalType>KNOCKDOWN</abnormalType>
 		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
-		<hitTime>2500</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-100</effectPoint>
-		<isDebuff>true</isDebuff>
 		<affectLimit>10-10</affectLimit>
-		<affectRange>300</affectRange>
-		<trait>KNOCKDOWN</trait>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<reuseDelay>30000</reuseDelay>
+		<trait>KNOCKDOWN</trait>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>9000</power>
 			</effect>
 			<effect name="KnockBack">
@@ -710,20 +727,19 @@
 	<skill id="16551" toLevel="1" name="Ice Attack">
 		<icon>icon.skill11017</icon>
 		<operateType>A1</operateType>
-		<mpConsume>19</mpConsume>
-		<castRange>40</castRange>
-		<hitTime>1080</hitTime>
-		<coolTime>720</coolTime>
-		<effectPoint>-96</effectPoint>
-		<reuseDelay>3000</reuseDelay>
-		<attributeType>WATER</attributeType>
-		<attributeValue>20</attributeValue>
-		<magicCriticalRate>5</magicCriticalRate>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<attributeType>WATER</attributeType>
+		<attributeValue>20</attributeValue>
+		<castRange>40</castRange>
+		<coolTime>720</coolTime>
+		<effectPoint>-96</effectPoint>
+		<hitTime>1080</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<mpConsume>19</mpConsume>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>210</power>
 			</effect>
 		</effects>
@@ -732,23 +748,23 @@
 		<!-- Deals damage and freezes the opponent. -->
 		<icon>icon.skill11017</icon>
 		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
-		<mpConsume>19</mpConsume>
-		<castRange>40</castRange>
-		<effectRange>900</effectRange>
 		<affectRange>200</affectRange>
-		<isMagic>2</isMagic> <!-- Static Skill -->
+		<affectScope>SINGLE</affectScope>
+		<castRange>40</castRange>
+		<coolTime>720</coolTime>
+		<effectPoint>-96</effectPoint>
+		<effectRange>900</effectRange>
 		<hitCancelTime>2</hitCancelTime>
 		<hitTime>3000</hitTime>
-		<coolTime>720</coolTime>
-		<reuseDelay>3000</reuseDelay>
-		<effectPoint>-96</effectPoint>
 		<isDebuff>true</isDebuff>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<mpConsume>19</mpConsume>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>9000</power>
 			</effect>
 			<effect name="BlockActions" />
@@ -757,24 +773,24 @@
 	<skill id="16553" toLevel="1" name="Ice Breath">
 		<!-- Icy breath freezes opponents ahead of you. -->
 		<icon>icon.skill11017</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>FREEZING</abnormalType>
 		<abnormalVisualEffect>FROZEN_PILLAR</abnormalVisualEffect>
-		<operateType>A2</operateType>
 		<affectLimit>5-12</affectLimit>
-		<mpConsume>10</mpConsume>
-		<castRange>40</castRange>
-		<effectRange>400</effectRange>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>-125</effectPoint>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>FAN</affectScope>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-125</effectPoint>
+		<effectRange>400</effectRange>
 		<fanRange>0;0;200;180</fanRange>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
 			<effect name="BlockActions" />
 			<effect name="DamOverTime">
@@ -791,213 +807,213 @@
 		<!-- Deals damage and simultaneously stuns enemies around you. -->
 		<icon>icon.skill0036</icon>
 		<operateType>A2</operateType>
-		<mpConsume>13</mpConsume>
-		<hitTime>1000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>6000</reuseDelay>
 		<effectPoint>-100</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>13</mpConsume>
+		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="16555" toLevel="1" name="Kelbim Deadly Blow">
 		<!-- A powerful vital point attack is attempted. -->
 		<icon>icon.skill0263</icon>
 		<operateType>A1</operateType>
-		<mpConsume>33</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>3000</hitTime>
 		<coolTime>720</coolTime>
 		<effectPoint>-183</effectPoint>
+		<hitTime>3000</hitTime>
+		<mpConsume>33</mpConsume>
 		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16556" toLevel="1" name="Kelbim Bluff">
 		<!-- Causes the opponent to show their back, and deals damage. -->
 		<icon>icon.skill0358</icon>
 		<operateType>A2</operateType>
-		<mpConsume>35</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>3000</hitTime>
-		<reuseDelay>8000</reuseDelay>
 		<effectPoint>-1</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>35</mpConsume>
+		<reuseDelay>8000</reuseDelay>
 	</skill>
 	<skill id="16557" toLevel="1" name="Dancing Blade">
 		<!-- Deals powerful damage to opponents in range, and changes status to Bleed. -->
 		<icon>icon.skill0096</icon>
 		<operateType>A2</operateType>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>30000</reuseDelay>
 		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="16558" toLevel="1" name="Kelbim Mortality">
 		<!-- Increases your Vital Spot Attack Rate. -->
 		<icon>icon.skill0410</icon>
 		<operateType>A2</operateType>
-		<mpConsume>27</mpConsume>
-		<hitTime>3000</hitTime>
 		<effectPoint>549</effectPoint>
+		<hitTime>3000</hitTime>
+		<mpConsume>27</mpConsume>
 		<reuseDelay>150000</reuseDelay>
 	</skill>
 	<skill id="16559" toLevel="1" name="Dragonclaw Shield Stun">
 		<!-- Uses a shield to shock the enemy. Inflicts Stun on the target. -->
 		<icon>icon.skill0092</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>1200</hitTime>
 		<coolTime>300</coolTime>
-		<reuseDelay>3000</reuseDelay>
 		<effectPoint>-377</effectPoint>
+		<hitTime>1200</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16560" toLevel="1" name="Dragonclaw Ultimate Defense">
 		<!-- Increases your P. Def. -->
 		<icon>icon.skill0110</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
-		<hitTime>1000</hitTime>
 		<effectPoint>204</effectPoint>
+		<hitTime>1000</hitTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>900000</reuseDelay>
 	</skill>
 	<skill id="16561" toLevel="1" name="Dragonclaw Hurricane">
 		<!-- A cyclone is created to deal Wind Attribute damage to the opponent. -->
 		<icon>icon.skill1239</icon>
 		<operateType>A1</operateType>
-		<mpConsume>34</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>4000</hitTime>
 		<effectPoint>-360</effectPoint>
+		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>34</mpConsume>
 	</skill>
 	<skill id="16562" toLevel="1" name="Dragonclaw Curse Fear">
 		<!-- Instills fear in the opponent(s), causing them to flee. -->
 		<icon>icon.skill1169</icon>
 		<operateType>A2</operateType>
-		<mpConsume>35</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>4000</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-379</effectPoint>
+		<hitTime>4000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>35</mpConsume>
 	</skill>
 	<skill id="16563" toLevel="1" name="Dragonclaw Iron Punch">
 		<!-- The opponent is attacked with formidable might. -->
 		<icon>icon.skill0029</icon>
 		<operateType>A1</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>1604</hitTime>
 		<coolTime>296</coolTime>
 		<effectPoint>-60</effectPoint>
+		<hitTime>1604</hitTime>
+		<mpConsume>10</mpConsume>
 		<reuseDelay>4000</reuseDelay>
 	</skill>
 	<skill id="16564" toLevel="1" name="Dragonclaw Soul Breaker">
 		<!-- Throws Iron Fist to attack target and inflicts Stun. -->
 		<icon>icon.skill0281</icon>
 		<operateType>A2</operateType>
-		<mpConsume>35</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>1360</hitTime>
 		<coolTime>440</coolTime>
-		<reuseDelay>3000</reuseDelay>
 		<effectPoint>-183</effectPoint>
+		<hitTime>1360</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>35</mpConsume>
+		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16565" toLevel="1" name="Dragonclaw Divine Flash">
 		<!-- A divine energy is exploded to deal damage to opponents in range. -->
 		<icon>icon.skill1528</icon>
 		<operateType>A1</operateType>
-		<mpConsume>57</mpConsume>
 		<castRange>500</castRange>
-		<hitTime>4000</hitTime>
 		<effectPoint>-408</effectPoint>
+		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>57</mpConsume>
 	</skill>
 	<skill id="16566" toLevel="1" name="Dragonclaw Battle Heal">
 		<!-- The target's HP is recovered at a fast rate. -->
 		<icon>icon.skill1015</icon>
 		<operateType>A1</operateType>
-		<mpConsume>25</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>2000</hitTime>
-		<reuseDelay>1000</reuseDelay>
 		<effectPoint>66</effectPoint>
+		<hitTime>2000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>25</mpConsume>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="16567" toLevel="1" name="Dragonclaw Blaze Quake">
 		<!-- Sets opponents in range ablaze. -->
 		<icon>icon.skill1101</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-243</effectPoint>
+		<hitTime>4000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>50</mpConsume>
 	</skill>
 	<skill id="16568" toLevel="1" name="Dragonclaw Power Smash">
 		<!-- Energy is gathered to deal a mighty blow. -->
 		<icon>icon.skill0255</icon>
 		<operateType>A1</operateType>
-		<mpConsume>19</mpConsume>
 		<castRange>40</castRange>
-		<hitTime>1080</hitTime>
 		<coolTime>720</coolTime>
 		<effectPoint>-96</effectPoint>
+		<hitTime>1080</hitTime>
+		<mpConsume>19</mpConsume>
 		<reuseDelay>3000</reuseDelay>
 	</skill>
 	<skill id="16569" toLevel="1" name="Dragonclaw Power Shot">
 		<!-- Attacks a remote opponent. -->
 		<icon>icon.skill0056</icon>
 		<operateType>A1</operateType>
-		<mpConsume>17</mpConsume>
 		<castRange>700</castRange>
-		<hitTime>3200</hitTime>
 		<coolTime>800</coolTime>
 		<effectPoint>-103</effectPoint>
+		<hitTime>3200</hitTime>
+		<mpConsume>17</mpConsume>
 		<reuseDelay>6000</reuseDelay>
 	</skill>
 	<skill id="16570" toLevel="1" name="Dragonclaw Blaze">
 		<!-- A flame is set on the opponent's body, dealing fire attribute damage. -->
 		<icon>icon.skill1220</icon>
 		<operateType>A1</operateType>
-		<mpConsume>18</mpConsume>
 		<castRange>750</castRange>
-		<hitTime>4000</hitTime>
 		<effectPoint>-182</effectPoint>
+		<hitTime>4000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>18</mpConsume>
 	</skill>
 	<skill id="16571" toLevel="1" name="Weakened Defense">
 		<!-- P. Def. is decreased -->
 		<icon>icon.skill11276</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1</abnormalTime>
-		<operateType>A2</operateType>
-		<castRange>900</castRange>
-		<hitTime>600000</hitTime>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>-707</effectPoint>
-		<isMagic>2</isMagic>
-		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<effectPoint>-707</effectPoint>
+		<hitTime>600000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<reuseDelay>300000</reuseDelay>
 	</skill>
 	<skill id="16572" toLevel="1" name="Seal Archangel's Wrath">
 		<!-- Seal Archangel's Wrath causes Action Prohibit state -->
 		<icon>icon.skill4111</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
-		<operateType>A2</operateType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>FAN_PB</affectScope>
 		<castRange>400</castRange>
 		<effectPoint>-100</effectPoint>
-		<affectLimit>10-10</affectLimit>
-		<isDebuff>true</isDebuff>
 		<fanRange>0;0;80;300</fanRange>
-		<targetType>SELF</targetType>
-		<affectScope>FAN_PB</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<isDebuff>true</isDebuff>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -1012,21 +1028,24 @@
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="16574" toLevel="4" name="Shield of Infinity">
-		<!-- P. Def. and M. Def. are increased by 15%. -->
+		<!-- Level 1: P. Def. and M. Def. are increased by 15%. -->
+		<!-- Level 2: P. Def. and M. Def. are increased by 30%. -->
+		<!-- Level 3: P. Def. and M. Def. are increased by 50%. -->
+		<!-- Level 4: P. Def. and M. Def. are increased by 70%. -->
 		<icon>icon.skill0110</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
-		<hitTime>3000</hitTime>
-		<effectPoint>689</effectPoint>
-		<reuseDelay>240000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled> <!-- Cannot be cancelled -->
+		<effectPoint>689</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>240000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>
@@ -1051,11 +1070,11 @@
 	<skill id="16575" toLevel="1" name="Eternal Blizzard">
 		<icon>icon.skill6274</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>500</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16576" toLevel="1" name="Freeze - Eternal Ice">
 		<!-- Frozen and unable to move. -->
@@ -1069,49 +1088,51 @@
 		<icon>icon.skill0358</icon>
 		<operateType>A2</operateType>
 		<castRange>40</castRange>
-		<hitTime>3000</hitTime>
-		<reuseDelay>8000</reuseDelay>
 		<effectPoint>-1</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>8000</reuseDelay>
 	</skill>
 	<skill id="16578" toLevel="1" name="Dragonclaw Crush">
 		<!-- Deals damage and simultaneously stuns enemies around you. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A2</operateType>
-		<hitTime>3000</hitTime>
 		<coolTime>800</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16579" toLevel="1" name="Dragonclaw Vortex">
 		<!-- A cyclone leading to the Fire Dimension is caused, dealing fire attribute damage to the enemy. For 30 seconds, Speed 10%, Atk. Spd. 10%, Magic Speed 10%, and Fire Attribute resistance 20 down. -->
 		<icon>icon.skill1339</icon>
 		<operateType>A2</operateType>
 		<castRange>900</castRange>
-		<hitTime>6000</hitTime>
-		<isMagic>1</isMagic>
 		<effectPoint>-999</effectPoint>
+		<hitTime>6000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
 	</skill>
 	<skill id="16580" toLevel="1" name="Dragonclaw Aggression Aura">
 		<!-- The will of enemies in range to attack is stimulated. -->
 		<icon>icon.skill0018</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>1000</hitTime>
-		<reuseDelay>40000</reuseDelay>
 		<effectPoint>-4312</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>40000</reuseDelay>
 	</skill>
 	<skill id="16581" toLevel="3" name="Growth Accelerator">
-		<!-- Hunger stirs up fury. -->
+		<!-- Level 1: Hunger stirs up fury. -->
+		<!-- Level 2: The effect of the Growth Accelerator causes the body to grow and raises P. Atk. -->
+		<!-- Level 3: The effect of the Growth Accelerator causes the body to grow and raises P. Atk. and Atk. Spd. -->
 		<icon>icon.skill0083</icon>
 		<operateType>A2</operateType>
 		<castRange>900</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>200</coolTime>
 		<effectPoint>687</effectPoint>
+		<hitTime>1500</hitTime>
 		<isMagic>1</isMagic>
 	</skill>
 	<skill id="16582" toLevel="1" name="Let the Dogs Out!">
@@ -1127,63 +1148,63 @@
 		<icon>icon.skill0121</icon>
 		<operateType>A2</operateType>
 		<castRange>600</castRange>
-		<hitTime>660</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>7000</reuseDelay>
 		<effectPoint>-687</effectPoint>
+		<hitTime>660</hitTime>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>7000</reuseDelay>
 	</skill>
 	<skill id="16584" toLevel="1" name="Mass Fear">
 		<!-- Captured by fear, one momentarily loses control over one's movements. -->
 		<icon>icon.skill1092</icon>
 		<operateType>A2</operateType>
-		<mpConsume>1</mpConsume>
 		<castRange>900</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<isMagic>1</isMagic>
 		<effectPoint>-700</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<mpConsume>1</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16585" toLevel="1" name="Dragonclaw Cannon">
 		<!-- A powerful barrage of cannon fire is launched around the target. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 		<castRange>2500</castRange>
-		<hitTime>3000</hitTime>
-		<effectPoint>-100</effectPoint>
 		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
 	</skill>
 	<skill id="16586" toLevel="1" name="Dragonclaw Siege Attack">
 		<!-- A powerful attack is dealt to the target. -->
 		<icon>icon.skill_transform_etc</icon>
 		<operateType>A1</operateType>
-		<mpConsume>100</mpConsume>
 		<castRange>80</castRange>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-867</effectPoint>
+		<hitTime>1500</hitTime>
+		<mpConsume>100</mpConsume>
 		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="16587" toLevel="1" name="Dragonclaw Siege Punch">
 		<!-- Opponents in range are attacked and knocked back. -->
 		<icon>icon.skill_transform_debuff</icon>
 		<operateType>A2</operateType>
-		<mpConsume>100</mpConsume>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>-867</effectPoint>
+		<hitTime>1500</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>100</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="16588" toLevel="1" name="Time Bomb Explosion">
 		<!-- Is burning due to an explosion. Damage received is increased by 50%. -->
 		<icon>icon.skill1383</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<effectPoint>-100</effectPoint>
 		<isDebuff>true</isDebuff>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="16589" toLevel="1" name="Teleport">
 		<icon>icon.skill0000</icon>
@@ -1194,27 +1215,27 @@
 		<!-- Powerful ancient thunder strikes the target, causing magic damage and 5-second Paralysis. -->
 		<icon>icon.skill0279</icon>
 		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>PARALYZE</abnormalType>
-		<activateRate>150</activateRate>
 		<abnormalVisualEffect>PARALYZE</abnormalVisualEffect>
-		<mpConsume>10</mpConsume>
-		<castRange>900</castRange>
-		<effectRange>900</effectRange>
+		<activateRate>150</activateRate>
 		<affectRange>200</affectRange>
-		<hitTime>2000</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>30000</reuseDelay>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<effectPoint>-828</effectPoint>
-		<hitCancelTime>0</hitCancelTime>
-		<trait>PARALYZE</trait>
-		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-828</effectPoint>
+		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2000</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<mpConsume>10</mpConsume>
+		<reuseDelay>30000</reuseDelay>
+		<trait>PARALYZE</trait>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power> <!-- TODO -->
 			</effect>
 			<effect name="BlockActions">
@@ -1226,20 +1247,20 @@
 		<!-- A powerful ancient wave of plasma is shot toward the target and nearby enemies, causing magic damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>15000</reuseDelay>
 		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<affectLimit>10-10</affectLimit>
-		<mpConsume>10</mpConsume>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
 		<castRange>900</castRange>
-		<hitTime>3000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-709</effectPoint>
+		<hitTime>3000</hitTime>
 		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>15000</reuseDelay>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power>
 			</effect>
 		</effects>
@@ -1248,26 +1269,26 @@
 		<!-- A powerful earthquake wave is shot toward the target and nearby enemies, causing stun for 3 seconds. -->
 		<icon>icon.skill1172</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>15000</reuseDelay>
-		<castRange>600</castRange>
-		<abnormalType>STUN</abnormalType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<affectLimit>10-25</affectLimit>
+		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>90</activateRate>
-		<basicProperty>PHYSICAL</basicProperty>
+		<affectLimit>10-25</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>400</affectRange>
-		<effectRange>600</effectRange>
-		<hitTime>2500</hitTime>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>600</castRange>
 		<coolTime>500</coolTime>
 		<effectPoint>-709</effectPoint>
-		<mpConsume>10</mpConsume>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<trait>SHOCK</trait>
+		<effectRange>600</effectRange>
+		<hitTime>2500</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>15000</reuseDelay>
+		<trait>SHOCK</trait>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912;30516</allowedSkills>
@@ -1278,23 +1299,22 @@
 		<!-- By the blessing of the first Emperor of the Giants, P. Atk., P. Def., M. Atk., and M. Def. +50% for 10 seconds. -->
 		<icon>icon.skill19193</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
-		<targetType>SELF</targetType>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<mpConsume>10</mpConsume>
-		<effectPoint>418</effectPoint>
-		<isMagic>1</isMagic>
-		<reuseDelay>30000</reuseDelay>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>418</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1312,17 +1332,17 @@
 		<!-- An attack laden with a powerful current is dealt to the enemy, causing physical damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<castRange>100</castRange>
-		<hitTime>2000</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic> <!-- Static Skill -->
-		<effectPoint>-828</effectPoint>
-		<mpConsume>10</mpConsume>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-828</effectPoint>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Static Skill -->
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack"> <!-- TODO -->
+			<effect name="PhysicalDamage"> <!-- TODO -->
 				<power>100000</power>
 			</effect>
 		</effects>
@@ -1331,17 +1351,17 @@
 		<!-- An arrow laden with a powerful current is launched toward the enemy, causing physical damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<castRange>900</castRange>
-		<hitTime>2000</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic> <!-- Static Skill -->
-		<effectPoint>-828</effectPoint>
-		<mpConsume>10</mpConsume>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-828</effectPoint>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Static Skill -->
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack"> <!-- TODO -->
+			<effect name="PhysicalDamage"> <!-- TODO -->
 				<power>100000</power>
 			</effect>
 		</effects>
@@ -1350,16 +1370,16 @@
 		<!-- A sphere laden with a powerful current is launched toward the enemy, causing magic damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<castRange>900</castRange>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<isMagic>1</isMagic> <!-- Static Skill -->
-		<effectPoint>-828</effectPoint>
-		<mpConsume>10</mpConsume>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-828</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>1</isMagic> <!-- Static Skill -->
+		<mpConsume>10</mpConsume>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power> <!-- TODO -->
 			</effect>
 		</effects>
@@ -1368,20 +1388,20 @@
 		<!-- A powerful ancient wave of current is shot toward the target and nearby enemies, causing magic damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<affectLimit>10-10</affectLimit>
-		<castRange>600</castRange>
-		<affectRange>200</affectRange>
-		<hitTime>3000</hitTime>
-		<coolTime>500</coolTime>
-		<mpConsume>10</mpConsume>
-		<effectPoint>-709</effectPoint>
-		<isMagic>1</isMagic>
-		<reuseDelay>10000</reuseDelay>
 		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
+		<affectLimit>10-10</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>600</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-709</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>1500</power>
 			</effect>
 		</effects>
@@ -1390,25 +1410,25 @@
 		<!-- The target suffers severe physical damage and 3-second Paralysis. -->
 		<icon>icon.skill0791</icon>
 		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>PARALYZE</abnormalType>
-		<activateRate>90</activateRate>
 		<abnormalVisualEffect>PARALYZE</abnormalVisualEffect>
-		<mpConsume>10</mpConsume>
+		<activateRate>90</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<castRange>100</castRange>
-		<hitTime>2500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<isMagic>2</isMagic> <!-- Static Skill -->
 		<effectPoint>-828</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
-		<trait>PARALYZE</trait>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
+		<hitTime>2500</hitTime>
 		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<mpConsume>10</mpConsume>
+		<reuseDelay>10000</reuseDelay>
+		<trait>PARALYZE</trait>
 		<effects>
-			<effect name="PhysicalAttack"> <!-- TODO -->
+			<effect name="PhysicalDamage"> <!-- TODO -->
 				<power>100000</power>
 			</effect>
 			<effect name="BlockActions" />
@@ -1418,20 +1438,20 @@
 		<!-- A powerful, penetrating range attack arrow is shot toward the target and nearby enemies, dealing physical damage. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<castRange>900</castRange>
+		<targetType>ENEMY</targetType>
 		<affectLimit>10-25</affectLimit>
-		<hitTime>2500</hitTime>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>FAN_PB</affectScope>
+		<castRange>900</castRange>
 		<coolTime>500</coolTime>
 		<effectPoint>-709</effectPoint>
-		<isMagic>1</isMagic>
 		<fanRange>0;0;1100;120</fanRange>
+		<hitTime>2500</hitTime>
+		<isMagic>1</isMagic>
 		<mpConsume>10</mpConsume>
-		<targetType>ENEMY</targetType>
-		<affectScope>FAN_PB</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<reuseDelay>10000</reuseDelay>
 		<effects>
-			<effect name="PhysicalAttack"> <!-- TODO -->
+			<effect name="PhysicalDamage"> <!-- TODO -->
 				<power>100000</power>
 			</effect>
 		</effects>

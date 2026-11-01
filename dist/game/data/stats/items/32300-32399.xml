@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="32300" name="Recipe: Seraph Shirt (60%)" type="EtcItem">
 		<!-- Used by all classes after completion of the fourth class transfer. Recipe for Seraph Shirt. Requires Create Common Item Lv. 10. Success rate is 60%. -->
@@ -189,7 +189,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="32316" name="Elixir of Blessing" type="EtcItem">
-		<!-- For 30 minutes, it receives the following level 1 effects: Horn Melody, Lute Melody, Pipe Organ Melody, Guitar Melody, Harp Melody and Drum Melody. Can be used at level 85 or above. Cooldown is 2 min. -->
+		<!-- For 30 minutes, it receives the following level 1 effects: Horn Melody, Pipe Organ Melody, Guitar Melody, and Drum Melody. Can be used at level 85 or above. Cooldown is 2 min. -->
 		<set name="icon" val="icon.etc_super_potion_i03" />
 		<set name="weight" val="5" />
 		<set name="is_stackable" val="true" />
@@ -347,7 +347,7 @@
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -373,7 +373,7 @@
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -399,7 +399,7 @@
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -425,7 +425,7 @@
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -451,7 +451,7 @@
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">176</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -594,15 +594,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="1880" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">1</stat>
 			<stat type="mAtk">21</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="32336" name="Fantasy Cestus" additionalName="Not in Use" type="Weapon">
 		<set name="icon" val="icon.weapon_vipers_canine_i00" />
@@ -725,7 +725,7 @@
 			<stat type="pDef">34</stat>
 			<stat type="pAtk">346</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 		</stats>
 	</item>
@@ -745,7 +745,7 @@
 			<stat type="pDef">21</stat>
 			<stat type="pAtk">360</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 		</stats>
 	</item>
@@ -763,7 +763,7 @@
 			<stat type="pDef">17</stat>
 			<stat type="pAtk">317</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 		</stats>
 	</item>
 	<item id="32345" name="Fantasy Boots" additionalName="Not in Use" type="Armor">
@@ -781,7 +781,7 @@
 			<stat type="mDef">1</stat>
 			<stat type="pAtk">396</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 		</stats>
 	</item>
 	<item id="32346" name="Fantasy Durable Leather Helmet" additionalName="Not in Use" type="Armor">
@@ -797,7 +797,7 @@
 			<stat type="pDef">26</stat>
 			<stat type="pAtk">359</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 		</stats>
 	</item>
@@ -814,7 +814,7 @@
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="sDef">90</stat>
 		</stats>
 	</item>
@@ -840,7 +840,7 @@
 			<stat type="mAtk">52</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -865,7 +865,7 @@
 			<stat type="pAtk">724</stat>
 			<stat type="mAtk">39</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -891,7 +891,7 @@
 			<stat type="pAtk">444</stat>
 			<stat type="mAtk">39</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
@@ -914,18 +914,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="4955" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">317</stat>
 			<stat type="mAtk">32</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="32352" name="Fantasy Two-handed Sword" additionalName="Not in Use" type="Weapon">
 		<set name="icon" val="icon.weapon_two_handed_sword_i00" />
@@ -948,7 +948,7 @@
 			<stat type="mAtk">39</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -975,7 +975,7 @@
 			<stat type="mAtk">32</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1003,7 +1003,7 @@
 			<stat type="mAtk">39</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
@@ -1030,7 +1030,7 @@
 			<stat type="pAtk">396</stat>
 			<stat type="mAtk">32</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
@@ -1057,7 +1057,7 @@
 			<stat type="mAtk">39</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1083,7 +1083,7 @@
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">57</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1104,14 +1104,14 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="7435" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="mAtk">39</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="32359" name="Fantasy Triple-Edged Jamadhr" additionalName="Not in Use" type="Weapon">
 		<set name="icon" val="icon.weapon_triple-edged_jamadhr_i00" />
@@ -1495,7 +1495,7 @@
 			<stat type="pAtk">86</stat>
 			<stat type="mAtk">91</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1521,7 +1521,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1547,7 +1547,7 @@
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1573,7 +1573,7 @@
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1598,7 +1598,7 @@
 			<stat type="pAtk">139</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1619,18 +1619,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="110485" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="32387" name="Fantasy Blinzlasher" additionalName="Not in Use" type="Weapon">
 		<!-- Kamael-exclusive Weapon: Caliburs. Bestows one of the following functions: Guidance, Focus or Critical Damage. When enchanted to 4 or more, it Has a chance of increasing P. Atk., M. Atk., and healing power, and decreasing MP consumption for skill use for you and your party members during a Critical Attack. -->
@@ -1648,18 +1648,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="price" val="165215" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">126</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="32388" name="Fantasy Pa'agrian Sword" additionalName="Not in Use" type="Weapon">
 		<!-- Bestows one of the following functions: Focus, Health or Critical Drain. -->
@@ -1681,7 +1681,7 @@
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1707,7 +1707,7 @@
 			<stat type="mAtk">61</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1733,7 +1733,7 @@
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1760,7 +1760,7 @@
 			<stat type="pAtk">277</stat>
 			<stat type="mAtk">75</stat>
 			<stat type="pAtkSpd">227</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -1788,7 +1788,7 @@
 			<stat type="pAtk">316</stat>
 			<stat type="mAtk">84</stat>
 			<stat type="pAtkSpd">227</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -1815,7 +1815,7 @@
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
@@ -1842,7 +1842,7 @@
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
@@ -1870,7 +1870,7 @@
 			<stat type="mAtk">101</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1896,7 +1896,7 @@
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1922,7 +1922,7 @@
 			<stat type="mAtk">76</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1949,7 +1949,7 @@
 			<stat type="mAtk">100</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1976,7 +1976,7 @@
 			<stat type="mAtk">111</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>

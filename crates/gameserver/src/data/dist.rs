@@ -56,4 +56,4 @@ cached!(
     crate::data::PlayerTemplateData
 );
 cached!(spawns, crate::data::spawn_data::SpawnData);
-cached!(karma, crate::data::karma_data::KarmaData);
+cached!(karma, crate::data::karma_loss_data::KarmaLossData);

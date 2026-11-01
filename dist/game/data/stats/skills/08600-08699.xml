@@ -1,23 +1,23 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="8600" toLevel="1" name="Summon Royal Aegis">
 		<!-- Mounts a Knight exclusive horse. -->
 		<icon>icon.skill8600</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>129</transformId>
@@ -32,21 +32,21 @@
 	<skill id="8601" toLevel="1" name="Summon Battle Scar">
 		<!-- Mounts a Warrior exclusive horse. -->
 		<icon>icon.skill8601</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>130</transformId>
@@ -61,21 +61,21 @@
 	<skill id="8602" toLevel="1" name="Summon Blood Tail">
 		<!-- Mounts a Rogue exclusive horse. -->
 		<icon>icon.skill8602</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>131</transformId>
@@ -90,21 +90,21 @@
 	<skill id="8603" toLevel="1" name="Summon Tempest Arrow">
 		<!-- Mounts an Archer exclusive horse. -->
 		<icon>icon.skill8603</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>132</transformId>
@@ -119,21 +119,21 @@
 	<skill id="8604" toLevel="1" name="Summon Blue Phantom">
 		<!-- Mounts a Wizard exclusive horse. -->
 		<icon>icon.skill8604</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>133</transformId>
@@ -148,21 +148,21 @@
 	<skill id="8605" toLevel="1" name="Summon White Wing">
 		<!-- Mounts a Summoner exclusive horse. -->
 		<icon>icon.skill8605</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>134</transformId>
@@ -177,21 +177,21 @@
 	<skill id="8606" toLevel="1" name="Summon Swift Melody">
 		<!-- Mounts an Enchanter exclusive horse. -->
 		<icon>icon.skill8606</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>135</transformId>
@@ -206,21 +206,21 @@
 	<skill id="8607" toLevel="1" name="Summon Silver Saint">
 		<!-- Mounts a Healer exclusive horse. -->
 		<icon>icon.skill8607</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
-		<blockedInOlympiad>true</blockedInOlympiad>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<blockedInOlympiad>true</blockedInOlympiad>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1000</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<hitTime>1000</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>136</transformId>
@@ -239,7 +239,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>37</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -252,7 +252,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>90</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>43</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -265,7 +265,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>95</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>52</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -278,7 +278,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>99</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>60</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -343,7 +343,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>37</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -356,7 +356,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>90</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>46</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -369,7 +369,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>95</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>56</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -382,7 +382,7 @@
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>99</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>66</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -795,22 +795,22 @@
 		<!-- Increases P. Atk. by 111 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pa_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>111</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -820,22 +820,22 @@
 		<!-- Increases P. Atk. by 129 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pa_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>129</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -845,22 +845,22 @@
 		<!-- Increases P. Atk. by 156 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pa_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>156</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -870,22 +870,22 @@
 		<!-- Increases P. Atk. by 180 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pa_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>180</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -895,20 +895,20 @@
 		<!-- Increases P. Def. by 114 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>114</amount>
@@ -920,20 +920,20 @@
 		<!-- Increases P. Def. by 129 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>129</amount>
@@ -945,20 +945,20 @@
 		<!-- Increases P. Def. by 147 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>147</amount>
@@ -970,20 +970,20 @@
 		<!-- Increases P. Def. by 162 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>162</amount>
@@ -995,22 +995,22 @@
 		<!-- Increases M. Atk. by 111 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ma_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>111</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1020,22 +1020,22 @@
 		<!-- Increases M. Atk. by 138 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ma_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>138</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1045,22 +1045,22 @@
 		<!-- Increases M. Atk. by 168 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ma_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>168</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1070,22 +1070,22 @@
 		<!-- Increases M. Atk. by 198 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ma_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>198</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -1095,20 +1095,20 @@
 		<!-- Increases M. Def. by 63 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>63</amount>
@@ -1120,20 +1120,20 @@
 		<!-- Increases M. Def. by 72 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>72</amount>
@@ -1145,20 +1145,20 @@
 		<!-- Increases M. Def. by 84 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>84</amount>
@@ -1170,20 +1170,20 @@
 		<!-- Increases M. Def. by 96 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_md_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>96</amount>
@@ -1195,20 +1195,20 @@
 		<!-- Increases Max HP by 657 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_hp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxHp">
 				<amount>657</amount>
@@ -1220,20 +1220,20 @@
 		<!-- Increases Max HP by 738 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_hp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxHp">
 				<amount>738</amount>
@@ -1245,20 +1245,20 @@
 		<!-- Increases Max HP by 831 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_hp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxHp">
 				<amount>831</amount>
@@ -1270,20 +1270,20 @@
 		<!-- Increases Max HP by 915 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_hp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxHp">
 				<amount>915</amount>
@@ -1295,20 +1295,20 @@
 		<!-- Increases Max MP by 327 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_mp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxMp">
 				<amount>327</amount>
@@ -1320,20 +1320,20 @@
 		<!-- Increases Max MP by 357 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_mp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxMp">
 				<amount>357</amount>
@@ -1345,20 +1345,20 @@
 		<!-- Increases Max MP by 390 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_mp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxMp">
 				<amount>390</amount>
@@ -1370,20 +1370,20 @@
 		<!-- Increases Max MP by 417 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_mp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxMp">
 				<amount>417</amount>
@@ -1395,20 +1395,20 @@
 		<!-- Increases Max CP by 297 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_cp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxCp">
 				<amount>297</amount>
@@ -1420,20 +1420,20 @@
 		<!-- Increases Max CP by 324 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_cp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxCp">
 				<amount>324</amount>
@@ -1445,20 +1445,20 @@
 		<!-- Increases Max CP by 390 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_cp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxCp">
 				<amount>390</amount>
@@ -1470,20 +1470,20 @@
 		<!-- Increases Max CP by 417 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_cp_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MaxCp">
 				<amount>417</amount>
@@ -1495,20 +1495,20 @@
 		<!-- Increases P. Critical Damage by 405 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>405</amount>
@@ -1520,20 +1520,20 @@
 		<!-- Increases P. Critical Damage by 426 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>426</amount>
@@ -1545,20 +1545,20 @@
 		<!-- Increases P. Critical Damage by 447 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>447</amount>
@@ -1570,20 +1570,20 @@
 		<!-- Increases P. Critical Damage by 465 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>465</amount>
@@ -1595,20 +1595,20 @@
 		<!-- Increases Critical P. Def. by 405 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_down_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceCriticalDamage">
 				<amount>-405</amount>
@@ -1620,20 +1620,20 @@
 		<!-- Increases Critical P. Def. by 426 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_down_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceCriticalDamage">
 				<amount>-426</amount>
@@ -1645,20 +1645,20 @@
 		<!-- Increases Critical P. Def. by 447 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_down_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>95</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>95</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceCriticalDamage">
 				<amount>-447</amount>
@@ -1670,20 +1670,20 @@
 		<!-- Increases Critical P. Def. by 465 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_ca_down_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>99</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceCriticalDamage">
 				<amount>-465</amount>
@@ -1695,20 +1695,20 @@
 		<!-- Increases M. Critical Rate by 4% momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_mc_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicCriticalRate">
 				<amount>4</amount>
@@ -1720,20 +1720,20 @@
 		<!-- Increases P. Accuracy by 4 momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_ph_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="Accuracy">
 				<amount>4</amount>
@@ -1745,20 +1745,20 @@
 		<!-- Increases M. Accuracy by 4 momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_mh_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicAccuracy">
 				<amount>4</amount>
@@ -1770,20 +1770,20 @@
 		<!-- Increases P. Evasion by 4 momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_pm_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>4</amount>
@@ -1795,20 +1795,20 @@
 		<!-- Increases M. Evasion by 4 momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_mm_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="MagicalEvasion">
 				<amount>4</amount>
@@ -1820,20 +1820,20 @@
 		<!-- Increases P. Critical Rate by 4% momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_cr_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>4</amount>
@@ -1845,20 +1845,20 @@
 		<!-- Increases P. Critical Evasion Rate by 4% momentarily through the power of the talisman. -->
 		<icon>icon.r_talisman_cm_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DefenceCriticalRate">
 				<amount>4</amount>
@@ -1922,20 +1922,20 @@
 		<!-- Increases Shield Defense by 1242 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>85</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="ShieldDefence">
 				<amount>1242</amount>
@@ -1947,20 +1947,20 @@
 		<!-- Increases Shield Defense by 1371 momentarily through the power of the talisman. -->
 		<icon>icon.r85_talisman_pd_up_active</icon>
 		<operateType>A2</operateType>
-		<mpConsume>50</mpConsume>
-		<hitTime>4000</hitTime>
-		<effectPoint>532</effectPoint>
-		<abnormalType>TALISMAN</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>90</magicLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>360000</reuseDelay>
-		<targetType>SELF</targetType>
+		<abnormalType>TALISMAN</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>532</effectPoint>
+		<hitTime>4000</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>90</magicLevel>
+		<mpConsume>50</mpConsume>
+		<reuseDelay>360000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="ShieldDefence">
 				<amount>1371</amount>

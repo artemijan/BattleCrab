@@ -1,20 +1,20 @@
-//! `<cond>` on `stats/items/*.xml` — Java `DocumentBase.parseCondition` and the
-//! `ItemTemplate._preConditions` list `DocumentItem` fills from it.
+//! `<conditions>` on `stats/items/*.xml` (Interlude's `<cond>`) — Java
+//! `DocumentBase.parseCondition` and the `ItemTemplate._preConditions` list
+//! `DocumentItem` fills from it.
 //!
 //! This is the **legacy** condition tree, and it is not the one skills use.
 //! `SkillData` reads named `<condition name="OpXxx">` elements
-//! ([`crate::model::skill::condition::SkillCondition`]); `<cond>` is an attribute-driven
-//! tree of `<and>`/`<or>`/`<not>` over `<player …>`/`<target …>` elements,
-//! parsed by `DocumentBase` — whose **only** subclass in the Java tree is
-//! `DocumentItem`. That matters twice over:
+//! ([`crate::model::skill::condition::SkillCondition`]); the item block is an
+//! attribute-driven tree of `<and>`/`<or>`/`<not>` over `<player …>`/
+//! `<target …>` elements, parsed by `DocumentBase` — whose **only** subclass
+//! in the Java tree is `DocumentItem`. Skill files spell their own blocks
+//! `<conditions>` too, but `SkillData` is not a `DocumentBase`, so only the
+//! item ones are ported here.
 //!
-//! * 13 files under `stats/skills` also carry `<cond>` blocks. Java never reads
-//!   them: `SkillData` is not a `DocumentBase`, so those blocks are inert data
-//!   on both sides. Only the item ones are ported here.
-//! * An item may carry **several** `<cond>` blocks. `attachCondition` appends
-//!   each to a list that `checkCondition` walks in order, so they are ANDed —
-//!   but each carries its **own** refusal message, which is why the list is not
-//!   collapsed into one [`Cond::And`].
+//! An item may carry **several** `<conditions>` blocks. `attachCondition` appends
+//! each to a list that `checkCondition` walks in order, so they are ANDed —
+//! but each carries its **own** refusal message, which is why the list is not
+//! collapsed into one [`Cond::And`].
 //!
 //! # Java's null is this module's `None`, and it fails open
 //!
@@ -24,7 +24,7 @@
 //! `null` — logged `severe` and attached as a null pre-condition, which
 //! `checkCondition` skips with a `continue`. Reproduced exactly: an unmatched
 //! attribute is dropped, an element with nothing left is [`None`], and the
-//! evaluator skips a `<cond>` block that parsed to nothing.
+//! evaluator skips a `<conditions>` block that parsed to nothing.
 //!
 //! Two of Java's attributes are parsed here into conditions that are
 //! **constant** on this dist rather than left unported, because that is what
@@ -46,7 +46,7 @@ use serde::{Deserialize, Serialize};
 use crate::enums::Race;
 use crate::model::castle::CastleSide;
 
-/// One `<cond>` block: the tree, plus the message its failure sends.
+/// One `<conditions>` block: the tree, plus the message its failure sends.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ItemCondition {
     pub node: Cond,
@@ -68,7 +68,7 @@ pub enum CondMessage {
     Sm { id: i16, add_name: bool },
 }
 
-/// A node of the `<cond>` tree. The leaves are named for the Java `Condition`
+/// A node of the `<conditions>` tree. The leaves are named for the Java `Condition`
 /// class each one is (`ConditionPlayerRace` → [`Cond::Race`]).
 ///
 /// A `<player>` element with several attributes becomes an [`Cond::And`] over
@@ -142,6 +142,9 @@ pub enum Cond {
     IsOnSide(CastleSide),
     /// `MinimumVitalityPoints="35000"` — `ConditionMinimumVitalityPoints`.
     MinimumVitalityPoints(i32),
+    /// `MaximumVitalityPoints="…"` — `ConditionMaximumVitalityPoints`
+    /// (Salvation): the pool must be *below* the value.
+    MaximumVitalityPoints(i32),
 
     // ---- `<target …>` ----
     /// `<target levelRange="…">` — `ConditionTargetLevelRange`. One item on
@@ -151,7 +154,7 @@ pub enum Cond {
     TargetLevelRange(i32, i32),
 }
 
-/// `DocumentItem`'s `<cond>` arm: the block's message attributes.
+/// `DocumentItem`'s `<conditions>` arm: the block's message attributes.
 ///
 /// `msg` wins over `msgId` (Java's `else if`), and `addName` is read only on
 /// the id branch and only when the id is positive.
@@ -221,6 +224,7 @@ pub(crate) fn player_condition(attrs: &[(String, String)]) -> Option<Cond> {
                     .collect(),
             )),
             "isonside" => CastleSide::from_string(value).map(Cond::IsOnSide),
+            "maximumvitalitypoints" => decode_i32(value).map(Cond::MaximumVitalityPoints),
             "minimumvitalitypoints" => decode_i32(value).map(Cond::MinimumVitalityPoints),
             // No default arm in Java either: an unknown attribute contributes
             // nothing and the recognised ones still build.
@@ -503,6 +507,10 @@ mod tests {
             player_condition(&attrs(&[("MinimumVitalityPoints", "35000")])),
             Some(Cond::MinimumVitalityPoints(35000))
         );
+        assert_eq!(
+            player_condition(&attrs(&[("MaximumVitalityPoints", "140000")])),
+            Some(Cond::MaximumVitalityPoints(140000))
+        );
     }
 
     #[test]
@@ -539,7 +547,7 @@ mod tests {
         assert_eq!(message_from(None, None, Some("1")), CondMessage::Silent);
     }
 
-    /// The whole `<cond>` surface of the shipped datapack, as one number per
+    /// The whole `<conditions>` surface of the shipped datapack, as one number per
     /// attribute. Every figure here was derived from the XML independently of
     /// the parser, so a silently-dropped arm shows up as a drop in one row
     /// rather than as nothing at all.
@@ -556,31 +564,32 @@ mod tests {
                 }
             }
         }
-        assert_eq!(blocks, 2126, "<cond> blocks across stats/items");
+        assert_eq!(blocks, 2196, "<conditions> blocks across stats/items");
         let expected: &[(&str, usize)] = &[
             ("races", 822),
-            ("flyMounted", 450),
+            ("flyMounted", 453),
             ("categoryType", 261),
-            ("level", 218),
+            ("level", 243),
             ("sex", 149),
             ("levelRange", 100),
             ("pledgeClass", 73),
-            ("cloakStatus", 49),
+            ("cloakStatus", 70),
             ("instanceId", 42),
-            ("castle", 29),
+            ("castle", 38),
             ("isHero", 29),
             ("SiegeZone", 22),
             ("class_id_restriction", 20),
             ("insideZoneId", 18),
-            ("subclass", 17),
+            ("subclass", 19),
             ("pkCount", 16),
-            ("clanHall", 8),
+            ("clanHall", 10),
+            ("MaximumVitalityPoints", 8),
             ("chaotic", 6),
             ("MinimumVitalityPoints", 4),
             ("isOnSide", 4),
             ("isClanLeader", 2),
             ("vehicleMounted", 2),
-            ("fort", 1),
+            ("fort", 2),
             ("target levelRange", 1),
         ];
         for (name, count) in expected {
@@ -670,6 +679,7 @@ mod tests {
             Cond::CategoryType(_) => "categoryType",
             Cond::IsOnSide(_) => "isOnSide",
             Cond::MinimumVitalityPoints(_) => "MinimumVitalityPoints",
+            Cond::MaximumVitalityPoints(_) => "MaximumVitalityPoints",
             Cond::TargetLevelRange(..) => "target levelRange",
             Cond::And(_) | Cond::Or(_) | Cond::Not(_) => "logic",
         }

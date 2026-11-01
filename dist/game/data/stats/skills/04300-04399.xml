@@ -1,112 +1,117 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="4300" toLevel="1" name="Race">
 		<!-- Giant -->
 		<icon>icon.skill4300</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4301" toLevel="1" name="Race">
 		<!-- Bug -->
 		<icon>icon.skill4301</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4302" toLevel="1" name="Race">
 		<!-- Fairy -->
 		<icon>icon.skill4302</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4303" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 2 times higher than normal. -->
 		<icon>icon.skill4303</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4304" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 3 times higher than normal. -->
 		<icon>icon.skill4304</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4305" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 4 times higher than normal. -->
 		<icon>icon.skill4305</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4306" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 5 times higher than normal. -->
 		<icon>icon.skill4306</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4307" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 6 times higher than normal. -->
 		<icon>icon.skill4307</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4308" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 7 times higher than normal. -->
 		<icon>icon.skill4308</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4309" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 8 times higher than normal. -->
 		<icon>icon.skill4309</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4310" toLevel="1" name="Enchant Type">
 		<!-- Monster whose HP is 9 times higher than normal. -->
 		<icon>icon.skill4310</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4311" toLevel="1" name="Week Type">
-		<!-- Monster with 1/2 the normal HP. -->
+		<!-- Monster with 1/ 2 the normal HP. -->
 		<icon>icon.skill4311</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4312" toLevel="1" name="Defense Type">
 		<!-- Monster equipped with heavy armor. -->
 		<icon>icon.skill4312</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4313" toLevel="1" name="Defense Type">
 		<!-- Monster equipped with light armor. -->
 		<icon>icon.skill4313</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4314" toLevel="12" name="Holy Light Burst">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>HOLY</attributeType>
+		<attributeValue>20</attributeValue>
 		<castRange>700</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>1200</effectRange>
-		<attributeType>HOLY</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>2000</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">14</value>
 			<value level="2">24</value>
@@ -135,13 +140,8 @@
 			<value level="11">115</value>
 			<value level="12">116</value>
 		</mpConsume>
-		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">21</value>
 					<value level="2">31</value>
@@ -162,18 +162,23 @@
 	<skill id="4315" toLevel="12" name="Hold">
 		<!-- Inflicted with hold and unable to move momentarily. -->
 		<icon>icon.skill1201</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>ROOT_MAGICALLY</abnormalType>
 		<abnormalVisualEffect>ROOT</abnormalVisualEffect>
 		<activateRate>70</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
+		<affectScope>RANGE</affectScope>
 		<basicProperty>MAGIC</basicProperty>
 		<castRange>700</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>1200</effectRange>
 		<hitTime>2500</hitTime>
 		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">14</value>
 			<value level="2">24</value>
@@ -202,25 +207,25 @@
 			<value level="11">115</value>
 			<value level="12">116</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<trait>HOLD</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Root" />
 		</effects>
 	</skill>
 	<skill id="4316" toLevel="12" name="Drain Energy">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>20</attributeValue>
 		<castRange>750</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>1250</effectRange>
-		<attributeType>DARK</attributeType>
-		<attributeValue>20</attributeValue>
 		<hitTime>2500</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">14</value>
 			<value level="2">24</value>
@@ -249,11 +254,6 @@
 			<value level="11">206</value>
 			<value level="12">209</value>
 		</mpConsume>
-		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="HpDrain">
 				<power>
@@ -276,6 +276,8 @@
 	</skill>
 	<skill id="4317" toLevel="5" name="Increase Rage Might">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -285,18 +287,16 @@
 		</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>RAGE_MIGHT</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>1800</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>50</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">15</value>
 					<value level="2">20</value>
@@ -309,33 +309,34 @@
 		</effects>
 	</skill>
 	<skill id="4318" toLevel="2" name="Ultimate Buff">
-		<!-- P. Atk. and P. Def. are increased. -->
+		<!-- Level 1: P. Atk. and P. Def. are increased. -->
+		<!-- Level 2: Attack and Defense abilities are increased. -->
 		<icon>
 			<value level="1">icon.skill0755</value>
 			<value level="2">icon.skill0757</value>
 		</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>ULTIMATE_BUFF</abnormalType>
 		<abnormalVisualEffect>BIG_BODY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>50</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Grow">
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>83</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk" fromLevel="2" toLevel="2">
+			<effect name="MagicalAttack" fromLevel="2" toLevel="2">
 				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
@@ -372,24 +373,24 @@
 	<skill id="4319" toLevel="1" name="Paralysis">
 		<!-- Paralyzed and unable to move momentarily. -->
 		<icon>icon.skill1170</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>PARALYZE</abnormalType>
 		<abnormalVisualEffect>PARALYZE</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>1500</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>2000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>50</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<trait>PARALYZE</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="BlockActions">
 				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
@@ -397,8 +398,21 @@
 		</effects>
 	</skill>
 	<skill id="4320" toLevel="12" name="Poison">
-		<!-- Poisons a target, momentarily decreasing HP. Effect 2. -->
+		<!-- Level 1: Poisons a target, momentarily decreasing HP. Effect 2. -->
+		<!-- Level 2: Poisons a target, momentarily decreasing HP. Effect 3. -->
+		<!-- Level 3: Poisons a target, momentarily decreasing HP. Effect 4. -->
+		<!-- Level 4: Poisons a target, momentarily decreasing HP. Effect 5. -->
+		<!-- Level 5: Poisons a target, momentarily decreasing HP. Effect 6. -->
+		<!-- Level 6: Poisons a target, momentarily decreasing HP. Effect 7. -->
+		<!-- Level 7: Poisons a target, momentarily decreasing HP. Effect 8. -->
+		<!-- Level 8: Poisons a target, momentarily decreasing HP. Effect 8. -->
+		<!-- Level 9: Poisons a target, momentarily decreasing HP. Effect 9. -->
+		<!-- Level 10: Poisons a target, momentarily decreasing HP. Effect 9. -->
+		<!-- Level 11: Poisons a target, momentarily decreasing HP. Effect 10. -->
+		<!-- Level 12: Poisons a target, momentarily decreasing HP. Effect 10. -->
 		<icon>icon.skill4035</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -414,14 +428,17 @@
 			<value level="12">10</value>
 		</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<abnormalType>POISON</abnormalType>
 		<abnormalVisualEffect>DOT_POISON</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>1500</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>2000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">10</value>
 			<value level="2">20</value>
@@ -450,13 +467,8 @@
 			<value level="11">77</value>
 			<value level="12">78</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<trait>POISON</trait>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DamOverTime">
 				<power>
@@ -480,22 +492,22 @@
 	<skill id="4321" toLevel="1" name="Decrease P. Def.">
 		<!-- P. Def. greatly decreases temporarily. -->
 		<icon>icon.skill0122</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>PD_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>1500</castRange>
 		<effectPoint>-100</effectPoint>
 		<effectRange>2000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>50</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>-66</amount>
@@ -506,19 +518,19 @@
 	<skill id="4322" toLevel="1" name="Adventurer's Wind Walk">
 		<!-- Increases Speed by 33 for 60 minutes. -->
 		<icon>icon.skill1204</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>SPEED_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="Speed">
 				<amount>33</amount>
@@ -529,19 +541,19 @@
 	<skill id="4323" toLevel="1" name="Adventurer's Shield">
 		<!-- Increases P. Def. by 15% for 60 minutes. -->
 		<icon>icon.skill1040</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PD_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>15</amount>
@@ -552,19 +564,19 @@
 	<skill id="4324" toLevel="1" name="Adventurer's Blessed Body">
 		<!-- Increases Max HP by 35% for 60 minutes. -->
 		<icon>icon.skill1045</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_NOT</targetType>
 		<abnormalLevel>7</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAX_HP_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>ENEMY_NOT</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>35</amount>
@@ -575,19 +587,19 @@
 	<skill id="4325" toLevel="1" name="Adventurer's Vampiric Rage">
 		<!-- For 60 minutes, 9% of the physical damage inflicted on the enemy is recovered as HP with a certain probability. -->
 		<icon>icon.skill1268</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>5</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VAMPIRIC_ATTACK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>9</amount>
@@ -598,19 +610,19 @@
 	<skill id="4326" toLevel="1" name="Adventurer's Regeneration">
 		<!-- Increases HP regeneration bonus by 20% for 60 minutes. -->
 		<icon>icon.skill1044</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>HP_REGEN_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="HpRegen">
 				<amount>20</amount>
@@ -621,19 +633,19 @@
 	<skill id="4327" toLevel="1" name="Adventurer's Haste">
 		<!-- Increases Atk. Spd. by 15% for 60 minutes. -->
 		<icon>icon.skill1086</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>ATTACK_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>15</amount>
@@ -644,19 +656,19 @@
 	<skill id="4328" toLevel="1" name="Adventurer's Blessed Soul">
 		<!-- Increases Max MP by 35% for 60 minutes. -->
 		<icon>icon.skill1048</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>7</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAX_MP_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>35</amount>
@@ -667,19 +679,19 @@
 	<skill id="4329" toLevel="1" name="Adventurer's Acumen">
 		<!-- Increases Casting Spd. by 30% for 60 minutes. -->
 		<icon>icon.skill1085</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>CASTING_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>30</amount>
@@ -690,19 +702,19 @@
 	<skill id="4330" toLevel="1" name="Adventurer's Concentration">
 		<!-- Decreases magic cancel rate by 18 for 60 minutes. -->
 		<icon>icon.skill1078</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>CANCEL_PROB_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
 			<effect name="ReduceCancel">
 				<amount>-18</amount>
@@ -713,32 +725,32 @@
 	<skill id="4331" toLevel="1" name="Adventurer's Empower">
 		<!-- Increases M. Atk. by 55% for 60 minutes. -->
 		<icon>icon.skill1059</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>60</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>55</amount>
 				<mode>PER</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="4332" toLevel="1" name="Mental Aegis">
-		<!-- Provides powerful Hold/Sleep/Fear/Silence Resistance. -->
+		<!-- Provides powerful Hold/ Sleep/ Fear/ Silence Resistance. -->
 		<icon>icon.skill1035</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>100</HOLD>
@@ -750,9 +762,9 @@
 	<skill id="4333" toLevel="5" name="Dark Attack Resistance">
 		<!-- Resistant to Dark attacks. -->
 		<icon>icon.skill4333</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>
@@ -768,16 +780,16 @@
 	</skill>
 	<skill id="4334" toLevel="1" name="SSQ Cancel">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>2000</affectRange>
+		<affectScope>PARTY</affectScope>
 		<castRange>1000</castRange>
 		<effectRange>1500</effectRange>
-		<magicLevel>99</magicLevel>
-		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>99</magicLevel>
 		<effects>
 			<effect name="DispelAll" />
 		</effects>
@@ -785,9 +797,9 @@
 	<skill id="4335" toLevel="1" name="Holy Attack">
 		<!-- Inflicts attack of Holy. -->
 		<icon>icon.skill1043</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="AttackAttribute">
 				<amount>20</amount>
@@ -798,9 +810,9 @@
 	<skill id="4336" toLevel="5" name="Dark Attack Vulnerability">
 		<!-- Vulnerable to Dark attacks. -->
 		<icon>icon.skill4336_new</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>
@@ -817,9 +829,9 @@
 	<skill id="4337" toLevel="5" name="Holy Resistance">
 		<!-- Resistant to Holy attack. -->
 		<icon>icon.skill4337</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>
@@ -835,15 +847,15 @@
 	</skill>
 	<skill id="4338" toLevel="1" name="Adventurer's Life Cubic">
 		<icon>icon.skill0000</icon>
-		<castRange>400</castRange>
-		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>18</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>18</magicLevel>
 		<effects>
 			<effect name="SummonCubic">
 				<cubicId>3</cubicId>
@@ -853,34 +865,34 @@
 	</skill>
 	<skill id="4339" toLevel="1" name="Mimir's Elixir">
 		<icon>icon.skill0000</icon>
-		<castRange>400</castRange>
-		<effectRange>900</effectRange>
-		<magicLevel>60</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>400</castRange>
+		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>60</magicLevel>
 	</skill>
 	<skill id="4340" toLevel="1" name="Ultimate Buff">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>ULTIMATE_BUFF</abnormalType>
 		<abnormalVisualEffect>BIG_BODY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>50</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Grow">
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>400</amount>
 				<mode>PER</mode>
 			</effect>
@@ -888,19 +900,19 @@
 	</skill>
 	<skill id="4341" toLevel="1" name="Ultimate Buff">
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>ULTIMATE_BUFF</abnormalType>
 		<abnormalVisualEffect>BIG_BODY</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>60</magicLevel>
 		<mpConsume>50</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Grow">
 			</effect>
@@ -915,28 +927,29 @@
 		</effects>
 	</skill>
 	<skill id="4342" toLevel="2" name="Wind Walk">
-		<!-- Momentarily increases Speed. Effect 1. -->
+		<!-- Level 1: Momentarily increases Speed. Effect 1. -->
+		<!-- Level 2: Momentarily increases Speed. Effect 2. -->
 		<icon>icon.skill1204</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SPEED_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">100</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>
@@ -948,8 +961,12 @@
 		</effects>
 	</skill>
 	<skill id="4343" toLevel="3" name="Decrease Weight">
-		<!-- Reduces current weight. Effect 1. -->
+		<!-- Level 1: Reduces current weight. Effect 1. -->
+		<!-- Level 2: Reduces current weight. Effect 2. -->
+		<!-- Level 3: Reduces current weight. Effect 3. -->
 		<icon>icon.skill1257</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -957,21 +974,19 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>DECREASE_WEIGHT_PENALTY</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">0</value>
 			<value level="3">100</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="WeightPenalty">
 				<amount>
@@ -983,8 +998,12 @@
 		</effects>
 	</skill>
 	<skill id="4344" toLevel="3" name="Shield">
-		<!-- P. Def. increases temporarily. Effect 1. -->
+		<!-- Level 1: P. Def. increases temporarily. Effect 1. -->
+		<!-- Level 2: P. Def. increases temporarily. Effect 2. -->
+		<!-- Level 3: P. Def. increases temporarily. Effect 3. -->
 		<icon>icon.skill1040</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -992,9 +1011,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>PD_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">7</value>
 			<value level="2">25</value>
@@ -1005,12 +1028,6 @@
 			<value level="2">0</value>
 			<value level="3">100</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>
@@ -1023,8 +1040,12 @@
 		</effects>
 	</skill>
 	<skill id="4345" toLevel="3" name="Might">
-		<!-- P. Atk. increases temporarily. Effect 1. -->
+		<!-- Level 1: P. Atk. increases temporarily. Effect 1. -->
+		<!-- Level 2: P. Atk. increases temporarily. Effect 2. -->
+		<!-- Level 3: P. Atk. increases temporarily. Effect 3. -->
 		<icon>icon.skill1068</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1032,23 +1053,21 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>PA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">50</value>
 			<value level="2">0</value>
 			<value level="3">100</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">8</value>
 					<value level="2">12</value>
@@ -1059,8 +1078,13 @@
 		</effects>
 	</skill>
 	<skill id="4346" toLevel="4" name="Mental Shield">
-		<!-- Momentarily increases Hold/Sleep/Fear/Mental Attack Resistance. Effect 1. -->
+		<!-- Level 1: Momentarily increases Hold/ Sleep/ Fear/ Mental Attack Resistance. Effect 1. -->
+		<!-- Level 2: Momentarily increases Hold/ Sleep/ Fear/ Mental Attack Resistance. Effect 2. -->
+		<!-- Level 3: Momentarily increases Hold/ Sleep/ Fear/ Mental Attack Resistance. Effect 3. -->
+		<!-- Level 4: Momentarily increases Hold/ Sleep/ Fear/ Mental Attack Resistance. Effect 4. -->
 		<icon>icon.skill1035</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1069,9 +1093,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>RESIST_DERANGEMENT</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">50</value>
@@ -1079,12 +1107,6 @@
 			<value level="3">0</value>
 			<value level="4">100</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>
@@ -1109,8 +1131,15 @@
 		</effects>
 	</skill>
 	<skill id="4347" toLevel="6" name="Blessed Body">
-		<!-- Momentarily increases maximum HP. Effect 1. -->
+		<!-- Level 1: Momentarily increases maximum HP. Effect 1. -->
+		<!-- Level 2: Momentarily increases maximum HP. Effect 2. -->
+		<!-- Level 3: Momentarily increases maximum HP. Effect 3. -->
+		<!-- Level 4: Momentarily increases maximum HP. Effect 4. -->
+		<!-- Level 5: Momentarily increases maximum HP. Effect 5. -->
+		<!-- Level 6: Momentarily increases maximum HP. Effect 6. -->
 		<icon>icon.skill1045</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_NOT</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1121,9 +1150,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MAX_HP_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">0</value>
@@ -1133,12 +1166,6 @@
 			<value level="5">0</value>
 			<value level="6">300</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>ENEMY_NOT</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
@@ -1154,8 +1181,15 @@
 		</effects>
 	</skill>
 	<skill id="4348" toLevel="6" name="Blessed Soul">
-		<!-- Momentarily increases maximum MP. Effect 1. -->
+		<!-- Level 1: Momentarily increases maximum MP. Effect 1. -->
+		<!-- Level 2: Momentarily increases maximum MP. Effect 2. -->
+		<!-- Level 3: Momentarily increases maximum MP. Effect 3. -->
+		<!-- Level 4: Momentarily increases maximum MP. Effect 4. -->
+		<!-- Level 5: Momentarily increases maximum MP. Effect 5. -->
+		<!-- Level 6: Momentarily increases maximum MP. Effect 6. -->
 		<icon>icon.skill1048</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1166,9 +1200,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MAX_MP_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">0</value>
@@ -1178,12 +1216,6 @@
 			<value level="5">0</value>
 			<value level="6">300</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MaxMp">
 				<amount>
@@ -1199,28 +1231,29 @@
 		</effects>
 	</skill>
 	<skill id="4349" toLevel="2" name="Magic Barrier">
-		<!-- Momentarily increases M. Def. Effect 2. -->
+		<!-- Level 1: Momentarily increases M. Def. Effect 2. -->
+		<!-- Level 2: Momentarily increases M. Def. Effect 3. -->
 		<icon>icon.skill1036</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MD_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">150</value>
 			<value level="2">300</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>
@@ -1232,8 +1265,13 @@
 		</effects>
 	</skill>
 	<skill id="4350" toLevel="4" name="Stun Resistance">
-		<!-- Increases Stun Resistance temporarily. Effect 1 -->
+		<!-- Level 1: Increases Stun Resistance temporarily. Effect 1. -->
+		<!-- Level 2: Increases Stun Resistance temporarily. Effect 2. -->
+		<!-- Level 3: Increases Stun Resistance temporarily. Effect 3. -->
+		<!-- Level 4: Increases Stun Resistance temporarily. Effect 4. -->
 		<icon>icon.skill1259</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1242,9 +1280,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>RESIST_SHOCK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">150</value>
@@ -1252,12 +1294,6 @@
 			<value level="3">0</value>
 			<value level="4">300</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>
@@ -1270,8 +1306,15 @@
 		</effects>
 	</skill>
 	<skill id="4351" toLevel="6" name="Concentration">
-		<!-- Momentarily lowers the probability of magic being canceled due to damage taken. Effect 1. -->
+		<!-- Level 1: Momentarily lowers the probability of magic being canceled due to damage taken. Effect 1. -->
+		<!-- Level 2: Momentarily lowers the probability of magic being canceled due to damage taken. Effect 2. -->
+		<!-- Level 3: Momentarily lowers the probability of magic being canceled due to damage taken. Effect 3. -->
+		<!-- Level 4: Momentarily lowers the probability of magic being canceled due to damage taken. Effect 4. -->
+		<!-- Level 5: Momentarily lowers the probability of magic being canceled due to damage taken. Effect 5. -->
+		<!-- Level 6: Momentarily lowers the probability of magic being canceled due to damage taken. Effect 6. -->
 		<icon>icon.skill1078</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1282,9 +1325,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>CANCEL_PROB_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">0</value>
@@ -1294,12 +1341,6 @@
 			<value level="5">0</value>
 			<value level="6">400</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="ReduceCancel">
 				<amount>
@@ -1315,37 +1356,38 @@
 		</effects>
 	</skill>
 	<skill id="4352" toLevel="2" name="Berserker Spirit">
-		<!-- P. Def. decreases momentarily., M. Def. and Evasion, and increases P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed. Effect 1. -->
+		<!-- Level 1: P. Def. decreases momentarily., M. Def. and Evasion, and increases P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed. Effect 1. -->
+		<!-- Level 2: P. Def. decreases momentarily., M. Def. and Evasion, and increases P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed. Effect 2. -->
 		<icon>icon.skill1062</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>BERSERKER</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">200</value>
 			<value level="2">400</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">8</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">10</value>
 					<value level="2">16</value>
@@ -1397,8 +1439,15 @@
 		</effects>
 	</skill>
 	<skill id="4353" toLevel="6" name="Blessed Shield">
-		<!-- Momentarily increases shield defense rate. Effect 1. -->
+		<!-- Level 1: Momentarily increases shield defense rate. Effect 1. -->
+		<!-- Level 2: Momentarily increases shield defense rate. Effect 2. -->
+		<!-- Level 3: Momentarily increases shield defense rate. Effect 3. -->
+		<!-- Level 4: Momentarily increases shield defense rate. Effect 4. -->
+		<!-- Level 5: Momentarily increases shield defense rate. Effect 5. -->
+		<!-- Level 6: Momentarily increases shield defense rate. Effect 6. -->
 		<icon>icon.skill1243</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1409,9 +1458,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SHIELD_PROB_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">0</value>
@@ -1421,12 +1474,6 @@
 			<value level="5">0</value>
 			<value level="6">400</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="ShieldDefenceRate">
 				<amount>
@@ -1442,8 +1489,13 @@
 		</effects>
 	</skill>
 	<skill id="4354" toLevel="4" name="Vampiric Rage">
-		<!-- Partially restores HP using damage inflicted upon the enemy with a certain probability. Effect 1. -->
+		<!-- Level 1: Partially restores HP using damage inflicted upon the enemy with a certain probability. Effect 1. -->
+		<!-- Level 2: Partially restores HP using damage inflicted upon the enemy with a certain probability. Effect 2. -->
+		<!-- Level 3: Partially restores HP using damage inflicted upon the enemy with a certain probability. Effect 3. -->
+		<!-- Level 4: Partially restores HP using damage inflicted upon the enemy with a certain probability. Effect 4. -->
 		<icon>icon.skill1268</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1452,9 +1504,13 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>VAMPIRIC_ATTACK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">200</value>
@@ -1462,12 +1518,6 @@
 			<value level="3">0</value>
 			<value level="4">400</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>
@@ -1481,8 +1531,12 @@
 		</effects>
 	</skill>
 	<skill id="4355" toLevel="3" name="Acumen">
-		<!-- Momentarily increases Casting Spd. Effect 1. -->
+		<!-- Level 1: Momentarily increases Casting Spd. Effect 1. -->
+		<!-- Level 2: Momentarily increases Casting Spd. Effect 2. -->
+		<!-- Level 3: Momentarily increases Casting Spd. Effect 3. -->
 		<icon>icon.skill1085</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1490,21 +1544,19 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>CASTING_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">300</value>
 			<value level="2">0</value>
 			<value level="3">600</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>
@@ -1517,8 +1569,12 @@
 		</effects>
 	</skill>
 	<skill id="4356" toLevel="3" name="Empower">
-		<!-- M. Atk. increases temporarily. Effect 1. -->
+		<!-- Level 1: M. Atk. increases temporarily. Effect 1. -->
+		<!-- Level 2: M. Atk. increases temporarily. Effect 2. -->
+		<!-- Level 3: M. Atk. increases temporarily. Effect 3. -->
 		<icon>icon.skill1059</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1526,23 +1582,21 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>MA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">300</value>
 			<value level="2">0</value>
 			<value level="3">600</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">55</value>
 					<value level="2">65</value>
@@ -1553,28 +1607,29 @@
 		</effects>
 	</skill>
 	<skill id="4357" toLevel="2" name="Haste">
-		<!-- Atk. Spd. increases temporarily. Effect 1. -->
+		<!-- Level 1: Atk. Spd. increases temporarily. Effect 1. -->
+		<!-- Level 2: Atk. Spd. increases temporarily. Effect 2. -->
 		<icon>icon.skill1086</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>ATTACK_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">300</value>
 			<value level="2">600</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>
@@ -1586,8 +1641,12 @@
 		</effects>
 	</skill>
 	<skill id="4358" toLevel="3" name="Guidance">
-		<!-- Momentarily increases Accuracy. Effect 1. -->
+		<!-- Level 1: Momentarily increases Accuracy. Effect 1. -->
+		<!-- Level 2: Momentarily increases Accuracy. Effect 2. -->
+		<!-- Level 3: Momentarily increases Accuracy. Effect 3. -->
 		<icon>icon.skill1240</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1595,21 +1654,19 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>HIT_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">200</value>
 			<value level="2">0</value>
 			<value level="3">400</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Accuracy">
 				<amount>
@@ -1622,8 +1679,12 @@
 		</effects>
 	</skill>
 	<skill id="4359" toLevel="3" name="Focus">
-		<!-- Momentarily increases critical attack rate. Effect 1. -->
+		<!-- Level 1: Momentarily increases critical attack rate. Effect 1. -->
+		<!-- Level 2: Momentarily increases critical attack rate. Effect 2. -->
+		<!-- Level 3: Momentarily increases critical attack rate. Effect 3. -->
 		<icon>icon.skill1077</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1631,21 +1692,19 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>CRITICAL_PROB_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">300</value>
 			<value level="2">0</value>
 			<value level="3">600</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>
@@ -1658,8 +1717,12 @@
 		</effects>
 	</skill>
 	<skill id="4360" toLevel="3" name="Death Whisper">
-		<!-- Momentarily increases critical P. Atk. Effect 1. -->
+		<!-- Level 1: Momentarily increases critical P. Atk. Effect 1. -->
+		<!-- Level 2: Momentarily increases critical P. Atk. Effect 2. -->
+		<!-- Level 3: Momentarily increases critical P. Atk. Effect 3. -->
 		<icon>icon.skill1242</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1667,21 +1730,19 @@
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>CRITICAL_DMG_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<mpConsume>
 			<value level="1">300</value>
 			<value level="2">0</value>
 			<value level="3">600</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>
@@ -1694,27 +1755,28 @@
 		</effects>
 	</skill>
 	<skill id="4361" toLevel="2" name="Curse of Destruction">
-		<!-- Curse of the Preacher of Doom. Momentarily decreases Accuracy. Effect 1. -->
+		<!-- Level 1: Curse of the Preacher of Doom. Momentarily decreases Accuracy. Effect 1. -->
+		<!-- Level 2: Curse of the Preacher of Doom. Decreases Accuracy and Sleep/ Hold/ Stun Resistance. Effect 2. -->
 		<icon>icon.skill0046</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SSQ_TOWN_CURSE</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
 		<castRange>600</castRange>
 		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>
@@ -1737,27 +1799,28 @@
 		</effects>
 	</skill>
 	<skill id="4362" toLevel="2" name="Curse of Destruction">
-		<!-- Curse of the Preacher of Doom. Momentarily decreases Casting Spd. Effect 1. -->
+		<!-- Level 1: Curse of the Preacher of Doom. Momentarily decreases Casting Spd. Effect 1. -->
+		<!-- Level 2: Curse of the Preacher of Doom. Decreases Casting Speed and Sleep/ Hold/ Stun Resistance. Effect 2. -->
 		<icon>icon.skill0046</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SSQ_TOWN_CURSE</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
 		<castRange>600</castRange>
 		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>
@@ -1782,21 +1845,21 @@
 	<skill id="4363" toLevel="1" name="Curse of Destruction">
 		<!-- Curse of the Preacher of Doom. Momentarily decreases Accuracy. Effect 1. -->
 		<icon>icon.skill0046</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>HIT_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Accuracy">
 				<amount>-12</amount>
@@ -1805,26 +1868,27 @@
 		</effects>
 	</skill>
 	<skill id="4364" toLevel="2" name="Blessing of Revelations">
-		<!-- Blessing of the Orator of Revelations. Momentarily decreases body weight and increases Poison/Bleed Resistance. Effect 1. -->
+		<!-- Level 1: Blessing of the Orator of Revelations. Momentarily decreases body weight and increases Poison/ Bleed Resistance. Effect 1. -->
+		<!-- Level 2: Blessing by the Orator of Revelations. Makes your body feel light for a certain while and increases Poison/ Bleed/ Hold/ Stun/ Paralyze Resistance. Effect 2. -->
 		<icon>icon.skill1044</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SSQ_TOWN_BLESSING</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>25</POISON>
@@ -1849,26 +1913,27 @@
 		</effects>
 	</skill>
 	<skill id="4365" toLevel="2" name="Blessing of Revelations">
-		<!-- Blessing of the Orator of Revelations. Momentarily increases your Hold/Mental Attack Resistance and lessens the probability of magic cancellation due to damage. Effect 1. -->
+		<!-- Level 1: Blessing of the Orator of Revelations. Momentarily increases your Hold/ Mental Attack Resistance and lessens the probability of magic cancellation due to damage. Effect 1. -->
+		<!-- Level 2: Blessing by the Orator of Revelations. Decreases a chance of magic getting canceled by damage for a certain while and increases Hold/ Mental/ Stun/ Paralyze Resistance. Effect 2. -->
 		<icon>icon.skill1044</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
 		</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>SSQ_TOWN_BLESSING</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>25</HOLD>
@@ -1889,23 +1954,23 @@
 		</effects>
 	</skill>
 	<skill id="4366" toLevel="1" name="Blessing of Revelations">
-		<!-- Blessing of the Orator of Revelations. Momentarily decreases body weight and increases Poison/Bleed Resistance. Effect 1. -->
+		<!-- Blessing of the Orator of Revelations. Momentarily decreases body weight and increases Poison/ Bleed Resistance. Effect 1. -->
 		<icon>icon.skill1044</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1200</abnormalTime>
 		<abnormalType>DECREASE_WEIGHT_PENALTY</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>25</POISON>
@@ -1920,15 +1985,15 @@
 	<skill id="4367" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>9.26</power>
@@ -1939,15 +2004,15 @@
 	<skill id="4368" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>18.52</power>
@@ -1962,15 +2027,15 @@
 	<skill id="4369" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>27.78</power>
@@ -1985,15 +2050,15 @@
 	<skill id="4370" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>61.11</power>
@@ -2008,15 +2073,15 @@
 	<skill id="4371" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>116.7</power>
@@ -2031,15 +2096,15 @@
 	<skill id="4372" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>200</power>
@@ -2054,15 +2119,15 @@
 	<skill id="4373" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>205.6</power>
@@ -2077,15 +2142,15 @@
 	<skill id="4374" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>288.9</power>
@@ -2100,15 +2165,15 @@
 	<skill id="4375" toLevel="1" name="Clan Hall Blessing">
 		<!-- Receiving the fortress blessing. -->
 		<icon>icon.skill11756</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PUBLIC_SLOT</abnormalType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>372.2</power>
@@ -2123,9 +2188,9 @@
 	<skill id="4376" toLevel="1" name="Greater Physical Attack Resistance">
 		<!-- Provides very strong resistance against P. Atk. -->
 		<icon>icon.skill4376</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>200</amount>
@@ -2135,11 +2200,15 @@
 	</skill>
 	<skill id="4377" toLevel="12" name="Wield Temper">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
 		<coolTime>800</coolTime>
 		<effectPoint>-100</effectPoint>
 		<effectRange>200</effectRange>
 		<hitTime>1000</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">10</value>
 			<value level="2">20</value>
@@ -2168,13 +2237,9 @@
 			<value level="11">84</value>
 			<value level="12">85</value>
 		</mpConsume>
-		<operateType>A1</operateType>
 		<reuseDelay>6000</reuseDelay>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">46</value>
 					<value level="2">105</value>
@@ -2195,11 +2260,17 @@
 	<skill id="4378" toLevel="12" name="Damage Shield">
 		<!-- Temporarily returns some of the received damage back to the enemy. -->
 		<icon>icon.action105</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>DMG_SHIELD</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>1800</hitTime>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">10</value>
 			<value level="2">20</value>
@@ -2228,14 +2299,8 @@
 			<value level="11">77</value>
 			<value level="12">78</value>
 		</mpConsume>
-		<operateType>A2</operateType>
 		<reuseDelay>8000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="DamageShield">
 				<amount>20</amount>
@@ -2243,11 +2308,11 @@
 		</effects>
 	</skill>
 	<skill id="4379" toLevel="5" name="Spear Resistance">
-		<!-- Resistant to spear/pole arm attacks. -->
+		<!-- Resistant to spear/ pole arm attacks. -->
 		<icon>icon.skill4379</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POLE>
@@ -2262,15 +2327,15 @@
 	</skill>
 	<skill id="4380" toLevel="1" name="Arena CP Recovery">
 		<icon>icon.skill0000</icon>
-		<castRange>600</castRange>
-		<effectRange>1100</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>TARGET</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>600</castRange>
+		<effectRange>1100</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="Cp">
 				<amount>5000</amount>
@@ -2279,25 +2344,31 @@
 		</effects>
 	</skill>
 	<skill id="4381" toLevel="1" name="Week Type">
-		<!-- Monster with 1/4 the normal HP. -->
+		<!-- Monster with 1/ 4 the normal HP. -->
 		<icon>icon.skill4381</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType> <!-- Just Boadcast -->
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="4382" toLevel="12" name="Curse of Lake Ghost">
 		<!-- The Lake Ghost hexes you, temporarily increasing the size of your head. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>300</abnormalTime>
 		<abnormalType>BIG_HEAD</abnormalType>
 		<abnormalVisualEffect>BIG_HEAD</abnormalVisualEffect>
 		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>40</castRange>
 		<coolTime>800</coolTime>
 		<effectPoint>-100</effectPoint>
+		<effectRange>200</effectRange>
 		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">10</value>
 			<value level="2">20</value>
@@ -2326,14 +2397,8 @@
 			<value level="11">84</value>
 			<value level="12">85</value>
 		</mpConsume>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<effectRange>200</effectRange>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PhysicalAttack">
+			<effect name="PhysicalDamage">
 				<power>
 					<value level="1">46</value>
 					<value level="2">105</value>
@@ -2353,23 +2418,23 @@
 	</skill>
 	<skill id="4383" toLevel="1" name="Aggression Stone">
 		<icon>icon.skill0000</icon>
+		<operateType>A3</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>10</abnormalTime>
 		<abnormalType>TURN_STONE</abnormalType>
 		<abnormalVisualEffect>FLESH_STONE</abnormalVisualEffect>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
-		<effectPoint>-100</effectPoint>
+		<affectScope>POINT_BLANK</affectScope>
 		<attributeType>EARTH</attributeType>
 		<attributeValue>20</attributeValue>
-		<magicLevel>80</magicLevel>
-		<operateType>A3</operateType>
 		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<effectPoint>-100</effectPoint>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
+		<specialLevel>-1</specialLevel>
 		<effects>
 			<effect name="BlockActions" />
 			<effect name="TargetMeProbability">
@@ -2380,83 +2445,83 @@
 	<skill id="4384" toLevel="1" name="Scapegoat's Grace">
 		<!-- Scapegoat's Grace. Temporarily protects against any debuff that lowers P. Def. -->
 		<icon>icon.skill0122</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>PD_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
-		<magicLevel>80</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="4385" toLevel="1" name="Scapegoat's Grace">
 		<!-- Scapegoat's Grace. Temporarily protects against any debuff that lowers P. Atk. -->
 		<icon>icon.skill4037</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>ATTACK_TIME_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
-		<magicLevel>80</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="4386" toLevel="1" name="Scapegoat's Grace">
 		<!-- Scapegoat's Grace. Temporarily protects against poison. -->
 		<icon>icon.skill4036</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>10</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
-		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 		<abnormalType>POISON</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
-		<magicLevel>80</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
 		<isDebuff>true</isDebuff>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
+		<specialLevel>-1</specialLevel>
+		<subordinationAbnormalType>POISON</subordinationAbnormalType>
 	</skill>
 	<skill id="4387" toLevel="1" name="Scapegoat's Grace">
-		<!-- Scapegoat's Grace. Temporarily protects against any de-buff that diminishes the effect of HP recovery magic. -->
+		<!-- Scapegoat's Grace. Temporarily protects against any de-buff that diminishes the effect of HP Recovery Bonus magic. -->
 		<icon>icon.skill1269</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>120</abnormalTime>
 		<abnormalType>HEAL_EFFECT_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>600</castRange>
 		<effectPoint>100</effectPoint>
 		<effectRange>1100</effectRange>
-		<magicLevel>80</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
+		<specialLevel>-1</specialLevel>
 	</skill>
 	<skill id="4388" toLevel="5" name="Paralysis Resistance">
 		<!-- Resistant to paralyzing attacks. -->
 		<icon>icon.skill4388</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>
@@ -2472,9 +2537,9 @@
 	<skill id="4389" toLevel="5" name="Mental Attack Resistance">
 		<!-- Provides resistance against mental attack. -->
 		<icon>icon.skill4389</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>
@@ -2489,33 +2554,34 @@
 	</skill>
 	<skill id="4390" toLevel="2" name="Mystic Immunity">
 		<icon>icon.skill0000</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="BuffBlock" />
 			<effect name="DebuffBlock" />
 		</effects>
 	</skill>
 	<skill id="4391" toLevel="2" name="Wind Walk">
-		<!-- Momentarily increases Speed. Effect 1. -->
+		<!-- Level 1: Momentarily increases Speed. Effect 1. -->
+		<!-- Level 2: Momentarily increases Speed. Effect 2. -->
 		<icon>icon.skill1204</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>SPEED_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="Speed">
 				<amount>
@@ -2527,8 +2593,12 @@
 		</effects>
 	</skill>
 	<skill id="4392" toLevel="3" name="Shield">
-		<!-- P. Def. increases temporarily. Effect 1. -->
+		<!-- Level 1: P. Def. increases temporarily. Effect 1. -->
+		<!-- Level 2: P. Def. increases temporarily. Effect 2. -->
+		<!-- Level 3: P. Def. increases temporarily. Effect 3. -->
 		<icon>icon.skill1040</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -2536,16 +2606,14 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PD_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>
@@ -2558,8 +2626,12 @@
 		</effects>
 	</skill>
 	<skill id="4393" toLevel="3" name="Might">
-		<!-- P. Atk. increases temporarily. Effect 1. -->
+		<!-- Level 1: P. Atk. increases temporarily. Effect 1. -->
+		<!-- Level 2: P. Atk. increases temporarily. Effect 2. -->
+		<!-- Level 3: P. Atk. increases temporarily. Effect 3. -->
 		<icon>icon.skill1068</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -2567,18 +2639,16 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>PA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">8</value>
 					<value level="2">12</value>
@@ -2589,8 +2659,15 @@
 		</effects>
 	</skill>
 	<skill id="4394" toLevel="6" name="Blessed Body">
-		<!-- Momentarily increases maximum HP. Effect 1. -->
+		<!-- Level 1: Momentarily increases maximum HP. Effect 1. -->
+		<!-- Level 2: Momentarily increases maximum HP. Effect 2. -->
+		<!-- Level 3: Momentarily increases maximum HP. Effect 3. -->
+		<!-- Level 4: Momentarily increases maximum HP. Effect 4. -->
+		<!-- Level 5: Momentarily increases maximum HP. Effect 5. -->
+		<!-- Level 6: Momentarily increases maximum HP. Effect 6. -->
 		<icon>icon.skill1045</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_NOT</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -2601,16 +2678,14 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAX_HP_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>ENEMY_NOT</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
@@ -2626,8 +2701,15 @@
 		</effects>
 	</skill>
 	<skill id="4395" toLevel="6" name="Blessed Soul">
-		<!-- Momentarily increases maximum MP. Effect 1. -->
+		<!-- Level 1: Momentarily increases maximum MP. Effect 1. -->
+		<!-- Level 2: Momentarily increases maximum MP. Effect 2. -->
+		<!-- Level 3: Momentarily increases maximum MP. Effect 3. -->
+		<!-- Level 4: Momentarily increases maximum MP. Effect 4. -->
+		<!-- Level 5: Momentarily increases maximum MP. Effect 5. -->
+		<!-- Level 6: Momentarily increases maximum MP. Effect 6. -->
 		<icon>icon.skill1048</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -2638,16 +2720,14 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MAX_MP_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>
@@ -2663,24 +2743,25 @@
 		</effects>
 	</skill>
 	<skill id="4396" toLevel="2" name="Magic Barrier">
-		<!-- Momentarily increases M. Def. Effect 2. -->
+		<!-- Level 1: Momentarily increases M. Def. Effect 2. -->
+		<!-- Level 2: Momentarily increases M. Def. Effect 3. -->
 		<icon>icon.skill1036</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">3</value>
 			<value level="2">4</value>
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MD_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>
@@ -2692,33 +2773,34 @@
 		</effects>
 	</skill>
 	<skill id="4397" toLevel="2" name="Berserker Spirit">
-		<!-- P. Def. decreases momentarily., M. Def. and Evasion, and increases P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed. Effect 1. -->
+		<!-- Level 1: P. Def. decreases momentarily., M. Def. and Evasion, and increases P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed. Effect 1. -->
+		<!-- Level 2: P. Def. decreases momentarily., M. Def. and Evasion, and increases P. Atk., M. Atk., Atk. Spd., Casting Spd. and Speed. Effect 2. -->
 		<icon>icon.skill1062</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>BERSERKER</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">5</value>
 					<value level="2">8</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">10</value>
 					<value level="2">16</value>
@@ -2770,8 +2852,15 @@
 		</effects>
 	</skill>
 	<skill id="4398" toLevel="6" name="Blessed Shield">
-		<!-- Momentarily increases the probability of shield defense. Effect 1. -->
+		<!-- Level 1: Momentarily increases the probability of shield defense. Effect 1. -->
+		<!-- Level 2: Momentarily increases the probability of shield defense. Effect 2. -->
+		<!-- Level 3: Momentarily increases the probability of shield defense. Effect 3. -->
+		<!-- Level 4: Momentarily increases the probability of shield defense. Effect 4. -->
+		<!-- Level 5: Momentarily increases the probability of shield defense. Effect 5. -->
+		<!-- Level 6: Momentarily increases the probability of shield defense. Effect 6. -->
 		<icon>icon.skill1243</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -2782,16 +2871,14 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>SHIELD_PROB_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="ShieldDefenceRate">
 				<amount>
@@ -2807,8 +2894,13 @@
 		</effects>
 	</skill>
 	<skill id="4399" toLevel="4" name="Vampiric Rage">
-		<!-- Momentarily restores HP using damage inflicted upon the enemy with a certain probability. Effect 1. -->
+		<!-- Level 1: Momentarily restores HP using damage inflicted upon the enemy with a certain probability. Effect 1. -->
+		<!-- Level 2: Momentarily restores HP using damage inflicted upon the enemy with a certain probability. Effect 2. -->
+		<!-- Level 3: Momentarily restores HP using damage inflicted upon the enemy with a certain probability. Effect 3. -->
+		<!-- Level 4: Momentarily restores HP using damage inflicted upon the enemy with a certain probability. Effect 4. -->
 		<icon>icon.skill1268</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
 		<abnormalLevel>
 			<value level="1">2</value>
 			<value level="2">3</value>
@@ -2817,16 +2909,14 @@
 		</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VAMPIRIC_ATTACK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<castRange>400</castRange>
 		<effectRange>900</effectRange>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>-5</magicCriticalRate>
 		<hitCancelTime>0</hitCancelTime>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>

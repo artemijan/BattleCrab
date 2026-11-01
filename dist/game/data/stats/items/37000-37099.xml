@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37000" name="9th Anniversary Cube (20-day) (Event)" type="EtcItem">
-		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/Hellfire/Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
+		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/ Hellfire/ Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
 		<set name="icon" val="icon.special_cube_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -12,7 +12,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37001" name="9th Anniversary Cube (10-day) (Event)" type="EtcItem">
-		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/Hellfire/Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
+		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/ Hellfire/ Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
 		<set name="icon" val="icon.special_cube_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -23,7 +23,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37002" name="9th Anniversary Cube (5-day) (Event)" type="EtcItem">
-		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/Hellfire/Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
+		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/ Hellfire/ Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
 		<set name="icon" val="icon.special_cube_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -151,8 +151,8 @@
 		<set name="reuse_delay" val="120000" />
 		<set name="weight" val="2" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="ELIXIR" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="LIQUID" />
 		<skills>
@@ -177,7 +177,7 @@
 		</skills>
 	</item>
 	<item id="37011" name="9th Anniversary Buff Scroll (P. Atk.)" type="EtcItem">
-		<!-- For 30 minutes, provides the effects of Horn Melody, Guitar Melody, Pipe Organ Melody, Lute Melody, Harp Melody, Drum Melody, and Warrior's Harmony Lv. 1. -->
+		<!-- For 30 minutes, provides the effects of Horn Melody, Pipe Organ Melody, Guitar Melody, and Drum Melody, and Warrior's Harmony Lv. 1. -->
 		<set name="icon" val="icon.etc_scroll_of_transformation_traikan_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -187,7 +187,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="37012" name="9th Anniversary Buff Scroll (M. Atk.)" type="EtcItem">
-		<!-- For 30 minutes, provides the effects of Horn Melody, Guitar Melody, Pipe Organ Melody, Lute Melody, Harp Melody, Drum Melody, and Wizard's Harmony Lv. 1. -->
+		<!-- For 30 minutes, provides the effects of Horn Melody, Pipe Organ Melody, Guitar Melody, and Drum Melody, and Wizard's Harmony Lv. 1. -->
 		<set name="icon" val="icon.etc_scroll_of_transformation_traikan_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -197,7 +197,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="37013" name="9th Anniversary Buff Scroll (P. Def.)" type="EtcItem">
-		<!-- For 30 minutes, provides the effects of Horn Melody, Guitar Melody, Pipe Organ Melody, Lute Melody, Harp Melody, Drum Melody, and Knight's Harmony Lv. 1. -->
+		<!-- For 30 minutes, provides the effects of Horn Melody, Pipe Organ Melody, Guitar Melody, and Drum Melody, and Knight's Harmony Lv. 1. -->
 		<set name="icon" val="icon.etc_scroll_of_transformation_traikan_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="is_sellable" val="false" />
@@ -221,7 +221,7 @@
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -242,7 +242,7 @@
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -263,7 +263,7 @@
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -481,11 +481,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="handler" val="ItemSkills" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<set name="handler" val="ItemSkills" />
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9971" level="1" /> <!-- Scroll of Escape: Fields of Massacre -->
 		</skills>
@@ -500,9 +500,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9972" level="1" /> <!-- Scroll of Escape: Swamp of Screams -->
 		</skills>
@@ -517,9 +517,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9973" level="1" /> <!-- Scroll of Escape: Forest of the Dead -->
 		</skills>
@@ -534,9 +534,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="9974" level="1" /> <!-- Scroll of Escape: Wall of Argos -->
 		</skills>
@@ -647,7 +647,7 @@
 		</skills>
 	</item>
 	<item id="37041" name="Divine Protection Elixir" type="EtcItem">
-		<!-- Double-click to increase Max HP/MP/CP, Defense and M. Def. by 30% for 30 min. If you receive the 'Cannibalistic Stakato Captain' from Improved Rose Spirit while this is in effect, the effect will disappear. Can be used by characters of level 85 or higher. Cannot be used in the Olympiad. Can be used in the Ceremony of Chaos. Cooldown is 5 min. -->
+		<!-- Double-click to increase Max HP/ MP/ CP, Defense and M. Def. by 30% for 30 min. If you receive the 'Cannibalistic Stakato Captain' from Improved Rose Spirit while this is in effect, the effect will disappear. Can be used by characters of level 85 or higher. Cannot be used in the Olympiad. Can be used in the Ceremony of Chaos. Cooldown is 5 min. -->
 		<set name="icon" val="icon.etc_evil_soul_core_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="reuse_delay" val="300000" />
@@ -709,7 +709,7 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="37046" name="9th Anniversary Cube (1-time use)" type="EtcItem">
-		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/Hellfire/Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
+		<!-- Lineage II's 9th Anniversary Cube. Double-click to obtain one of the following: Kaliel's Energy (Annihilation/ Hellfire/ Desire), Honey Wheat Cake, Honey Rice Cake, and Blessed Scroll of Resurrection. Can be used once a day. -->
 		<set name="icon" val="icon.special_cube_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -738,7 +738,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -762,7 +762,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -786,13 +786,13 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="37050" name="Tegaffe's Dualsword" type="Weapon">
-		<!-- Monster Weapon. Dualsword style. Initial Monster Weapon Appearance Stone. -->
+	<item id="37050" name="Tegaffe's Dual Sword" type="Weapon">
+		<!-- Monster Weapon. dual sword style. Initial Monster Weapon Appearance Stone. -->
 		<set name="icon" val="icon.Summon_orc_dual_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -810,7 +810,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -834,7 +834,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -858,7 +858,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -882,7 +882,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -906,7 +906,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -930,7 +930,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -955,7 +955,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -979,7 +979,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1000,17 +1000,17 @@
 		<set name="spiritshots" val="3" />
 		<set name="weight" val="205" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="37059" name="Mimilead's Staff" type="Weapon">
 		<!-- Monster Weapon. Staff. Initial Monster Weapon Appearance Stone. -->
@@ -1032,7 +1032,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1057,7 +1057,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1081,7 +1081,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1107,7 +1107,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
@@ -1132,7 +1132,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
@@ -1157,7 +1157,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
@@ -1228,8 +1228,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37070" name="Monster Weapon Appearance Stone: Tegaffe's Dualsword" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of Tegaffe's Dualsword. An appearance-modified item has no change in abilities. Double click to use. -->
+	<item id="37070" name="Monster Weapon Appearance Stone: Tegaffe's Dual Sword" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of Tegaffe's dual sword. An appearance-modified item has no change in abilities. Double click to use. -->
 		<set name="icon" val="icon.shape_shifting_dual_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -1474,13 +1474,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="37092" name="Dimensional Cloak of Light" type="Armor">
-		<!-- Cloak that symbolizes glory and light. With the power of dimension, characters of all levels can wear it. Defense +50, M. Def. +40 and STR/MEN/DEX/WIT/INT/CON +2. Damage received during PvP decreases by 5%. Can use Escape: Castle skill. Part of its effect does not apply when you are chaotic. Cannot be used while in a chaotic state. Cannot be transferred between servers. -->
+		<!-- Cloak that symbolizes glory and light. With the power of dimension, characters of all levels can wear it. Defense +50, M. Def. +40 and STR/ MEN/ DEX/ WIT/ INT/ CON +2. Damage received during PvP decreases by 5%. Can use Escape: Castle skill. Part of its effect does not apply when you are chaotic. Cannot be used while in a chaotic state. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.amor_goodness_cloak" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -1489,23 +1489,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="19041" level="1" /> <!-- King's Call -->
-			<skill id="19039" level="1" /> <!-- Cloak of Light -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="19041" level="1" /> <!-- King's Call -->
+			<skill id="19039" level="1" /> <!-- Cloak of Light -->
+		</skills>
 	</item>
 	<item id="37093" name="Dimensional Cloak of Darkness" type="Armor">
-		<!-- Cloak that symbolizes avarice and darkness. With the power of dimension, characters of all levels can wear it. Defense +50, M. Def. +40 and STR/MEN/DEX/WIT/INT/CON +2. Damage received during PvP decreases by 5%. Can use Escape: Castle skill. Cannot be used while in a chaotic state. Cannot be transferred between servers. -->
+		<!-- Cloak that symbolizes avarice and darkness. With the power of dimension, characters of all levels can wear it. Defense +50, M. Def. +40 and STR/ MEN/ DEX/ WIT/ INT/ CON +2. Damage received during PvP decreases by 5%. Can use Escape: Castle skill. Cannot be used while in a chaotic state. Cannot be transferred between servers. -->
 		<set name="icon" val="icon.amor_evilness_cloak" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -1514,20 +1514,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="LEATHER" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="19041" level="1" /> <!-- King's Call -->
-			<skill id="19040" level="1" /> <!-- Cloak of Darkness -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="19041" level="1" /> <!-- King's Call -->
+			<skill id="19040" level="1" /> <!-- Cloak of Darkness -->
+		</skills>
 	</item>
 	<item id="37094" name="Dimensional Treasure Chest (Low-grade)" type="EtcItem">
 		<!-- Treasure Chest obtained in dimensional space. -->

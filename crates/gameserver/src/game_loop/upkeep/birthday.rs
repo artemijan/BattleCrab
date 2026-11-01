@@ -1,16 +1,20 @@
-//! Birthday gifts — port of `taskmanager/tasks/TaskBirthday`.
+//! Birthday gifts — the mail half of Salvation's `events/CharacterBirthday`.
 //!
 //! A character's `create_date` is its birthday, and on each anniversary the
-//! server mails it a present. The task runs as part of the 06:30 daily beat
-//! (Java registers it as `TYPE_GLOBAL_TASK` at exactly that time, which is the
-//! slot [`crate::game_loop::upkeep::daily_tasks`] already owns).
+//! server mails it a present. Salvation runs this from the script's
+//! `ON_DAILY_RESET` listener, so it rides the 06:30 beat in
+//! [`crate::game_loop::upkeep::daily_tasks`]. Interlude ran it as a separate
+//! `TaskBirthday` global task, caught up from the last activation stamp; that
+//! task and its `global_tasks` table are gone.
 //!
-//! Three things about it are worth knowing before reading the code:
+//! Four things about it are worth knowing before reading the code:
 //!
-//! * **It catches up.** Java walks day by day from the task's last activation
-//!   to today, so a server that was down over a birthday still sends the gift
-//!   when it comes back. That makes this the first reader of the
-//!   `DAILY_TASK_RESET` stamp the daily reset has been writing all along.
+//! * **It looks back 24 hours, not to the last reset.** Java starts from
+//!   `now - 24 h` and walks through today, so it checks yesterday and today.
+//!   A day the server was down over is not caught up.
+//! * **So every anniversary is checked twice**, once by each of two
+//!   consecutive resets, and a character gets two gifts. That is Java's
+//!   behaviour and is kept.
 //! * **The recipient does not have to be online** — the gift is a mail row, and
 //!   the query is over the `characters` table rather than over the world.
 //! * **The age is measured against the day being checked**, not against the
@@ -24,42 +28,30 @@ use crate::db::{BirthdayDay, BirthdayMatch, DbCommand};
 use crate::model::mail::{MailType, Message};
 use crate::world::World;
 
-/// `TaskBirthday.onTimeElapsed` — ask the DB for today's birthdays, plus any
-/// day missed since the last reset.
+/// `CharacterBirthday.onDailyReset` — ask the DB for the birthdays of
+/// yesterday and today.
 ///
 /// The reply arrives as [`crate::db::DbEvent::BirthdaysLoaded`].
 pub(crate) fn check_birthdays(world: &mut World) {
-    let now = commons::util::now_millis();
-    let last = super::global_vars::get_i64(world, super::global_vars::DAILY_TASK_RESET, 0);
-    let days = days_to_check(last, now);
-    if days.is_empty() {
-        return;
-    }
+    let days = days_to_check(commons::util::now_millis());
     let _ = world.db.send(DbCommand::LoadBirthdays { days });
 }
 
-/// The `MM-DD` keys to look for, one per day from the last activation through
-/// today (Java's `for (; !TODAY.before(lastExecDate); lastExecDate.add(DATE,
-/// 1))`), each tagged with the year whose anniversary it is.
-///
-/// A `last` of 0 — a server that has never stamped a reset — checks today
-/// alone, which is what Java's `lastActivation > 0` guard amounts to.
-fn days_to_check(last: i64, now: i64) -> Vec<BirthdayDay> {
+/// The `MM-DD` keys to look for, each tagged with the year whose anniversary
+/// it is. Java's loop (`lastExecDate = now - 24 h; for (; !today.before(
+/// lastExecDate); lastExecDate.add(DATE, 1))`) visits the day 24 hours ago and
+/// then today.
+fn days_to_check(now: i64) -> Vec<BirthdayDay> {
     const MILLIS_PER_DAY: i64 = 86_400_000;
     let today = now.div_euclid(MILLIS_PER_DAY);
-    let first = if last > 0 {
-        last.div_euclid(MILLIS_PER_DAY).min(today)
-    } else {
-        today
-    };
     let mut out = Vec::new();
-    for day in first..=today {
+    for day in [today - 1, today] {
         let (year, month, dom) = commons::util::civil_from_days(day);
         out.push(BirthdayDay {
             month_day: format!("{month:02}-{dom:02}"),
             year: year as i32,
         });
-        // "If character birthday is 29-Feb and year isn't leap, send gift on
+        // "If character birthday is 29-Feb and year is not leap, send gift on
         // 28-feb" — Java checks the 29th as well while standing on the 28th.
         if month == 2 && dom == 28 && !is_leap_year(year) {
             out.push(BirthdayDay {
@@ -76,7 +68,7 @@ fn is_leap_year(year: i64) -> bool {
     (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
 
-/// `TaskBirthday.checkBirthday`'s loop body: one gift mail per matching
+/// `CharacterBirthday.checkBirthday`'s loop body: one gift mail per matching
 /// character, skipping the ones whose "anniversary" is their creation day.
 pub(crate) fn apply_loaded(world: &mut World, rows: Vec<BirthdayMatch>) {
     let mut sent = 0;
@@ -174,41 +166,38 @@ mod tests {
         days.iter().map(|d| d.month_day.clone()).collect()
     }
 
-    /// With no stored stamp — a server that has never run a daily reset —
-    /// only today is checked.
+    /// The day 24 hours back, then today.
     #[test]
-    fn a_first_run_checks_today_alone() {
-        let days = days_to_check(0, at(2026, 8, 19));
-        assert_eq!(keys(&days), ["08-19"]);
-        assert_eq!(days[0].year, 2026);
+    fn yesterday_and_today_are_checked() {
+        let days = days_to_check(at(2026, 8, 19) + 6 * 3_600_000);
+        assert_eq!(keys(&days), ["08-18", "08-19"]);
+        assert!(days.iter().all(|d| d.year == 2026));
     }
 
-    /// Java walks from the last activation **through** today, so days the
-    /// server was down are not skipped — the gift is late, not lost.
+    /// Across new year, each day keeps its own year, so the age is right.
     #[test]
-    fn a_missed_run_is_caught_up_day_by_day() {
-        let days = days_to_check(at(2026, 8, 16), at(2026, 8, 19));
-        assert_eq!(keys(&days), ["08-16", "08-17", "08-18", "08-19"]);
+    fn each_day_carries_its_own_year() {
+        let days = days_to_check(at(2027, 1, 1));
+        assert_eq!(keys(&days), ["12-31", "01-01"]);
+        assert_eq!((days[0].year, days[1].year), (2026, 2027));
     }
 
-    /// A stamp from later than "now" (a clock moved backwards) must not run
-    /// the loop backwards; Java's `!TODAY.before(lastExecDate)` stops it too.
-    #[test]
-    fn a_stamp_in_the_future_still_checks_today() {
-        let days = days_to_check(at(2026, 9, 1), at(2026, 8, 19));
-        assert_eq!(keys(&days), ["08-19"]);
-    }
-
-    /// "If character birthday is 29-Feb and year isn't leap, send gift on
+    /// "If character birthday is 29-Feb and year is not leap, send gift on
     /// 28-feb" — the 29th is checked alongside the 28th, and only then.
     #[test]
     fn a_leap_day_birthday_is_paid_on_the_28th_in_a_common_year() {
-        assert_eq!(keys(&days_to_check(0, at(2027, 2, 28))), ["02-28", "02-29"]);
+        assert_eq!(
+            keys(&days_to_check(at(2027, 2, 28))),
+            ["02-27", "02-28", "02-29"]
+        );
         // 2028 is a leap year: the 29th arrives on its own, so the 28th is
         // just the 28th.
-        assert_eq!(keys(&days_to_check(0, at(2028, 2, 28))), ["02-28"]);
-        assert_eq!(keys(&days_to_check(0, at(2028, 2, 29))), ["02-29"]);
+        assert_eq!(keys(&days_to_check(at(2028, 2, 28))), ["02-27", "02-28"]);
+        assert_eq!(keys(&days_to_check(at(2028, 2, 29))), ["02-28", "02-29"]);
         // 2100 is divisible by 100 but not 400 — not a leap year.
-        assert_eq!(keys(&days_to_check(0, at(2100, 2, 28))), ["02-28", "02-29"]);
+        assert_eq!(
+            keys(&days_to_check(at(2100, 2, 28))),
+            ["02-27", "02-28", "02-29"]
+        );
     }
 }

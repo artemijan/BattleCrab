@@ -12,10 +12,21 @@ use crate::network::masks;
 /// NPC_GENERAL, npcStringId)`): chat bubble over an NPC with a client-side
 /// localized string (no parameters).
 pub fn npc_say(npc_object_id: i32, npc_id: i32, npc_string_id: i32) -> Vec<u8> {
+    npc_say_typed(npc_object_id, npc_id, 22, npc_string_id) // ChatType.NPC_GENERAL
+}
+
+/// [`npc_say`] with an explicit `ChatType` client id (`NPC_SHOUT` 23,
+/// `WHISPER` 2, …).
+pub fn npc_say_typed(
+    npc_object_id: i32,
+    npc_id: i32,
+    chat_type: i32,
+    npc_string_id: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::NPC_SAY);
     w.write_i32(npc_object_id);
-    w.write_i32(22); // ChatType.NPC_GENERAL client id
+    w.write_i32(chat_type);
     w.write_i32(1_000_000 + npc_id);
     w.write_i32(npc_string_id);
     w.into_bytes()
@@ -683,7 +694,7 @@ pub fn nickname_changed(object_id: i32, title: &str) -> Vec<u8> {
 /// (the client draws what the character actually wears there).
 ///
 /// The wire layout is Java's, quirks included: it leads with
-/// `PAPERDOLL_TOTALSLOTS` (**32**) but then writes only **19** ints, and the
+/// `PAPERDOLL_TOTALSLOTS` (**37**) but then writes only **19** ints, and the
 /// right hand is written **twice** — at the r-hand position and again where a
 /// second weapon slot would go. Neither is a transcription slip; the client
 /// reads a fixed 19 and this is the order it reads them in.
@@ -691,7 +702,7 @@ pub fn shop_preview_info(slots: &std::collections::HashMap<PaperdollSlot, i32>) 
     use PaperdollSlot as P;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::SHOP_PREVIEW_INFO);
-    w.write_i32(32); // Java's PAPERDOLL_TOTALSLOTS, not the count that follows
+    w.write_i32(crate::model::inventory::PAPERDOLL_TOTAL_SLOTS as i32); // not the count that follows
     let at = |s: PaperdollSlot| slots.get(&s).copied().unwrap_or(0);
     for slot in [
         P::Under,

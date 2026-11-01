@@ -14,7 +14,7 @@
 //! the conditions as a robe is worn or removed — mirroring [`expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
-use crate::model::components::skills::SkillBook;
+use crate::model::components::skills::{OptionSkills, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::model::skill::effects::StatModifierEffect;
 use crate::world::World;
@@ -72,14 +72,20 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     crate::game_loop::skills::effects::refresh_passive_skill_rates(world, object_id);
 
     // --- read phase: the buffs that should be applied now, and the ones that
-    // currently are (passive buffs whose skill is in the book — the expertise
-    // penalty buffs 6209/6213 aren't learned skills, so they're left alone). ---
+    // currently are (passive buffs whose skill is in the book or among the
+    // option grants — the expertise penalty buffs 6209/6213 are neither, so
+    // they're left alone). ---
     let Some(book) = world.objects.get_component::<SkillBook>(&object_id) else {
         return false;
     };
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return false;
     };
+    let no_options = OptionSkills::default();
+    let options = world
+        .objects
+        .get_component::<OptionSkills>(&object_id)
+        .unwrap_or(&no_options);
     // `AbstractConditionalHpEffect` reads the live HP percentage, so this
     // recompute is also what turns Final Frenzy / Final Fortress on and off as
     // the bar crosses 30 %.
@@ -91,6 +97,7 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     let desired = crate::model::equip_conditions::conditioned_passive_buffs(
         &world.data,
         book,
+        options,
         inventory,
         hp_percent,
     );
@@ -101,8 +108,9 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
 
     let current: Vec<(i32, Vec<StatModifierEffect>)> =
         crate::game_loop::skills::effects::buffs_snapshot(world, object_id, |buff| {
-            (buff.passive && book.0.contains_key(&buff.skill_id))
-                .then(|| (buff.skill_id, buff.effects.clone()))
+            (buff.passive
+                && (book.0.contains_key(&buff.skill_id) || options.0.contains_key(&buff.skill_id)))
+            .then(|| (buff.skill_id, buff.effects.clone()))
         });
     if same_buff_set(&current, &desired_pairs) {
         return false;

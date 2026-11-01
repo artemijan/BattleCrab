@@ -219,7 +219,7 @@ impl QuestScript for Tutorial {
             }
             "question_mark_1" => {
                 if ctx.is_memo_state(1) {
-                    ctx.tutorial_show_question_mark(1);
+                    ctx.tutorial_show_question_mark(1, 0);
                     ctx.tutorial_close_html();
                 }
                 None
@@ -237,7 +237,7 @@ impl QuestScript for Tutorial {
                 } else {
                     ctx.player_target_npc_id()
                 };
-                ctx.tutorial_show_question_mark(28);
+                ctx.tutorial_show_question_mark(28, 0);
                 if npc_id != 0 {
                     Some(format!("{npc_id}-3.html"))
                 } else {
@@ -320,6 +320,6 @@ impl QuestScript for Tutorial {
         ctx.set_memo_state(3);
         ctx.play_sound("ItemSound.quest_tutorial");
         ctx.play_tutorial_voice("tutorial_voice_013");
-        ctx.tutorial_show_question_mark(5);
+        ctx.tutorial_show_question_mark(5, 0);
     }
 }

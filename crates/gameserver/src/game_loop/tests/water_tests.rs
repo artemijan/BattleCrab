@@ -273,7 +273,7 @@ fn a_long_swim_click_is_clamped_to_700_units() {
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     zones::revalidate_zone(&mut world, 3001, true);
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((3500, 0, -700), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((3500, 0, -700), (0, 0, 0), 1));
     let mv = world
         .objects
         .get_component::<Movement>(&3001)

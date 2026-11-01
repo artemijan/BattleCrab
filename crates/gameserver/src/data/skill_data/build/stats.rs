@@ -30,6 +30,15 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
     );
     let param = |key: &str| cx.param(key);
     let stat_mod = |stat: Stat, amount: f64| cx.stat_mod(stat, amount);
+    let flat_add = |stat: Stat, amount: f64| match cx.stat_mod(stat, amount) {
+        skill::effects::SkillEffect::StatModifier(m) => {
+            skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
+                mode: StatModifierType::Diff,
+                ..m
+            })
+        }
+        other => other,
+    };
 
     Some(match xml_name.as_str() {
         // Vital Force (148), Esprit (171), Acrobatic Move (225),
@@ -229,6 +238,37 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 .map(|el| stat_mod(el.attribute_stat(defence), amount))
                 .collect()
         }
+        // The equipment-slot counters: `AgathionSlot` and `JewelSlot` are
+        // `AbstractStatAddEffect`s, which add whatever `<mode>` says;
+        // `TalismanSlot` adds its `slots` to a counter. The bracelet and
+        // brooch item skills carry them.
+        "TalismanSlot" => param("slots")
+            .map(|n| flat_add(Stat::TalismanSlots, n))
+            .into_iter()
+            .collect(),
+        "AgathionSlot" => param("amount")
+            .map(|n| flat_add(Stat::AgathionSlots, n))
+            .into_iter()
+            .collect(),
+        "JewelSlot" => param("amount")
+            .map(|n| flat_add(Stat::BroochJewels, n))
+            .into_iter()
+            .collect(),
+        // `DamageByAttack` adds its `amount` to the damage-taken stat its
+        // `type` names; `NONE` (the default) pumps nothing.
+        "DamageByAttack" => {
+            let stat = match value_at(params, "type", level) {
+                Some("PK") => Stat::PvpDamageTaken,
+                Some("ENEMY_ALL") => Stat::PveDamageTaken,
+                Some("MOB") => Stat::PveDamageTakenMonster,
+                Some("BOSS") => Stat::PveDamageTakenRaid,
+                _ => return Some(Vec::new()),
+            };
+            param("amount")
+                .map(|n| flat_add(stat, n))
+                .into_iter()
+                .collect()
+        }
         // Polearm Mastery 216: `HitNumber` is a plain
         // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
         "HitNumber" => param("amount")
@@ -301,21 +341,28 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         "DefenceCriticalDamage" => {
             cx.stat_mod_by_mode(Stat::DefenceCriticalDamage, Stat::DefenceCriticalDamageAdd)
         }
-        // Prophecy of Wind (1357), Victories of Pa'agrio (1414).
-        // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
-        // magic branch of `calcCritDamage` reads only the
-        // multiplier, and `calcCritDamageAdd`'s magic result is
-        // never applied (`Formulas.calcMagicDam` says as much in its own comment).
-        "MagicCriticalDamage" => param("amount")
-            .filter(|_| modifier_mode == StatModifierType::Per)
-            .map(|amount| stat_mod(Stat::MagicCriticalDamage, amount))
-            .into_iter()
-            .collect(),
-        "DefenceMagicCriticalDamage" => param("amount")
-            .filter(|_| modifier_mode == StatModifierType::Per)
-            .map(|amount| stat_mod(Stat::DefenceMagicCriticalDamage, amount))
-            .into_iter()
-            .collect(),
+        // Prophecy of Wind (1357), Victories of Pa'agrio (1414). The
+        // `_ADD` halves are read by `calcCritDamageAdd`, which Salvation's
+        // `calcMagicDam` and `PhysicalDamage` add to a critical hit.
+        "MagicCriticalDamage" => {
+            cx.stat_mod_by_mode(Stat::MagicCriticalDamage, Stat::MagicCriticalDamageAdd)
+        }
+        "DefenceMagicCriticalDamage" => cx.stat_mod_by_mode(
+            Stat::DefenceMagicCriticalDamage,
+            Stat::DefenceMagicCriticalDamageAdd,
+        ),
+        "PhysicalSkillCriticalDamage" => cx.stat_mod_by_mode(
+            Stat::PhysicalSkillCriticalDamage,
+            Stat::PhysicalSkillCriticalDamageAdd,
+        ),
+        "DefencePhysicalSkillCriticalDamage" => cx.stat_mod_by_mode(
+            Stat::DefencePhysicalSkillCriticalDamage,
+            Stat::DefencePhysicalSkillCriticalDamageAdd,
+        ),
+        "DefenceMagicCriticalRate" => cx.stat_mod_by_mode(
+            Stat::DefenceMagicCriticalRate,
+            Stat::DefenceMagicCriticalRateAdd,
+        ),
         // Focus Death (355), Focus Power (357): a crit-damage
         // multiplier that applies only from a given attack
         // position. Java merges `(amount/100)+1` multiplicatively
@@ -356,7 +403,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // ones any reachable skill sets are `pAtk` and
         // `pAccuracy`, so those two are read and the rest keep
         // their zero default (the same
-        // scope-to-what-the-dist-reaches call `TriggerSkillByAttack`
+        // scope-to-what-the-dist-reaches call `TriggerSkillByDamageDealt`
         // made).
         //
         // Two conditions, both from Java's static fields:
@@ -488,6 +535,25 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             amount: param("amount").unwrap_or(1.0) as i32,
             max_charges: param("maxCharges").unwrap_or(0.0) as i32,
         }],
+        "FocusMaxMomentum" => vec![skill::effects::SkillEffect::FocusMaxMomentum],
+        "GetMomentum" => vec![skill::effects::SkillEffect::GetMomentum {
+            ticks: cx.int_param("ticks", 0),
+        }],
+        "FocusSouls" => vec![skill::effects::SkillEffect::FocusSouls {
+            charge: cx.int_param("charge", 0),
+        }],
+        // `pump` merges `maxSouls` into `MAX_SOULS`; the marker keeps the
+        // `ON_PLAYABLE_EXP_CHANGED` listener's threshold.
+        "SoulEating" => {
+            let mut effects: Vec<_> = param("maxSouls")
+                .map(|n| flat_add(Stat::MaxSouls, n))
+                .into_iter()
+                .collect();
+            effects.push(skill::effects::SkillEffect::SoulEating {
+                exp_needed: param("expNeeded").unwrap_or(0.0) as i64,
+            });
+            effects
+        }
         // Blessing of Protection (5182): PK-damage immunity
         // (`pvp::protection_blessing_blocks`). No stat
         // modifier, so it would otherwise fall through to an empty
@@ -547,6 +613,17 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             vec![skill::effects::SkillEffect::PolearmSingleTarget]
         }
         "Passive" => vec![skill::effects::SkillEffect::Passive],
+        // `AbstractStatEffect(params, mulStat, SKILL_POWER_ADD)`: `PER`
+        // multiplies the skill-power stat (the registry path), `DIFF` adds to
+        // `SKILL_POWER_ADD` instead.
+        "PhysicalSkillPower" | "MagicalSkillPower"
+            if cx.modifier_mode == StatModifierType::Diff =>
+        {
+            param("amount")
+                .map(|amount| stat_mod(Stat::SkillPowerAdd, amount))
+                .into_iter()
+                .collect()
+        }
         _ => return None,
     })
 }

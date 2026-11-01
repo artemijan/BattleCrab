@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="12600" name="Foundation Sealed Majestic Plate Armor" type="EtcItem">
 		<!-- Rare Sealed Majestic Plate Armor that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -688,9 +688,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="DAGGER_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -704,9 +704,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BOW_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -720,12 +720,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -739,12 +739,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="KAMAEL" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -758,9 +758,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BUFF_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -774,9 +774,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="SUMMON_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -842,12 +842,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="24398000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SHIELD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -861,12 +861,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="24398000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -880,12 +880,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="24398000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -899,12 +899,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="24398000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BARD" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -959,12 +959,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="HEAL_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="maxMp">592</stat>
 		</stats>
@@ -978,12 +978,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BUFF_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="maxMp">592</stat>
 		</stats>
@@ -997,12 +997,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SUMMON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="maxMp">592</stat>
 		</stats>
@@ -1016,12 +1016,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WIZARD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="maxMp">592</stat>
 		</stats>
@@ -1058,9 +1058,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="DAGGER_MASTER" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12677" name="Foundation Dynasty Jewel Leather Armor" type="EtcItem">
 		<!-- Rare Dynasty Jewel Leather Armor that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1071,9 +1071,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BOW_MASTER" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12678" name="Foundation Dynasty Jewel Leather Armor" type="EtcItem">
 		<!-- Rare Dynasty Jewel Leather Armor that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1084,9 +1084,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="FORCE_MASTER" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12679" name="Foundation Dynasty Jewel Leather Armor" type="EtcItem">
 		<!-- Rare Dynasty Jewel Leather Armor that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1097,9 +1097,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="WEAPON_MASTER" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12680" name="Foundation Dynasty Jewel Leather Armor" type="EtcItem">
 		<!-- Rare Dynasty Jewel Leather Armor that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1110,9 +1110,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BUFF_MASTER" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12681" name="Foundation Dynasty Jewel Leather Armor" type="EtcItem">
 		<!-- Rare Dynasty Jewel Leather Armor that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1123,9 +1123,9 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="25255000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="SUMMON_MASTER" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="12682" name="Foundation Dynasty Tunic" type="EtcItem">
 		<!-- Rare Dynasty Tunic that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1150,12 +1150,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="HEAL_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -1170,12 +1170,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BUFF_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -1190,12 +1190,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SUMMON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -1210,12 +1210,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="18298000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WIZARD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -1240,12 +1240,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="33673000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SHIELD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="12689" name="Foundation Dynasty Platinum Plate" type="EtcItem">
 		<!-- Rare Dynasty Platinum Plate that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1256,12 +1256,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="33673000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="12690" name="Foundation Dynasty Platinum Plate" type="EtcItem">
 		<!-- Rare Dynasty Platinum Plate that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1272,12 +1272,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="33673000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="12691" name="Foundation Dynasty Platinum Plate" type="EtcItem">
 		<!-- Rare Dynasty Platinum Plate that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->
@@ -1288,12 +1288,12 @@
 		<set name="crystal_type" val="S" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="price" val="33673000" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BARD" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="12692" name="Foundation Dynasty Helmet" type="EtcItem">
 		<!-- Rare Dynasty Helmet that requires a thorough varnishing. It can be varnished by the Blacksmith of Mammon. -->

@@ -70,12 +70,6 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             info!("GameLoop: loaded {} premium accounts.", entries.len());
             world.premium = entries.into_iter().collect();
         }
-        DbEvent::LotteryLoaded { row, draws } => {
-            crate::game_loop::activities::lottery::on_loaded(world, row, draws);
-        }
-        DbEvent::LotteryTicketsLoaded { round, rows } => {
-            crate::game_loop::activities::lottery::finish_complete(world, round, rows);
-        }
         DbEvent::MdtLoaded { history, bets } => {
             crate::game_loop::activities::monster_race::on_mdt_loaded(world, history, bets);
         }

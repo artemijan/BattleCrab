@@ -11,6 +11,7 @@
 		<race name="DWARF" point="monster_race" />
 		<race name="ELF" point="monster_race" />
 		<race name="KAMAEL" point="monster_race" />
+		<race name="ERTHEIA" point="monster_race" />
 	</zone>
 	<zone name="monster_race_1" type="RespawnZone" shape="NPoly" minZ="-3615" maxZ="-3415">
 		<node X="13308" Y="181324" />
@@ -23,6 +24,7 @@
 		<race name="DWARF" point="monster_race" />
 		<race name="ELF" point="monster_race" />
 		<race name="KAMAEL" point="monster_race" />
+		<race name="ERTHEIA" point="monster_race" />
 	</zone>
 	<zone name="monster_race_2" type="RespawnZone" shape="NPoly" minZ="-3610" maxZ="-3410">
 		<node X="13560" Y="182677" />
@@ -35,6 +37,7 @@
 		<race name="DWARF" point="monster_race" />
 		<race name="ELF" point="monster_race" />
 		<race name="KAMAEL" point="monster_race" />
+		<race name="ERTHEIA" point="monster_race" />
 	</zone>
 	<zone name="monster_race_PVP" type="RespawnZone" shape="NPoly" minZ="-3612" maxZ="-3412">
 		<node X="11699" Y="182677" />
@@ -47,6 +50,7 @@
 		<race name="DWARF" point="monster_race_PVP" />
 		<race name="ELF" point="monster_race_PVP" />
 		<race name="KAMAEL" point="monster_race_PVP" />
+		<race name="ERTHEIA" point="monster_race_PVP" />
 	</zone>
 	<zone name="oracle_of_dawn" type="RespawnZone" shape="NPoly" minZ="-5709" maxZ="-4009">
 		<node X="-80523" Y="108356" />
@@ -59,6 +63,7 @@
 		<race name="DWARF" point="oracle_of_dawn" />
 		<race name="ELF" point="oracle_of_dawn" />
 		<race name="KAMAEL" point="oracle_of_dawn" />
+		<race name="ERTHEIA" point="oracle_of_dawn" />
 	</zone>
 	<zone name="oracle_of_dusk" type="RespawnZone" shape="NPoly" minZ="-5835" maxZ="-4135">
 		<node X="-81548" Y="83569" />
@@ -71,6 +76,7 @@
 		<race name="DWARF" point="oracle_of_dusk" />
 		<race name="ELF" point="oracle_of_dusk" />
 		<race name="KAMAEL" point="oracle_of_dusk" />
+		<race name="ERTHEIA" point="oracle_of_dusk" />
 	</zone>
 	<zone name="gm_room_solo1" type="RespawnZone" shape="NPoly" minZ="-3049" maxZ="-2849">
 		<node X="-116299" Y="-251426" />
@@ -83,6 +89,7 @@
 		<race name="DWARF" point="gm_room_solo1" />
 		<race name="ELF" point="gm_room_solo1" />
 		<race name="KAMAEL" point="gm_room_solo1" />
+		<race name="ERTHEIA" point="gm_room_solo1" />
 	</zone>
 	<zone name="gm_room_solo2" type="RespawnZone" shape="NPoly" minZ="-3053" maxZ="-2853">
 		<node X="-113350" Y="-251408" />
@@ -95,6 +102,7 @@
 		<race name="DWARF" point="gm_room_solo2" />
 		<race name="ELF" point="gm_room_solo2" />
 		<race name="KAMAEL" point="gm_room_solo2" />
+		<race name="ERTHEIA" point="gm_room_solo2" />
 	</zone>
 	<zone name="gm_room" type="RespawnZone" shape="NPoly" minZ="-3050" maxZ="-2850">
 		<node X="-115727" Y="-251652" />
@@ -107,6 +115,7 @@
 		<race name="DWARF" point="gm_room" />
 		<race name="ELF" point="gm_room" />
 		<race name="KAMAEL" point="gm_room" />
+		<race name="ERTHEIA" point="gm_room" />
 	</zone>
 	<zone name="aden_town_23_17" type="RespawnZone" shape="NPoly" minZ="-4500" maxZ="-597">
 		<node X="116830" Y="-12269" />
@@ -120,6 +129,7 @@
 		<race name="DWARF" point="aden_town" />
 		<race name="ELF" point="aden_town" />
 		<race name="KAMAEL" point="aden_town" />
+		<race name="ERTHEIA" point="aden_town" />
 	</zone>
 	<zone name="oren_castle_town_23_18_2" type="RespawnZone" shape="NPoly" minZ="-3908" maxZ="-2408">
 		<node X="98126" Y="18787" />
@@ -133,6 +143,7 @@
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="ELF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="oren_castle_town_23_18_1" type="RespawnZone" shape="NPoly" minZ="-4099" maxZ="-2599">
 		<node X="98122" Y="-125" />
@@ -147,6 +158,7 @@
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="ELF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_22_20_4" type="RespawnZone" shape="NPoly" minZ="-3966" maxZ="-2466">
 		<node X="65560" Y="72724" />
@@ -159,6 +171,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_22_20_3" type="RespawnZone" shape="NPoly" minZ="-3979" maxZ="-2479">
 		<node X="65541" Y="89966" />
@@ -171,6 +184,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_22_20_2" type="RespawnZone" shape="NPoly" minZ="-3953" maxZ="-2453">
 		<node X="73291" Y="96517" />
@@ -183,6 +197,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_22_20_1" type="RespawnZone" shape="NPoly" minZ="-3976" maxZ="-2476">
 		<node X="91486" Y="94741" />
@@ -195,6 +210,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="aden_town_23_19_3" type="RespawnZone" shape="NPoly" minZ="-3671" maxZ="3829">
 		<node X="127915" Y="59088" />
@@ -208,6 +224,7 @@
 		<race name="DWARF" point="aden_town" />
 		<race name="ELF" point="aden_town" />
 		<race name="KAMAEL" point="aden_town" />
+		<race name="ERTHEIA" point="aden_town" />
 	</zone>
 	<zone name="aden_town_23_19_2" type="RespawnZone" shape="NPoly" minZ="-3826" maxZ="-1326">
 		<node X="127605" Y="32531" />
@@ -220,6 +237,7 @@
 		<race name="DWARF" point="aden_town" />
 		<race name="ELF" point="aden_town" />
 		<race name="KAMAEL" point="aden_town" />
+		<race name="ERTHEIA" point="aden_town" />
 	</zone>
 	<zone name="aden_town_23_19_1" type="RespawnZone" shape="NPoly" minZ="-4089" maxZ="-1589">
 		<node X="98303" Y="32680" />
@@ -232,6 +250,7 @@
 		<race name="DWARF" point="aden_town" />
 		<race name="ELF" point="aden_town" />
 		<race name="KAMAEL" point="aden_town" />
+		<race name="ERTHEIA" point="aden_town" />
 	</zone>
 	<zone name="oren_castle_town_23_20_4" type="RespawnZone" shape="NPoly" minZ="-3758" maxZ="1242">
 		<node X="98169" Y="65360" />
@@ -244,6 +263,7 @@
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="ELF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="oren_castle_town_23_20_3" type="RespawnZone" shape="NPoly" minZ="-3744" maxZ="1256">
 		<node X="101128" Y="88045" />
@@ -257,6 +277,7 @@
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="ELF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_23_20_2" type="RespawnZone" shape="NPoly" minZ="-4053" maxZ="1947">
 		<node X="115811" Y="95756" />
@@ -271,6 +292,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="heiness_town_23_22_2" type="RespawnZone" shape="NPoly" minZ="-4572" maxZ="-2072">
 		<node X="123367" Y="145103" />
@@ -284,6 +306,7 @@
 		<race name="DWARF" point="heiness_town" />
 		<race name="ELF" point="heiness_town" />
 		<race name="KAMAEL" point="heiness_town" />
+		<race name="ERTHEIA" point="heiness_town" />
 	</zone>
 	<zone name="heiness_town_23_22_1" type="RespawnZone" shape="NPoly" minZ="-4578" maxZ="-2078">
 		<node X="108429" Y="151108" />
@@ -298,6 +321,7 @@
 		<race name="DWARF" point="heiness_town" />
 		<race name="ELF" point="heiness_town" />
 		<race name="KAMAEL" point="heiness_town" />
+		<race name="ERTHEIA" point="heiness_town" />
 	</zone>
 	<zone name="heiness_town_22_22" type="RespawnZone" shape="NPoly" minZ="-4331" maxZ="-1831">
 		<node X="93549" Y="155049" />
@@ -311,6 +335,7 @@
 		<race name="DWARF" point="heiness_town" />
 		<race name="ELF" point="heiness_town" />
 		<race name="KAMAEL" point="heiness_town" />
+		<race name="ERTHEIA" point="heiness_town" />
 	</zone>
 	<zone name="giran_castle_town_21_24" type="RespawnZone" shape="NPoly" minZ="-5068" maxZ="2932">
 		<node X="56950" Y="199547" />
@@ -329,6 +354,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="dion_castle_town_21_23_3" type="RespawnZone" shape="NPoly" minZ="-3779" maxZ="-1279">
 		<node X="43888" Y="163713" />
@@ -341,6 +367,7 @@
 		<race name="DWARF" point="dion_castle_town" />
 		<race name="ELF" point="dion_castle_town" />
 		<race name="KAMAEL" point="dion_castle_town" />
+		<race name="ERTHEIA" point="dion_castle_town" />
 	</zone>
 	<zone name="dion_castle_town_21_23_2" type="RespawnZone" shape="NPoly" minZ="-3807" maxZ="-1807">
 		<node X="32568" Y="171064" />
@@ -352,6 +379,7 @@
 		<race name="DWARF" point="dion_castle_town" />
 		<race name="ELF" point="dion_castle_town" />
 		<race name="KAMAEL" point="dion_castle_town" />
+		<race name="ERTHEIA" point="dion_castle_town" />
 	</zone>
 	<zone name="dion_castle_town_21_23_1" type="RespawnZone" shape="NPoly" minZ="-3774" maxZ="-1274">
 		<node X="32803" Y="163712" />
@@ -364,6 +392,7 @@
 		<race name="DWARF" point="dion_castle_town" />
 		<race name="ELF" point="dion_castle_town" />
 		<race name="KAMAEL" point="dion_castle_town" />
+		<race name="ERTHEIA" point="dion_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_20_22_2" type="RespawnZone" shape="NPoly" minZ="-4656" maxZ="-2656">
 		<node X="-65" Y="158365" />
@@ -376,6 +405,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_20_22_1" type="RespawnZone" shape="NPoly" minZ="-5924" maxZ="-924">
 		<node X="-232" Y="159206" />
@@ -392,6 +422,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="dion_castle_town_19_21" type="RespawnZone" shape="NPoly" minZ="-4255" maxZ="-2755">
 		<node X="-3165" Y="119934" />
@@ -404,6 +435,7 @@
 		<race name="DWARF" point="dion_castle_town" />
 		<race name="ELF" point="dion_castle_town" />
 		<race name="KAMAEL" point="dion_castle_town" />
+		<race name="ERTHEIA" point="dion_castle_town" />
 	</zone>
 	<zone name="dion_castle_town_20_20" type="RespawnZone" shape="NPoly" minZ="-4782" maxZ="218">
 		<node X="2167" Y="97060" />
@@ -416,6 +448,7 @@
 		<race name="DWARF" point="dion_castle_town" />
 		<race name="ELF" point="dion_castle_town" />
 		<race name="KAMAEL" point="dion_castle_town" />
+		<race name="ERTHEIA" point="dion_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_19_24" type="RespawnZone" shape="NPoly" minZ="-4677" maxZ="-3077">
 		<node X="-17049" Y="204942" />
@@ -428,6 +461,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_23_2_2" type="RespawnZone" shape="NPoly" minZ="-4399" maxZ="-2899">
 		<node X="-41226" Y="187772" />
@@ -440,6 +474,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_23_2_1" type="RespawnZone" shape="NPoly" minZ="-4458" maxZ="-2958">
 		<node X="-40885" Y="176647" />
@@ -453,6 +488,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_23_1_2" type="RespawnZone" shape="NPoly" minZ="-4570" maxZ="-3070">
 		<node X="-38529" Y="173004" />
@@ -465,6 +501,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_23_1_1" type="RespawnZone" shape="NPoly" minZ="-4566" maxZ="-3066">
 		<node X="-38501" Y="173045" />
@@ -477,6 +514,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_22" type="RespawnZone" shape="NPoly" minZ="-5552" maxZ="-552">
 		<node X="-42492" Y="158681" />
@@ -489,6 +527,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="gludin_town_18_21_3" type="RespawnZone" shape="NPoly" minZ="-3376" maxZ="-576">
 		<node X="-41822" Y="125676" />
@@ -503,6 +542,7 @@
 		<race name="DWARF" point="gludin_town" />
 		<race name="ELF" point="gludin_town" />
 		<race name="KAMAEL" point="gludin_town" />
+		<race name="ERTHEIA" point="gludin_town" />
 	</zone>
 	<zone name="gludin_town_18_21_2" type="RespawnZone" shape="NPoly" minZ="-3253" maxZ="-1753">
 		<node X="-49822" Y="129200" />
@@ -517,6 +557,7 @@
 		<race name="DWARF" point="gludin_town" />
 		<race name="ELF" point="gludin_town" />
 		<race name="KAMAEL" point="gludin_town" />
+		<race name="ERTHEIA" point="gludin_town" />
 	</zone>
 	<zone name="gludin_town_18_21_1" type="RespawnZone" shape="NPoly" minZ="-4184" maxZ="-1184">
 		<node X="-65686" Y="115819" />
@@ -529,6 +570,7 @@
 		<race name="DWARF" point="gludin_town" />
 		<race name="ELF" point="gludin_town" />
 		<race name="KAMAEL" point="gludin_town" />
+		<race name="ERTHEIA" point="gludin_town" />
 	</zone>
 	<zone name="darkelf_town" type="RespawnZone" shape="NPoly" minZ="-3777" maxZ="-1277">
 		<node X="-33804" Y="86223" />
@@ -539,6 +581,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_20" type="RespawnZone" shape="NPoly" minZ="-3772" maxZ="-1272">
@@ -551,6 +594,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="darkelf_town_20_19" type="RespawnZone" shape="NPoly" minZ="-3680" maxZ="1320">
 		<node X="-200" Y="32455" />
@@ -562,6 +606,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="elf_town_21_18" type="RespawnZone" shape="NPoly" minZ="-3698" maxZ="302">
@@ -575,6 +620,7 @@
 		<race name="ORC" point="elf_town" />
 		<race name="DWARF" point="elf_town" />
 		<race name="KAMAEL" point="elf_town" />
+		<race name="ERTHEIA" point="elf_town" />
 		<race name="DARK_ELF" point="darkelf_town" />
 	</zone>
 	<zone name="darkelf_town_21_18_1" type="RespawnZone" shape="NPoly" minZ="-4871" maxZ="129">
@@ -589,6 +635,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="darkelf_town_21_18_2" type="RespawnZone" shape="NPoly" minZ="-4866" maxZ="134">
@@ -602,6 +649,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="dion_castle_town_21_20" type="RespawnZone" shape="NPoly" minZ="-5137" maxZ="-137">
@@ -615,6 +663,7 @@
 		<race name="ORC" point="dion_castle_town" />
 		<race name="DWARF" point="dion_castle_town" />
 		<race name="KAMAEL" point="dion_castle_town" />
+		<race name="ERTHEIA" point="dion_castle_town" />
 	</zone>
 	<zone name="oren_castle_town_21_19_1" type="RespawnZone" shape="NPoly" minZ="-4376" maxZ="124">
 		<node X="49993" Y="31658" />
@@ -627,6 +676,7 @@
 		<race name="ORC" point="oren_castle_town" />
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="oren_castle_town_21_19_2" type="RespawnZone" shape="NPoly" minZ="-4384" maxZ="116">
 		<node X="62307" Y="35180" />
@@ -640,6 +690,7 @@
 		<race name="ORC" point="oren_castle_town" />
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="oren_castle_town_21_19_3" type="RespawnZone" shape="NPoly" minZ="-4325" maxZ="175">
 		<node X="61496" Y="52325" />
@@ -652,6 +703,7 @@
 		<race name="ORC" point="oren_castle_town" />
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="oren_castle_town_21_20" type="RespawnZone" shape="NPoly" minZ="-4000" maxZ="-2000">
 		<node X="63480" Y="64066" />
@@ -664,6 +716,7 @@
 		<race name="ORC" point="oren_castle_town" />
 		<race name="DWARF" point="oren_castle_town" />
 		<race name="KAMAEL" point="oren_castle_town" />
+		<race name="ERTHEIA" point="oren_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_21_20" type="RespawnZone" shape="NPoly" minZ="-4000" maxZ="-2000">
 		<node X="63480" Y="74029" />
@@ -676,6 +729,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="DARK_ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_21_21_1" type="RespawnZone" shape="NPoly" minZ="-3931" maxZ="-1931">
 		<node X="63477" Y="98288" />
@@ -688,6 +742,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="DARK_ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_21_21_2" type="RespawnZone" shape="NPoly" minZ="-4188" maxZ="-1588">
 		<node X="62610" Y="100826" />
@@ -701,6 +756,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="DARK_ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_habor_21_23" type="RespawnZone" shape="NPoly" minZ="-4735" maxZ="-3235">
 		<node X="42947" Y="190296" />
@@ -714,6 +770,7 @@
 		<race name="ORC" point="giran_habor" />
 		<race name="DWARF" point="giran_habor" />
 		<race name="KAMAEL" point="giran_habor" />
+		<race name="ERTHEIA" point="giran_habor" />
 	</zone>
 	<zone name="colosseum_24_19" type="RespawnZone" shape="NPoly" minZ="-3498" maxZ="-3298">
 		<node X="151252" Y="45918" />
@@ -730,6 +787,7 @@
 		<race name="ORC" point="colosseum" />
 		<race name="DWARF" point="colosseum" />
 		<race name="KAMAEL" point="colosseum" />
+		<race name="ERTHEIA" point="colosseum" />
 	</zone>
 	<zone name="colosseum_24_19" type="RespawnZone" shape="NPoly" minZ="-3468" maxZ="-3268">
 		<node X="147779" Y="46196" />
@@ -744,6 +802,7 @@
 		<race name="ORC" point="colosseum" />
 		<race name="DWARF" point="colosseum" />
 		<race name="KAMAEL" point="colosseum" />
+		<race name="ERTHEIA" point="colosseum" />
 	</zone>
 	<zone name="colosseum_24_19" type="RespawnZone" shape="NPoly" minZ="-3472" maxZ="-3272">
 		<node X="151221" Y="46184" />
@@ -758,6 +817,7 @@
 		<race name="ORC" point="colosseum" />
 		<race name="DWARF" point="colosseum" />
 		<race name="KAMAEL" point="colosseum" />
+		<race name="ERTHEIA" point="colosseum" />
 	</zone>
 	<zone name="darkelf_town_17_20_1" type="RespawnZone" shape="NPoly" minZ="-4088" maxZ="-2088">
 		<node X="-71038" Y="69341" />
@@ -770,6 +830,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="darkelf_town_17_20_2" type="RespawnZone" shape="NPoly" minZ="-3992" maxZ="-1992">
@@ -782,6 +843,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="darkelf_town_17_20_3" type="RespawnZone" shape="NPoly" minZ="-3968" maxZ="-1968">
@@ -794,6 +856,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="gludio_castle_town_18_20_1" type="RespawnZone" shape="NPoly" minZ="-4079" maxZ="921">
@@ -809,6 +872,7 @@
 		<race name="DWARF" point="gludio_castle_town" />
 		<race name="ELF" point="gludio_castle_town" />
 		<race name="KAMAEL" point="gludio_castle_town" />
+		<race name="ERTHEIA" point="gludio_castle_town" />
 	</zone>
 	<zone name="darkelf_town_19_20_1" type="RespawnZone" shape="NPoly" minZ="-4100" maxZ="-3100">
 		<node X="-33765" Y="83315" />
@@ -820,6 +884,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="darkelf_town_19_20_2" type="RespawnZone" shape="NPoly" minZ="-4235" maxZ="-3235">
@@ -832,6 +897,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="darkelf_town_19_20_3" type="RespawnZone" shape="NPoly" minZ="-3932" maxZ="-2932">
@@ -843,6 +909,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="darkelf_town_19_20_4" type="RespawnZone" shape="NPoly" minZ="-4017" maxZ="-3017">
@@ -855,6 +922,7 @@
 		<race name="ORC" point="darkelf_town" />
 		<race name="DWARF" point="darkelf_town" />
 		<race name="KAMAEL" point="darkelf_town" />
+		<race name="ERTHEIA" point="darkelf_town" />
 		<race name="ELF" point="elf_town" />
 	</zone>
 	<zone name="elf_town_19_20_1" type="RespawnZone" shape="NPoly" minZ="-4281" maxZ="-3281">
@@ -867,6 +935,7 @@
 		<race name="ORC" point="elf_town" />
 		<race name="DWARF" point="elf_town" />
 		<race name="KAMAEL" point="elf_town" />
+		<race name="ERTHEIA" point="elf_town" />
 		<race name="DARK_ELF" point="darkelf_town" />
 	</zone>
 	<zone name="elf_town_19_20_2" type="RespawnZone" shape="NPoly" minZ="-4215" maxZ="-3215">
@@ -878,6 +947,7 @@
 		<race name="ORC" point="elf_town" />
 		<race name="DWARF" point="elf_town" />
 		<race name="KAMAEL" point="elf_town" />
+		<race name="ERTHEIA" point="elf_town" />
 		<race name="DARK_ELF" point="darkelf_town" />
 	</zone>
 	<zone name="DMZ_20_20" type="RespawnZone" shape="NPoly" minZ="-4245" maxZ="-3245">
@@ -892,6 +962,7 @@
 		<race name="DWARF" point="neutral_zone" />
 		<race name="DARK_ELF" point="neutral_zone" />
 		<race name="KAMAEL" point="neutral_zone" />
+		<race name="ERTHEIA" point="neutral_zone" />
 	</zone>
 	<zone name="giran_castle_town_22_23_1" type="RespawnZone" shape="NPoly" minZ="-4483" maxZ="-2483">
 		<node X="65089" Y="177671" />
@@ -905,6 +976,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="DARK_ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="giran_castle_town_22_23_2" type="RespawnZone" shape="NPoly" minZ="-4390" maxZ="-2000">
 		<node X="65066" Y="163463" />
@@ -918,42 +990,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="DARK_ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
-	</zone>
-	<zone name="talking_island_town_21_25" type="RespawnZone" shape="NPoly" minZ="-6874" maxZ="-4874">
-		<node X="41090" Y="242210" />
-		<node X="49934" Y="242210" />
-		<node X="49985" Y="250489" />
-		<node X="41141" Y="250489" />
-		<race name="ELF" point="talking_island_town" />
-		<race name="HUMAN" point="talking_island_town" />
-		<race name="ORC" point="talking_island_town" />
-		<race name="DWARF" point="talking_island_town" />
-		<race name="DARK_ELF" point="talking_island_town" />
-		<race name="KAMAEL" point="talking_island_town" />
-	</zone>
-	<zone name="Cedric's_Training_Hall_17_25" type="RespawnZone" shape="NPoly" minZ="-3148" maxZ="-2948">
-		<node X="-71944" Y="258332" />
-		<node X="-71316" Y="257772" />
-		<node X="-70728" Y="258468" />
-		<node X="-71364" Y="259000" />
-		<race name="HUMAN" point="Cedric's_Training_Hall" />
-		<race name="DARK_ELF" point="Cedric's_Training_Hall" />
-		<race name="ORC" point="Cedric's_Training_Hall" />
-		<race name="DWARF" point="Cedric's_Training_Hall" />
-		<race name="ELF" point="Cedric's_Training_Hall" />
-		<race name="KAMAEL" point="Cedric's_Training_Hall" />
-	</zone>
-	<zone name="Einhovant's_School_of_Magic_17_25" type="RespawnZone" shape="NPoly" minZ="-3606" maxZ="-3406">
-		<node X="-90831" Y="247813" />
-		<node X="-90011" Y="248306" />
-		<node X="-90341" Y="248870" />
-		<node X="-91170" Y="248248" />
-		<race name="HUMAN" point="Einhovant's_School_of_Magic" />
-		<race name="DARK_ELF" point="Einhovant's_School_of_Magic" />
-		<race name="ORC" point="Einhovant's_School_of_Magic" />
-		<race name="DWARF" point="Einhovant's_School_of_Magic" />
-		<race name="ELF" point="Einhovant's_School_of_Magic" />
-		<race name="KAMAEL" point="Einhovant's_School_of_Magic" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="Mothertree_Glade_21_19" type="RespawnZone" shape="NPoly" minZ="-3555" maxZ="-3355">
 		<node X="44096" Y="40595" />
@@ -966,6 +1003,7 @@
 		<race name="DWARF" point="Mothertree_Glade" />
 		<race name="ELF" point="Mothertree_Glade" />
 		<race name="KAMAEL" point="Mothertree_Glade" />
+		<race name="ERTHEIA" point="Mothertree_Glade" />
 	</zone>
 	<zone name="Temple_of_Shilen_20_18" type="RespawnZone" shape="NPoly" minZ="-4276" maxZ="-4076">
 		<node X="27704" Y="10253" />
@@ -977,6 +1015,7 @@
 		<race name="ORC" point="Temple_of_Shilen" />
 		<race name="DWARF" point="Temple_of_Shilen" />
 		<race name="KAMAEL" point="Temple_of_Shilen" />
+		<race name="ERTHEIA" point="Temple_of_Shilen" />
 		<race name="ELF" point="Mothertree_Glade" />
 	</zone>
 	<zone name="Temple_of_Paagrio_18_14" type="RespawnZone" shape="NPoly" minZ="-718" maxZ="-518">
@@ -990,6 +1029,7 @@
 		<race name="DWARF" point="Temple_of_Paagrio" />
 		<race name="ELF" point="Temple_of_Paagrio" />
 		<race name="KAMAEL" point="Temple_of_Paagrio" />
+		<race name="ERTHEIA" point="Temple_of_Paagrio" />
 	</zone>
 	<zone name="Quarry_23_12" type="RespawnZone" shape="NPoly" minZ="-623" maxZ="-423">
 		<node X="108734" Y="-175480" />
@@ -1002,6 +1042,7 @@
 		<race name="DWARF" point="Quarry" />
 		<race name="ELF" point="Quarry" />
 		<race name="KAMAEL" point="Quarry" />
+		<race name="ERTHEIA" point="Quarry" />
 	</zone>
 	<zone name="spirit_cave_16_19" type="RespawnZone" shape="NPoly" minZ="-552" maxZ="5448">
 		<node X="-126634" Y="36733" />
@@ -1017,6 +1058,7 @@
 		<race name="DWARF" point="spirit_cave" />
 		<race name="ELF" point="spirit_cave" />
 		<race name="KAMAEL" point="spirit_cave" />
+		<race name="ERTHEIA" point="spirit_cave" />
 	</zone>
 	<zone name="godard_town_23_17_1" type="RespawnZone" shape="NPoly" minZ="-6540" maxZ="3460">
 		<node X="97820" Y="-33007" />
@@ -1032,6 +1074,7 @@
 		<race name="DWARF" point="godard_town" />
 		<race name="ELF" point="godard_town" />
 		<race name="KAMAEL" point="godard_town" />
+		<race name="ERTHEIA" point="godard_town" />
 	</zone>
 	<zone name="godard_town_24_17_2" type="RespawnZone" shape="NPoly" minZ="-3272" maxZ="2272">
 		<node X="152215" Y="-33320" />
@@ -1044,6 +1087,7 @@
 		<race name="DWARF" point="godard_town" />
 		<race name="ELF" point="godard_town" />
 		<race name="KAMAEL" point="godard_town" />
+		<race name="ERTHEIA" point="godard_town" />
 	</zone>
 	<zone name="godard_town_23_15_3" type="RespawnZone" shape="NPoly" minZ="-3600" maxZ="1900">
 		<node X="126132" Y="-77416" />
@@ -1058,6 +1102,7 @@
 		<race name="DWARF" point="godard_town" />
 		<race name="ELF" point="godard_town" />
 		<race name="KAMAEL" point="godard_town" />
+		<race name="ERTHEIA" point="godard_town" />
 	</zone>
 	<zone name="godard_town_23_15_4" type="RespawnZone" shape="NPoly" minZ="-3500" maxZ="2508">
 		<node X="103811" Y="-71203" />
@@ -1071,6 +1116,7 @@
 		<race name="DWARF" point="godard_town" />
 		<race name="ELF" point="godard_town" />
 		<race name="KAMAEL" point="godard_town" />
+		<race name="ERTHEIA" point="godard_town" />
 	</zone>
 	<zone name="the_royal_family's_catacomb_25_15_1" type="RespawnZone" shape="NPoly" minZ="-7263" maxZ="-7063">
 		<node X="181198" Y="-86516" />
@@ -1083,6 +1129,7 @@
 		<race name="DWARF" point="the_royal_family's_catacomb" />
 		<race name="ELF" point="the_royal_family's_catacomb" />
 		<race name="KAMAEL" point="the_royal_family's_catacomb" />
+		<race name="ERTHEIA" point="the_royal_family's_catacomb" />
 	</zone>
 	<zone name="the_royal_family's_catacomb_25_15_2" type="RespawnZone" shape="NPoly" minZ="-7263" maxZ="-7063">
 		<node X="179511" Y="-89903" />
@@ -1095,6 +1142,7 @@
 		<race name="DWARF" point="the_royal_family's_catacomb" />
 		<race name="ELF" point="the_royal_family's_catacomb" />
 		<race name="KAMAEL" point="the_royal_family's_catacomb" />
+		<race name="ERTHEIA" point="the_royal_family's_catacomb" />
 	</zone>
 	<zone name="the_royal_family's_catacomb_25_15_3" type="RespawnZone" shape="NPoly" minZ="-7263" maxZ="-7063">
 		<node X="174498" Y="-82751" />
@@ -1107,6 +1155,7 @@
 		<race name="DWARF" point="the_royal_family's_catacomb" />
 		<race name="ELF" point="the_royal_family's_catacomb" />
 		<race name="KAMAEL" point="the_royal_family's_catacomb" />
+		<race name="ERTHEIA" point="the_royal_family's_catacomb" />
 	</zone>
 	<zone name="the_royal_family's_catacomb_25_15_4" type="RespawnZone" shape="NPoly" minZ="-7263" maxZ="-7063">
 		<node X="172183" Y="-86660" />
@@ -1119,6 +1168,7 @@
 		<race name="DWARF" point="the_royal_family's_catacomb" />
 		<race name="ELF" point="the_royal_family's_catacomb" />
 		<race name="KAMAEL" point="the_royal_family's_catacomb" />
+		<race name="ERTHEIA" point="the_royal_family's_catacomb" />
 	</zone>
 	<zone name="town_of_schuttgart_23_12" type="RespawnZone" shape="NPoly" minZ="-5008" maxZ="7992">
 		<node X="122877" Y="-169906" />
@@ -1133,6 +1183,7 @@
 		<race name="DWARF" point="town_of_schuttgart" />
 		<race name="ELF" point="town_of_schuttgart" />
 		<race name="KAMAEL" point="town_of_schuttgart" />
+		<race name="ERTHEIA" point="town_of_schuttgart" />
 	</zone>
 	<zone name="rune_town_20_17" type="RespawnZone" shape="NPoly" minZ="-7776" maxZ="2224">
 		<node X="-215" Y="-33011" />
@@ -1145,6 +1196,7 @@
 		<race name="DWARF" point="rune_town" />
 		<race name="ELF" point="rune_town" />
 		<race name="KAMAEL" point="rune_town" />
+		<race name="ERTHEIA" point="rune_town" />
 	</zone>
 	<zone name="heiness_town_24_22" type="RespawnZone" shape="NPoly" minZ="-23970" maxZ="36029">
 		<node X="135252" Y="147334" />
@@ -1158,6 +1210,7 @@
 		<race name="DWARF" point="heiness_town" />
 		<race name="ELF" point="heiness_town" />
 		<race name="KAMAEL" point="heiness_town" />
+		<race name="ERTHEIA" point="heiness_town" />
 	</zone>
 	<zone name="ironcastle_inner_oasis_20_25" type="RespawnZone" shape="NPoly" minZ="-30000" maxZ="30000">
 		<node X="28066" Y="258031" />
@@ -1181,6 +1234,7 @@
 		<race name="DWARF" point="ironcastle_inner_oasis" />
 		<race name="ELF" point="ironcastle_inner_oasis" />
 		<race name="KAMAEL" point="ironcastle_inner_oasis" />
+		<race name="ERTHEIA" point="ironcastle_inner_oasis" />
 	</zone>
 	<zone name="ironcastle_inner_oasis_20_26" type="RespawnZone" shape="NPoly" minZ="-10736" maxZ="-5736">
 		<node X="12080" Y="274633" />
@@ -1193,6 +1247,7 @@
 		<race name="DWARF" point="ironcastle_inner_oasis" />
 		<race name="ELF" point="ironcastle_inner_oasis" />
 		<race name="KAMAEL" point="ironcastle_inner_oasis" />
+		<race name="ERTHEIA" point="ironcastle_inner_oasis" />
 	</zone>
 	<zone name="ironcastle_inner_oasis_19_26" type="RespawnZone" shape="NPoly" minZ="-15364" maxZ="-6864">
 		<node X="-23324" Y="276243" />
@@ -1205,6 +1260,7 @@
 		<race name="DWARF" point="ironcastle_inner_oasis" />
 		<race name="ELF" point="ironcastle_inner_oasis" />
 		<race name="KAMAEL" point="ironcastle_inner_oasis" />
+		<race name="ERTHEIA" point="ironcastle_inner_oasis" />
 	</zone>
 	<zone name="ironcastle_inner_oasis_19_26" type="RespawnZone" shape="NPoly" minZ="-15504" maxZ="-7904">
 		<node X="-15081" Y="271397" />
@@ -1217,6 +1273,7 @@
 		<race name="DWARF" point="ironcastle_inner_oasis" />
 		<race name="ELF" point="ironcastle_inner_oasis" />
 		<race name="KAMAEL" point="ironcastle_inner_oasis" />
+		<race name="ERTHEIA" point="ironcastle_inner_oasis" />
 	</zone>
 	<zone name="ironcastle_inner_oasis_18_25" type="RespawnZone" shape="NPoly" minZ="-16148" maxZ="-5000">
 		<node X="-58700" Y="238125" />
@@ -1229,6 +1286,7 @@
 		<race name="DWARF" point="ironcastle_inner_oasis" />
 		<race name="ELF" point="ironcastle_inner_oasis" />
 		<race name="KAMAEL" point="ironcastle_inner_oasis" />
+		<race name="ERTHEIA" point="ironcastle_inner_oasis" />
 	</zone>
 	<zone name="southern_wasteland_20_24" type="RespawnZone" shape="NPoly" minZ="-10412" maxZ="-5112">
 		<node X="11214" Y="205578" />
@@ -1241,6 +1299,7 @@
 		<race name="DWARF" point="southern_wasteland" />
 		<race name="ELF" point="southern_wasteland" />
 		<race name="KAMAEL" point="southern_wasteland" />
+		<race name="ERTHEIA" point="southern_wasteland" />
 	</zone>
 	<zone name="ironcastle_inner_oasis_20_25" type="RespawnZone" shape="NPoly" minZ="9500" maxZ="13000">
 		<node X="14989" Y="234586" />
@@ -1252,6 +1311,7 @@
 		<race name="DWARF" point="ironcastle_inner_oasis" />
 		<race name="ELF" point="ironcastle_inner_oasis" />
 		<race name="KAMAEL" point="ironcastle_inner_oasis" />
+		<race name="ERTHEIA" point="ironcastle_inner_oasis" />
 	</zone>
 	<zone name="kamaroka_23" type="RespawnZone" shape="NPoly" minZ="-7913" maxZ="-7713">
 		<node X="-90004" Y="-221088" />
@@ -1264,6 +1324,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_26" type="RespawnZone" shape="NPoly" minZ="-7945" maxZ="-7745">
 		<node X="-82900" Y="-221087" />
@@ -1276,6 +1337,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_33" type="RespawnZone" shape="NPoly" minZ="-8165" maxZ="-7965">
 		<node X="-90063" Y="-214409" />
@@ -1288,6 +1350,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_36" type="RespawnZone" shape="NPoly" minZ="-8165" maxZ="-7965">
 		<node X="-82814" Y="-214410" />
@@ -1300,6 +1363,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_43" type="RespawnZone" shape="NPoly" minZ="-8157" maxZ="-7957">
 		<node X="-90046" Y="-207400" />
@@ -1312,6 +1376,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_46" type="RespawnZone" shape="NPoly" minZ="-8157" maxZ="-7957">
 		<node X="-82817" Y="-206918" />
@@ -1324,6 +1389,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_53" type="RespawnZone" shape="NPoly" minZ="-8128" maxZ="-7928">
 		<node X="-57226" Y="-220991" />
@@ -1336,6 +1402,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_56" type="RespawnZone" shape="NPoly" minZ="-8131" maxZ="-7931">
 		<node X="-50165" Y="-221075" />
@@ -1348,6 +1415,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_63_1" type="RespawnZone" shape="NPoly" minZ="-8099" maxZ="-7899">
 		<node X="-57250" Y="-213751" />
@@ -1360,6 +1428,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_63_2" type="RespawnZone" shape="NPoly" minZ="-8121" maxZ="-7921">
 		<node X="-50167" Y="-213759" />
@@ -1372,6 +1441,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_66_1" type="RespawnZone" shape="NPoly" minZ="-8179" maxZ="-7979">
 		<node X="-42960" Y="-214310" />
@@ -1384,6 +1454,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_66_2" type="RespawnZone" shape="NPoly" minZ="-8192" maxZ="-7992">
 		<node X="-57224" Y="-207301" />
@@ -1396,6 +1467,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_73_1" type="RespawnZone" shape="NPoly" minZ="-8165" maxZ="-7965">
 		<node X="-42971" Y="-207297" />
@@ -1408,6 +1480,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_73_2" type="RespawnZone" shape="NPoly" minZ="-8120" maxZ="-7920">
 		<node X="-24429" Y="-221005" />
@@ -1420,6 +1493,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="near_kamaroka_26" type="RespawnZone" shape="NPoly" minZ="-7917" maxZ="-7717">
 		<node X="-75846" Y="-221087" />
@@ -1432,6 +1506,7 @@
 		<race name="DWARF" point="near_kamaroka" />
 		<race name="ELF" point="near_kamaroka" />
 		<race name="KAMAEL" point="near_kamaroka" />
+		<race name="ERTHEIA" point="near_kamaroka" />
 	</zone>
 	<zone name="near_kamaroka_36" type="RespawnZone" shape="NPoly" minZ="-7965" maxZ="-7765">
 		<node X="-75845" Y="-214539" />
@@ -1444,6 +1519,7 @@
 		<race name="DWARF" point="near_kamaroka" />
 		<race name="ELF" point="near_kamaroka" />
 		<race name="KAMAEL" point="near_kamaroka" />
+		<race name="ERTHEIA" point="near_kamaroka" />
 	</zone>
 	<zone name="near_kamaroka_46" type="RespawnZone" shape="NPoly" minZ="-8165" maxZ="-7965">
 		<node X="-75540" Y="-206923" />
@@ -1456,6 +1532,7 @@
 		<race name="DWARF" point="near_kamaroka" />
 		<race name="ELF" point="near_kamaroka" />
 		<race name="KAMAEL" point="near_kamaroka" />
+		<race name="ERTHEIA" point="near_kamaroka" />
 	</zone>
 	<zone name="near_kamaroka_56" type="RespawnZone" shape="NPoly" minZ="-8179" maxZ="-7979">
 		<node X="-42970" Y="-221013" />
@@ -1468,6 +1545,7 @@
 		<race name="DWARF" point="near_kamaroka" />
 		<race name="ELF" point="near_kamaroka" />
 		<race name="KAMAEL" point="near_kamaroka" />
+		<race name="ERTHEIA" point="near_kamaroka" />
 	</zone>
 	<zone name="near_kamaroka_66" type="RespawnZone" shape="NPoly" minZ="-8182" maxZ="-7982">
 		<node X="-50022" Y="-207305" />
@@ -1480,6 +1558,7 @@
 		<race name="DWARF" point="near_kamaroka" />
 		<race name="ELF" point="near_kamaroka" />
 		<race name="KAMAEL" point="near_kamaroka" />
+		<race name="ERTHEIA" point="near_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_25" type="RespawnZone" shape="NPoly" minZ="-8068" maxZ="-6868">
 		<node X="8308" Y="-221019" />
@@ -1492,6 +1571,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_30" type="RespawnZone" shape="NPoly" minZ="-8072" maxZ="-6872">
 		<node X="15509" Y="-220979" />
@@ -1504,6 +1584,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_35" type="RespawnZone" shape="NPoly" minZ="-7968" maxZ="-6568">
 		<node X="22437" Y="-221137" />
@@ -1516,6 +1597,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_40" type="RespawnZone" shape="NPoly" minZ="-7848" maxZ="-6448">
 		<node X="8254" Y="-214031" />
@@ -1528,6 +1610,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_45" type="RespawnZone" shape="NPoly" minZ="-7844" maxZ="-6444">
 		<node X="15555" Y="-214044" />
@@ -1540,6 +1623,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_50" type="RespawnZone" shape="NPoly" minZ="-8049" maxZ="-6649">
 		<node X="22837" Y="-213868" />
@@ -1552,6 +1636,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_55" type="RespawnZone" shape="NPoly" minZ="-8048" maxZ="-6648">
 		<node X="8324" Y="-206546" />
@@ -1564,6 +1649,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_60" type="RespawnZone" shape="NPoly" minZ="-8052" maxZ="-6652">
 		<node X="15702" Y="-206549" />
@@ -1576,6 +1662,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_65" type="RespawnZone" shape="NPoly" minZ="-8044" maxZ="-6644">
 		<node X="22082" Y="-207504" />
@@ -1588,6 +1675,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_70" type="RespawnZone" shape="NPoly" minZ="-8792" maxZ="-8292">
 		<node X="41268" Y="-220980" />
@@ -1600,6 +1688,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="rim_kamaroka_75" type="RespawnZone" shape="NPoly" minZ="-8812" maxZ="-8612">
 		<node X="47897" Y="-221000" />
@@ -1612,6 +1701,7 @@
 		<race name="DWARF" point="rim_kamaroka" />
 		<race name="ELF" point="rim_kamaroka" />
 		<race name="KAMAEL" point="rim_kamaroka" />
+		<race name="ERTHEIA" point="rim_kamaroka" />
 	</zone>
 	<zone name="crate01_17_17" type="RespawnZone" shape="NPoly" minZ="-8375" maxZ="-8095">
 		<node X="-86726" Y="-21076" />
@@ -1624,6 +1714,7 @@
 		<race name="DWARF" point="crate01" />
 		<race name="ELF" point="crate01" />
 		<race name="KAMAEL" point="crate01" />
+		<race name="ERTHEIA" point="crate01" />
 	</zone>
 	<zone name="crate02_17_15" type="RespawnZone" shape="NPoly" minZ="-8483" maxZ="-8233">
 		<node X="-86608" Y="-86506" />
@@ -1636,6 +1727,7 @@
 		<race name="DWARF" point="crate02" />
 		<race name="ELF" point="crate02" />
 		<race name="KAMAEL" point="crate02" />
+		<race name="ERTHEIA" point="crate02" />
 	</zone>
 	<zone name="crate03_18_15" type="RespawnZone" shape="NPoly" minZ="-8471" maxZ="-8221">
 		<node X="-53365" Y="-87679" />
@@ -1648,6 +1740,7 @@
 		<race name="DWARF" point="crate03" />
 		<race name="ELF" point="crate03" />
 		<race name="KAMAEL" point="crate03" />
+		<race name="ERTHEIA" point="crate03" />
 	</zone>
 	<zone name="giran_castle_town_22_11" type="RespawnZone" shape="NPoly" minZ="-5152" maxZ="3848">
 		<node X="65788" Y="-229302" />
@@ -1660,6 +1753,7 @@
 		<race name="DWARF" point="giran_castle_town" />
 		<race name="ELF" point="giran_castle_town" />
 		<race name="KAMAEL" point="giran_castle_town" />
+		<race name="ERTHEIA" point="giran_castle_town" />
 	</zone>
 	<zone name="kamaroka_17_12" type="RespawnZone" shape="NPoly" minZ="-15788" maxZ="-5288">
 		<node X="-90385" Y="-188637" />
@@ -1672,6 +1766,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_18_12" type="RespawnZone" shape="NPoly" minZ="-15784" maxZ="-5284">
 		<node X="-57520" Y="-188639" />
@@ -1684,6 +1779,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_19_12" type="RespawnZone" shape="NPoly" minZ="-15720" maxZ="-5220">
 		<node X="-24701" Y="-188524" />
@@ -1696,6 +1792,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="kamaroka_20_12" type="RespawnZone" shape="NPoly" minZ="-15688" maxZ="-5188">
 		<node X="7991" Y="-188661" />
@@ -1708,6 +1805,7 @@
 		<race name="DWARF" point="kamaroka" />
 		<race name="ELF" point="kamaroka" />
 		<race name="KAMAEL" point="kamaroka" />
+		<race name="ERTHEIA" point="kamaroka" />
 	</zone>
 	<zone name="inner_undying01" type="RespawnZone" shape="NPoly" minZ="-16233" maxZ="-6233">
 		<node X="-182265" Y="204880" />
@@ -1724,6 +1822,7 @@
 		<race name="DWARF" point="inner_undying01" />
 		<race name="ELF" point="inner_undying01" />
 		<race name="KAMAEL" point="inner_undying01" />
+		<race name="ERTHEIA" point="inner_undying01" />
 	</zone>
 	<zone name="inner_destruction01" type="RespawnZone" shape="NPoly" minZ="-13600" maxZ="-5600">
 		<node X="-253983" Y="204764" />
@@ -1736,6 +1835,7 @@
 		<race name="DWARF" point="inner_destruction01" />
 		<race name="ELF" point="inner_destruction01" />
 		<race name="KAMAEL" point="inner_destruction01" />
+		<race name="ERTHEIA" point="inner_destruction01" />
 	</zone>
 	<zone name="cleft" type="RespawnZone" shape="NPoly" minZ="-4274" maxZ="16336">
 		<node X="-217859" Y="235707" />
@@ -1752,6 +1852,7 @@
 		<race name="DWARF" point="cleft" />
 		<race name="ELF" point="cleft" />
 		<race name="KAMAEL" point="cleft" />
+		<race name="ERTHEIA" point="cleft" />
 	</zone>
 	<zone name="border_of_nightmare_16_11" type="RespawnZone" shape="NPoly" minZ="-6963" maxZ="-5963">
 		<node X="-123207" Y="-221278" />
@@ -1764,6 +1865,7 @@
 		<race name="DWARF" point="border_of_nightmare" />
 		<race name="ELF" point="border_of_nightmare" />
 		<race name="KAMAEL" point="border_of_nightmare" />
+		<race name="ERTHEIA" point="border_of_nightmare" />
 	</zone>
 	<zone name="border_of_nightmare_16_13" type="RespawnZone" shape="NPoly" minZ="-6869" maxZ="-5869">
 		<node X="-123102" Y="-155752" />
@@ -1776,6 +1878,7 @@
 		<race name="DWARF" point="border_of_nightmare" />
 		<race name="ELF" point="border_of_nightmare" />
 		<race name="KAMAEL" point="border_of_nightmare" />
+		<race name="ERTHEIA" point="border_of_nightmare" />
 	</zone>
 	<zone name="inner_annihilation01" type="RespawnZone" shape="NPoly" minZ="-17000" maxZ="-7000">
 		<node X="-189927" Y="170995" />
@@ -1788,6 +1891,7 @@
 		<race name="DWARF" point="inner_annihilation01" />
 		<race name="ELF" point="inner_annihilation01" />
 		<race name="KAMAEL" point="inner_annihilation01" />
+		<race name="ERTHEIA" point="inner_annihilation01" />
 	</zone>
 	<zone name="inner_annihilation02" type="RespawnZone" shape="NPoly" minZ="-15000" maxZ="-7000">
 		<node X="-220965" Y="172057" />
@@ -1800,6 +1904,7 @@
 		<race name="DWARF" point="inner_annihilation02" />
 		<race name="ELF" point="inner_annihilation02" />
 		<race name="KAMAEL" point="inner_annihilation02" />
+		<race name="ERTHEIA" point="inner_annihilation02" />
 	</zone>
 	<zone name="olympiad_stadium02_15_10" type="RespawnZone" shape="NPoly" minZ="-5000" maxZ="32767">
 		<node X="-155585" Y="-253925" />
@@ -1812,6 +1917,7 @@
 		<race name="DWARF" point="olympiad_stadium02" />
 		<race name="ELF" point="olympiad_stadium02" />
 		<race name="KAMAEL" point="olympiad_stadium02" />
+		<race name="ERTHEIA" point="olympiad_stadium02" />
 	</zone>
 	<zone name="olympiad_stadium03_15_11" type="RespawnZone" shape="NPoly" minZ="-4968" maxZ="32767">
 		<node X="-155584" Y="-221153" />
@@ -1824,6 +1930,7 @@
 		<race name="DWARF" point="olympiad_stadium03" />
 		<race name="ELF" point="olympiad_stadium03" />
 		<race name="KAMAEL" point="olympiad_stadium03" />
+		<race name="ERTHEIA" point="olympiad_stadium03" />
 	</zone>
 	<zone name="olympiad_stadium04_15_12" type="RespawnZone" shape="NPoly" minZ="-4936" maxZ="32767">
 		<node X="-155577" Y="-188340" />
@@ -1836,5 +1943,6 @@
 		<race name="DWARF" point="olympiad_stadium04" />
 		<race name="ELF" point="olympiad_stadium04" />
 		<race name="KAMAEL" point="olympiad_stadium04" />
+		<race name="ERTHEIA" point="olympiad_stadium04" />
 	</zone>
 </list>

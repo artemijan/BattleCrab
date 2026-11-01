@@ -191,7 +191,9 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
         return;
     }
     // Java `PlayerInventory.getAvailableItems(allowAdena=true,
-    // allowNonTradeable=false)`: everything unequipped and tradeable.
+    // allowNonTradeable=false)`: everything unequipped and tradeable, bar the
+    // summoned pet's collar.
+    let collar = crate::game_loop::servitor::active_pet_collar(world, player);
     let items: Vec<(
         &ItemInstance,
         &crate::data::item_data::template::ItemTemplate,
@@ -200,13 +202,14 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
         .get_component::<Inventory>(&player)
         .map(|inv| {
             inv.unequipped_with_templates(&world.data.item_data)
-                .filter(|(_, t)| !t.is_quest_item && t.is_tradable())
+                .filter(|(it, t)| {
+                    !t.is_quest_item && t.is_tradable() && collar != Some(it.object_id)
+                })
                 .collect()
         })
         .unwrap_or_default();
-    send_to_player(
-        world,
-        player,
-        server_packets::ex_reply_post_item_list(&items),
-    );
+    let packets = [1, 2].map(|phase| server_packets::ex_reply_post_item_list(phase, &items));
+    for packet in packets {
+        send_to_player(world, player, packet);
+    }
 }

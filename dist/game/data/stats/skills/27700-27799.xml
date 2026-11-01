@@ -1,12 +1,17 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="27700" toLevel="6" name="Inherent Abilities - Gloves Attack">
-		<!-- P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 1: P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 2: P. Atk. +1.1%, M. Atk. +2.2%. -->
+		<!-- Level 3: P. Atk. +1.2%, M. Atk. +2.4%. -->
+		<!-- Level 4: P. Atk. +1.3%, M. Atk. +2.6%. -->
+		<!-- Level 5: P. Atk. +1.4%, M. Atk. +2.8%. -->
+		<!-- Level 6: P. Atk. +1.5%, M. Atk. +3%. -->
 		<icon>icon.pk</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">1</value>
 					<value level="2">1.1</value>
@@ -17,7 +22,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
 					<value level="2">2.2</value>
@@ -31,12 +36,17 @@
 		</effects>
 	</skill>
 	<skill id="27701" toLevel="6" name="Inherent Abilities - Shoes Attack">
-		<!-- P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 1: P. Atk. +1%, M. Atk. +2%. -->
+		<!-- Level 2: P. Atk. +1.1%, M. Atk. +2.2%. -->
+		<!-- Level 3: P. Atk. +1.2%, M. Atk. +2.4%. -->
+		<!-- Level 4: P. Atk. +1.3%, M. Atk. +2.6%. -->
+		<!-- Level 5: P. Atk. +1.4%, M. Atk. +2.8%. -->
+		<!-- Level 6: P. Atk. +1.5%, M. Atk. +3%. -->
 		<icon>icon.pk</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">1</value>
 					<value level="2">1.1</value>
@@ -47,7 +57,7 @@
 				</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">2</value>
 					<value level="2">2.2</value>
@@ -61,7 +71,12 @@
 		</effects>
 	</skill>
 	<skill id="27702" toLevel="6" name="Shilen's Ring">
-		<!-- M. Def. + +30%, Dark Attribute Def. + 100, STR/INT + 5, Skill Critical Damage + 18%. Effects do not stack with additional rings. -->
+		<!-- Level 1: M. Def. ++30%, Dark Attribute Def. +100, STR/ INT +5, Skill Critical Damage +18%. Effects do not stack with additional rings. -->
+		<!-- Level 2: M. Def. ++32%, Dark Attribute Def. +110, STR/ INT +6, Skill Critical Damage +20%, Atk. Spd./ Casting Spd. +12%. Effects do not stack with additional rings. -->
+		<!-- Level 3: M. Def. ++35%, Dark Attribute Def. +110, STR/ INT +6, Skill Critical Damage +20%, Atk. Spd./ Casting Spd. +12%. Effects do not stack with additional rings. -->
+		<!-- Level 4: M. Def. ++40%, Dark Attribute Def. +120, STR/ INT +7, Skill Critical Damage +25%, Atk. Spd./ Casting Spd. +15%. Effects do not stack with additional rings. -->
+		<!-- Level 5: M. Def. ++45%, Dark Attribute Def. +120, STR/ INT +7, Skill Critical Damage +25%, Atk. Spd./ Casting Spd. +18%. Effects do not stack with additional rings. -->
+		<!-- Level 6: M. Def. ++50%, Dark Attribute Def. +130, STR/ INT +8, Skill Critical Damage +30%, Atk. Spd./ Casting Spd. +20%. Effects do not stack with additional rings. -->
 		<icon>BranchIcon.Icon.ring_of_shilen_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -150,7 +165,7 @@
 		<targetType>SELF</targetType>
 	</skill>
 	<skill id="27704" toLevel="1" name="Shilen's Will">
-		<!-- Increases P./M. Atk. by 100% for 60 seconds. -->
+		<!-- Increases P./ M. Atk. by 100% for 60 seconds. -->
 		<icon>BranchIcon.Icon.ring_of_shilen_i00</icon>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
@@ -158,7 +173,12 @@
 		<reuseDelay>7200000</reuseDelay>
 	</skill>
 	<skill id="27705" toLevel="6" name="Shilen's Necklace">
-		<!-- M. Def. + 60%, Dark Attribute Def. + 120, STR/INT + 7, Physical/Mental attack success rate + 25. Effects do not stack with additional rings. -->
+		<!-- Level 1: M. Def. +60%, Dark Attribute Def. +120, STR/ INT +7, Physical/ Mental attack success rate +25. Effects do not stack with additional rings. -->
+		<!-- Level 2: M. Def. +62%, Dark Attribute Def. +130, STR/ INT +8, Physical/ Mental attack success rate +25, Max HP +25%. Effects do not stack with additional rings. -->
+		<!-- Level 3: M. Def. +65%, Dark Attribute Def. +130, STR/ INT +8, Physical/ Mental attack success rate +30, Max HP +30%. Effects do not stack with additional rings. -->
+		<!-- Level 4: M. Def. +70%, Dark Attribute Def. +140, STR/ INT +9, Physical/ Mental attack success rate +35, Max HP +34%. Effects do not stack with additional rings. -->
+		<!-- Level 5: M. Def. +75%, Dark Attribute Def. +140, STR/ INT +9, Physical/ Mental attack success rate +35, Max HP +37%. Effects do not stack with additional rings. -->
+		<!-- Level 6: M. Def. +80%, Dark Attribute Def. +150, STR/ INT +10, Physical/ Mental attack success rate +40, Max HP +40%. Effects do not stack with additional rings. -->
 		<icon>BranchIcon.Icon.necklace_of_shilen_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -238,13 +258,18 @@
 		<!-- Stuns target for 60 seconds. -->
 		<icon>BranchIcon.Icon.necklace_of_shilen_i00</icon>
 		<operateType>A1</operateType>
-		<isDebuff>true</isDebuff>
-		<hitTime>200</hitTime>
-		<reuseDelay>7200000</reuseDelay>
 		<effectPoint>-999</effectPoint>
+		<hitTime>200</hitTime>
+		<isDebuff>true</isDebuff>
+		<reuseDelay>7200000</reuseDelay>
 	</skill>
 	<skill id="27708" toLevel="6" name="Shilen's Earring">
-		<!-- M. Def. + 50%, Dark Attribute Def. + 110, STR/INT + 6, Physical/Mental Resistance + 30, Movement Speed + 10. Effects do not stack with additional rings. -->
+		<!-- Level 1: M. Def. +50%, Dark Attribute Def. +110, STR/ INT +6, Physical/ Mental Resistance +30, Speed +10. Effects do not stack with additional rings. -->
+		<!-- Level 2: M. Def. +52%, Dark Attribute Def. +120, STR/ INT +7, Physical/ Mental Resistance +30, Speed +15, Max CP +50%. Effects do not stack with additional rings. -->
+		<!-- Level 3: M. Def. +55%, Dark Attribute Def. +120, STR/ INT +7, Physical/ Mental Resistance +35, Speed +15, Max CP +57%. Effects do not stack with additional rings. -->
+		<!-- Level 4: M. Def. +60%, Dark Attribute Def. +130, STR/ INT +8, Physical/ Mental Resistance +35, Speed +20, Max CP +68%. Effects do not stack with additional rings. -->
+		<!-- Level 5: M. Def. +65%, Dark Attribute Def. +130, STR/ INT +8, Physical/ Mental Resistance +40, Speed +20, Max CP +80%. Effects do not stack with additional rings. -->
+		<!-- Level 6: M. Def. +70%, Dark Attribute Def. +140, STR/ INT +9, Physical/ Mental Resistance +45, Speed +25, Max CP +100%. Effects do not stack with additional rings. -->
 		<icon>BranchIcon.Icon.earring_of_shilen_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -350,10 +375,10 @@
 		<!-- Creates a space that cancels all ranged attacks and debuffs for 60 seconds. -->
 		<icon>BranchIcon.Icon.earring_of_shilen_i00</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>7200000</reuseDelay>
 		<effectPoint>379</effectPoint>
+		<hitTime>1500</hitTime>
+		<reuseDelay>7200000</reuseDelay>
 	</skill>
 	<skill id="27711" toLevel="1" name="Scroll: Shilen's Ring">
 		<icon>icon.skill0000</icon>
@@ -371,8 +396,8 @@
 		<!-- When being attacked, there's a chance that the amount of PvP damage received will be reduced. -->
 		<icon>icon.skill3080</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>400</castRange>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="27715" toLevel="1" name="Prestige Cube">
 		<icon>icon.skill0000</icon>
@@ -380,15 +405,15 @@
 	</skill>
 	<skill id="27716" toLevel="1" name="Zodiac Agathion Pack">
 		<icon>icon.etc_treasure_box_i02</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -439,11 +464,16 @@
 		</effects>
 	</skill>
 	<skill id="27717" toLevel="6" name="Greater Jewel's Blessing">
-		<!-- You can feel a new energy thanks to your possession of a Greater Jewel. Max CP +5%. -->
+		<!-- Level 1: You can feel a new energy thanks to your possession of a Greater Jewel. Max CP +5%. -->
+		<!-- Level 2: You can feel a new energy thanks to combining 2 Greater Jewels. Max HP/ CP +7%. -->
+		<!-- Level 3: You can feel a new energy thanks to combining 3 Greater Jewels. Max HP/ CP +15%. -->
+		<!-- Level 4: You can feel a new energy thanks to combining 4 Greater Jewels. Max HP/ CP +17%. -->
+		<!-- Level 5: You can feel a new energy thanks to combining 5 Greater Jewels. Max HP/ CP +20%. -->
+		<!-- Level 6: You can feel a new energy thanks to combining 6 Greater Jewels. Max HP/ CP +25%. -->
 		<icon>icon.etc_bm_brooch_lavianrose_piece</icon>
-		<magicLevel>1</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
@@ -492,17 +522,17 @@
 	</skill>
 	<skill id="27720" toLevel="1" name="Ultimate Jewelry Box">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>38941</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>38941</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -520,22 +550,22 @@
 		<!-- For 30 sec., party members' M. Atk. +400%. -->
 		<icon>icon.skill10019</icon>
 		<operateType>A2</operateType>
-		<isMagic>2</isMagic>
-		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<affectRange>1000</affectRange>
-		<hitTime>500</hitTime>
-		<coolTime>1000</coolTime>
-		<reuseDelay>900000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<effectPoint>702</effectPoint>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>1000</coolTime>
+		<effectPoint>702</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<reuseDelay>900000</reuseDelay>
 		<reuseDelayGroup>27724</reuseDelayGroup>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>400</amount>
 				<mode>PER</mode>
 			</effect>
@@ -545,27 +575,26 @@
 		<!-- For 30 sec., party members' P. Atk. +100% and M. Atk. +400%. -->
 		<icon>icon.skill10019</icon>
 		<operateType>A2</operateType>
-		<isMagic>2</isMagic>
-		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<affectRange>1000</affectRange>
-		<hitTime>500</hitTime>
-		<coolTime>1000</coolTime>
-		<reuseDelay>900000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<effectPoint>702</effectPoint>
-		<targetType>SELF</targetType>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>1000</coolTime>
+		<effectPoint>702</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<reuseDelay>900000</reuseDelay>
 		<reuseDelayGroup>27724</reuseDelayGroup>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>400</amount>
 				<mode>PER</mode>
 			</effect>
@@ -575,26 +604,26 @@
 		<!-- For 30 sec., party members' P. Atk. +100%, M. Atk. +400%, and M. Def. +10000. -->
 		<icon>icon.skill10019</icon>
 		<operateType>A2</operateType>
-		<isMagic>2</isMagic>
-		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<affectRange>1000</affectRange>
-		<hitTime>500</hitTime>
-		<coolTime>1000</coolTime>
-		<reuseDelay>900000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<effectPoint>702</effectPoint>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>1000</coolTime>
+		<effectPoint>702</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<reuseDelay>900000</reuseDelay>
 		<reuseDelayGroup>27724</reuseDelayGroup>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>400</amount>
 				<mode>PER</mode>
 			</effect>
@@ -608,26 +637,26 @@
 		<!-- For 30 sec., party members' P. Atk. +100%, M. Atk. +400%, P. Def. +13000, and M. Def. +10000. -->
 		<icon>icon.skill10019</icon>
 		<operateType>A2</operateType>
-		<isMagic>2</isMagic>
-		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>30</abnormalTime>
-		<affectRange>1000</affectRange>
-		<hitTime>500</hitTime>
-		<coolTime>1000</coolTime>
-		<reuseDelay>900000</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<effectPoint>702</effectPoint>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
+		<abnormalType>PUBLIC_SLOT</abnormalType> <!-- Guess -->
 		<affectObject>FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>1000</coolTime>
+		<effectPoint>702</effectPoint>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<reuseDelay>900000</reuseDelay>
 		<reuseDelayGroup>27724</reuseDelayGroup>
+		<staticReuse>true</staticReuse>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>100</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>400</amount>
 				<mode>PER</mode>
 			</effect>
@@ -643,17 +672,17 @@
 	</skill>
 	<skill id="27725" toLevel="1" name="Ultimate Jewelry Box">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>28365</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>28365</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -832,7 +861,7 @@
 		<effectPoint>1</effectPoint>
 	</skill>
 	<skill id="27745" toLevel="1" name="Chef Monkey's Belt">
-		<!-- Max HP/MP/CP +300, Weight +12800, Damage +7%, received Damage - 5%, Inventory Slots +18, Attribute Resistance +5. -->
+		<!-- Max HP/ MP/ CP +300, Weight +12800, Damage +7%, received Damage -5%, Inventory Slots +18, Attribute Resistance +5. -->
 		<icon>BranchIcon.icon.g_monkey_belt</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -868,12 +897,12 @@
 		</effects>
 	</skill>
 	<skill id="27746" toLevel="1" name="Item Skill: Unlimited Vitality Agathion">
-		<!-- When equipped, XP + 3%. -->
+		<!-- When equipped, XP +3%. -->
 		<icon>BranchSys.icon.br_aga_bonus_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="27747" toLevel="1" name="2016 World Olympiad Hero">
-		<!-- STR +5, DEX +5, CON +5, INT +5, WIT +5, MEN +5 -->
+		<!-- STR +5, DEX +5, CON +5, INT +5, WIT +5, MEN +5. -->
 		<icon>icon.accessory_ornithomimus_cap_i00</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -907,15 +936,19 @@
 	<skill id="27748" toLevel="1" name="Special Treasure Chest">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27749" toLevel="6" name="Gran Kain's Necklace">
-		<!-- When used, ignores target's invincibility for 6 seconds. -->
+		<!-- Level 1: When used, ignores target's invincibility for 6 seconds. -->
+		<!-- Level 2: When used, ignores target's invincibility for 7 seconds. -->
+		<!-- Level 3: When used, ignores target's invincibility for 8 seconds. -->
+		<!-- Level 4: When used, ignores target's invincibility for 10 seconds. -->
+		<!-- Level 5: When used, ignores target's invincibility for 12 seconds. -->
+		<!-- Level 6: When used, ignores target's invincibility for 15 seconds. -->
 		<icon>BranchIcon.Icon.necklace_of_grankein_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>600000</reuseDelay>
-		<effectPoint>-1</effectPoint>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -932,22 +965,22 @@
 			<value level="5">12</value>
 			<value level="6">15</value>
 		</abnormalTime>
-		<hitCancelTime>0</hitCancelTime>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<reuseDelay>600000</reuseDelay>
 	</skill>
 	<skill id="27750" toLevel="6" name="Einhasad's Necklace">
-		<!-- Damage Reflect Resistance becomes 15% for 30 seconds. -->
+		<!-- Level 1: Damage Reflect Resistance becomes 15% for 30 seconds. -->
+		<!-- Level 2: Damage Reflect Resistance becomes 20% for 30 seconds. -->
+		<!-- Level 3: Damage Reflect Resistance becomes 35% for 30 seconds. -->
+		<!-- Level 4: Damage Reflect Resistance becomes 60% for 30 seconds. -->
+		<!-- Level 5: Damage Reflect Resistance becomes 80% for 30 seconds. -->
+		<!-- Level 6: Damage Reflect Resistance becomes 100% for 30 seconds. -->
 		<icon>BranchIcon.Icon.necklace_of_einhasad_i00</icon>
 		<operateType>A2</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>120</magicLevel>
-		<abnormalTime>30</abnormalTime>
-		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>1</effectPoint>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -956,10 +989,16 @@
 			<value level="5">5</value>
 			<value level="6">6</value>
 		</abnormalLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<basicProperty>NONE</basicProperty>
-		<targetType>SELF</targetType>
+		<abnormalTime>30</abnormalTime>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>120</magicLevel>
+		<reuseDelay>300000</reuseDelay>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DamageShieldResist">
 				<amount>
@@ -974,11 +1013,16 @@
 		</effects>
 	</skill>
 	<skill id="27751" toLevel="6" name="Pa'agrio's Earring">
-		<!-- 1% chance with standard attacks and 2% chance when casting a skill to inflict 3717 fixed damage. -->
+		<!-- Level 1: 1% chance with standard attacks and 2% chance when casting a skill to inflict 3717 fixed damage. -->
+		<!-- Level 2: 1% chance with standard attacks and 2% chance when casting a skill to inflict 3717 fixed damage. -->
+		<!-- Level 3: 2% chance with standard attacks and 3% chance when casting a skill to inflict 3717 fixed damage. -->
+		<!-- Level 4: 3% chance with standard attacks and 5% chance when casting a skill to inflict 5648 fixed damage. -->
+		<!-- Level 5: 5% chance with standard attacks and 7% chance when casting a skill to inflict 5648 fixed damage. -->
+		<!-- Level 6: 7% chance with standard attacks and 10% chance when casting a skill to inflict 5648 fixed damage. -->
 		<icon>BranchIcon.Icon.earring_of_paagrio_i00</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
 				<chance>
@@ -997,7 +1041,7 @@
 				<skillId>46715</skillId> <!-- Pa'agrio - Reliable Hit -->
 				<skillLevel>1</skillLevel>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
 				<chance>
@@ -1019,9 +1063,15 @@
 		</effects>
 	</skill>
 	<skill id="27752" toLevel="6" name="Eva's Earring">
-		<!-- P. Def. and M. Def become 15% for 40 seconds. -->
+		<!-- Level 1: P. Def. and M. Def become 15% for 40 seconds. -->
+		<!-- Level 2: P. Def. and M. Def become 20% for 40 seconds. -->
+		<!-- Level 3: P. Def/ M. Def becomes 25% and PvP Def. becomes 10% for 40 seconds. -->
+		<!-- Level 4: P. Def/ M. Def becomes 30% and PvP Def. becomes 12% for 40 seconds. -->
+		<!-- Level 5: P. Def/ M. Def becomes 40%, PvP Def. becomes 15%, all attribute Def. becomes -150 for 40 seconds. -->
+		<!-- Level 6: P. Def/ M. Def becomes 50%, PvP Def. becomes 20%, all attribute Def. becomes -300 for 40 seconds. -->
 		<icon>BranchIcon.Icon.earring_of_eva_i00</icon>
-		<abnormalTime>40</abnormalTime>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -1030,20 +1080,19 @@
 			<value level="5">5</value>
 			<value level="6">6</value>
 		</abnormalLevel>
+		<abnormalTime>40</abnormalTime>
 		<abnormalType>EVAS_DEBUFF</abnormalType>
 		<activateRate>100</activateRate>
-		<lvlBonusRate>20</lvlBonusRate>
-		<operateType>A2</operateType>
-		<magicLevel>-1</magicLevel>
-		<castRange>600</castRange>
-		<reuseDelay>300000</reuseDelay>
-		<effectPoint>-379</effectPoint>
-		<isMagic>1</isMagic>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<isDebuff>true</isDebuff>
-		<targetType>ENEMY_ONLY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>600</castRange>
+		<effectPoint>-379</effectPoint>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>
@@ -1147,11 +1196,16 @@
 		</effects>
 	</skill>
 	<skill id="27753" toLevel="6" name="Sayha's Ring">
-		<!-- 1% chance with standard attacks and 2% chance when casting a skill to Restrain Physical and Magic skills. -->
+		<!-- Level 1: 1% chance with standard attacks and 2% chance when casting a skill to Restrain Physical and Magic skills. -->
+		<!-- Level 2: 1% chance with standard attacks and 2% chance when casting a skill to Restrain Physical and Magic skills. -->
+		<!-- Level 3: 2% chance with standard attacks and 3% chance when casting a skill to Restrain Physical and Magic skills. -->
+		<!-- Level 4: 3% chance with standard attacks and 5% chance when casting a skill to Restrain Physical and Magic skills. -->
+		<!-- Level 5: 5% chance with standard attacks and 7% chance when casting a skill to Restrain Physical and Magic skills. -->
+		<!-- Level 6: 7% chance with standard attacks and 10% chance when casting a skill to Restrain Physical and Magic skills. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
 				<chance>
@@ -1170,7 +1224,7 @@
 				<skillId>46797</skillId> <!-- Sayha - Restrain Physical and Magic -->
 				<skillLevel>1</skillLevel>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
 				<chance>
@@ -1192,11 +1246,16 @@
 		</effects>
 	</skill>
 	<skill id="27754" toLevel="6" name="Maphr's Ring">
-		<!-- 1% chance with standard attacks and 2% chance when casting a skill to bind target. -->
+		<!-- Level 1: 1% chance with standard attacks and 2% chance when casting a skill to bind target. -->
+		<!-- Level 2: 1% chance with standard attacks and 2% chance when casting a skill to bind target. -->
+		<!-- Level 3: 2% chance with standard attacks and 3% chance when casting a skill to bind target. -->
+		<!-- Level 4: 3% chance with standard attacks and 5% chance when casting a skill to bind target. -->
+		<!-- Level 5: 5% chance with standard attacks and 7% chance when casting a skill to bind target. -->
+		<!-- Level 6: 7% chance with standard attacks and 10% chance when casting a skill to bind target. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
 		<operateType>P</operateType>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
 				<chance>
@@ -1215,7 +1274,7 @@
 				<skillId>46798</skillId> <!-- Maphr - Yoke -->
 				<skillLevel>1</skillLevel>
 			</effect>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
 				<chance>
@@ -1240,8 +1299,8 @@
 		<!-- Go into Hide state when used. -->
 		<icon>BranchIcon.Icon.necklace_of_shilen_i00</icon>
 		<operateType>A1</operateType>
-		<reuseDelay>120000</reuseDelay>
 		<effectPoint>679</effectPoint>
+		<reuseDelay>120000</reuseDelay>
 	</skill>
 	<skill id="27756" toLevel="1" name="Shilen's Earring">
 		<!-- 90% chance of PK count not increasing after killing another character. -->
@@ -1290,13 +1349,13 @@
 	</skill>
 	<skill id="27760" toLevel="1" name="+10 Shiny Elemental Shirt Pack">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>28412</itemConsumeId>
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>400</hitTime>
 		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>28412</itemConsumeId>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>20</weightPercent>
@@ -1338,11 +1397,11 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27768" toLevel="1" name="Reflect Attack T-shirt Special Pack">
+	<skill id="27768" toLevel="1" name="Physical Reflect Shirt Special Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27769" toLevel="1" name="Reflect Magic T-shirt Special Pack">
+	<skill id="27769" toLevel="1" name="Magical Reflect Shirt Special Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -1358,17 +1417,17 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27773" toLevel="1" name="Royal Purple Save Ticket (R)">
+	<skill id="27773" toLevel="1" name="Royal Purple Save Card (R)">
 		<!-- When using an R-grade Weapon Enchantment Standard Weapon Enchant Scroll, increases the chance by 20%. Can only be used with a 12 or higher Enchantment Item. On success, Enchantment count increases by 1. In case of Enchantment failure, the item is not Crystallized, but the base Enchantment count decreases by 1. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27774" toLevel="1" name="Royal Purple Save Ticket (R95)">
+	<skill id="27774" toLevel="1" name="Royal Purple Save Card (R95)">
 		<!-- A ticket that enhances probability by 20% when using a Normal Weapon Enchant Scroll to enchant R95-grade Armor. Can only be used on 12+ enchanted items. When Enchant succeeds, it increases by 1. When Enchant fails, the item does not crystallize, but the existing enchant level decreases by 1. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27775" toLevel="1" name="Royal Purple Save Ticket (R99)">
+	<skill id="27775" toLevel="1" name="Royal Purple Save Card (R99)">
 		<!-- A ticket that enhances probability by 20% when using a Normal Weapon Enchant Scroll to enchant R99-grade Armor. Can only be used on 12+ enchanted items. When Enchant succeeds, it increases by 1. When Enchant fails, the item does not crystallize, but the existing enchant level decreases by 1. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
@@ -1381,7 +1440,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="27778" toLevel="1" name="Release Agathion's Seal - Babayaga">
+	<skill id="27778" toLevel="1" name="Release Agathion's Seal - Hut on Chicken Legs">
 		<!-- The Agathion - Hut on Chicken Legs seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
@@ -1391,12 +1450,12 @@
 		<!-- Teleport to the Town of Aden. Usable only when Agathion's Seal is released. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>600000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -1408,16 +1467,16 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="27780" toLevel="1" name="Babayaga Teleport - Town of Rune">
+	<skill id="27780" toLevel="1" name="Hut on Chicken Legs Teleport - Town of Rune">
 		<!-- Teleport to the Town of Rune. Usable only when Agathion's Seal is released. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>600000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -1429,16 +1488,16 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="27781" toLevel="1" name="Babayaga Teleport - Town of Giran">
+	<skill id="27781" toLevel="1" name="Hut on Chicken Legs Teleport - Town of Giran">
 		<!-- Teleport to the Town of Giran. Usable only when Agathion's Seal is released. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<reuseDelay>600000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -1451,19 +1510,19 @@
 		</effects>
 	</skill>
 	<skill id="27782" toLevel="1" name="Agathion's Blessing: Dash">
-		<!-- For 10 sec., a Hut on Chicken Legs' power boosts Speed by 100%. Cooldown is 10 min. -->
+		<!-- For 10 sec., a Hut on Chicken Legs' power boosts Speed by 100%. -->
 		<icon>icon.skill_transform_buff</icon>
 		<operateType>A2</operateType>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<targetType>SELF</targetType>
 		<abnormalTime>10</abnormalTime>
+		<abnormalType>SPEED_UP_SPECIAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>689</effectPoint>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>600000</reuseDelay>
-		<effectPoint>689</effectPoint>
-		<abnormalType>SPEED_UP_SPECIAL</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="Speed">
 				<amount>100</amount>
@@ -1472,20 +1531,20 @@
 		</effects>
 	</skill>
 	<skill id="27783" toLevel="1" name="Agathion's Blessing: Meditation">
-		<!-- For 30 sec., P. Def. - 90% and restores MP by 134 per second. Effect removed when hit. Cooldown is 30 min. -->
+		<!-- For 30 sec., P. Def. -90% and restores MP by 134 per second. Effect removed when hit. Cooldown is 30 min. -->
 		<icon>icon.skill1430</icon>
 		<operateType>A2</operateType>
-		<hitTime>2000</hitTime>
+		<targetType>SELF</targetType>
 		<abnormalTime>30</abnormalTime>
 		<abnormalType>FORCE_MEDITATION</abnormalType>
-		<magicLevel>1</magicLevel>
-		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<reuseDelay>1800000</reuseDelay>
-		<effectPoint>489</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<effects>
 			<effect name="ManaHealOverTime">
 				<power>134</power>
@@ -1513,7 +1572,7 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="27785" toLevel="1" name="Agathion Cute Trick - Babayaga">
+	<skill id="27785" toLevel="1" name="Agathion Cute Trick - Hut on Chicken Legs">
 		<!-- See the summoned spirit perform cute tricks. -->
 		<icon>icon.skill_agathion_cute</icon>
 		<operateType>A1</operateType>
@@ -1523,18 +1582,18 @@
 		<!-- Mounts the Elk. -->
 		<icon>icon.skilltransform3</icon>
 		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
-		<abnormalType>TRANSFORM</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>60000</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>20022</transformId>
@@ -1547,7 +1606,16 @@
 		</effects>
 	</skill>
 	<skill id="27787" toLevel="10" name="Sayha's Talisman">
-		<!-- P. Def. + 112, M. Def. + 74, XP/SP +1%. -->
+		<!-- Level 1: P. Def. +112, M. Def. +74, XP/ SP +1%. -->
+		<!-- Level 2: P. Def. +225, M. Def. +147, XP/ SP +2%. -->
+		<!-- Level 3: P. Def. +450, M. Def. +294, XP/ SP +3%. -->
+		<!-- Level 4: P. Def. +676, M. Def. +441, XP/ SP +5%. -->
+		<!-- Level 5: P. Def. +901, M. Def. +589, XP/ SP +7%. -->
+		<!-- Level 6: P. Def. +1126, M. Def. +736, XP/ SP +10%. -->
+		<!-- Level 7: P. Def. +1351, M. Def. +833, XP/ SP +15%. -->
+		<!-- Level 8: P. Def. +1576, M. Def. +1030, XP/ SP +20%. -->
+		<!-- Level 9: P. Def. +1801, M. Def. +1178, XP/ SP 25%, Potions/ Medicines +5000. -->
+		<!-- Level 10: P. Def. +2027, M. Def. +1325, XP/ SP 30%, Potions/ Medicines +7000. -->
 		<icon>icon.bm_sayhas_talisman</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1659,7 +1727,10 @@
 		</effects>
 	</skill>
 	<skill id="27788" toLevel="4" name="Sayha's Trust">
-		<!-- Skill Power + 2%, Skill Cooldown - 2%. -->
+		<!-- Level 1: Skill Power +2%, Skill Cooldown -2%. -->
+		<!-- Level 2: Skill Power +3%, Skill Cooldown -3%. -->
+		<!-- Level 3: Skill Power +5%, Skill Cooldown -5%. -->
+		<!-- Level 4: Skill Power +9%, Skill Cooldown -5%. -->
 		<icon>icon.bm_sayhas_talisman</icon>
 		<operateType>P</operateType>
 		<targetType>SELF</targetType>
@@ -1716,30 +1787,33 @@
 		</effects>
 	</skill>
 	<skill id="27789" toLevel="4" name="Sayha's Protection">
-		<!-- For 45 seconds, Damage Received - 5%. -->
+		<!-- Level 1: For 45 seconds, Damage Received -5%. -->
+		<!-- Level 2: For 45 seconds, Damage Received -7%. -->
+		<!-- Level 3: For 45 seconds, Damage Received -7%. -->
+		<!-- Level 4: For 45 seconds, Damage Received -10%, P./ M. Critical Hit Damage -10%. -->
 		<icon>
 			<value level="1">icon.sayhas_talisman_g_Lv1</value>
 			<value level="2">icon.sayhas_talisman_g_Lv2</value>
 			<value level="3">icon.sayhas_talisman_g_Lv3</value>
 			<value level="4">icon.sayhas_talisman_g_Lv4</value>
 		</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>45</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>45</abnormalTime>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
+		<castRange>900</castRange>
 		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>300</hitTime>
 		<reuseDelay>
 			<value level="1">600000</value>
 			<value level="2">420000</value>
 			<value level="3">300000</value>
 			<value level="4">180000</value>
 		</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<castRange>900</castRange>
-		<effectPoint>1</effectPoint>
 		<reuseDelayGroup>13973</reuseDelayGroup>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="DamageByAttack">
 				<amount>
@@ -1762,13 +1836,18 @@
 		</effects>
 	</skill>
 	<skill id="27790" toLevel="4" name="Sayha's Encouragement">
-		<!-- For 3 minutes, PvE Damage + 5%. -->
+		<!-- Level 1: For 3 minutes, PvE Damage +5%. -->
+		<!-- Level 2: For 3 minutes, PvE Damage +8%. -->
+		<!-- Level 3: For 5 minutes, PvE Damage +8%. -->
+		<!-- Level 4: For 10 minutes, PvE Damage +10%. -->
 		<icon>
 			<value level="1">icon.sayhas_talisman_pve_Lv1</value>
 			<value level="2">icon.sayhas_talisman_pve_Lv2</value>
 			<value level="3">icon.sayhas_talisman_pve_Lv3</value>
 			<value level="4">icon.sayhas_talisman_pve_Lv4</value>
 		</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>
 			<value level="1">180</value>
@@ -1776,21 +1855,19 @@
 			<value level="3">300</value>
 			<value level="4">600</value>
 		</abnormalTime>
-		<operateType>A2</operateType>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
+		<castRange>900</castRange>
 		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>300</hitTime>
 		<reuseDelay>
 			<value level="1">600000</value>
 			<value level="2">420000</value>
 			<value level="3">300000</value>
 			<value level="4">180000</value>
 		</reuseDelay>
-		<staticReuse>true</staticReuse>
-		<castRange>900</castRange>
-		<effectPoint>1</effectPoint>
 		<reuseDelayGroup>13973</reuseDelayGroup>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="PveMagicalSkillDamageBonus">
 				<amount>
@@ -1822,20 +1899,25 @@
 		</effects>
 	</skill>
 	<skill id="27791" toLevel="4" name="Sayha's Anger">
-		<!-- For 45 seconds, PvP Damage + 8%. -->
+		<!-- Level 1: For 45 seconds, PvP Damage +8%. -->
+		<!-- Level 2: For 45 seconds, PvP Damage +8%. -->
+		<!-- Level 3: For 45 seconds, PvP Damage +12%. -->
+		<!-- Level 4: For 45 seconds, PvP Damage +15%. -->
 		<icon>
 			<value level="1">icon.sayhas_talisman_pvp_Lv1</value>
 			<value level="2">icon.sayhas_talisman_pvp_Lv2</value>
 			<value level="3">icon.sayhas_talisman_pvp_Lv3</value>
 			<value level="4">icon.sayhas_talisman_pvp_Lv4</value>
 		</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>45</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>45</abnormalTime>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
+		<castRange>900</castRange>
 		<coolTime>300</coolTime>
+		<effectPoint>1</effectPoint>
+		<hitTime>300</hitTime>
 		<reuseDelay>
 			<value level="1">600000</value>
 			<value level="2">420000</value>
@@ -1843,8 +1925,6 @@
 			<value level="4">180000</value>
 		</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<castRange>900</castRange>
-		<effectPoint>1</effectPoint>
 		<effects>
 			<effect name="PvpMagicalSkillDamageBonus">
 				<amount>
@@ -1876,21 +1956,23 @@
 		</effects>
 	</skill>
 	<skill id="27792" toLevel="3" name="Sayha's Support">
-		<!-- Recovers HP by 20%, MP by 20%, and CP by 30%. -->
+		<!-- Level 1: Recovers HP by 20%, MP by 20%, and CP by 30%. -->
+		<!-- Level 2: Recovers HP by 20%, MP by 20%, and CP by 30%. -->
+		<!-- Level 3: Recovers HP by 30%, MP by 30%, and CP by 50%. -->
 		<icon>icon.bm_sayhas_talisman</icon>
 		<operateType>A1</operateType>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>300</hitTime>
 		<coolTime>300</coolTime>
+		<effectPoint>10</effectPoint>
+		<hitTime>300</hitTime>
+		<isMagic>2</isMagic>
 		<reuseDelay>
 			<value level="1">1800000</value>
 			<value level="2">1200000</value>
 			<value level="3">360000</value>
 		</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<effectPoint>10</effectPoint>
 		<effects>
 			<effect name="HealPercent">
 				<power>
@@ -1919,41 +2001,41 @@
 		<!-- Double-click to obtain either Sayha's Talisman or Venir's Talisman. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27794" toLevel="1" name="Seed Talisman Enhancement Pack">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27795" toLevel="1" name="Fortune Hair Accessory Box">
 		<!-- Double-click to get 1 random Hair Accessory Box. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27796" toLevel="1" name="Exclusive Reward Chest">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="27797" toLevel="1" name="Ultimate Jewelry Box">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>28470</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>28470</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -2022,23 +2104,23 @@
 	<skill id="27798" toLevel="1" name="Elk's Blessing">
 		<!-- Maintains Vitality for 1 hour through the Elk's Blessing. -->
 		<icon>BranchSys.icon.br_xmas_miracle_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VP_KEEP</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
-		<effectPoint>100</effectPoint>
-		<isMagic>4</isMagic> <!-- Item Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>43200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic> <!-- Item Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>43200000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<effects>
 			<effect name="VitalityPointsRate">
 				<amount>-100</amount>
@@ -2048,17 +2130,17 @@
 	<skill id="27799" toLevel="1" name="Elk's Summon">
 		<!-- Summon a party member. -->
 		<icon>icon.skill1403</icon>
+		<operateType>A1</operateType>
+		<targetType>OTHERS</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>-2</castRange>
 		<effectPoint>1</effectPoint>
 		<effectRange>-2</effectRange>
 		<hitTime>15000</hitTime>
 		<isMagic>1</isMagic> <!-- Magic Skill -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>600000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>OTHERS</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>600000</reuseDelay>
 		<conditions>
 			<condition name="OpCallPc" />
 			<condition name="TargetMyParty">

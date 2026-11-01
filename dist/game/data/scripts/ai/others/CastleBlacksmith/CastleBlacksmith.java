@@ -16,18 +16,16 @@
  */
 package ai.others.CastleBlacksmith;
 
-import org.l2jmobius.gameserver.enums.PlayerCondOverride;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.clan.ClanPrivilege;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.clan.ClanAccess;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Castle Blacksmith AI.
  * @author malyelfik
  */
-public class CastleBlacksmith extends AbstractNpcAI
+public class CastleBlacksmith extends Script
 {
 	// Blacksmith IDs
 	private static final int[] NPCS =
@@ -53,7 +51,7 @@ public class CastleBlacksmith extends AbstractNpcAI
 	private boolean hasRights(Player player, Npc npc)
 	{
 		final boolean isMyLord = player.isClanLeader() && (player.getClan().getCastleId() == (npc.getCastle() != null ? npc.getCastle().getResidenceId() : -1));
-		return player.canOverrideCond(PlayerCondOverride.CASTLE_CONDITIONS) || isMyLord || ((player.getClanId() == npc.getCastle().getOwnerId()) && player.hasClanPrivilege(ClanPrivilege.CS_MANOR_ADMIN));
+		return player.isGM() || isMyLord || ((player.getClanId() == npc.getCastle().getOwnerId()) && player.hasAccess(ClanAccess.CASTLE_MANOR));
 	}
 	
 	@Override

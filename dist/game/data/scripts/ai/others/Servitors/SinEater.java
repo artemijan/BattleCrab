@@ -16,7 +16,6 @@
  */
 package ai.others.Servitors;
 
-import org.l2jmobius.gameserver.enums.ChatType;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.actor.Summon;
@@ -25,18 +24,18 @@ import org.l2jmobius.gameserver.model.events.ListenerRegisterType;
 import org.l2jmobius.gameserver.model.events.annotations.Id;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.creature.OnCreatureAttacked;
-import org.l2jmobius.gameserver.model.events.impl.creature.OnCreatureDeath;
+import org.l2jmobius.gameserver.model.events.holders.actor.creature.OnCreatureAttacked;
+import org.l2jmobius.gameserver.model.events.holders.actor.creature.OnCreatureDeath;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.network.NpcStringId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.NpcSay;
-
-import ai.AbstractNpcAI;
 
 /**
  * Sin Eater AI.
- * @author St3eT.
+ * @author St3eT
  */
-public class SinEater extends AbstractNpcAI
+public class SinEater extends Script
 {
 	// NPCs
 	private static final int SIN_EATER = 12564;
@@ -77,8 +76,10 @@ public class SinEater extends AbstractNpcAI
 					broadcastSummonSay(summon, NpcStringId.OH_THIS_IS_DRAGGING_ON_TOO_LONG_AT_THIS_RATE_I_WON_T_MAKE_IT_HOME_BEFORE_THE_SEVEN_SEALS_ARE_BROKEN);
 				}
 			}
+			
 			startQuestTimer("TALK", 60000, null, player);
 		}
+		
 		return super.onEvent(event, npc, player);
 	}
 	
@@ -88,7 +89,7 @@ public class SinEater extends AbstractNpcAI
 	public void onCreatureKill(OnCreatureDeath event)
 	{
 		final int random = getRandom(100);
-		final Summon summon = (Summon) event.getTarget();
+		final Summon summon = event.getTarget().asSummon();
 		if (random < 30)
 		{
 			broadcastSummonSay(summon, NpcStringId.OH_THIS_IS_JUST_GREAT_WHAT_ARE_YOU_GOING_TO_DO_NOW);
@@ -111,7 +112,7 @@ public class SinEater extends AbstractNpcAI
 		if (getRandom(100) < 30)
 		{
 			final int random = getRandom(100);
-			final Summon summon = (Summon) event.getTarget();
+			final Summon summon = event.getTarget().asSummon();
 			if (random < 35)
 			{
 				broadcastSummonSay(summon, NpcStringId.OH_THAT_SMARTS);

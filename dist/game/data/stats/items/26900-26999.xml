@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="26900" name="Outlaw's Eyepatch" additionalName="STR + Accuracy" type="Armor">
 		<!-- STR +3 and P. Accuracy +5 when equipped. -->
@@ -13,7 +13,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26901" name="Outlaw's Eyepatch" additionalName="DEX + Accuracy" type="Armor">
@@ -29,7 +29,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26902" name="Outlaw's Eyepatch" additionalName="CON + Accuracy" type="Armor">
@@ -45,7 +45,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26903" name="Outlaw's Eyepatch" additionalName="MEN + Accuracy" type="Armor">
@@ -61,7 +61,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26904" name="Outlaw's Eyepatch" additionalName="INT + Accuracy" type="Armor">
@@ -77,7 +77,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26905" name="Outlaw's Eyepatch" additionalName="WIT + Accuracy" type="Armor">
@@ -93,7 +93,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26906" name="Eyepatch" additionalName="STR + Critical Rate" type="Armor">
@@ -109,7 +109,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26907" name="Eyepatch" additionalName="DEX + Critical Rate" type="Armor">
@@ -125,7 +125,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26908" name="Eyepatch" additionalName="CON + Critical Rate" type="Armor">
@@ -141,7 +141,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26909" name="Eyepatch" additionalName="MEN + Critical Rate" type="Armor">
@@ -157,7 +157,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26910" name="Eyepatch" additionalName="INT + Critical Rate" type="Armor">
@@ -173,7 +173,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26911" name="Eyepatch" additionalName="WIT + Critical Rate" type="Armor">
@@ -189,7 +189,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26912" name="Eyepatch" additionalName="STR + Critical Damage" type="Armor">
@@ -493,7 +493,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26931" name="Eyepatch" additionalName="DEX + Evasion" type="Armor">
@@ -509,7 +509,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26932" name="Eyepatch" additionalName="CON + Evasion" type="Armor">
@@ -525,7 +525,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26933" name="Eyepatch" additionalName="MEN + Evasion" type="Armor">
@@ -541,7 +541,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26934" name="Eyepatch" additionalName="INT + Evasion" type="Armor">
@@ -557,7 +557,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26935" name="Eyepatch" additionalName="WIT + Evasion" type="Armor">
@@ -573,7 +573,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26936" name="Eyepatch" additionalName="STR + P. Atk." type="Armor">
@@ -781,7 +781,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26949" name="Eyepatch" additionalName="DEX + Accuracy" type="Armor">
@@ -797,7 +797,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26950" name="Eyepatch" additionalName="CON + Accuracy" type="Armor">
@@ -813,7 +813,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26951" name="Eyepatch" additionalName="MEN + Accuracy" type="Armor">
@@ -829,7 +829,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26952" name="Eyepatch" additionalName="INT + Accuracy" type="Armor">
@@ -845,7 +845,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26953" name="Eyepatch" additionalName="WIT + Accuracy" type="Armor">
@@ -861,7 +861,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26954" name="Party Hat" additionalName="STR + Critical Rate" type="Armor">
@@ -877,7 +877,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26955" name="Party Hat" additionalName="DEX + Critical Rate" type="Armor">
@@ -893,7 +893,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26956" name="Party Hat" additionalName="CON + Critical Rate" type="Armor">
@@ -909,7 +909,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26957" name="Party Hat" additionalName="MEN + Critical Rate" type="Armor">
@@ -925,7 +925,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26958" name="Party Hat" additionalName="INT + Critical Rate" type="Armor">
@@ -941,7 +941,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26959" name="Party Hat" additionalName="WIT + Critical Rate" type="Armor">
@@ -957,7 +957,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26960" name="Party Hat" additionalName="STR + Critical Damage" type="Armor">
@@ -1261,7 +1261,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26979" name="Party Hat" additionalName="DEX + Evasion" type="Armor">
@@ -1277,7 +1277,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26980" name="Party Hat" additionalName="CON + Evasion" type="Armor">
@@ -1293,7 +1293,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26981" name="Party Hat" additionalName="MEN + Evasion" type="Armor">
@@ -1309,7 +1309,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26982" name="Party Hat" additionalName="INT + Evasion" type="Armor">
@@ -1325,7 +1325,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26983" name="Party Hat" additionalName="WIT + Evasion" type="Armor">
@@ -1341,7 +1341,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26984" name="Party Hat" additionalName="STR + P. Atk." type="Armor">
@@ -1549,7 +1549,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26997" name="Party Hat" additionalName="DEX + Accuracy" type="Armor">
@@ -1565,7 +1565,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26998" name="Party Hat" additionalName="CON + Accuracy" type="Armor">
@@ -1581,7 +1581,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26999" name="Party Hat" additionalName="MEN + Accuracy" type="Armor">
@@ -1597,7 +1597,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 </list>

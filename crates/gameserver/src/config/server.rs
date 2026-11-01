@@ -1,4 +1,6 @@
-//! `Server.ini` — port of the `SERVER_CONFIG_FILE` block of `Config.java`.
+//! `Server.ini` — Java's `ServerConfig`, plus the database keys of
+//! `Database.ini` (`DatabaseConfig`) and the pool keys of `Threads.ini`
+//! (`ThreadConfig`), which Salvation split out of it.
 //!
 //! # The seven keys with no field here, and why each one has none
 //!
@@ -6,10 +8,10 @@
 //! prose instead, because a field would imply something consults them — and
 //! each was checked against the Java tree rather than assumed:
 //!
-//! * **`Driver`** (`org.sqlite.JDBC`) — a JDBC driver class name, loaded with
+//! * **`Driver`** (`Database.ini`, `org.sqlite.JDBC`) — a JDBC driver class name, loaded with
 //!   `Class.forName`. This server talks to SQLite through `sqlx`, so there is
 //!   no class to name; the connection string (`URL`) is the whole config.
-//! * **`MySqlBinLocation`** — where `mysqldump` lives, and Java reads it only
+//! * **`MySqlBinLocation`** (`Database.ini`) — where `mysqldump` lives, and Java reads it only
 //!   on Windows and only from `DatabaseBackup`. There is no MySQL here, and
 //!   `BackupDatabase` is `False` on this dist besides.
 //! * **`KickMissingHWID`** (False) and **`MaxPlayersPerHWID`** (0) — both gate
@@ -42,6 +44,10 @@ use commons::config::PropertiesParser;
 /// the database is shared with the login server and so must be addressed
 /// neither relative to this server's datapack nor to its working directory.
 pub const SERVER_CONFIG_FILE: &str = "config/Server.ini";
+/// The database keys — Java's `DatabaseConfig` (`commons/config`).
+pub const DATABASE_CONFIG_FILE: &str = "config/Database.ini";
+/// The thread-pool keys — Java's `ThreadConfig` (`commons/config`).
+pub const THREADS_CONFIG_FILE: &str = "config/Threads.ini";
 
 #[derive(Debug, Clone, Default)]
 pub struct ServerConfig {
@@ -93,7 +99,7 @@ pub struct ServerConfig {
     pub threads_for_loading: bool,
 
     // Stability.
-    /// **Parsed and deliberately unread.** Java's `DeadLockDetector` calls
+    /// **Parsed and deliberately unread.** Java's `DeadlockWatcher` calls
     /// `ThreadMXBean.findDeadlockedThreads()`, which reports cycles in monitor
     /// ownership — a real hazard in Mobius, where game state is shared across a
     /// thread pool behind `synchronized`. This port owns all mutable game state
@@ -107,7 +113,7 @@ pub struct ServerConfig {
     /// A stall watchdog behind this key — restarting when the game loop stops
     /// advancing — **will not be ported**: it answers a different question
     /// (wedged loop, not lock cycle), and putting it here would tell an
-    /// operator who set `DeadLockDetector = True` that they have Java's
+    /// operator who set `DeadlockWatcher = True` that they have Java's
     /// guarantee. If wanted, it is a separate feature under its own key.
     ///
     /// Kept because an operator's `Server.ini` sets it and a silently-dropped
@@ -138,6 +144,8 @@ impl ServerConfig {
 
     pub fn load_from(root: &str) -> Self {
         let p = PropertiesParser::load_rel(root, SERVER_CONFIG_FILE);
+        let db = PropertiesParser::load_rel(root, DATABASE_CONFIG_FILE);
+        let threads = PropertiesParser::load_rel(root, THREADS_CONFIG_FILE);
 
         let protocol_list = split_ints(
             &p.get_string("AllowedProtocolRevisions", "603;606;607"),
@@ -160,14 +168,14 @@ impl ServerConfig {
             accept_alternate_id: p.get_bool("AcceptAlternateID", true),
             enable_hardware_info: p.get_bool("EnableHardwareInfo", false),
 
-            database_url: p.get_string("URL", "jdbc:sqlite:./data/l2jmobius.db"),
-            database_login: p.get_string("Login", "root"),
-            database_password: p.get_string("Password", ""),
-            database_max_connections: p.get_int("MaximumDatabaseConnections", 10).max(1) as u32,
-            database_test_connections: p.get_bool("TestDatabaseConnections", false),
-            backup_database: p.get_bool("BackupDatabase", false),
-            backup_path: super::datapack_path(root, &p.get_string("BackupPath", "../backup/")),
-            backup_days: p.get_int("BackupDays", 30),
+            database_url: db.get_string("URL", "jdbc:sqlite:./data/l2jmobius.db"),
+            database_login: db.get_string("Login", "root"),
+            database_password: db.get_string("Password", ""),
+            database_max_connections: db.get_int("MaximumDatabaseConnections", 10).max(1) as u32,
+            database_test_connections: db.get_bool("TestDatabaseConnections", false),
+            backup_database: db.get_bool("BackupDatabase", false),
+            backup_path: super::datapack_path(root, &db.get_string("BackupPath", "../backup/")),
+            backup_days: db.get_int("BackupDays", 30),
 
             datapack_root: super::datapack_path(root, &p.get_string("DatapackRoot", ".")),
             script_root: super::datapack_path(root, &p.get_string("ScriptRoot", "./data/scripts")),
@@ -183,12 +191,12 @@ impl ServerConfig {
             server_list_age: p.get_int("ServerListAge", 0),
             server_list_bracket: p.get_bool("ServerListBrackets", false),
 
-            scheduled_thread_pool_size: p.get_int("ScheduledThreadPoolSize", -1),
-            instant_thread_pool_size: p.get_int("InstantThreadPoolSize", -1),
-            threads_for_loading: p.get_bool("ThreadsForLoading", false),
+            scheduled_thread_pool_size: threads.get_int("ScheduledThreadPoolSize", -1),
+            instant_thread_pool_size: threads.get_int("InstantThreadPoolSize", -1),
+            threads_for_loading: threads.get_bool("ThreadsForLoading", false),
 
-            deadlock_detector: p.get_bool("DeadLockDetector", true),
-            deadlock_check_interval: p.get_int("DeadLockCheckInterval", 20),
+            deadlock_detector: p.get_bool("DeadlockWatcher", true),
+            deadlock_check_interval: p.get_int("DeadlockCheckInterval", 20),
             restart_on_deadlock: p.get_bool("RestartOnDeadlock", false),
 
             server_restart_schedule_enabled: p.get_bool("ServerRestartScheduleEnabled", false),

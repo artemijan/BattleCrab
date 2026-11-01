@@ -27,17 +27,19 @@ pub struct SkillEnchants(pub HashMap<i32, i32>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct ClanSkills(pub HashMap<i32, i32>);
 
-/// Active skills granted by the **augment options** on currently-equipped
-/// items (skill_id → level), Java's `Options.apply` → `addSkill(skill, false)`
-/// set.
+/// Skills granted by currently-equipped items with `addSkill(skill, false)`
+/// (skill_id → level): the active skills of their **augment options**
+/// (`Options.apply`) and the passives of their **soul crystal options**
+/// (`Item.applySpecialAbilities`, [`crate::game_loop::items::ensoul`]).
 ///
 /// **Transient**, for the same reason [`ClanSkills`] is: Java's `store = false`
 /// never reaches `character_skills`, and this port persists the whole
 /// [`SkillBook`] — so an option skill kept there would survive the item being
 /// unequipped and re-arm on every login with nothing equipped to explain it.
 /// Re-derived from the equipped items on each equip/unequip. Folded into the
-/// `SkillList` packet and into the cast path's known-skill lookup, which is what
-/// makes an augment active actually castable. Player-only.
+/// `SkillList` packet, into the cast path's known-skill lookup, which is what
+/// makes an augment active actually castable, and into the conditioned passive
+/// pump, which is where an ensoul passive's stats come from. Player-only.
 #[derive(Component, Debug, Clone, Default)]
 pub struct OptionSkills(pub HashMap<i32, i32>);
 
@@ -78,6 +80,14 @@ impl HennaSlots {
 /// `restore_type = 0` half) is still deferred.
 #[derive(Component, Debug, Clone, Default)]
 pub struct Reuses(pub HashMap<i32, crate::model::SkillReuse>);
+
+/// Java `Creature._disabledSkills` on its own — what `disableSkill` writes
+/// when nothing else does: a trigger cast's `reuseDelay`
+/// (`SkillCaster.triggerCast`). Keyed by `Skill::reuse_key()`, value the tick
+/// the lock lifts. Unlike [`Reuses`] it is never persisted and never shown in
+/// `SkillCoolTime`, which is the whole difference from a timestamp.
+#[derive(Component, Debug, Clone, Default)]
+pub struct DisabledSkills(pub HashMap<i32, u64>);
 
 /// Active buffs/debuffs (Java `EffectList`). Expiry is driven by the
 /// `Scheduler` (`ScheduledTask::BuffExpire`), not by anything here.

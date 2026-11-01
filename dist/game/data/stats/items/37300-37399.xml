@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37300" name="Steel Requiem Caster (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_anatrian_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -17,21 +17,21 @@
 		<set name="weight" val="360" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">348</stat>
 			<stat type="mAtk">252</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="37301" name="Steel Requiem Buster (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_kaynon_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -47,20 +47,20 @@
 		<set name="weight" val="510" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">348</stat>
 			<stat type="mAtk">252</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="37302" name="Steel Requiem Stormer (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 288. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. P. Atk. +288. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_soryu_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -76,22 +76,22 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="670" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13109" level="1" /> <!-- Special Ability: Damage Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="13115" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13109" level="1" /> <!-- Special Ability: Damage Up -->
+		</skills>
 	</item>
 	<item id="37303" name="Steel Requiem Slasher (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_polion_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -106,20 +106,20 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="580" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
-	<item id="37304" name="Steel Requiem Dualsword (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. -->
+	<item id="37304" name="Steel Requiem Dual Sword (30-day)" type="Weapon">
+		<!-- <Special Option>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -134,20 +134,20 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="510" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37305" name="Steel Requiem Fighter (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Attack Spd. by 15%. Increases damage inflicted during. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_fantasma_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -162,21 +162,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="520" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37306" name="Steel Requiem Dual Blunt (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Critical by 79.5. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Critical by 79.5. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_r_dualblunt_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -191,21 +191,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="580" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3566" level="6" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="37307" name="Steel Requiem Shaper (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_aspeda_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -220,21 +220,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="510" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37308" name="Steel Requiem Dual Dagger (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 288. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. P. Atk. +288. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_r_dualdagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -250,21 +250,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="680" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
+		</skills>
 	</item>
 	<item id="37309" name="Steel Requiem Thrower (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. P. Atk. + 288. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. P. Atk. +288. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_grabathus_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -281,21 +281,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="510" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13062" level="1" /> <!-- Special Ability: Damage Up -->
+		</skills>
 	</item>
 	<item id="37310" name="Steel Requiem Shooter (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_shyayaka_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="TWOHANDCROSSBOW" />
@@ -312,21 +312,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="530" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">771</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37311" name="Steel Requiem Avenger (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Attack Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_batista_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -341,21 +341,21 @@
 		<set name="time" val="43200" />
 		<set name="weight" val="580" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37312" name="Steel Requiem Retributer (30-day)" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. -->
+		<!-- <Special Option>. Increases Casting Spd. by 15%. Increases damage inflicted during PvP. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_grangkaz_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -371,19 +371,19 @@
 		<set name="weight" val="360" />
 		<set name="is_magic_weapon" val="true" />
 		<set name="material" val="WOOD" />
-		<skills>
-			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">423</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="37313" name="Toma's Support Box" type="EtcItem">
 		<!-- Support Box that Master Toma arranged by himself. Double-click to receive Toma's Living Guide, Returning Hero's Support Box, and Returning Hero's Potion Pack. -->
@@ -465,9 +465,9 @@
 			<item id="37135" min="1" max="1" chance="100" /> <!-- Steel Plate Helmet (60-day) -->
 			<item id="37323" min="1" max="1" chance="100" /> <!-- Fated Support Box: Wizard (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37317" name="Fated Support Box: Warrior (C-grade)" type="EtcItem">
 		<!-- Double-click to receive C-grade equipment items necessary for warrior-type characters. Can be used by characters Lv. 40 - 84. -->
@@ -495,9 +495,9 @@
 			<item id="37139" min="1" max="1" chance="100" /> <!-- Steel Plate Shield (60-day) -->
 			<item id="37324" min="1" max="1" chance="100" /> <!-- Fated Support Box: Warrior (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37318" name="Fated Support Box: Rogue (C-grade)" type="EtcItem">
 		<!-- Double-click to receive C-grade equipment items necessary for rogue-type characters. Can be used by characters Lv. 40 - 84. -->
@@ -525,9 +525,9 @@
 			<item id="37135" min="1" max="1" chance="100" /> <!-- Steel Plate Helmet (60-day) -->
 			<item id="37325" min="1" max="1" chance="100" /> <!-- Fated Support Box: Rogue (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37319" name="Fated Support Box: Kamael (C-grade)" type="EtcItem">
 		<!-- Double-click to receive C-grade equipment items necessary for Kamael-type characters. Can be used by characters Lv. 40 - 84. -->
@@ -555,9 +555,9 @@
 			<item id="37249" min="1" max="1" chance="100" /> <!-- Steel Schlager (60-day) -->
 			<item id="37326" min="1" max="1" chance="100" /> <!-- Fated Support Box: Kamael (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37320" name="Fated Support Box: Orc Fighter (C-grade)" type="EtcItem">
 		<!-- Double-click to receive C-grade equipment items necessary for orc-fighter-type characters. Can be used by characters Lv. 40 - 84. -->
@@ -589,9 +589,9 @@
 			<item id="37252" min="1" max="1" chance="100" /> <!-- Steel Flamberge (60-day) -->
 			<item id="37327" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Fighter (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37321" name="Fated Support Box: Orc Wizard (C-grade)" type="EtcItem">
 		<!-- Double-click to receive C-grade equipment items necessary for orc-wizard-type characters. Can be used by characters Lv. 40 - 84. -->
@@ -622,9 +622,9 @@
 			<item id="37139" min="1" max="1" chance="100" /> <!-- Steel Plate Shield (60-day) -->
 			<item id="37328" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Wizard (B-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="40;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37322" name="Fated Support Box: Fighter (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for fighter-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -652,9 +652,9 @@
 			<item id="37152" min="1" max="1" chance="100" /> <!-- Steel Doom Shield (60-day) -->
 			<item id="37329" min="1" max="1" chance="100" /> <!-- Fated Support Box: Fighter (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37323" name="Fated Support Box: Wizard (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for wizard-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -680,9 +680,9 @@
 			<item id="37157" min="1" max="1" chance="100" /> <!-- Steel Avadon Shield (60-day) -->
 			<item id="37330" min="1" max="1" chance="100" /> <!-- Fated Support Box: Wizard (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37324" name="Fated Support Box: Warrior (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for warrior-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -710,9 +710,9 @@
 			<item id="37152" min="1" max="1" chance="100" /> <!-- Steel Doom Shield (60-day) -->
 			<item id="37331" min="1" max="1" chance="100" /> <!-- Fated Support Box: Warrior (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37325" name="Fated Support Box: Rogue (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for rogue-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -739,9 +739,9 @@
 			<item id="37148" min="1" max="1" chance="100" /> <!-- Steel Doom Helmet (60-day) -->
 			<item id="37332" min="1" max="1" chance="100" /> <!-- Fated Support Box: Rogue (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37326" name="Fated Support Box: Kamael (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for Kamael-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -768,9 +768,9 @@
 			<item id="37148" min="1" max="1" chance="100" /> <!-- Steel Doom Helmet (60-day) -->
 			<item id="37333" min="1" max="1" chance="100" /> <!-- Fated Support Box: Kamael (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37327" name="Fated Support Box: Orc Fighter (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for orc-fighter-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -801,9 +801,9 @@
 			<item id="37152" min="1" max="1" chance="100" /> <!-- Steel Doom Shield (60-day) -->
 			<item id="37334" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Fighter (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37328" name="Fated Support Box: Orc Wizard (B-grade)" type="EtcItem">
 		<!-- Double-click to receive B-grade equipment items necessary for orc-wizard-type characters. Can be used by characters Lv. 52 - 84. -->
@@ -835,9 +835,9 @@
 			<item id="37152" min="1" max="1" chance="100" /> <!-- Steel Doom Shield (60-day) -->
 			<item id="37335" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Wizard (A-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="52;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37329" name="Fated Support Box: Fighter (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for fighter-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -865,9 +865,9 @@
 			<item id="37165" min="1" max="1" chance="100" /> <!-- Steel Shield of Nightmare (60-day) -->
 			<item id="37336" min="1" max="1" chance="100" /> <!-- Fated Support Box: Fighter (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37330" name="Fated Support Box: Wizard (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for wizard-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -893,9 +893,9 @@
 			<item id="37170" min="1" max="1" chance="100" /> <!-- Steel Dark Crystal Shield (60-day) -->
 			<item id="37337" min="1" max="1" chance="100" /> <!-- Fated Support Box: Wizard (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37331" name="Fated Support Box: Warrior (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for warrior-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -923,9 +923,9 @@
 			<item id="37165" min="1" max="1" chance="100" /> <!-- Steel Shield of Nightmare (60-day) -->
 			<item id="37338" min="1" max="1" chance="100" /> <!-- Fated Support Box: Warrior (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37332" name="Fated Support Box: Rogue (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for rogue-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -953,9 +953,9 @@
 			<item id="37167" min="1" max="1" chance="100" /> <!-- Steel Dark Crystal Helmet (60-day) -->
 			<item id="37339" min="1" max="1" chance="100" /> <!-- Fated Support Box: Rogue (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37333" name="Fated Support Box: Kamael (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for Kamael-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -983,9 +983,9 @@
 			<item id="37167" min="1" max="1" chance="100" /> <!-- Steel Dark Crystal Helmet (60-day) -->
 			<item id="37340" min="1" max="1" chance="100" /> <!-- Fated Support Box: Kamael (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37334" name="Fated Support Box: Orc Fighter (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for orc-fighter-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -1018,9 +1018,9 @@
 			<item id="37165" min="1" max="1" chance="100" /> <!-- Steel Shield of Nightmare (60-day) -->
 			<item id="37341" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Fighter (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37335" name="Fated Support Box: Orc Wizard (A-grade)" type="EtcItem">
 		<!-- Double-click to receive A-grade equipment items necessary for orc-wizard-type characters. Can be used by characters Lv. 61 - 84. -->
@@ -1052,9 +1052,9 @@
 			<item id="37170" min="1" max="1" chance="100" /> <!-- Steel Dark Crystal Shield (60-day) -->
 			<item id="37342" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Wizard (S-grade) (Stage 1) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="61;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37336" name="Fated Support Box: Fighter (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for fighter-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1083,9 +1083,9 @@
 			<item id="37180" min="1" max="1" chance="100" /> <!-- Steel Imperial Crusader Shield (60-day) -->
 			<item id="37343" min="1" max="1" chance="100" /> <!-- Fated Support Box: Fighter (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37337" name="Fated Support Box: Wizard (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for wizard-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1111,9 +1111,9 @@
 			<item id="37185" min="1" max="1" chance="100" /> <!-- Steel Arcana Sigil (60-day) -->
 			<item id="37344" min="1" max="1" chance="100" /> <!-- Fated Support Box: Wizard (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37338" name="Fated Support Box: Warrior (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for warrior-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1142,9 +1142,9 @@
 			<item id="37180" min="1" max="1" chance="100" /> <!-- Steel Imperial Crusader Shield (60-day) -->
 			<item id="37345" min="1" max="1" chance="100" /> <!-- Fated Support Box: Warrior (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37339" name="Fated Support Box: Rogue (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for rogue-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1171,9 +1171,9 @@
 			<item id="37189" min="1" max="1" chance="100" /> <!-- Steel Draconic Leather Helmet (60-day) -->
 			<item id="37346" min="1" max="1" chance="100" /> <!-- Fated Support Box: Rogue (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37340" name="Fated Support Box: Kamael (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for Kamael-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1200,9 +1200,9 @@
 			<item id="37189" min="1" max="1" chance="100" /> <!-- Steel Draconic Leather Helmet (60-day) -->
 			<item id="37347" min="1" max="1" chance="100" /> <!-- Fated Support Box: Kamael (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37341" name="Fated Support Box: Orc Fighter (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for orc-fighter-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1235,9 +1235,9 @@
 			<item id="37180" min="1" max="1" chance="100" /> <!-- Steel Imperial Crusader Shield (60-day) -->
 			<item id="37348" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Fighter (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37342" name="Fated Support Box: Orc Wizard (S-grade) (Stage 1)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for orc-wizard-type characters. Can be used by characters Lv. 76 - 84. -->
@@ -1270,9 +1270,9 @@
 			<item id="37180" min="1" max="1" chance="100" /> <!-- Steel Imperial Crusader Shield (60-day) -->
 			<item id="37349" min="1" max="1" chance="100" /> <!-- Fated Support Box: Orc Wizard (S-grade) (Stage 2) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="76;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37343" name="Fated Support Box: Fighter (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for fighter-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1293,7 +1293,7 @@
 			<item id="37290" min="1" max="1" chance="100" /> <!-- Steel Dynasty Cudgel (60-day) -->
 			<item id="37190" min="1" max="1" chance="100" /> <!-- Steel Dynasty Breastplate (60-day) -->
 			<item id="37191" min="1" max="1" chance="100" /> <!-- Steel Dynasty Gaiters (60-day) -->
-			<item id="37291" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dualsword (60-day) -->
+			<item id="37291" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dual Sword (60-day) -->
 			<item id="37193" min="1" max="1" chance="100" /> <!-- Steel Dynasty Gauntlets (60-day) -->
 			<item id="37194" min="1" max="1" chance="100" /> <!-- Steel Dynasty Boots (60-day) -->
 			<item id="37289" min="1" max="1" chance="100" /> <!-- Steel Dynasty Phantom (60-day) -->
@@ -1301,9 +1301,9 @@
 			<item id="37195" min="1" max="1" chance="100" /> <!-- Steel Dynasty Shield (60-day) -->
 			<item id="37350" min="1" max="1" chance="100" /> <!-- Fated Support Box: Sigel Knight (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37344" name="Fated Support Box: Wizard (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for wizard-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1330,9 +1330,9 @@
 			<item id="37289" min="1" max="1" chance="100" /> <!-- Steel Dynasty Phantom (60-day) -->
 			<item id="37351" min="1" max="1" chance="100" /> <!-- Fated Support Box: Tyrr Warrior (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37345" name="Fated Support Box: Warrior (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for warrior-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1354,16 +1354,16 @@
 			<item id="37290" min="1" max="1" chance="100" /> <!-- Steel Dynasty Cudgel (60-day) -->
 			<item id="37190" min="1" max="1" chance="100" /> <!-- Steel Dynasty Breastplate (60-day) -->
 			<item id="37191" min="1" max="1" chance="100" /> <!-- Steel Dynasty Gaiters (60-day) -->
-			<item id="37291" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dualsword (60-day) -->
+			<item id="37291" min="1" max="1" chance="100" /> <!-- Steel Dynasty Dual Sword (60-day) -->
 			<item id="37193" min="1" max="1" chance="100" /> <!-- Steel Dynasty Gauntlets (60-day) -->
 			<item id="37194" min="1" max="1" chance="100" /> <!-- Steel Dynasty Boots (60-day) -->
 			<item id="37192" min="1" max="1" chance="100" /> <!-- Steel Dynasty Helmet (60-day) -->
 			<item id="37195" min="1" max="1" chance="100" /> <!-- Steel Dynasty Shield (60-day) -->
 			<item id="37352" min="1" max="1" chance="100" /> <!-- Fated Support Box: Othell Rogue (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37346" name="Fated Support Box: Rogue (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for rogue-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1391,9 +1391,9 @@
 			<item id="37293" min="1" max="1" chance="100" /> <!-- Steel Dynasty Knife (60-day) -->
 			<item id="37353" min="1" max="1" chance="100" /> <!-- Fated Support Box: Yul Archer (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37347" name="Fated Support Box: Kamael (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for Kamael-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1421,9 +1421,9 @@
 			<item id="37204" min="1" max="1" chance="100" /> <!-- Steel Dynasty Leather Helmet (60-day) -->
 			<item id="37354" min="1" max="1" chance="100" /> <!-- Fated Support Box: Feoh Wizard (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37348" name="Fated Support Box: Orc Fighter (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for orc-fighter-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1457,9 +1457,9 @@
 			<item id="37195" min="1" max="1" chance="100" /> <!-- Steel Dynasty Shield (60-day) -->
 			<item id="37355" min="1" max="1" chance="100" /> <!-- Fated Support Box: Wynn Summoner (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37349" name="Fated Support Box: Orc Wizard (S-grade) (Stage 2)" type="EtcItem">
 		<!-- Double-click to receive S-grade equipment items necessary for orc-wizard-type characters. Can be used by characters between level 81 and level 84. -->
@@ -1493,9 +1493,9 @@
 			<item id="37195" min="1" max="1" chance="100" /> <!-- Steel Dynasty Shield (60-day) -->
 			<item id="37356" min="1" max="1" chance="100" /> <!-- Fated Support Box: Aeore Healer (R-grade) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="81;84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37350" name="Fated Support Box: Sigel Knight (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for a Sigel Knight can be obtained. Only available to characters above lv85. -->
@@ -1516,7 +1516,7 @@
 			<item id="37207" min="1" max="1" chance="100" /> <!-- Steel Immortal Breastplate (30-day) -->
 			<item id="37208" min="1" max="1" chance="100" /> <!-- Steel Immortal Gaiters (30-day) -->
 			<item id="37306" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Blunt (30-day) -->
-			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dualsword (30-day) -->
+			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Sword (30-day) -->
 			<item id="37210" min="1" max="1" chance="100" /> <!-- Steel Immortal Gauntlets (30-day) -->
 			<item id="37211" min="1" max="1" chance="100" /> <!-- Steel Immortal Boots (30-day) -->
 			<item id="37311" min="1" max="1" chance="100" /> <!-- Steel Requiem Avenger (30-day) -->
@@ -1524,9 +1524,9 @@
 			<item id="37209" min="1" max="1" chance="100" /> <!-- Steel Immortal Helmet (30-day) -->
 			<item id="37212" min="1" max="1" chance="100" /> <!-- Steel Immortal Shield (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37351" name="Fated Support Box: Tyrr Warrior (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for a Tyrr Warrior can be obtained. Only available to characters above lv85. -->
@@ -1550,7 +1550,7 @@
 			<item id="37217" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Boots (30-day) -->
 			<item id="37208" min="1" max="1" chance="100" /> <!-- Steel Immortal Gaiters (30-day) -->
 			<item id="37306" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Blunt (30-day) -->
-			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dualsword (30-day) -->
+			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Sword (30-day) -->
 			<item id="37210" min="1" max="1" chance="100" /> <!-- Steel Immortal Gauntlets (30-day) -->
 			<item id="37211" min="1" max="1" chance="100" /> <!-- Steel Immortal Boots (30-day) -->
 			<item id="37302" min="1" max="1" chance="100" /> <!-- Steel Requiem Stormer (30-day) -->
@@ -1562,9 +1562,9 @@
 			<item id="37212" min="1" max="1" chance="100" /> <!-- Steel Immortal Shield (30-day) -->
 			<item id="37303" min="1" max="1" chance="100" /> <!-- Steel Requiem Slasher (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37352" name="Fated Support Box: Othell Rogue (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for an Othell Rogue can be obtained. Only available to characters above lv85. -->
@@ -1590,9 +1590,9 @@
 			<item id="37213" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Armor (30-day) -->
 			<item id="37215" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Helmet (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37353" name="Fated Support Box: Yul Archer (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for a Yul Archer can be obtained. Only available to characters above lv85. -->
@@ -1618,9 +1618,9 @@
 			<item id="37215" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Helmet (30-day) -->
 			<item id="37310" min="1" max="1" chance="100" /> <!-- Steel Requiem Shooter (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37354" name="Fated Support Box: Feoh Wizard (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for a Feoh Wizard can be obtained. Only available to characters above lv85. -->
@@ -1648,9 +1648,9 @@
 			<item id="37301" min="1" max="1" chance="100" /> <!-- Steel Requiem Buster (30-day) -->
 			<item id="37223" min="1" max="1" chance="100" /> <!-- Steel Immortal Sigil (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37355" name="Fated Support Box: Wynn Summoner (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for a Wynn Summoner can be obtained. Only available to characters above lv85. -->
@@ -1675,7 +1675,7 @@
 			<item id="37214" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Leggings (30-day) -->
 			<item id="37216" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Gloves (30-day) -->
 			<item id="37217" min="1" max="1" chance="100" /> <!-- Steel Immortal Leather Boots (30-day) -->
-			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dualsword (30-day) -->
+			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Sword (30-day) -->
 			<item id="37221" min="1" max="1" chance="100" /> <!-- Steel Immortal Gloves (30-day) -->
 			<item id="37219" min="1" max="1" chance="100" /> <!-- Steel Immortal Stockings (30-day) -->
 			<item id="37300" min="1" max="1" chance="100" /> <!-- Steel Requiem Caster (30-day) -->
@@ -1684,9 +1684,9 @@
 			<item id="37301" min="1" max="1" chance="100" /> <!-- Steel Requiem Buster (30-day) -->
 			<item id="37223" min="1" max="1" chance="100" /> <!-- Steel Immortal Sigil (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37356" name="Fated Support Box: Aeore Healer (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for an Aeore Healer can be obtained. Only available to characters above lv85. -->
@@ -1708,16 +1708,16 @@
 			<item id="37218" min="1" max="1" chance="100" /> <!-- Steel Immortal Tunic (30-day) -->
 			<item id="37312" min="1" max="1" chance="100" /> <!-- Steel Requiem Retributer (30-day) -->
 			<item id="37222" min="1" max="1" chance="100" /> <!-- Steel Immortal Shoes (30-day) -->
-			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dualsword (30-day) -->
+			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Sword (30-day) -->
 			<item id="37221" min="1" max="1" chance="100" /> <!-- Steel Immortal Gloves (30-day) -->
 			<item id="37219" min="1" max="1" chance="100" /> <!-- Steel Immortal Stockings (30-day) -->
 			<item id="37300" min="1" max="1" chance="100" /> <!-- Steel Requiem Caster (30-day) -->
 			<item id="37301" min="1" max="1" chance="100" /> <!-- Steel Requiem Buster (30-day) -->
 			<item id="37223" min="1" max="1" chance="100" /> <!-- Steel Immortal Sigil (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37357" name="Fated Support Box: Iss Enchanter (R-grade)" type="EtcItem">
 		<!-- When Double Clicked, a useful equipment item for an Iss Enchanter can be obtained. Only available to characters above lv85. -->
@@ -1742,7 +1742,7 @@
 			<item id="37222" min="1" max="1" chance="100" /> <!-- Steel Immortal Shoes (30-day) -->
 			<item id="37208" min="1" max="1" chance="100" /> <!-- Steel Immortal Gaiters (30-day) -->
 			<item id="37306" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Blunt (30-day) -->
-			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dualsword (30-day) -->
+			<item id="37304" min="1" max="1" chance="100" /> <!-- Steel Requiem Dual Sword (30-day) -->
 			<item id="37221" min="1" max="1" chance="100" /> <!-- Steel Immortal Gloves (30-day) -->
 			<item id="37210" min="1" max="1" chance="100" /> <!-- Steel Immortal Gauntlets (30-day) -->
 			<item id="37211" min="1" max="1" chance="100" /> <!-- Steel Immortal Boots (30-day) -->
@@ -1755,9 +1755,9 @@
 			<item id="37209" min="1" max="1" chance="100" /> <!-- Steel Immortal Helmet (30-day) -->
 			<item id="37212" min="1" max="1" chance="100" /> <!-- Steel Immortal Shield (30-day) -->
 		</capsuled_items>
-		<cond msgId="1902">
+		<conditions msgId="1902">
 			<player levelRange="85;99" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="37358" name="Test Server Support Badge" type="EtcItem">
 		<!-- Badge that confirms you have obtained a Lindvior Support Box. If you have this badge, you cannot obtain a Lindvior Support Box. Cannot be transferred between servers. -->
@@ -2006,7 +2006,7 @@
 			<stat type="pAtk">581</stat>
 			<stat type="mAtk">132</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -2033,7 +2033,7 @@
 			<stat type="pAtk">654</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -2370,7 +2370,7 @@
 			<item id="37425" min="1" max="1" chance="6.25" /> <!-- Emerald Weapon Appearance Stone: One-handed Magic Blunt Weapon -->
 			<item id="37429" min="1" max="1" chance="6.25" /> <!-- Emerald Weapon Appearance Stone: Dual Blunt Weapon -->
 			<item id="37428" min="1" max="1" chance="6.25" /> <!-- Emerald Weapon Appearance Stone: Dual Dagger -->
-			<item id="37427" min="1" max="1" chance="6.25" /> <!-- Emerald Weapon Appearance Stone: Dualsword -->
+			<item id="37427" min="1" max="1" chance="6.25" /> <!-- Emerald Weapon Appearance Stone: Dual Sword -->
 		</capsuled_items>
 	</item>
 	<item id="37397" name="Kaiser's Assistance" type="EtcItem">
@@ -2379,8 +2379,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="37398" name="Black Anvil Guild's Dimensional Chest" type="EtcItem">

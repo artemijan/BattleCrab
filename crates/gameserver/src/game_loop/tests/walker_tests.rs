@@ -48,7 +48,7 @@ fn walker_world(
 
     let mut routes = RouteData::default();
     routes.routes.push(route(style, repeat));
-    routes.attach_for_test(WALKER_ID, 0);
+    routes.attach_for_test(WALKER_ID, (0, 0, 0), 0);
     world.data.routes = routes;
     (world, db, l)
 }
@@ -205,11 +205,26 @@ fn a_dead_walker_stops_permanently() {
     assert!(world.objects.get_component::<Movement>(&WALKER).is_none());
 }
 
-/// The real datapack: a walker template that actually ships with a route.
+/// The real datapack: Knoriks 22857 spawned at knoriks_06's target point
+/// (146901, 116472, -3698) walks that 29-node cycle.
 #[test]
-fn real_dist_attaches_porter_remy() {
+fn real_dist_attaches_a_route_by_spawn_point() {
     let routes = RouteData::load_from(crate::data::DIST_GAME);
-    let (_, r) = routes.route_for_npc(31356).expect("Porter Remy walks");
-    assert_eq!(r.nodes.len(), 18);
+    let (_, r) = routes
+        .route_for_spawn(22857, (146901, 116472, -3698))
+        .expect("Knoriks walks from this point");
+    assert_eq!(r.name, "knoriks_06");
+    assert_eq!(r.nodes.len(), 29);
     assert_eq!(r.repeat_style, RepeatStyle::GoFirst);
+}
+
+/// A walker spawned away from every point its targets name stays put —
+/// `NpcRoutesHolder.getRouteName` returns "" and `onSpawn` starts nothing.
+#[test]
+fn a_targeted_npc_off_its_spawn_point_gets_no_route() {
+    let (mut world, _db, _l) = walker_world(RepeatStyle::GoFirst, true);
+    add_test_npc(&mut world, WALKER, WALKER_ID, "Folk", 30, 500, 0, 0);
+    crate::game_loop::walkers::on_npc_spawn(&mut world, WALKER, WALKER_ID);
+
+    assert!(state(&world).is_none());
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="32700" name="Low-grade Magic Rune Clip (R-grade)" type="EtcItem">
 		<!-- Low-grade Magic Rune Clip that can improve the function of R-grade Belt. -->
@@ -198,9 +198,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -208,7 +208,7 @@
 		</skills>
 	</item>
 	<item id="32725" name="Chic Silver Chapeau" additionalName="3-day" type="Armor">
-		<!-- Chic Silver Chapeau. 3-day. STR/INT +1. Uses 2 hair accessory slots. -->
+		<!-- Chic Silver Chapeau. 3-day. STR/ INT +1. Uses 2 hair accessory slots. -->
 		<set name="icon" val="BranchSys2.icon2.pi_silverchaperon" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="10" />
@@ -223,7 +223,7 @@
 		</skills>
 	</item>
 	<item id="32726" name="Demon Circlet" additionalName="3-day" type="Armor">
-		<!-- Hair accessory with weak energy. 3-day. CON/MEN +1. Uses 2 hair accessory slots. -->
+		<!-- Hair accessory with weak energy. 3-day. CON/ MEN +1. Uses 2 hair accessory slots. -->
 		<set name="icon" val="icon.Accessary_demon_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weight" val="10" />
@@ -670,7 +670,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9554" level="1" /> <!-- STR skill -->
+			<skill id="9554" level="1" /> <!-- Hair Accessory: STR -->
 		</skills>
 	</item>
 	<item id="32757" name="Rabbit Ears - DEX Pendant" type="EtcItem">
@@ -685,7 +685,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9555" level="1" /> <!-- DEX skill -->
+			<skill id="9555" level="1" /> <!-- Hair Accessory: DEX -->
 		</skills>
 	</item>
 	<item id="32758" name="Raccoon Ears: CON Pendant" type="EtcItem">
@@ -700,7 +700,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9556" level="1" /> <!-- CON skill -->
+			<skill id="9556" level="1" /> <!-- Hair Accessory: CON -->
 		</skills>
 	</item>
 	<item id="32759" name="Raccoon Ears: MEN Pendant" type="EtcItem">
@@ -715,7 +715,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9557" level="1" /> <!-- MEN skill -->
+			<skill id="9557" level="1" /> <!-- Hair Accessory: MEN -->
 		</skills>
 	</item>
 	<item id="32760" name="Cat Ears: INT Pendant" type="EtcItem">
@@ -730,7 +730,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9558" level="1" /> <!-- INT skill -->
+			<skill id="9558" level="1" /> <!-- Hair Accessory: INT -->
 		</skills>
 	</item>
 	<item id="32761" name="Cat Ears: WIT Pendant" type="EtcItem">
@@ -745,7 +745,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9559" level="1" /> <!-- WIT skill -->
+			<skill id="9559" level="1" /> <!-- Hair Accessory: WIT -->
 		</skills>
 	</item>
 	<item id="32762" name="Romantic Chapeau - P. Critical Rate Pendant" type="EtcItem">
@@ -760,7 +760,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9560" level="1" /> <!-- skill -->
+			<skill id="9560" level="1" /> <!-- Hair Accessory: Critical Rate -->
 		</skills>
 	</item>
 	<item id="32763" name="Romantic Chapeau - Critical Damage Pendant" type="EtcItem">
@@ -775,7 +775,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9561" level="1" /> <!-- skill -->
+			<skill id="9561" level="1" /> <!-- Hair Accessory: Critical Damage -->
 		</skills>
 	</item>
 	<item id="32764" name="Angel Circlet - P. Def. Pendant" type="EtcItem">
@@ -790,7 +790,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9562" level="1" /> <!-- skill -->
+			<skill id="9562" level="1" /> <!-- Hair Accessory Circlet: P. Def. -->
 		</skills>
 	</item>
 	<item id="32765" name="Angel Circlet - M. Def. Pendant" type="EtcItem">
@@ -805,7 +805,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9563" level="1" /> <!-- skill -->
+			<skill id="9563" level="1" /> <!-- Hair Accessory: M. Def. -->
 		</skills>
 	</item>
 	<item id="32766" name="Angel Circlet - Evasion Pendant" type="EtcItem">
@@ -820,7 +820,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9564" level="1" /> <!-- skill -->
+			<skill id="9564" level="1" /> <!-- Hair Accessory: Evasion -->
 		</skills>
 	</item>
 	<item id="32767" name="Demon Circlet - P. Atk. Pendant" type="EtcItem">
@@ -835,7 +835,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9565" level="1" /> <!-- skill -->
+			<skill id="9565" level="1" /> <!-- Hair Accessory: P. Atk. -->
 		</skills>
 	</item>
 	<item id="32768" name="Demon Circlet - M. Atk. Pendant" type="EtcItem">
@@ -850,7 +850,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9566" level="1" /> <!-- skill -->
+			<skill id="9566" level="1" /> <!-- Hair Accessory: M. Atk. -->
 		</skills>
 	</item>
 	<item id="32769" name="Demon Circlet - Accuracy Pendant" type="EtcItem">
@@ -865,7 +865,7 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="9567" level="1" /> <!-- skill -->
+			<skill id="9567" level="1" /> <!-- Hair Accessory: Accuracy -->
 		</skills>
 	</item>
 	<item id="32770" name="Beaker" type="Weapon">
@@ -888,7 +888,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -911,7 +911,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -936,7 +936,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -961,7 +961,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -986,7 +986,7 @@
 			<stat type="mAtk">21</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -998,8 +998,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="32776" name="Mark of Crisis - Tower of Insolence" type="EtcItem">
@@ -1009,8 +1009,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="32777" name="Goddess of Destruction Guide" type="EtcItem">
@@ -1039,10 +1039,10 @@
 		<!-- Pouch containing A-grade R hardener. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1053,10 +1053,10 @@
 		<!-- Pouch containing A-grade R95 hardener. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1067,10 +1067,10 @@
 		<!-- Pouch containing A-grade R99 hardener. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1081,10 +1081,10 @@
 		<!-- Pouch containing D-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1095,10 +1095,10 @@
 		<!-- Pouch containing C-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1109,10 +1109,10 @@
 		<!-- Pouch containing B-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1123,10 +1123,10 @@
 		<!-- Pouch containing A-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1137,10 +1137,10 @@
 		<!-- Pouch containing S-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1151,10 +1151,10 @@
 		<!-- Pouch containing R-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1165,10 +1165,10 @@
 		<!-- Pouch containing R95-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1179,10 +1179,10 @@
 		<!-- Pouch containing R99-grade weapon. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1193,10 +1193,10 @@
 		<!-- Pouch containing D-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1207,10 +1207,10 @@
 		<!-- Pouch containing C-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1221,10 +1221,10 @@
 		<!-- Pouch containing B-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1235,10 +1235,10 @@
 		<!-- Pouch containing A-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1249,10 +1249,10 @@
 		<!-- Pouch containing S-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1263,10 +1263,10 @@
 		<!-- Pouch containing R-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1277,10 +1277,10 @@
 		<!-- Pouch containing R95-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1291,10 +1291,10 @@
 		<!-- Pouch containing R99-grade armor Fragment. -->
 		<set name="icon" val="icon.etc_pouch_gold_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>

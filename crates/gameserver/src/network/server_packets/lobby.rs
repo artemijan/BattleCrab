@@ -4,7 +4,7 @@
 
 use commons::network::PacketWriter;
 
-use super::{PAPERDOLL_ORDER, opcodes};
+use super::opcodes;
 use crate::model::inventory::PaperdollSlot;
 
 /// Port of `serverpackets/KeyPacket` — the reply to `ProtocolVersion`. Hands the
@@ -48,6 +48,45 @@ pub fn login_success() -> Vec<u8> {
     login_fail(-1, 0)
 }
 
+/// `CharSelectionInfo.PAPERDOLL_ORDER` — this packet overrides the base order
+/// with its own 33 slots, which leave out the five agathions (the five
+/// "Salvation" ints written after it stand where they would go).
+const CHAR_SELECT_PAPERDOLL_ORDER: [PaperdollSlot; 33] = [
+    PaperdollSlot::Under,
+    PaperdollSlot::REar,
+    PaperdollSlot::LEar,
+    PaperdollSlot::Neck,
+    PaperdollSlot::RFinger,
+    PaperdollSlot::LFinger,
+    PaperdollSlot::Head,
+    PaperdollSlot::RHand,
+    PaperdollSlot::LHand,
+    PaperdollSlot::Gloves,
+    PaperdollSlot::Chest,
+    PaperdollSlot::Legs,
+    PaperdollSlot::Feet,
+    PaperdollSlot::Cloak,
+    PaperdollSlot::RHand,
+    PaperdollSlot::Hair,
+    PaperdollSlot::Hair2,
+    PaperdollSlot::RBracelet,
+    PaperdollSlot::LBracelet,
+    PaperdollSlot::Deco1,
+    PaperdollSlot::Deco2,
+    PaperdollSlot::Deco3,
+    PaperdollSlot::Deco4,
+    PaperdollSlot::Deco5,
+    PaperdollSlot::Deco6,
+    PaperdollSlot::Belt,
+    PaperdollSlot::Brooch,
+    PaperdollSlot::BroochJewel1,
+    PaperdollSlot::BroochJewel2,
+    PaperdollSlot::BroochJewel3,
+    PaperdollSlot::BroochJewel4,
+    PaperdollSlot::BroochJewel5,
+    PaperdollSlot::BroochJewel6,
+];
+
 /// `CharSelectionInfo.PAPERDOLL_ORDER_VISUAL_ID` — this packet overrides the
 /// `ServerPacket` default with its own 9-slot visual-id order.
 const CHAR_SELECT_PAPERDOLL_VISUAL_ORDER: [PaperdollSlot; 9] = [
@@ -71,42 +110,72 @@ const CHAR_SELECT_ENCHANT_ORDER: [PaperdollSlot; 5] = [
     PaperdollSlot::Feet,
 ];
 
-/// The lobby slot to highlight: the most-recently-accessed character.
-/// Characters marked for deletion never become active; if every character is
-/// marked (or the list is empty), none is highlighted (-1).
+/// The lobby slot to highlight when the caller gave none: Java's scan for the
+/// highest `lastAccess`, where the first of equal values wins and a list whose
+/// every `lastAccess` is 0 highlights nothing (-1).
 fn lobby_active_id(chars: &[crate::db::CharData]) -> i32 {
-    chars
-        .iter()
-        .enumerate()
-        .filter(|(_, c)| c.delete_time == 0)
-        .max_by_key(|(_, c)| c.last_access)
-        .map(|(i, _)| i as i32)
-        .unwrap_or(-1)
+    let mut last_access = 0;
+    let mut active_id = -1;
+    for (i, c) in chars.iter().enumerate() {
+        if last_access < c.last_access {
+            last_access = c.last_access;
+            active_id = i as i32;
+        }
+    }
+    active_id
 }
 
-/// Port of `serverpackets/CharSelectionInfo`. Writes the real character rows
-/// and paperdoll; augmentation/visual id are zero (later milestones).
+/// The world state `CharSelectionInfo` reads besides the character rows.
+pub struct CharSelectCtx<'a> {
+    /// `ServerConfig.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`.
+    pub max_characters: i32,
+    pub exp: &'a crate::data::ExperienceData,
+    /// For the hero glow (Java `Hero.isHero`).
+    pub olympiad: &'a crate::model::olympiad::OlympiadState,
+    /// `RatesConfig.RATE_VITALITY_EXP_MULTIPLIER`.
+    pub rate_vitality_exp_multiplier: f64,
+}
+
+/// `AbstractVariables.getBoolean`: `Boolean.parseBoolean` of the stored value.
+fn variable_bool(c: &crate::db::CharData, key: &str, default: bool) -> bool {
+    c.variables
+        .iter()
+        .find(|(k, _)| k == key)
+        .map_or(default, |(_, v)| v.eq_ignore_ascii_case("true"))
+}
+
+/// `AbstractVariables.getInt`.
+fn variable_int(c: &crate::db::CharData, key: &str, default: i32) -> i32 {
+    c.variables
+        .iter()
+        .find(|(k, _)| k == key)
+        .and_then(|(_, v)| v.parse().ok())
+        .unwrap_or(default)
+}
+
+/// Port of `serverpackets/CharSelectionInfo` (protocol 140). Augmentation and
+/// visual ids are zero until those systems are ported.
 pub fn char_selection_info(
     login_name: &str,
     session_id: i32,
     chars: &[crate::db::CharData],
     active_id: i32,
-    max_characters: i32,
-    exp: &crate::data::ExperienceData,
-    cursed_weapons: &[crate::model::cursed_weapon::CursedWeapon],
+    ctx: &CharSelectCtx<'_>,
 ) -> Vec<u8> {
     let now = commons::util::now_millis();
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CHARACTER_SELECTION_INFO);
     let size = chars.len() as i32;
     w.write_i32(size); // created character count
-    w.write_i32(max_characters);
-    w.write_u8((size == max_characters) as u8); // 1 = can't create new char
+    w.write_i32(ctx.max_characters);
+    w.write_u8((size == ctx.max_characters) as u8); // 1 = can't create new char
     w.write_u8(1); // 1 = can play free until level 85
     w.write_i32(2); // client region flag
-    w.write_u8(0); // Balthus Knights / premium suggestion
+    w.write_u8(0); // gift message for inactive accounts
+    // Balthus Knights: `BalthusKnightsEnabled` ships 0, which writes 0. The
+    // premium branches arrive with the Balthus start (S12).
+    w.write_u8(0);
 
-    // If no active id was given, the most-recently-accessed character is active.
     let active_id = if active_id == -1 {
         lobby_active_id(chars)
     } else {
@@ -118,7 +187,7 @@ pub fn char_selection_info(
         w.write_i32(c.object_id);
         w.write_string(login_name);
         w.write_i32(session_id);
-        w.write_i32(c.clan_id);
+        w.write_i32(0); // clan id
         w.write_i32(0); // builder level
         w.write_i32(c.sex);
         w.write_i32(c.race);
@@ -131,7 +200,7 @@ pub fn char_selection_info(
         w.write_f64(c.cur_mp);
         w.write_i64(c.sp);
         w.write_i64(c.exp);
-        w.write_f64(exp_percent(exp, c.exp, c.level));
+        w.write_f64(exp_percent(ctx.exp, c.exp, c.level));
         w.write_i32(c.level);
         w.write_i32(c.reputation);
         w.write_i32(c.pk_kills);
@@ -139,12 +208,15 @@ pub fn char_selection_info(
         for _ in 0..9 {
             w.write_i32(0); // 7 reserved + 2 Ertheia
         }
-        // Per-character paperdoll (Java `CharSelectInfoPackage`), read from the
+        // Per-character paperdoll (Java `CharacterInfoHolder`), read from the
         // `items` rows loaded alongside the character.
         let inv = crate::model::inventory::Inventory::from_rows(&c.items);
-        for slot in PAPERDOLL_ORDER {
+        for slot in CHAR_SELECT_PAPERDOLL_ORDER {
             let item_id = inv.paperdoll_item_id(slot);
             w.write_i32(item_id);
+        }
+        for _ in 0..5 {
+            w.write_i32(0); // Salvation
         }
         for slot in CHAR_SELECT_PAPERDOLL_VISUAL_ORDER {
             let visual_id = inv.paperdoll_visual_id(slot); // always 0 (appearance: later milestone)
@@ -159,7 +231,9 @@ pub fn char_selection_info(
         w.write_i32(c.face);
         w.write_f64(c.max_hp as f64);
         w.write_f64(c.max_mp as f64);
-        w.write_i32(if c.delete_time > 0 {
+        w.write_i32(if c.access_level < 0 {
+            -1 // banned
+        } else if c.delete_time > 0 {
             ((c.delete_time - now) / 1000) as i32
         } else {
             0
@@ -169,29 +243,7 @@ pub fn char_selection_info(
         w.write_u8(inv.paperdoll_enchant_level(PaperdollSlot::RHand).min(127) as u8); // rhand weapon enchant (capped 127)
         w.write_i32(0); // augmentation option 1
         w.write_i32(0); // augmentation option 2
-        // Transform id — the field the client uses to draw a polymorphed model
-        // on the selection screen.
-        //
-        // **Deliberate deviation from Java/retail.** L2J writes a hard 0 here,
-        // with the line it replaced left in as a comment:
-        //
-        //     // buffer.writeInt(charInfoPackage.getTransformId());
-        //     buffer.writeInt(0); // Currently on retail when you are on
-        //                         // character select you don't see your
-        //                         // transformation.
-        //
-        // We send it for **cursed weapons only**, so that someone who logged
-        // out holding Zariche/Akamanah sees the demon form at selection and
-        // knows the curse is still on that character before they enter the
-        // world. Ordinary transforms are not persisted per character anyway, so
-        // this is the one case where the id is knowable here — it comes from
-        // the `cursed_weapons` wielder rows, not from any character column.
-        let transform_id = cursed_weapons
-            .iter()
-            .find(|cw| cw.is_activated && cw.player_id == c.object_id)
-            .map(|cw| if cw.item_id == 8689 { 302 } else { 301 })
-            .unwrap_or(0);
-        w.write_i32(transform_id); // transform
+        w.write_i32(0); // transform: retail shows none at character select
         w.write_i32(0); // pet npc id
         w.write_i32(0); // pet level
         w.write_i32(0); // pet food
@@ -199,12 +251,22 @@ pub fn char_selection_info(
         w.write_f64(0.0); // pet hp
         w.write_f64(0.0); // pet mp
         w.write_i32(c.vitality_points);
-        w.write_i32(100); // vitality percent (RATE_VITALITY_EXP_MULTIPLIER * 100)
-        w.write_i32(0); // remaining vitality item uses
+        // Java's `(int) RATE_VITALITY_EXP_MULTIPLIER * 100`: the cast binds
+        // to the multiplier, so 2.5 shows as 200.
+        w.write_i32((ctx.rate_vitality_exp_multiplier as i32).wrapping_mul(100));
+        w.write_i32(variable_int(
+            c,
+            crate::model::components::player::VITALITY_ITEMS_USED,
+            0,
+        ));
         w.write_i32((c.access_level != -100) as i32); // char active
         w.write_u8(c.noble as u8);
-        w.write_u8(0); // hero glow
-        w.write_u8(1); // hair accessory enabled
+        w.write_u8(ctx.olympiad.is_hero(c.object_id) as u8); // hero glow
+        w.write_u8(variable_bool(
+            c,
+            crate::model::components::player::HAIR_ACCESSORY_ENABLED,
+            true,
+        ) as u8);
     }
     w.into_bytes()
 }
@@ -371,24 +433,88 @@ mod tests {
     }
 
     #[test]
-    fn active_id_is_most_recently_accessed_non_deleted() {
-        let chars = [
-            chr(100, 0),
-            chr(300, commons::util::now_millis()),
-            chr(200, 0),
-        ];
-        assert_eq!(lobby_active_id(&chars), 2);
+    fn active_id_is_the_first_most_recently_accessed() {
+        let now = commons::util::now_millis();
+        // A character marked for deletion is still eligible, as in Java.
+        let chars = [chr(100, 0), chr(300, now), chr(300, 0)];
+        assert_eq!(lobby_active_id(&chars), 1);
     }
 
     #[test]
-    fn active_id_is_none_when_all_marked_for_deletion() {
-        let now = commons::util::now_millis();
-        let chars = [chr(100, now), chr(300, now)];
-        assert_eq!(lobby_active_id(&chars), -1);
+    fn active_id_is_none_when_nobody_has_logged_in() {
+        assert_eq!(lobby_active_id(&[chr(0, 0), chr(0, 0)]), -1);
     }
 
     #[test]
     fn active_id_is_none_for_empty_list() {
         assert_eq!(lobby_active_id(&[]), -1);
+    }
+
+    /// The protocol-140 layout: two header bytes after the region flag, five
+    /// zero ints between the paperdoll and the visual ids, `-1` in the delete
+    /// timer of a banned character, and the hero glow as a bool.
+    #[test]
+    fn salvation_layout() {
+        use commons::network::PacketReader;
+
+        let banned_hero = CharData {
+            object_id: 7,
+            name: "Hero".into(),
+            access_level: -1,
+            delete_time: commons::util::now_millis() + 60_000,
+            last_access: 5,
+            variables: vec![("VITALITY_ITEMS_USED".into(), "3".into())],
+            ..Default::default()
+        };
+        let mut olympiad = crate::model::olympiad::OlympiadState::default();
+        olympiad.heroes.push((7, 88));
+        olympiad.claimed_heroes.insert(7);
+        let exp = crate::data::ExperienceData::from_table(vec![0, 0, 100], 2);
+        let ctx = super::CharSelectCtx {
+            max_characters: 7,
+            exp: &exp,
+            olympiad: &olympiad,
+            rate_vitality_exp_multiplier: 2.5,
+        };
+        let pkt = super::char_selection_info("acct", 9, &[banned_hero], -1, &ctx);
+
+        let mut r = PacketReader::new(&pkt[1..]);
+        assert_eq!(r.read_i32(), Some(1));
+        assert_eq!(r.read_i32(), Some(7));
+        assert_eq!(r.read_u8(), Some(0));
+        assert_eq!(r.read_u8(), Some(1));
+        assert_eq!(r.read_i32(), Some(2));
+        assert_eq!(r.read_u8(), Some(0), "gift message");
+        assert_eq!(r.read_u8(), Some(0), "Balthus Knights");
+
+        assert_eq!(r.read_string().as_deref(), Some("Hero"));
+        r.read_i32(); // object id
+        assert_eq!(r.read_string().as_deref(), Some("acct"));
+        r.read_bytes(4 * 10 + 8 * 2 + 8 * 3 + 4 * 4 + 4 * 9); // through the reserved ints
+        let paperdoll = super::CHAR_SELECT_PAPERDOLL_ORDER.len();
+        r.read_bytes(4 * paperdoll);
+        assert_eq!(
+            r.read_i32_array::<5>(),
+            Some([0; 5]),
+            "the five Salvation ints"
+        );
+        r.read_bytes(4 * 9 + 2 * 5 + 4 * 3 + 8 * 2); // visual ids .. max MP
+        assert_eq!(
+            r.read_i32(),
+            Some(-1),
+            "a banned character has no delete timer"
+        );
+        r.read_bytes(4 * 2 + 1 + 4 * 3 + 4 * 4 + 8 * 2 + 4); // class .. vitality
+        assert_eq!(
+            r.read_i32(),
+            Some(200),
+            "the cast binds before the multiply"
+        );
+        assert_eq!(r.read_i32(), Some(3), "vitality items used");
+        r.read_i32(); // active
+        r.read_u8(); // noble
+        assert_eq!(r.read_u8(), Some(1), "hero glow is a bool");
+        assert_eq!(r.read_u8(), Some(1), "hair accessory defaults to shown");
+        assert_eq!(r.remaining(), 0);
     }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="3800" name="Vanor Silenos Mane" type="EtcItem">
 		<!-- Mane of vanor silenos soldiers, scouts or warriors. Collect 30 and take them to Guild Member Tor. -->
@@ -389,8 +389,8 @@
 		<set name="icon" val="icon.etc_herb_red_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -399,8 +399,8 @@
 		<set name="icon" val="icon.etc_herb_green_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -409,8 +409,8 @@
 		<set name="icon" val="icon.etc_herb_blue_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -419,8 +419,8 @@
 		<set name="icon" val="icon.etc_dragon_blood_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -429,8 +429,8 @@
 		<set name="icon" val="icon.etc_coins_gold_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -439,8 +439,8 @@
 		<set name="icon" val="icon.etc_jewel_red_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -465,9 +465,9 @@
 		<set name="icon" val="icon.etc_dragon_egg_i02" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -476,9 +476,9 @@
 		<set name="icon" val="icon.etc_dragon_egg_i01" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -487,9 +487,9 @@
 		<set name="icon" val="icon.etc_dragon_egg_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -498,9 +498,9 @@
 		<set name="icon" val="icon.etc_dragon_egg_i03" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -510,8 +510,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 		<set name="price" val="1000" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -520,9 +520,9 @@
 		<set name="icon" val="icon.etc_crystal_red_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -532,8 +532,8 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 		<set name="price" val="500" />
-		<set name="is_dropable" val="false" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_dropable" val="false" />
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3846" name="Giant's Powerstone" type="EtcItem">
@@ -541,9 +541,9 @@
 		<set name="icon" val="icon.etc_mechanic_box_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -552,9 +552,9 @@
 		<set name="icon" val="icon.etc_key_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_dropable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -885,7 +885,7 @@
 		<set name="is_questitem" val="true" />
 	</item>
 	<item id="3875" name="Letter - A" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_a_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -893,7 +893,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3876" name="Letter - C" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_c_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -901,7 +901,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3877" name="Letter - E" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_e_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -909,7 +909,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3878" name="Letter - F" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_f_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -917,7 +917,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3879" name="Letter - G" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_g_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -925,7 +925,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3880" name="Letter - H" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_h_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -933,7 +933,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3881" name="Letter - I" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_i_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -941,7 +941,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3882" name="Letter - L" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_l_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -949,7 +949,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3883" name="Letter - N" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_n_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -957,7 +957,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3884" name="Letter - O" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_o_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -965,7 +965,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3885" name="Letter - R" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_r_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -973,7 +973,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3886" name="Letter - S" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_s_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -981,7 +981,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3887" name="Letter - T" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_t_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -989,7 +989,7 @@
 		<set name="is_stackable" val="true" />
 	</item>
 	<item id="3888" name="Letter - II" additionalName="Event" type="EtcItem">
-		<!-- Bring the letter to a GM to receive a great gift! -->
+		<!-- Item for the Lineage II 5th Anniversary event. Combine with other letters to create a special word and bring it to Angel Cat to receive a great gift! -->
 		<set name="icon" val="icon.etc_alphabet_ii_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
@@ -1039,9 +1039,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">16</stat>
 			<stat type="pDef">13</stat>
@@ -1060,9 +1060,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="pDef">16</stat>
@@ -1081,9 +1081,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">20</stat>
 			<stat type="pDef">19</stat>
@@ -1102,9 +1102,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">23</stat>
 			<stat type="pDef">22</stat>
@@ -1123,9 +1123,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">26</stat>
 			<stat type="pDef">26</stat>
@@ -1144,9 +1144,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">29</stat>
 			<stat type="pDef">30</stat>
@@ -1165,9 +1165,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">31</stat>
 			<stat type="pDef">33</stat>
@@ -1186,9 +1186,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">33</stat>
 			<stat type="pDef">37</stat>
@@ -1207,9 +1207,9 @@
 		<set name="commissionItemType" val="PET_EQUIPMENT" />
 		<set name="isAppearanceable" val="true" />
 		<set name="for_npc" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="600">
 			<player categoryType="ALL_WOLF_GROUP" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="pDef">40</stat>

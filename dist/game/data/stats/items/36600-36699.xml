@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="36600" name="Scroll: Restore Equipment (A-grade)" type="EtcItem">
 		<!-- Restores the original appearance of A-grade equipment (only weapons and armor, no hair accessories) whose appearances have been modified. Double-click to use. -->
@@ -576,7 +576,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -599,7 +599,7 @@
 			<stat type="pAtk">80</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -623,7 +623,7 @@
 			<stat type="pAtk">112</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -647,7 +647,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -666,18 +666,18 @@
 		<set name="spiritshots" val="3" />
 		<set name="weight" val="205" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="36637" name="Emerald Weapon: Bow" type="Weapon">
 		<!-- Emerald Weapon. Bow style. Initial Emerald Weapon Appearance Stone. -->
@@ -699,7 +699,7 @@
 			<stat type="pAtk">191</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -724,7 +724,7 @@
 			<stat type="pAtk">117</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
@@ -748,7 +748,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -771,7 +771,7 @@
 			<stat type="pAtk">90</stat>
 			<stat type="mAtk">79</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -795,7 +795,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -819,13 +819,13 @@
 			<stat type="pAtk">152</stat>
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="36643" name="Emerald Weapon: Dualsword" type="Weapon">
-		<!-- Emerald Weapon. Dualsword style. Initial Emerald Weapon Appearance Stone. -->
+	<item id="36643" name="Emerald Weapon: Dual Sword" type="Weapon">
+		<!-- Emerald Weapon. dual sword style. Initial Emerald Weapon Appearance Stone. -->
 		<set name="icon" val="BranchSys3.Icon.g_beam_dual" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -842,7 +842,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">51</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -867,7 +867,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">181</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -891,7 +891,7 @@
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1094,8 +1094,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="36659" name="Emerald Weapon Appearance Stone: Dualsword" additionalName="7-day" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of an Emerald dualsword. 7-day. -->
+	<item id="36659" name="Emerald Weapon Appearance Stone: Dual Sword" additionalName="7-day" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of an Emerald dual sword. 7-day. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />

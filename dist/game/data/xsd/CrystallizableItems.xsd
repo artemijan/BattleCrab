@@ -2,7 +2,7 @@
 	<xs:element name="list">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="templates" minOccurs="0">
+				<xs:element name="templates">
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="crystallizable_template" maxOccurs="unbounded" minOccurs="0">
@@ -23,7 +23,7 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="items" minOccurs="0">
+				<xs:element name="items">
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="crystallizable_item" maxOccurs="unbounded" minOccurs="0">

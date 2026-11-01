@@ -933,7 +933,8 @@ fn player_has_buff(world: &World, player: i32, skill_id: i32) -> bool {
     has_buff(world, player, skill_id)
 }
 
-/// **A hall buff is cast and paid for from the manager's MP.**
+/// **A hall buff is cast and paid for from the manager's MP.** It is a real
+/// `doCast`, so it lands once the cast time has run.
 #[test]
 fn a_hall_buff_is_cast_and_costs_the_managers_mp() {
     let (mut world, _db, _l, npc, player) = buff_world(300.0);
@@ -942,6 +943,8 @@ fn a_hall_buff_is_cast_and_costs_the_managers_mp() {
         cast_hall_buff(&mut world, npc, player, "4342_2"),
         BuffCastOutcome::Cast
     );
+    let hit_time = world.data.skill_data.get(4342, 2).unwrap().hit_time;
+    advance_ticks(&mut world, crate::scheduler::ms_to_ticks(hit_time) + 10);
     assert!(
         player_has_buff(&world, player, 4342),
         "the player got the buff"
@@ -1014,13 +1017,7 @@ fn only_listed_buffs_are_castable() {
 #[test]
 fn the_item_functions_map_to_the_managers_buylists() {
     let items = dist::items();
-    let buy_lists = crate::data::BuyListData::load_from(
-        DIST,
-        items,
-        crate::data::item_data::kinds::CrystalType::S,
-        true,
-        true,
-    );
+    let buy_lists = crate::data::BuyListData::load_from(DIST, items, true, true);
     let npc_id = 35447; // Korgen (Aden)
 
     for level in 1..=3 {

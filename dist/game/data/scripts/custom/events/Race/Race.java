@@ -25,21 +25,24 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-import org.l2jmobius.Config;
 import org.l2jmobius.commons.threads.ThreadPool;
 import org.l2jmobius.commons.time.SchedulingPattern;
+import org.l2jmobius.commons.time.TimeUtil;
 import org.l2jmobius.commons.util.IXmlReader;
+import org.l2jmobius.gameserver.config.GeneralConfig;
 import org.l2jmobius.gameserver.data.xml.SkillData;
-import org.l2jmobius.gameserver.enums.ChatType;
-import org.l2jmobius.gameserver.enums.SkillFinishType;
 import org.l2jmobius.gameserver.model.StatSet;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Event;
-import org.l2jmobius.gameserver.model.quest.QuestState;
+import org.l2jmobius.gameserver.model.item.enums.ItemProcessType;
+import org.l2jmobius.gameserver.model.script.Event;
+import org.l2jmobius.gameserver.model.script.QuestState;
 import org.l2jmobius.gameserver.model.skill.AbnormalType;
 import org.l2jmobius.gameserver.model.skill.Skill;
+import org.l2jmobius.gameserver.model.skill.enums.SkillFinishType;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.CreatureSay;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
 import org.l2jmobius.gameserver.util.Broadcast;
@@ -51,11 +54,14 @@ public class Race extends Event
 {
 	// 5 min for register
 	private static final int REGISTER_TIME = 5;
+	
 	// 5 min for race
 	private static final int RACE_TIME = 10;
+	
 	// NPCs
 	private static final int START_NPC = 900103;
 	private static final int STOP_NPC = 900104;
+	
 	// Locations
 	private static final String[] LOCATIONS =
 	{
@@ -64,20 +70,28 @@ public class Race extends Event
 		"Floran village enterance",
 		"Floran fort gate"
 	};
+	
 	// Event NPCs list
 	private List<Npc> _npclist;
+	
 	// Npc
 	private Npc _npc;
+	
 	// Player list
 	private Collection<Player> _players;
+	
 	// Event Task
 	ScheduledFuture<?> _eventTask = null;
+	
 	// Event state
 	private static boolean _isactive = false;
+	
 	// Race state
 	private static boolean _isRaceStarted = false;
+	
 	// Skills (Frog by default)
 	private static int _skill = 6201;
+	
 	// We must keep second NPC spawn for radar
 	private static int[] _randspawn = null;
 	
@@ -132,21 +146,33 @@ public class Race extends Event
 			}
 			
 			@Override
-			public void parseDocument(Document doc, File f)
+			public void parseDocument(Document document, File file)
 			{
 				final AtomicInteger count = new AtomicInteger(0);
-				forEach(doc, "event", eventNode -> forEach(eventNode, "schedule", reward ->
+				forEach(document, "event", eventNode ->
 				{
-					final StatSet attributes = new StatSet(parseAttributes(reward));
-					final String pattern = attributes.getString("pattern");
-					final SchedulingPattern schedulingPattern = new SchedulingPattern(pattern);
-					final StatSet params = new StatSet();
-					final String name = "Race";
-					params.set("Name", name);
-					params.set("SchedulingPattern", schedulingPattern);
-					getTimers().addTimer("Schedule" + count.incrementAndGet(), params, schedulingPattern.getDelayToNextFromNow(), null, null);
-					LOGGER.info("Event " + name + " scheduled at " + schedulingPattern.getNextAsFormattedDateString());
-				}));
+					final StatSet att = new StatSet(parseAttributes(eventNode));
+					final String name = att.getString("name");
+					for (Node node = document.getDocumentElement().getFirstChild(); node != null; node = node.getNextSibling())
+					{
+						switch (node.getNodeName())
+						{
+							case "schedule":
+							{
+								final StatSet attributes = new StatSet(parseAttributes(node));
+								final String pattern = attributes.getString("pattern");
+								final SchedulingPattern schedulingPattern = new SchedulingPattern(pattern);
+								final StatSet params = new StatSet();
+								params.set("Name", name);
+								params.set("SchedulingPattern", pattern);
+								final long delay = schedulingPattern.getDelayToNextFromNow();
+								getTimers().addTimer("Schedule" + count.incrementAndGet(), params, delay + 5000, null, null); // Added 5 seconds to prevent overlapping.
+								LOGGER.info("Event " + name + " scheduled at " + TimeUtil.getDateTimeString(System.currentTimeMillis() + delay));
+								break;
+							}
+						}
+					}
+				});
 			}
 		}.load();
 	}
@@ -157,34 +183,39 @@ public class Race extends Event
 		if (event.startsWith("Schedule"))
 		{
 			eventStart(null);
-			final SchedulingPattern schedulingPattern = params.getObject("SchedulingPattern", SchedulingPattern.class);
-			getTimers().addTimer(event, params, schedulingPattern.getDelayToNextFromNow() + 1000, null, null);
-			LOGGER.info("Event " + params.getString("Name") + " scheduled at " + schedulingPattern.getNextAsFormattedDateString());
+			final SchedulingPattern schedulingPattern = new SchedulingPattern(params.getString("SchedulingPattern"));
+			final long delay = schedulingPattern.getDelayToNextFromNow();
+			getTimers().addTimer(event, params, delay + 5000, null, null); // Added 5 seconds to prevent overlapping.
+			LOGGER.info("Event " + params.getString("Name") + " scheduled at " + TimeUtil.getDateTimeString(System.currentTimeMillis() + delay));
 		}
 	}
 	
 	@Override
 	public boolean eventStart(Player eventMaker)
 	{
-		// Don't start event if its active
+		// Don't start event if it is active
 		if (_isactive)
 		{
 			return false;
 		}
+		
 		// Check Custom Table - we use custom NPCs
-		if (!Config.CUSTOM_NPC_DATA)
+		if (!GeneralConfig.CUSTOM_NPC_DATA)
 		{
 			LOGGER.info(getName() + ": Event can't be started, because custom npc table is disabled!");
 			eventMaker.sendMessage("Event " + getName() + " can't be started because custom NPC table is disabled!");
 			return false;
 		}
+		
 		// Initialize list
 		_npclist = new ArrayList<>();
 		_players = ConcurrentHashMap.newKeySet();
+		
 		// Set Event active
 		_isactive = true;
+		
 		// Spawn Manager
-		_npc = recordSpawn(START_NPC, 18429, 145861, -3090, 0, false, 0);
+		_npc = recordSpawn(START_NPC, 18429, 145861, -3090, 35000, false, 0);
 		
 		// Announce event start
 		Broadcast.toAllOnlinePlayers("* Race Event started! *");
@@ -204,15 +235,20 @@ public class Race extends Event
 			eventStop();
 			return;
 		}
+		
 		// Set state
 		_isRaceStarted = true;
+		
 		// Announce
 		Broadcast.toAllOnlinePlayers("Race started!");
+		
 		// Get random Finish
 		final int location = getRandom(0, LOCATIONS.length - 1);
 		_randspawn = COORDS[location];
+		
 		// And spawn NPC
 		recordSpawn(STOP_NPC, _randspawn[0], _randspawn[1], _randspawn[2], _randspawn[3], false, 0);
+		
 		// Transform players and send message
 		for (Player player : _players)
 		{
@@ -231,6 +267,7 @@ public class Race extends Event
 				}
 			}
 		}
+		
 		// Schedule timeup for Race
 		_eventTask = ThreadPool.schedule(this::timeUp, RACE_TIME * 60 * 1000);
 	}
@@ -254,6 +291,7 @@ public class Race extends Event
 			_eventTask.cancel(true);
 			_eventTask = null;
 		}
+		
 		// Untransform players
 		// Teleport to event start point
 		for (Player player : _players)
@@ -264,6 +302,7 @@ public class Race extends Event
 				player.teleToLocation(_npc, true);
 			}
 		}
+		
 		// Despawn NPCs
 		for (Npc npc : _npclist)
 		{
@@ -272,8 +311,10 @@ public class Race extends Event
 				npc.deleteMe();
 			}
 		}
+		
 		_npclist.clear();
 		_players.clear();
+		
 		// Announce event end
 		Broadcast.toAllOnlinePlayers("* Race Event finished *");
 		return true;
@@ -315,6 +356,7 @@ public class Race extends Event
 				player.teleToLocation(18429, 145861, -3090);
 			}
 		}
+		
 		showMenu(player);
 		return true;
 	}
@@ -350,13 +392,18 @@ public class Race extends Event
 			{
 				return "900103-onlist.htm";
 			}
+			
 			_players.add(player);
 			return "900103-signup.htm";
 		}
 		else if (event.equalsIgnoreCase("quit"))
 		{
 			player.untransform();
-            _players.remove(player);
+			if (_players.contains(player))
+			{
+				_players.remove(player);
+			}
+			
 			return "900103-quit.htm";
 		}
 		else if (event.equalsIgnoreCase("finish"))
@@ -366,8 +413,10 @@ public class Race extends Event
 				winRace(player);
 				return "900104-winner.htm";
 			}
+			
 			return "900104-notrans.htm";
 		}
+		
 		return htmltext;
 	}
 	
@@ -381,12 +430,14 @@ public class Race extends Event
 			{
 				return START_NPC + "-started-" + isRacing(player) + ".htm";
 			}
+			
 			return START_NPC + "-" + isRacing(player) + ".htm";
 		}
 		else if ((npc.getId() == STOP_NPC) && _isRaceStarted)
 		{
 			return STOP_NPC + "-" + isRacing(player) + ".htm";
 		}
+		
 		return npc.getId() + ".htm";
 	}
 	
@@ -402,6 +453,7 @@ public class Race extends Event
 		{
 			_npclist.add(npc);
 		}
+		
 		return npc;
 	}
 	
@@ -411,6 +463,7 @@ public class Race extends Event
 		{
 			player.untransform();
 		}
+		
 		if (player.isSitting())
 		{
 			player.standUp();
@@ -444,7 +497,7 @@ public class Race extends Event
 	private void winRace(Player player)
 	{
 		final int[] reward = REWARDS[getRandom(REWARDS.length - 1)];
-		player.addItem("eventModRace", reward[0], reward[1], _npc, true);
+		player.addItem(ItemProcessType.REWARD, reward[0], reward[1], _npc, true);
 		Broadcast.toAllOnlinePlayers(player.getName() + " is a winner!");
 		eventStop();
 	}

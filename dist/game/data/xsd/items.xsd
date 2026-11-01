@@ -21,6 +21,7 @@
 	<xs:complexType name="skillType">
 		<xs:attribute name="id" type="xs:positiveInteger" use="required" />
 		<xs:attribute name="level" type="xs:positiveInteger" use="required" />
+		<xs:attribute name="subLevel" type="xs:positiveInteger" use="optional" />
 		<xs:attribute name="type">
 			<xs:simpleType>
 				<xs:restriction base="xs:token">
@@ -92,6 +93,8 @@
 					<xs:enumeration value="is_oly_restricted" />
 					<xs:enumeration value="is_event_restricted" />
 					<xs:enumeration value="isAppearanceable" />
+					<xs:enumeration value="ensoulNormalSlots" />
+					<xs:enumeration value="ensoulSpecialSlots" />
 					<xs:enumeration value="is_premium" />
 					<xs:enumeration value="is_questitem" />
 					<xs:enumeration value="is_sellable" />
@@ -126,6 +129,7 @@
 					<xs:enumeration value="use_condition" />
 					<xs:enumeration value="useSkillDisTime" />
 					<xs:enumeration value="useWeaponSkillsOnly" />
+					<xs:enumeration value="is_dragon_weapon" />
 					<xs:enumeration value="weapon_type" />
 					<xs:enumeration value="weight" />
 					<xs:enumeration value="commissionItemType" />
@@ -163,7 +167,7 @@
 			<xs:simpleType>
 				<xs:restriction base="xs:positiveInteger">
 					<xs:minInclusive value="1" />
-					<xs:maxInclusive value="107" />
+					<xs:maxInclusive value="110" />
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
@@ -171,7 +175,7 @@
 			<xs:simpleType>
 				<xs:restriction base="xs:integer">
 					<xs:minInclusive value="-1" />
-					<xs:maxInclusive value="11" />
+					<xs:maxInclusive value="100" />
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
@@ -188,6 +192,7 @@
 		<xs:attribute name="pkCount" type="xs:int" />
 		<xs:attribute name="vehicleMounted" type="xs:boolean" />
 		<xs:attribute name="MinimumVitalityPoints" type="xs:int" />
+		<xs:attribute name="MaximumVitalityPoints" type="xs:int" />
 	</xs:complexType>
 	<xs:complexType name="andType">
 		<xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -234,7 +239,7 @@
 			<xs:enumeration value="pAtkAngle" />
 			<xs:enumeration value="pAtkRange" />
 			<xs:enumeration value="pAtkSpd" />
-			<xs:enumeration value="rCrit" />
+			<xs:enumeration value="critRate" />
 			<xs:enumeration value="mCritRate" />
 			<xs:enumeration value="rShld" />
 			<xs:enumeration value="rEvas" />
@@ -295,14 +300,15 @@
 			<xs:element name="set" maxOccurs="unbounded" minOccurs="1" type="setType" />
 			<xs:element name="unequip_skills" minOccurs="0" type="skillsType" />
 			<xs:element name="capsuled_items" minOccurs="0" type="capsuledItemsType" />
-			<xs:element name="cond" maxOccurs="2" minOccurs="0" type="condType" />
-			<xs:element name="skills" minOccurs="0" type="skillsType" />
+			<xs:element name="conditions" maxOccurs="2" minOccurs="0" type="condType" />
 			<xs:element name="stats" maxOccurs="1" minOccurs="0" type="forType" />
+			<xs:element name="skills" minOccurs="0" type="skillsType" />
 		</xs:sequence>
 		<xs:attribute name="id" use="required">
 			<xs:simpleType>
 				<xs:restriction base="xs:positiveInteger">
 					<xs:minInclusive value="1" />
+					<xs:maxInclusive value="65535" />
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>

@@ -467,7 +467,11 @@ fn a_physical_skill_casts_at_the_weapons_attack_speed() {
             .get_component_mut::<crate::model::inventory::Inventory>(&oid)
             .expect("inventory");
         inv.add_item(&data.item_data, 0x5100_0001, SHORT_SWORD, 1);
-        inv.equip_item(&data.item_data, 0x5100_0001);
+        inv.equip_item(
+            &data.item_data,
+            0x5100_0001,
+            crate::model::inventory::OpenSlots::BEFORE_ENTER_WORLD,
+        );
     }
     let weapon_speed = {
         let inv = world

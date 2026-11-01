@@ -417,6 +417,14 @@
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:attribute>
+						<xs:attribute name="is_visual" use="optional">
+							<xs:simpleType>
+								<xs:restriction base="xs:nonNegativeInteger">
+									<xs:minInclusive value="0" />
+									<xs:maxInclusive value="1" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
 						<xs:attribute name="spawn_height" type="xs:positiveInteger" />
 						<xs:attribute name="type" use="required">
 							<xs:simpleType>

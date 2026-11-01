@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="39900" name="Dimensional Bracelet - Stage 4" additionalName="WIT" type="Armor">
-		<!-- Activates 4 talisman slots when equipped. Gives WIT Options / Can be Enhanced. -->
+		<!-- Activates 4 talisman slots when equipped. Gives WIT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -17,7 +17,7 @@
 		</skills>
 	</item>
 	<item id="39901" name="Dimensional Bracelet - Stage 4" additionalName="LUC" type="Armor">
-		<!-- Activates 4 talisman slots when equipped. Gives LUC Options / Can be Enhanced. -->
+		<!-- Activates 4 talisman slots when equipped. Gives LUC Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -33,7 +33,7 @@
 		</skills>
 	</item>
 	<item id="39902" name="Dimensional Bracelet - Stage 4" additionalName="CHA" type="Armor">
-		<!-- Activates 4 talisman slots when equipped. Gives CHA Options / Can be Enhanced. -->
+		<!-- Activates 4 talisman slots when equipped. Gives CHA Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i03" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -745,7 +745,7 @@
 		</skills>
 	</item>
 	<item id="39944" name="Dimensional Bracelet - Stage 5" additionalName="STR" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives STR Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives STR Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -761,7 +761,7 @@
 		</skills>
 	</item>
 	<item id="39945" name="Dimensional Bracelet - Stage 5" additionalName="DEX" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives DEX Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives DEX Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -777,7 +777,7 @@
 		</skills>
 	</item>
 	<item id="39946" name="Dimensional Bracelet - Stage 5" additionalName="CON" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives CON Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives CON Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -793,7 +793,7 @@
 		</skills>
 	</item>
 	<item id="39947" name="Dimensional Bracelet - Stage 5" additionalName="INT" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives INT Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives INT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -809,7 +809,7 @@
 		</skills>
 	</item>
 	<item id="39948" name="Dimensional Bracelet - Stage 5" additionalName="MEN" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives MEN Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives MEN Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -825,7 +825,7 @@
 		</skills>
 	</item>
 	<item id="39949" name="Dimensional Bracelet - Stage 5" additionalName="WIT" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives WIT Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives WIT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -841,7 +841,7 @@
 		</skills>
 	</item>
 	<item id="39950" name="Dimensional Bracelet - Stage 5" additionalName="LUC" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives LUC Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives LUC Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -857,7 +857,7 @@
 		</skills>
 	</item>
 	<item id="39951" name="Dimensional Bracelet - Stage 5" additionalName="CHA" type="Armor">
-		<!-- Activates 5 talisman slots when equipped. Gives CHA Options / Can be Enhanced. -->
+		<!-- Activates 5 talisman slots when equipped. Gives CHA Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1569,7 +1569,7 @@
 		</skills>
 	</item>
 	<item id="39993" name="Dimensional Bracelet - Stage 6" additionalName="STR" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives STR Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives STR Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1585,7 +1585,7 @@
 		</skills>
 	</item>
 	<item id="39994" name="Dimensional Bracelet - Stage 6" additionalName="DEX" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives DEX Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives DEX Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1601,7 +1601,7 @@
 		</skills>
 	</item>
 	<item id="39995" name="Dimensional Bracelet - Stage 6" additionalName="CON" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives CON Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives CON Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1617,7 +1617,7 @@
 		</skills>
 	</item>
 	<item id="39996" name="Dimensional Bracelet - Stage 6" additionalName="INT" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives INT Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives INT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1633,7 +1633,7 @@
 		</skills>
 	</item>
 	<item id="39997" name="Dimensional Bracelet - Stage 6" additionalName="MEN" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives MEN Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives MEN Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1649,7 +1649,7 @@
 		</skills>
 	</item>
 	<item id="39998" name="Dimensional Bracelet - Stage 6" additionalName="WIT" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives WIT Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives WIT Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />
@@ -1665,7 +1665,7 @@
 		</skills>
 	</item>
 	<item id="39999" name="Dimensional Bracelet - Stage 6" additionalName="LUC" type="Armor">
-		<!-- Activates 6 talisman slots when equipped. Gives LUC Options / Can be Enhanced. -->
+		<!-- Activates 6 talisman slots when equipped. Gives LUC Options/ Can be Enhanced. -->
 		<set name="icon" val="icon.dimension_bracelet_i05" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rbracelet" />

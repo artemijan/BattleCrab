@@ -16,12 +16,12 @@
  */
 package quests.Q00126_TheNameOfEvil2;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 import org.l2jmobius.gameserver.network.serverpackets.MagicSkillUse;
 
 import quests.Q00125_TheNameOfEvil1.Q00125_TheNameOfEvil1;
@@ -40,9 +40,11 @@ public class Q00126_TheNameOfEvil2 extends Quest
 	private static final int BALU_KAIMU = 32120;
 	private static final int CHUTA_KAIMU = 32121;
 	private static final int WARRIORS_GRAVE = 32122;
+	
 	// Items
 	private static final int GAZKH_FRAGMENT = 8782;
 	private static final int BONE_POWDER = 8783;
+	
 	// Reward
 	private static final int ENCHANT_WEAPON_A = 729;
 	
@@ -228,6 +230,7 @@ public class Q00126_TheNameOfEvil2 extends Quest
 					qs.unset("FA2");
 					return "32122-4n.html";
 				}
+				
 				qs.unset("DO");
 				qs.unset("MI");
 				qs.unset("FA");
@@ -277,6 +280,7 @@ public class Q00126_TheNameOfEvil2 extends Quest
 					qs.unset("FA2");
 					return "32122-5j.html";
 				}
+				
 				qs.unset("FA");
 				qs.unset("SOL");
 				qs.unset("TI");
@@ -326,6 +330,7 @@ public class Q00126_TheNameOfEvil2 extends Quest
 					qs.unset("MI2");
 					return "32122-6j.html";
 				}
+				
 				qs.unset("SOL");
 				qs.unset("FA");
 				qs.unset("MI");
@@ -400,13 +405,14 @@ public class Q00126_TheNameOfEvil2 extends Quest
 			}
 			case "32114-3.html":
 			{
-				rewardItems(player, ENCHANT_WEAPON_A, 1);
+				giveItems(player, ENCHANT_WEAPON_A, 1);
 				giveAdena(player, 460483, true);
 				addExpAndSp(player, 1015973, 102802);
 				qs.exitQuest(false, true);
 				break;
 			}
 		}
+		
 		return event;
 	}
 	
@@ -772,6 +778,7 @@ public class Q00126_TheNameOfEvil2 extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

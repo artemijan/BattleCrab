@@ -1,68 +1,69 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="18800" toLevel="1" name="Golden Orc Treasure Chest Effect">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18801" toLevel="2" name="Dancing Cat's Steps - Stage 1">
-		<!-- Receive Dancing Cat's Steps to bless the harmony between races and increase all basic stats 1 for 2 hour(s). -->
+		<!-- Level 1: Receive Dancing Cat's Steps to bless the harmony between races and increase all basic stats 1 for 2 hour(s). -->
+		<!-- Level 2: Receive Dancing Cat's Steps to increase Max HP/ MP/ CP 13%, P. Atk./ M. Atk 13%, Attack/ Casting Speed 13%, P. Def/ M. Def 13%, all basic stats 1, bonus XP obtained in vitality state 30% for 2 hour(s). -->
 		<icon>icon.skill_sing</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>900</castRange>
 		<effectPoint>100</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18802" toLevel="2" name="13th Anniversary Blessing Free Effect">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18803" toLevel="24" name="13th Anniversary Blessing - Stage 1">
 		<!-- You can obtain the item after 1 hour(s). There are 23 stages. With a premium buff, you have a slightly higher chance of obtaining items. <Notice> If you die when you receive the item, you cannot obtain the 13 anniversary blessing buff and items. You also cannot obtain the item if you do not have space in your inventory. -->
 		<icon>icon.ev_13th</icon>
 		<operateType>A1</operateType>
-		<isMagic>4</isMagic>
 		<castRange>900</castRange>
 		<effectPoint>1</effectPoint>
+		<isMagic>4</isMagic>
 	</skill>
 	<skill id="18804" toLevel="1" name="Breeze">
 		<!-- Causes a gentle breeze, caressing your face. Only applies damage to the Magic Woodpile and the Large Magic Woodpile. -->
 		<icon>icon.ev_magic_flame_game_wind1</icon>
 		<operateType>A1</operateType>
 		<castRange>40</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>2000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>1000</hitTime>
+		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="18805" toLevel="1" name="Gust">
 		<!-- Calls forth a powerful wind that makes you stagger. The wind makes you unable to control your body for 3 seconds. Only applies damage to the Magic Woodpile and the Large Magic Woodpile. -->
 		<icon>icon.ev_magic_flame_game_wind2</icon>
 		<operateType>A1</operateType>
 		<castRange>40</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>7000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>1000</hitTime>
+		<reuseDelay>7000</reuseDelay>
 	</skill>
 	<skill id="18806" toLevel="1" name="Magic Woodpile">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1500</hitTime>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="18807" toLevel="1" name="Large Magic Woodpile">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1500</hitTime>
 		<coolTime>500</coolTime>
-		<reuseDelay>10000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>1500</hitTime>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="18808" toLevel="1" name="Flame Games">
 		<!-- 1st Flame Games skill after a successful raid. -->
@@ -80,9 +81,30 @@
 		<!-- Double-click to send a Magic Flame flying for a chance to get a reward. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>1000</hitTime>
 		<reuseDelay>10000</reuseDelay>
+	</skill>
+	<skill id="18811" toLevel="1" name="Sprout for New Users">
+		<!-- Welcome to the Aden World! -->
+		<icon>icon.s_newbie_user_display</icon>
+		<operateType>A1</operateType>
+		<effectPoint>100</effectPoint>
+		<isMagic>4</isMagic>
+	</skill>
+	<skill id="18812" toLevel="1" name="Sprout for Human Users">
+		<!-- Welcome to the Aden World! -->
+		<icon>icon.s_dormant_user_display</icon>
+		<operateType>A1</operateType>
+		<effectPoint>100</effectPoint>
+		<isMagic>4</isMagic>
+	</skill>
+	<skill id="18813" toLevel="1" name="Master's Lucky Jewelry Box">
+		<!-- Double-click to obtain an item. -->
+		<icon>icon.bm_jewelbox_master</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
 	</skill>
 	<skill id="18814" toLevel="6" name="Topaz">
 		<!-- Topaz: Spirit Hit can be used. -->
@@ -95,6 +117,7 @@
 			<value level="6">icon.bm_jewel_absdmg_high_lv1_lavianrose</value>
 		</icon>
 		<operateType>P</operateType>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="18815" toLevel="6" name="Tanzanite">
 		<!-- Tanzanite - Barrier can be used. -->
@@ -107,13 +130,706 @@
 			<value level="6">icon.bm_jewel_tanzanite_high_lv1_lavianrose</value>
 		</icon>
 		<operateType>P</operateType>
+		<staticReuse>true</staticReuse>
 	</skill>
 	<skill id="18816" toLevel="1" name="Gust - Dance">
 		<!-- The gust makes you dance a cheerful dance. -->
 		<icon>icon.ev_magic_flame_game_wind3</icon>
 		<operateType>A1</operateType>
+		<effectPoint>1</effectPoint>
 		<isDebuff>true</isDebuff>
 		<reuseDelay>5000</reuseDelay>
-		<effectPoint>1</effectPoint>
+	</skill>
+	<skill id="18817" toLevel="1" name="Fish Chilli Stew - WIT">
+		<!-- When used, WIT +3 and LUC +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_luc</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18818" toLevel="1" name="Fish Chilli Stew - INT">
+		<!-- When used, INT +3 and LUC +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_luc</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18819" toLevel="1" name="Fish Chilli Stew - MEN">
+		<!-- When used, MEN +3 and LUC +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_luc</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18820" toLevel="1" name="Fish Chilli Stew - DEX">
+		<!-- When used, DEX +3 and LUC +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_luc</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18821" toLevel="1" name="Fish Chilli Stew - STR">
+		<!-- When used, STR +3 and LUC +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_luc</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18822" toLevel="1" name="Fish Chilli Stew - CON">
+		<!-- When used, CON +3 and LUC +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_luc</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18823" toLevel="1" name="Fish Cream Stew - WIT">
+		<!-- When used, WIT +3 and CHA +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_cha</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18824" toLevel="1" name="Fish Cream Stew - INT">
+		<!-- When used, INT +3 and CHA +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_cha</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18825" toLevel="1" name="Fish Cream Stew - MEN">
+		<!-- When used, MEN +3 CHA +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_cha</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18826" toLevel="1" name="Fish Cream Stew - DEX">
+		<!-- When used, DEX +3 and CHA +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_cha</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18827" toLevel="1" name="Fish Cream Stew - STR">
+		<!-- When used, STR +3 CHA +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_cha</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18828" toLevel="1" name="Fish Cream Stew - CON">
+		<!-- When used, CON +3 CHA +1 for 30 min. The effects do not stack even if several different types of Fish Stew are used. Cooldown of 5 min. -->
+		<icon>icon.fish_stew_residence_cha</icon>
+		<operateType>A1</operateType>
+		<isMagic>4</isMagic>
+		<reuseDelay>300000</reuseDelay>
+	</skill>
+	<skill id="18829" toLevel="1" name="The Challenger's Shaper">
+		<!-- P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dagger_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18830" toLevel="1" name="The Challenger's Dicing Death">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_sword_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18831" toLevel="1" name="The Challenger's Slasher">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_two_handed_sword_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18832" toLevel="1" name="The Challenger's Avenger">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_axe_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18833" toLevel="1" name="The Challenger's Fighter">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_fist_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18834" toLevel="1" name="The Challenger's Stormer">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_pole_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18835" toLevel="1" name="The Challenger's Thrower">
+		<!-- P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_bow_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18836" toLevel="1" name="The Challenger's Shooter">
+		<!-- P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_infinity_shooter</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18837" toLevel="1" name="The Challenger's Buster">
+		<!-- M. Critical Rate +50, M. Critical Damage +10%, Casting Spd. +15%. -->
+		<icon>icon.bm_infinity_sword</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicCriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicCriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18838" toLevel="1" name="The Challenger's Caster">
+		<!-- M. Critical Rate +50, M. Critical Damage +10%, Casting Spd. +15%. -->
+		<icon>icon.bm_the_mace_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicCriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicCriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18839" toLevel="1" name="The Challenger's Retributer">
+		<!-- P. Critical Damage +10%, M. Critical Damage +10%, P. Atk./ Casting Spd. +15%. -->
+		<icon>icon.bm_the_staff_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MagicCriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18840" toLevel="1" name="The Challenger's Dual Sword">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dualsword_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18841" toLevel="1" name="The Challenger's Dual Dagger">
+		<!-- P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dualdagger_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18842" toLevel="1" name="The Challenger's Dual Blunt">
+		<!-- P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dualblunt_of_hero_i01</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18843" toLevel="1" name="The Challenger's Enhanced Shaper">
+		<!-- Max HP +15%, P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dagger_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18844" toLevel="1" name="The Challenger's Enhanced Dicing Death">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_sword_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18845" toLevel="1" name="The Challenger's Enhanced Slasher">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_two_handed_sword_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18846" toLevel="1" name="The Challenger's Enhanced Avenger">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_axe_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18847" toLevel="1" name="The Challenger's Enhanced Fighter">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_fist_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18848" toLevel="1" name="The Challenger's Enhanced Stormer">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_pole_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18849" toLevel="1" name="The Challenger's Enhanced Thrower">
+		<!-- Max HP +15%, P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_bow_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18850" toLevel="1" name="The Challenger's Enhanced Shooter">
+		<!-- Max HP +15%, P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_infinity_shooter</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18851" toLevel="1" name="The Challenger's Enhanced Buster">
+		<!-- Max HP +15%, M. Critical Rate +50, M. Critical Damage +10%, Casting Spd. +15%. -->
+		<icon>icon.bm_infinity_sword</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicCriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicCriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18852" toLevel="1" name="The Challenger's Enhanced Caster">
+		<!-- Max HP +15%, M. Critical Rate +50, M. Critical Damage +10%, Casting Spd. +15%. -->
+		<icon>icon.bm_the_mace_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicCriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="MagicCriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18853" toLevel="1" name="The Challenger's Enhanced Retributer">
+		<!-- Max HP +15%, P. Critical Damage +10%, M. Critical Damage +10%, P. Atk./ Casting Spd. +15%. -->
+		<icon>icon.bm_the_staff_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicCriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18854" toLevel="1" name="The Challenger's Enhanced Dual Sword">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dualsword_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18855" toLevel="1" name="The Challenger's Enhanced Dual Dagger">
+		<!-- Max HP +15%, P. Critical Rate +50, P. Critical Damage +10%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dualdagger_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>50</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>10</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18856" toLevel="1" name="The Challenger's Enhanced Dual Blunt">
+		<!-- Max HP +15%, P. Critical Rate +100, P. Critical Damage +5%, Atk. Spd. +15%. -->
+		<icon>icon.bm_the_dualblunt_of_hero_i02</icon>
+		<operateType>P</operateType>
+		<effects>
+			<effect name="MaxHp">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="CriticalRate">
+				<amount>100</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="CriticalDamage">
+				<amount>5</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>15</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="18857" toLevel="1" name="+5 Shiny Elemental Shirt Treasure Chest">
+		<!-- Double-click to obtain a Shiny Einhasad T-shirt enchanted to +5. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<coolTime>500</coolTime>
+		<hitTime>500</hitTime>
+	</skill>
+	<skill id="18858" toLevel="1" name="The Challenger's Bracelet">
+		<!-- All basic stats +1 and allows for 5 Talismans to be equipped. -->
+		<icon>BranchIcon.icon.bracelet_of_explorer_i00</icon>
+		<operateType>P</operateType>
 	</skill>
 </list>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="13100" name="Recipe: Sealed Arcana Sigil (60%)" type="EtcItem">
 		<!-- Exclusive to Dwarves. Recipe for making a Sealed Arcana Sigil. Requires Create Item - Skill Lv. 9. The success rate is 60%. -->
@@ -113,7 +113,7 @@
 		</capsuled_items>
 	</item>
 	<item id="13107" name="Agathion - Love Pack (30-day)" type="EtcItem">
-		<!-- Wrapped Pack containing Pumpkin Transformation Stick (30-day). -->
+		<!-- Dimensional Item Pack. A pack containing Love Agathion Bracelet (7-day). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -495,9 +495,9 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="44" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2594" level="1" /> <!-- Scroll of Escape: Pailaka -->
 		</skills>
@@ -844,9 +844,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="is_depositable" val="false" />
 		<set name="is_questitem" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="44" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2607" level="1" /> <!-- Pailaka Door Key -->
 		</skills>
@@ -867,9 +867,9 @@
 		<set name="shared_reuse_group" val="106" />
 		<set name="for_npc" val="true" />
 		<set name="reuse_delay" val="3600000" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2586" level="2" /> <!-- Vitality Replenishing Potion -->
 		</skills>
@@ -890,14 +890,14 @@
 		<set name="shared_reuse_group" val="106" />
 		<set name="for_npc" val="true" />
 		<set name="reuse_delay" val="3600000" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player instanceId="43,44,45" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2586" level="1" /> <!-- Vitality Replenishing Potion -->
 		</skills>
 	</item>
-	<item id="13153" name="Premium Account - Great Spear" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13153" name="PA - Great Spear" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Great Spear with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_long_spear_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -915,20 +915,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
-	<item id="13154" name="Premium Account - Falchion" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13154" name="PA - Falchion" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Falchion with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_falchion_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -948,13 +948,13 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13155" name="Premium Account - Iron Hammer" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13155" name="PA - Iron Hammer" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- An Iron Hammer with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_iron_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -974,14 +974,14 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13156" name="Premium Account - Voodoo Doll" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13156" name="PA - Voodoo Doll" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Voodoo Doll with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_voodoo_doll_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1002,13 +1002,13 @@
 		<stats>
 			<stat type="pAtk">25</stat>
 			<stat type="mAtk">28</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13157" name="Premium Account - Flanged Mace" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13157" name="PA - Flanged Mace" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Flanged Mace with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_buzdygan_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1028,14 +1028,14 @@
 		<stats>
 			<stat type="pAtk">31</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13158" name="Premium Account - Mage Staff" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13158" name="PA - Mage Staff" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Mage Staff with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_apprentices_staff_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1056,14 +1056,14 @@
 		<stats>
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">31</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13159" name="Premium Account - Sword Breaker" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13159" name="PA - Sword Breaker" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Sword Breaker with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_sword_breaker_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1083,14 +1083,14 @@
 		<stats>
 			<stat type="pAtk">27</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13160" name="Premium Account - Viper Fang" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13160" name="PA - Viper Fang" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Viper Fang with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_vipers_canine_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1110,14 +1110,14 @@
 		<stats>
 			<stat type="pAtk">38</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13161" name="Premium Account - Compound Bow" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13161" name="PA - Compound Bow" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Composite Bow with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_composition_bow_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1139,14 +1139,14 @@
 		<stats>
 			<stat type="pAtk">64</stat>
 			<stat type="mAtk">21</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="13162" name="Premium Account - Crucifix of Blessing" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13162" name="PA - Crucifix of Blessing" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Crucifix of Blessing with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_crucifix_of_blessing_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1167,13 +1167,13 @@
 		<stats>
 			<stat type="pAtk">25</stat>
 			<stat type="mAtk">28</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13163" name="Premium Account - Bastard Sword*Crimson Sword" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13163" name="PA - Bastard Sword*Crimson Sword" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Bastard Sword*Crimson Sword with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1195,13 +1195,13 @@
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">51</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13164" name="Premium Account - Claymore" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13164" name="PA - Claymore" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Claymore with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_claymore_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1223,13 +1223,13 @@
 		<stats>
 			<stat type="pAtk">112</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13165" name="Premium Account - Bonebreaker" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13165" name="PA - Bonebreaker" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Bonebreaker with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_bonebreaker_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1251,14 +1251,14 @@
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13166" name="Premium Account - Atuba Hammer" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13166" name="PA - Atuba Hammer" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- An Atuba Hammer with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_atuba_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1281,14 +1281,14 @@
 		<stats>
 			<stat type="pAtk">90</stat>
 			<stat type="mAtk">79</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13167" name="Premium Account - Ghost Staff" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13167" name="PA - Ghost Staff" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Ghost Staff with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_ghost_staff_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1311,14 +1311,14 @@
 		<stats>
 			<stat type="pAtk">90</stat>
 			<stat type="mAtk">79</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13168" name="Premium Account - Staff of Life" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13168" name="PA - Staff of Life" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Staff of Life with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_life_stick_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1341,14 +1341,14 @@
 		<stats>
 			<stat type="pAtk">74</stat>
 			<stat type="mAtk">79</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13169" name="Premium Account - Atuba Mace" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13169" name="PA - Atuba Mace" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- An Atuba Mace with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_atuba_mace_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1371,14 +1371,14 @@
 		<stats>
 			<stat type="pAtk">90</stat>
 			<stat type="mAtk">79</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13170" name="Premium Account - Mithril Dagger" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13170" name="PA - Mithril Dagger" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Mithril Dagger with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_mithril_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1400,14 +1400,14 @@
 		<stats>
 			<stat type="pAtk">80</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13171" name="Premium Account - Scallop Jamadhr" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13171" name="PA - Scallop Jamadhr" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Scallop Jamadhr with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_scallop_jamadhr_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1429,15 +1429,15 @@
 		<stats>
 			<stat type="pAtk">112</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13172" name="Premium Account - Light Bow" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Light Bow with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
+	<item id="13172" name="PA - Light Bow" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- A Light Bow with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_cyclone_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -1460,14 +1460,14 @@
 		<stats>
 			<stat type="pAtk">191</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="13173" name="Premium Account - Glaive" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13173" name="PA - Glaive" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- A Glaive with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_glaive_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1487,20 +1487,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
-	<item id="13174" name="Premium Account - Elven Long Sword" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13174" name="PA - Elven Long Sword" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- An Elven Long Sword with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_elven_long_sword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1522,13 +1522,13 @@
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13175" name="Premium Account - Grand Épée" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13175" name="PA - Grand Épée" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Grand Épée with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. Has a chance of increasing P. Atk., M. Atk., and Recovery Rate and decreasing Skill MP consumption of self and party members during a Critical when enchanted to +4. -->
 		<set name="icon" val="icon.weapon_rapier_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1547,23 +1547,23 @@
 		<set name="is_sellable" val="false" />
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">83</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
-	<item id="13176" name="Premium Account - General's Katzbalger" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13176" name="PA - General's Katzbalger" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- General's Katzbalger with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_tulwar_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1582,20 +1582,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">100</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="13177" name="Premium Account - Cranequin" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13177" name="PA - Cranequin" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Cranequin with limited ability enhancement. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_hunting_gun_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1615,20 +1615,20 @@
 		<set name="is_sellable" val="false" />
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">117</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
 	</item>
-	<item id="13178" name="Premium Account - Samurai Long Sword" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13178" name="PA - Samurai Long Sword" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Samurai Long Sword with limited ability enhancement. <Special Option>. Increases Critical by 73. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_samurai_longsword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1648,19 +1648,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13179" name="Premium Account - Deadman's Staff" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13179" name="PA - Deadman's Staff" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Deadman's Staff with limited ability enhancement. <Special Option>. Has a 30% chance of casting Regeneration on the target during magic use. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_deadmans_staff_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1681,20 +1681,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="1044" level="2" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
-		</skills>
 		<stats>
 			<stat type="pAtk">152</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1044" level="2" type_chance="30" type="ON_MAGIC_SKILL" /> <!-- Regeneration -->
+		</skills>
 	</item>
-	<item id="13180" name="Premium Account - Ghoul's Staff" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13180" name="PA - Ghoul's Staff" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Ghoul's Staff with limited ability enhancement. <Special Option>. Increases Max MP by 30%.Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_ghouls_staff_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1715,20 +1715,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
-		</skills>
 		<stats>
 			<stat type="pAtk">152</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3014" level="1" /> <!-- Special Ability: Mana Up -->
+		</skills>
 	</item>
-	<item id="13181" name="Premium Account - Demon's Staff" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13181" name="PA - Demon's Staff" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Demon's Staff with limited ability enhancement. <Special Option>. Has a 7% chance of casting Curse Weakness on the garget during magic use. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_demons_staff_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1749,20 +1749,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="1164" level="10" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
-		</skills>
 		<stats>
 			<stat type="pAtk">152</stat>
 			<stat type="mAtk">122</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1164" level="10" type_chance="7" type="ON_MAGIC_SKILL" /> <!-- Curse Weakness -->
+		</skills>
 	</item>
-	<item id="13182" name="Premium Account - Crystal Dagger" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13182" name="PA - Crystal Dagger" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Crystal Dagger with limited ability enhancement. <Special Option>. P. Atk. +140 during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_crystal_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1782,20 +1782,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3043" level="4" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">136</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3043" level="4" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
-	<item id="13183" name="Premium Account - Great Pata" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13183" name="PA - Great Pata" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Great Pata with limited ability enhancement. <Special Option>. Increases Atk. Spd. by 11% when HP drops to 60% or below. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_great_pata_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1815,20 +1815,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3034" level="4" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3034" level="4" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
-	<item id="13184" name="Premium Account - Eminence Bow" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13184" name="PA - Eminence Bow" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Eminence Bow with limited ability enhancement. <Special Option>. Has a 42% chance of consuming 1MP during a regular attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_eminence_bow_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1854,14 +1854,14 @@
 		<stats>
 			<stat type="pAtk">323</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
 	</item>
-	<item id="13185" name="Premium Account - Orcish Poleaxe" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13185" name="PA - Orcish Poleaxe" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Orcish Poleaxe with limited ability enhancement. <Special Option>. Widens the attack range. Expiratory. Cannot be crystallized or granted functions besides enchantment. -->
 		<set name="icon" val="icon.weapon_orcish_poleaxe_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1881,20 +1881,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
-	<item id="13186" name="Premium Account - Yaksa Mace" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13186" name="PA - Yaksa Mace" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Yaksa Mace with limited ability enhancement. <Special Option>. Max HP increases by 25%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_yaksa_mace_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1914,21 +1914,21 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
-	<item id="13187" name="Premium Account - Shamshir*Shamshir" additionalName="PA exclusive Weapon" type="Weapon">
-		<!-- Shamshir*Shamshir with limited ability enhancement. When enchanted, P. Atk. of a dualsword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Accuracy increases by 2. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
+	<item id="13187" name="PA - Shamshir*Shamshir" additionalName="PA exclusive Weapon" type="Weapon">
+		<!-- Shamshir*Shamshir with limited ability enhancement. When enchanted, P. Atk. of a dual sword increases more significantly than that of a one-handed or fist weapon. When enchanted to 4 or more, Accuracy increases by 2. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -1947,19 +1947,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3046" level="8" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3046" level="8" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
-	<item id="13188" name="Premium Account - Admiral's Estoc" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13188" name="PA - Admiral's Estoc" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Admiral's Estoc with limited ability enhancement. <Special Option>. Atk. Spd. Increases by about 7%. When enchanted to 4 or more, chance of increasing P. Atk., M. Atk., and healing power, and of decreasing MP consumption for skill use for you and your party members during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_blink_slasher_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -1979,24 +1979,24 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3036" level="4" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">141</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="4" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
-	<item id="13189" name="Premium Account - Saber Tooth" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13189" name="PA - Saber Tooth" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Sabertooth with limited ability enhancement. <Special Option>. Critical increases by 73. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_invincible_blade_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2016,23 +2016,23 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13190" name="Premium Account - Sharpshooter" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13190" name="PA - Sharpshooter" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Sharpshooter with limited ability enhancement. <Special Option>. Accuracy increases by 4. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_taslam_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2053,23 +2053,23 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3008" level="4" /> <!-- Special Ability: Guidance -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">198</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3008" level="4" /> <!-- Special Ability: Guidance -->
+		</skills>
 	</item>
-	<item id="13191" name="Premium Account - Ecliptic Sword" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13191" name="PA - Ecliptic Sword" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Ecliptic Sword with limited ability enhancement. <Special Option>. M. Atk. Increases by 26. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_sword_of_eclipse_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2090,19 +2090,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3076" level="4" /> <!-- Special Ability: Empower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3076" level="4" /> <!-- Special Ability: Empower -->
+		</skills>
 	</item>
-	<item id="13192" name="Premium Account - Ecliptic Axe" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13192" name="PA - Ecliptic Axe" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Ecliptic Axe with limited ability enhancement. <Special Option>. 10% chance of casting Dryad Root on the target during magic use. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_eclipse_axe_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2123,20 +2123,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="1201" level="23" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
-		</skills>
 		<stats>
 			<stat type="pAtk">125</stat>
 			<stat type="mAtk">111</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1201" level="23" type_chance="10" type="ON_MAGIC_SKILL" /> <!-- Dryad Root -->
+		</skills>
 	</item>
-	<item id="13193" name="Premium Account - Dwarven Hammer" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13193" name="PA - Dwarven Hammer" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Dwarven Hammer with limited ability enhancement. <Special Option>. 42% chance of casting Bleed on the target during a standard Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_dwarven_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2156,20 +2156,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3021" level="4" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3021" level="4" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Bleed -->
+		</skills>
 	</item>
-	<item id="13194" name="Premium Account - Damascus Sword" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13194" name="PA - Damascus Sword" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Damascus Sword with limited ability enhancement. <Special Option>. Critical increases by 64. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_sword_of_damascus_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2189,19 +2189,19 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
-	<item id="13195" name="Premium Account - Lance" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13195" name="PA - Lance" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Lance with limited ability enhancement. <Special Option>. About a 25% chance of casting Stun on the target during a Critical Attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_lancia_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2221,21 +2221,21 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="3016" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="3016" level="6" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Stun -->
+		</skills>
 	</item>
-	<item id="13196" name="Premium Account - Deadman's Glory" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13196" name="PA - Deadman's Glory" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Deadman's Glory with limited ability enhancement. <Special Option>. Atk. Spd. Increases by about 6%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_deadmans_glory_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2255,20 +2255,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
-	<item id="13197" name="Premium Account - Art of Battle Axe" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13197" name="PA - Art of Battle Axe" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Art of Battle Axe with limited ability enhancement. <Special Option>. Max HP increases by 25%. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_art_of_battle_axe_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2288,20 +2288,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
-	<item id="13198" name="Premium Account - Staff of Evil Spirits" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13198" name="PA - Staff of Evil Spirits" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Staff of Evil Spirits with limited ability enhancement. <Special Option>. 20% chance of casting Blessed Body on the target during magic use. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2322,20 +2322,20 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="1045" level="5" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Blessed Body -->
-		</skills>
 		<stats>
 			<stat type="pAtk">189</stat>
 			<stat type="mAtk">145</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="1045" level="5" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Blessed Body -->
+		</skills>
 	</item>
-	<item id="13199" name="Premium Account - Demon's Dagger" additionalName="PA exclusive Weapon" type="Weapon">
+	<item id="13199" name="PA - Demon's Dagger" additionalName="PA exclusive Weapon" type="Weapon">
 		<!-- Demon's Dagger with limited ability enhancement. <Special Option>. P. Atk. Increases by 160 during a critical attack. Expiratory. Cannot be crystallized or granted functions besides enchantment. This item cannot be enhanced except with Destiny Enchant Scrolls. -->
 		<set name="icon" val="icon.weapon_demons_sword_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -2355,17 +2355,17 @@
 		<set name="duration" val="180" />
 		<set name="time" val="21600" />
 		<set name="useSkillDisTime" val="1" />
-		<skills>
-			<skill id="3043" level="6" /> <!-- Special Ability: Critical Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">170</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3043" level="6" /> <!-- Special Ability: Critical Damage -->
+		</skills>
 	</item>
 </list>

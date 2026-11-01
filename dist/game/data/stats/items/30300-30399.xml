@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="30300" name="Superior Giant's Codex - Oblivion" type="EtcItem">
 		<!-- The Superior Giant's Codex that was given the cold shoulder by heroes who were seeking for power. It can be sold in the shop. -->
@@ -16,9 +16,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30302" name="Superior Giant's Codex Manuscript - Mastery" type="EtcItem">
@@ -28,9 +28,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30303" name="Superior Giant's Codex Manuscript - Discipline" type="EtcItem">
@@ -40,9 +40,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30304" name="Superior Giant's Codex Manuscript - Oblivion" type="EtcItem">
@@ -52,9 +52,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30305" name="Check Test Item" type="EtcItem">
@@ -64,9 +64,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="30306" name="Essence of the Lesser Giants" type="EtcItem">
@@ -141,9 +141,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="148, 149, 150, 151" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -162,9 +162,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="152, 153, 154, 155, 156, 157" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -183,9 +183,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="158, 159, 160, 161" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -204,9 +204,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="162, 163, 164, 165" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -225,9 +225,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="166, 167, 168, 169, 170" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -246,9 +246,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="176, 177, 178" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -267,9 +267,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="171, 172, 173, 174, 175" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -288,9 +288,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="is_sellable" val="false" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player class_id_restriction="179, 180, 181" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
@@ -317,8 +317,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="30320" name="Tamlin Orc's Badge" type="EtcItem">
@@ -329,8 +329,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="30321" name="Memorial Crystal" type="EtcItem">
@@ -341,8 +341,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="30322" name="Flame Ashes" type="EtcItem">
@@ -353,8 +353,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="30323" name="Crystals of Experience" type="EtcItem">
@@ -365,8 +365,8 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
 	</item>
 	<item id="30324" name="Enhanced Pailaka Ring" type="EtcItem">
@@ -376,8 +376,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30325" name="Returning Adventurer's Mark" type="EtcItem">
@@ -441,7 +441,7 @@
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -622,12 +622,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8786" level="1" /> <!-- Top-grade Royal Guard Earring - Gludio -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8786" level="1" /> <!-- Top-grade Royal Guard Earring - Gludio -->
+		</skills>
 	</item>
 	<item id="30340" name="Top-grade Dion Holy Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Dion. Hold attack +15%, Poison Resistance +15%, Holy Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -642,12 +642,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8787" level="1" /> <!-- Top-grade Royal Guard Earring - Dion -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8787" level="1" /> <!-- Top-grade Royal Guard Earring - Dion -->
+		</skills>
 	</item>
 	<item id="30341" name="Top-grade Giran Wind Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Giran. Bleed attack +15%, Paralysis Resistance +15%, Wind Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -662,12 +662,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8788" level="1" /> <!-- Top-grade Royal Guard Earring - Giran -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8788" level="1" /> <!-- Top-grade Royal Guard Earring - Giran -->
+		</skills>
 	</item>
 	<item id="30342" name="Top-grade Oren Dark Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Oren. Paralysis attack +15%, Hold Resistance +15%, Dark Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -682,12 +682,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8789" level="1" /> <!-- Top-grade Royal Guard Earring - Oren -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8789" level="1" /> <!-- Top-grade Royal Guard Earring - Oren -->
+		</skills>
 	</item>
 	<item id="30343" name="Top-grade Aden Earth Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Aden. Mental attack +15%, Stun Resistance +15%, Earth Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -702,12 +702,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8790" level="1" /> <!-- Top-grade Royal Guard Earring - Aden -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8790" level="1" /> <!-- Top-grade Royal Guard Earring - Aden -->
+		</skills>
 	</item>
 	<item id="30344" name="Top-grade Innadril Water Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Innadril. Sleep attack +15%, Stun Resistance +15%, Water Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -722,12 +722,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8791" level="1" /> <!-- Top-grade Royal Guard Earring - Innadril -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8791" level="1" /> <!-- Top-grade Royal Guard Earring - Innadril -->
+		</skills>
 	</item>
 	<item id="30345" name="Top-grade Goddard Fire Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Goddard. Stun attack +15%, Sleep Resistance +15%, Fire Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -742,12 +742,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8792" level="1" /> <!-- Top-grade Royal Guard Earring - Goddard -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8792" level="1" /> <!-- Top-grade Royal Guard Earring - Goddard -->
+		</skills>
 	</item>
 	<item id="30346" name="Top-grade Rune Fire Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Rune. Poison attack +15%, Hold Resistance +15%, Fire Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -762,12 +762,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8793" level="1" /> <!-- Top-grade Royal Guard Earring - Rune -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8793" level="1" /> <!-- Top-grade Royal Guard Earring - Rune -->
+		</skills>
 	</item>
 	<item id="30347" name="Top-grade Schuttgart Wind Resistance Earring" type="Armor">
 		<!-- Earring given to the guardian of Schuttgart. Hold attack +15%, Mental Resistance +15%, Wind Resistance +10. CP +5%. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -782,12 +782,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8794" level="1" /> <!-- Top-grade Royal Guard Earring - Schuttgart -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 		</stats>
+		<skills>
+			<skill id="8794" level="1" /> <!-- Top-grade Royal Guard Earring - Schuttgart -->
+		</skills>
 	</item>
 	<item id="30348" name="Top-grade Gludio Earth Resistance Earring" type="Armor">
 		<!-- Ring given to the guardian of Gludio. Earth Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -802,12 +802,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8795" level="1" /> <!-- Top-grade Royal Guard Ring - Gludio -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8795" level="1" /> <!-- Top-grade Royal Guard Ring - Gludio -->
+		</skills>
 	</item>
 	<item id="30349" name="Top-grade Dion Water Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Dion. Water Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -822,12 +822,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8796" level="1" /> <!-- Top-grade Royal Guard Ring - Dion -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8796" level="1" /> <!-- Top-grade Royal Guard Ring - Dion -->
+		</skills>
 	</item>
 	<item id="30350" name="Top-grade Giran Fire Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Giran. Fire Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -842,12 +842,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8797" level="1" /> <!-- Top-grade Royal Guard Ring - Giran -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8797" level="1" /> <!-- Top-grade Royal Guard Ring - Giran -->
+		</skills>
 	</item>
 	<item id="30351" name="Top-grade Oren Earth Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Oren. Earth Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -862,12 +862,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8798" level="1" /> <!-- Top-grade Royal Guard Ring - Oren -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8798" level="1" /> <!-- Top-grade Royal Guard Ring - Oren -->
+		</skills>
 	</item>
 	<item id="30352" name="Top-grade Aden Holy Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Aden. Holy Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -882,12 +882,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8799" level="1" /> <!-- Top-grade Royal Guard Ring - Aden -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8799" level="1" /> <!-- Top-grade Royal Guard Ring - Aden -->
+		</skills>
 	</item>
 	<item id="30353" name="Top-grade Innadril Holy Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Innadril. Holy Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -902,12 +902,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8800" level="1" /> <!-- Top-grade Royal Guard Ring - Innadril -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8800" level="1" /> <!-- Top-grade Royal Guard Ring - Innadril -->
+		</skills>
 	</item>
 	<item id="30354" name="Top-grade Goddard Dark Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Goddard. Dark Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -922,12 +922,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8801" level="1" /> <!-- Top-grade Royal Guard Ring - Goddard -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8801" level="1" /> <!-- Top-grade Royal Guard Ring - Goddard -->
+		</skills>
 	</item>
 	<item id="30355" name="Top-grade Rune Wind Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Rune. Wind Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -942,12 +942,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8802" level="1" /> <!-- Top-grade Royal Guard Ring - Rune -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8802" level="1" /> <!-- Top-grade Royal Guard Ring - Rune -->
+		</skills>
 	</item>
 	<item id="30356" name="Top-grade Schuttgart Dark Resistance Ring" type="Armor">
 		<!-- Ring given to the guardian of Schuttgart. Dark Resistance +15. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -962,12 +962,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8803" level="1" /> <!-- Top-grade Royal Guard Ring - Schuttgart -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8803" level="1" /> <!-- Top-grade Royal Guard Ring - Schuttgart -->
+		</skills>
 	</item>
 	<item id="30357" name="Elixir of Life (R-grade)" type="EtcItem">
 		<!-- Recovers HP. Only characters level 85 or above can use on themselves. Cooldown is 2 min. -->
@@ -986,9 +986,9 @@
 		<set name="crystal_type" val="R" />
 		<set name="is_event_restricted" val="true" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2287" level="7" /> <!-- Elixir of Life (R-grade) -->
 		</skills>
@@ -1010,9 +1010,9 @@
 		<set name="crystal_type" val="R" />
 		<set name="is_event_restricted" val="true" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2288" level="7" /> <!-- Elixir of Mind (R-grade) -->
 		</skills>
@@ -1054,9 +1054,9 @@
 		<set name="crystal_type" val="R" />
 		<set name="is_event_restricted" val="true" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2860" level="7" /> <!-- Superior Elixir of Life (R-grade) -->
 		</skills>
@@ -1077,9 +1077,9 @@
 		<set name="crystal_type" val="R" />
 		<set name="is_event_restricted" val="true" />
 		<set name="commissionItemType" val="POTION" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2861" level="7" /> <!-- Superior Elixir of Mind (R-grade) -->
 		</skills>
@@ -1247,9 +1247,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1262,7 +1262,7 @@
 		</skills>
 	</item>
 	<item id="30372" name="Hero's Cloak" type="Armor">
-		<!-- Olympiad Cloak of Hero. STR / DEX / CON / INT / WIT / MEN +3 when equipped. Received PvP Damage - 15%. -->
+		<!-- Olympiad Cloak of Hero. STR/ DEX/ CON/ INT/ WIT/ MEN +3 when equipped. Received PvP Damage -15%. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -1275,16 +1275,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13136" level="1" /> <!-- Hero's Cloak -->
-		</skills>
 		<stats>
 			<stat type="pDef">100</stat>
 			<stat type="mDef">80</stat>
 		</stats>
+		<skills>
+			<skill id="13136" level="1" /> <!-- Hero's Cloak -->
+		</skills>
 	</item>
 	<item id="30373" name="Glorious Cloak" type="Armor">
-		<!-- Olympiad Cloak of Glory. STR / DEX / CON / INT / WIT / MEN +2 when equipped. Received PvP Damage - 5%. -->
+		<!-- Olympiad Cloak of Glory. STR/ DEX/ CON/ INT/ WIT/ MEN +2 when equipped. Received PvP Damage -5%. -->
 		<set name="icon" val="icon.vesper_cloack_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="back" />
@@ -1297,13 +1297,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="13137" level="1" /> <!-- Glorious Cloak -->
-		</skills>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="13137" level="1" /> <!-- Glorious Cloak -->
+		</skills>
 	</item>
 	<item id="30374" name="Magic Filled Box" type="EtcItem">
 		<!-- Box filled with M. Atk. It contains a useful item. -->
@@ -1312,9 +1312,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1399,9 +1399,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9207" level="1" /> <!-- Lucky Clover (R-grade) -->
@@ -1414,9 +1414,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9208" level="1" /> <!-- Lucky Clover (R-grade) -->
@@ -1446,8 +1446,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30385" name="Certificate of Life" type="EtcItem">
@@ -1456,8 +1456,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30386" name="Certificate of Hero" type="EtcItem">
@@ -1466,8 +1466,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30387" name="Certificate of Hell" type="EtcItem">
@@ -1476,8 +1476,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="30388" name="Returning Adventurer's Support Box (S-grade)" type="EtcItem">
@@ -1487,9 +1487,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="30389" name="Returning Adventurer's Support Box (A-grade)" type="EtcItem">
@@ -1499,9 +1499,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="30390" name="Returning Adventurer's Support Box (B-grade)" type="EtcItem">
@@ -1511,9 +1511,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="30391" name="Returning Adventurer's Support Box (C-grade)" type="EtcItem">
@@ -1523,13 +1523,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
 	<item id="30392" name="Infinity Shaper" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Skill Critical Damage +10%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Skill Critical Damage +10%. -->
 		<set name="icon" val="icon.weapon_the_dagger_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1547,22 +1547,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13146" level="1" /> <!-- Special Ability: Infinity Shaper -->
-		</skills>
 		<stats>
 			<stat type="pAtk">827</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13146" level="1" /> <!-- Special Ability: Infinity Shaper -->
+		</skills>
 	</item>
 	<item id="30393" name="Infinity Cutter" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, Skill Cooldown -5%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, Skill Cooldown -5%. -->
 		<set name="icon" val="icon.weapon_the_sword_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1580,21 +1580,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13147" level="1" /> <!-- Special Ability: Infinity Cutter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">917</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13147" level="1" /> <!-- Special Ability: Infinity Cutter -->
+		</skills>
 	</item>
 	<item id="30394" name="Infinity Slasher" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Critical Damage +7%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Critical Damage +7%. -->
 		<set name="icon" val="icon.weapon_the_two_handed_sword_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1612,21 +1612,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13148" level="1" /> <!-- Special Ability: Infinity Slasher -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1117</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13148" level="1" /> <!-- Special Ability: Infinity Slasher -->
+		</skills>
 	</item>
 	<item id="30395" name="Infinity Avenger" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, Skill Cooldown -5%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, Skill Cooldown -5%. -->
 		<set name="icon" val="icon.weapon_the_axe_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -1644,22 +1644,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13149" level="1" /> <!-- Special Ability: Infinity Avenger -->
-		</skills>
 		<stats>
 			<stat type="pAtk">917</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13149" level="1" /> <!-- Special Ability: Infinity Avenger -->
+		</skills>
 	</item>
 	<item id="30396" name="Infinity Fighter" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Critical Damage +7%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Critical Damage +7%. -->
 		<set name="icon" val="icon.weapon_the_fist_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1677,22 +1677,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13150" level="1" /> <!-- Special Ability: Infinity Fighter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1117</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13150" level="1" /> <!-- Special Ability: Infinity Fighter -->
+		</skills>
 	</item>
 	<item id="30397" name="Infinity Stormer" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Critical Damage +7%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Critical Damage +7%. -->
 		<set name="icon" val="icon.weapon_the_pole_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1710,23 +1710,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13151" level="1" /> <!-- Special Ability: Infinity Stormer -->
-		</skills>
 		<stats>
 			<stat type="pAtk">917</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13151" level="1" /> <!-- Special Ability: Infinity Stormer -->
+		</skills>
 	</item>
 	<item id="30398" name="Infinity Thrower" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Skill Critical Damage +10%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Skill Critical Damage +10%. -->
 		<set name="icon" val="icon.weapon_the_bow_of_hero_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1745,22 +1745,22 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13152" level="1" /> <!-- Special Ability: Infinity Thrower -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1811</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13152" level="1" /> <!-- Special Ability: Infinity Thrower -->
+		</skills>
 	</item>
 	<item id="30399" name="Infinity Shooter" type="Weapon">
-		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/MP/CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Skill Critical Damage +10%. -->
+		<!-- Olympiad Hero's Weapon. When equipped, increases PC Damage by 30%. Additionally gives Max HP/ MP/ CP +30%, P. Skill Power +10%, Atk. Spd. +15%, P. Skill Critical Damage +10%. -->
 		<set name="icon" val="icon.weapon_infinity_shooter_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1779,18 +1779,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1300" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13153" level="1" /> <!-- Special Ability: Infinity Shooter -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1516</stat>
 			<stat type="mAtk">489</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="holyPower">450</stat>
 		</stats>
+		<skills>
+			<skill id="13153" level="1" /> <!-- Special Ability: Infinity Shooter -->
+		</skills>
 	</item>
 </list>

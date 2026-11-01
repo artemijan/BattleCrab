@@ -200,7 +200,7 @@ pub struct ActiveMultisell {
 /// One displayed multisell row: which entry of the static list it shows and,
 /// for an inventory-only window, which of the player's item instances it was
 /// paired with (Java `PreparedMultisellListHolder._itemInfos`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct PreparedRow {
     /// Index into `MultisellList.entries`.
     pub entry_index: usize,
@@ -209,4 +209,10 @@ pub struct PreparedRow {
     /// That instance's enchant level (0 when unpaired) — displayed in the
     /// window and echoed back by the client on the choose.
     pub enchant_level: i32,
+    /// The rest of Java's `ItemInfo` snapshot that `MultiSellChoose` checks
+    /// the echo against: the augment options and the soul crystal options,
+    /// taken when the window opened (zeros when unpaired).
+    pub augment_options: [i32; 2],
+    pub ensoul_options: [i32; 2],
+    pub ensoul_special_option: i32,
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="16400" name="Teddy Girl Summon Bracelet" additionalName="Permanent" type="Armor">
 		<!-- Teddy Girl Summon Bracelet. Can summon an Agathion - Teddy Girl. Increases the Weight Limit by 3000 when equipped. -->
@@ -13,7 +13,7 @@
 		<set name="is_sellable" val="false" />
 		<skills>
 			<skill id="8458" level="1" /> <!-- Bracelet Weight Gauge Add -->
-			<skill id="8260" level="1" /> <!-- Release Agathion's Seal - Teddy Girl -->
+			<skill id="8260" level="1" /> <!-- Agathion Summon - Teddy Girl -->
 			<skill id="5959" level="1" /> <!-- Agathion Cute Trick - Teddy Girl -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -31,7 +31,7 @@
 		<set name="is_sellable" val="false" />
 		<skills>
 			<skill id="8458" level="1" /> <!-- Bracelet Weight Gauge Add -->
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -49,7 +49,7 @@
 		<set name="is_sellable" val="false" />
 		<skills>
 			<skill id="8458" level="1" /> <!-- Bracelet Weight Gauge Add -->
-			<skill id="8260" level="1" /> <!-- Release Agathion's Seal - Teddy Girl -->
+			<skill id="8260" level="1" /> <!-- Agathion Summon - Teddy Girl -->
 			<skill id="5959" level="1" /> <!-- Agathion Cute Trick - Teddy Girl -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -63,9 +63,9 @@
 		<set name="shared_reuse_group" val="106" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="weight" val="5" />
 		<set name="is_sellable" val="false" />
-		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="reuse_delay" val="3600000" />
@@ -99,9 +99,9 @@
 		<set name="shared_reuse_group" val="106" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="weight" val="5" />
 		<set name="is_sellable" val="false" />
-		<set name="is_stackable" val="true" />
 		<set name="is_freightable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="reuse_delay" val="3600000" />

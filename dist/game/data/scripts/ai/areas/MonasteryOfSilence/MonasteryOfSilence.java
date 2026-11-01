@@ -16,26 +16,27 @@
  */
 package ai.areas.MonasteryOfSilence;
 
-import org.l2jmobius.gameserver.ai.CtrlIntention;
-import org.l2jmobius.gameserver.enums.ChatType;
+import java.util.Collection;
+
+import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.WorldObject;
 import org.l2jmobius.gameserver.model.actor.Attackable;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.effects.EffectType;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.Skill;
 import org.l2jmobius.gameserver.model.skill.SkillCaster;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.network.NpcStringId;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 
 /**
  * Monastery of Silence AI.
  * @author Kerberos, nonom
  */
-public class MonasteryOfSilence extends AbstractNpcAI
+public class MonasteryOfSilence extends Script
 {
 	// NPCs
 	private static final int CAPTAIN = 18910; // Solina Knight Captain
@@ -50,6 +51,7 @@ public class MonasteryOfSilence extends AbstractNpcAI
 		22794, // Divinity Judge
 		22795, // Divinity Manager
 	};
+	
 	// Skills
 	private static final SkillHolder ORDEAL_STRIKE = new SkillHolder(6303, 1); // Trial of the Coup
 	private static final SkillHolder LEADER_STRIKE = new SkillHolder(6304, 1); // Shock
@@ -59,6 +61,7 @@ public class MonasteryOfSilence extends AbstractNpcAI
 	private static final SkillHolder STUDENT_CANCEL = new SkillHolder(6310, 1); // Loss of Quest
 	private static final SkillHolder WARRIOR_THRUSTING = new SkillHolder(6311, 1); // Solina Thrust
 	private static final SkillHolder KNIGHT_BLESS = new SkillHolder(6313, 1); // Solina Bless
+	
 	// Misc
 	private static final NpcStringId[] DIVINITY_MSG =
 	{
@@ -101,8 +104,8 @@ public class MonasteryOfSilence extends AbstractNpcAI
 						else if (character.getId() == KNIGHT)
 						{
 							character.setRunning();
-							((Attackable) character).addDamageHate(npc, 0, 100);
-							character.getAI().setIntention(CtrlIntention.AI_INTENTION_ATTACK, npc, null);
+							character.asAttackable().addDamageHate(npc, 0, 100);
+							character.getAI().setIntention(Intention.ATTACK, npc, null);
 						}
 					}
 				});
@@ -117,6 +120,7 @@ public class MonasteryOfSilence extends AbstractNpcAI
 						npc.setTarget(player);
 						npc.doCast(STUDENT_CANCEL.getSkill());
 					}
+					
 					npc.setScriptValue(0);
 				}
 				break;
@@ -130,13 +134,14 @@ public class MonasteryOfSilence extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return super.onEvent(event, npc, player);
 	}
 	
 	@Override
-	public String onAttack(Npc npc, Player player, int damage, boolean isSummon)
+	public void onAttack(Npc npc, Player player, int damage, boolean isSummon)
 	{
-		final Attackable mob = (Attackable) npc;
+		final Attackable mob = npc.asAttackable();
 		
 		switch (npc.getId())
 		{
@@ -158,6 +163,7 @@ public class MonasteryOfSilence extends AbstractNpcAI
 						npc.setTarget(npc);
 						npc.doCast(KNIGHT_BLESS.getSkill());
 					}
+					
 					npc.setScriptValue(1);
 					npc.broadcastSay(ChatType.NPC_GENERAL, NpcStringId.FOR_THE_GLORY_OF_SOLINA);
 					addAttackPlayerDesire(addSpawn(KNIGHT, npc), player);
@@ -192,7 +198,6 @@ public class MonasteryOfSilence extends AbstractNpcAI
 				break;
 			}
 		}
-		return super.onAttack(npc, player, damage, isSummon);
 	}
 	
 	@Override
@@ -202,7 +207,7 @@ public class MonasteryOfSilence extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onAggroRangeEnter(Npc npc, Player player, boolean isSummon)
+	public void onAggroRangeEnter(Npc npc, Player player, boolean isSummon)
 	{
 		if (player.getActiveWeaponInstance() != null)
 		{
@@ -256,13 +261,12 @@ public class MonasteryOfSilence extends AbstractNpcAI
 			
 			addAttackPlayerDesire(npc, player);
 		}
-		return super.onAggroRangeEnter(npc, player, isSummon);
 	}
 	
 	@Override
-	public String onSkillSee(Npc npc, Player caster, Skill skill, WorldObject[] targets, boolean isSummon)
+	public void onSkillSee(Npc npc, Player caster, Skill skill, Collection<WorldObject> targets, boolean isSummon)
 	{
-		if (skill.hasEffectType(EffectType.AGGRESSION))
+		if (skill.hasEffectType(EffectType.AGGRESSION) && !targets.isEmpty())
 		{
 			for (WorldObject obj : targets)
 			{
@@ -274,17 +278,15 @@ public class MonasteryOfSilence extends AbstractNpcAI
 				}
 			}
 		}
-		return super.onSkillSee(npc, caster, skill, targets, isSummon);
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
 		npc.setInvul(true);
 		npc.disableCoreAI(true);
 		cancelQuestTimer("TRAINING", npc, null);
 		startQuestTimer("TRAINING", 30000, npc, null, true);
-		return super.onSpawn(npc);
 	}
 	
 	public static void main(String[] args)

@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="29900" name="o_a_85_1g_hair_1">
-		<!-- MP Recovery + 0.08 -->
+		<!-- MP Recovery +0.08 -->
+		<!-- MP Recovery +0.08 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.08</amount>
@@ -10,7 +11,8 @@
 		</effects>
 	</option>
 	<option id="29901" name="o_a_85_1g_hair_2">
-		<!-- HP Recovery + 0.22 -->
+		<!-- HP Recovery +0.22 -->
+		<!-- HP Recovery +0.22 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.22</amount>
@@ -19,7 +21,8 @@
 		</effects>
 	</option>
 	<option id="29902" name="o_a_85_1g_hair_3">
-		<!-- CP Recovery + 0.16 -->
+		<!-- CP Recovery +0.16 -->
+		<!-- CP Recovery +0.16 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.16</amount>
@@ -28,7 +31,8 @@
 		</effects>
 	</option>
 	<option id="29903" name="o_a_85_1g_hair_4">
-		<!-- Max MP + 29 -->
+		<!-- Max MP +29 -->
+		<!-- Max MP +29 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.0</amount>
@@ -37,7 +41,8 @@
 		</effects>
 	</option>
 	<option id="29904" name="o_a_85_1g_hair_5">
-		<!-- Max HP + 37 -->
+		<!-- Max HP +37 -->
+		<!-- Max HP +37 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>37.0</amount>
@@ -46,7 +51,8 @@
 		</effects>
 	</option>
 	<option id="29905" name="o_a_85_1g_hair_6">
-		<!-- Max CP + 26 -->
+		<!-- Max CP +26 -->
+		<!-- Max CP +26 -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>26.0</amount>
@@ -55,6 +61,7 @@
 		</effects>
 	</option>
 	<option id="29906" name="o_a_85_1g_hair_7">
+		<!-- Increases Dark P. Def. -->
 		<!-- Increases Dark P. Def. -->
 		<effects>
 			<effect name="DefenceAttribute">
@@ -65,6 +72,7 @@
 	</option>
 	<option id="29907" name="o_a_85_1g_hair_8">
 		<!-- Increases Wind P. Def. -->
+		<!-- Increases Wind P. Def. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5.0</amount>
@@ -73,6 +81,7 @@
 		</effects>
 	</option>
 	<option id="29908" name="o_a_85_1g_hair_9">
+		<!-- Increases Water P. Def. -->
 		<!-- Increases Water P. Def. -->
 		<effects>
 			<effect name="DefenceAttribute">
@@ -83,6 +92,7 @@
 	</option>
 	<option id="29909" name="o_a_85_1g_hair_10">
 		<!-- Increases Fire P. Def. -->
+		<!-- Increases Fire P. Def. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5.0</amount>
@@ -91,6 +101,7 @@
 		</effects>
 	</option>
 	<option id="29910" name="o_a_85_1g_hair_11">
+		<!-- Increases Earth P. Def. -->
 		<!-- Increases Earth P. Def. -->
 		<effects>
 			<effect name="DefenceAttribute">
@@ -101,6 +112,7 @@
 	</option>
 	<option id="29911" name="o_a_85_1g_hair_12">
 		<!-- Increases Holy P. Def. -->
+		<!-- Increases Holy P. Def. -->
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>5.0</amount>
@@ -110,6 +122,7 @@
 	</option>
 	<option id="29912" name="o_a_85_1g_hair_13">
 		<!-- Increases Resistance to Bleed. -->
+		<!-- Increases Resistance to Bleed. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>2.0</BLEED>
@@ -117,6 +130,7 @@
 		</effects>
 	</option>
 	<option id="29913" name="o_a_85_1g_hair_14">
+		<!-- Increases Resistance to Mental Attacks. -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="DefenceTrait">
@@ -126,6 +140,7 @@
 	</option>
 	<option id="29914" name="o_a_85_1g_hair_15">
 		<!-- Increases Resistance to Paralysis. -->
+		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>2.0</PARALYZE>
@@ -133,6 +148,7 @@
 		</effects>
 	</option>
 	<option id="29915" name="o_a_85_1g_hair_16">
+		<!-- Increases Resistance to Poison. -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="DefenceTrait">
@@ -142,6 +158,7 @@
 	</option>
 	<option id="29916" name="o_a_85_1g_hair_17">
 		<!-- Increases Resistance to Shock. -->
+		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>2.0</SHOCK>
@@ -149,6 +166,7 @@
 		</effects>
 	</option>
 	<option id="29917" name="o_a_85_1g_hair_18">
+		<!-- Increases Resistance to Sleep. -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="DefenceTrait">
@@ -158,6 +176,7 @@
 	</option>
 	<option id="29918" name="o_a_85_1g_hair_19">
 		<!-- Increases Resistance to Knock Back. -->
+		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>1.0</KNOCKBACK>
@@ -165,6 +184,7 @@
 		</effects>
 	</option>
 	<option id="29919" name="o_a_85_1g_hair_20">
+		<!-- Increases Resistance to Knock Down. -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="DefenceTrait">
@@ -174,6 +194,7 @@
 	</option>
 	<option id="29920" name="o_a_85_1g_hair_21">
 		<!-- Increases Resistance to Drag. -->
+		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PULL>1.0</PULL>
@@ -182,6 +203,7 @@
 	</option>
 	<option id="29921" name="o_a_85_1g_hair_22">
 		<!-- Increases Resistance to Binding. -->
+		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>1.0</AIRBIND>
@@ -189,12 +211,15 @@
 		</effects>
 	</option>
 	<option id="29922" name="o_a_85_1g_hair_23">
-		<!-- Max Weight + 2000 -->
+		<!-- Max Weight +2000 -->
+		<!-- Max Weight +2000 -->
 		<passive_skill id="13352" level="1" /> <!-- Increase Hair Accessory Weight Gauge -->
 	</option>
 	<option id="29923" name="o_a_85_2g_hair_1">
-		<!-- MP Recovery + 0.04 -->
-		<!-- HP Recovery + 0.11 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- HP Recovery +0.11 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.04</amount>
@@ -207,8 +232,10 @@
 		</effects>
 	</option>
 	<option id="29924" name="o_a_85_2g_hair_2">
-		<!-- MP Recovery + 0.04 -->
-		<!-- CP Recovery + 0.08 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- CP Recovery +0.08 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.04</amount>
@@ -221,8 +248,10 @@
 		</effects>
 	</option>
 	<option id="29925" name="o_a_85_2g_hair_3">
-		<!-- MP Recovery + 0.04 -->
-		<!-- Max MP + 15 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Max MP +15 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Max MP +15 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.04</amount>
@@ -235,8 +264,10 @@
 		</effects>
 	</option>
 	<option id="29926" name="o_a_85_2g_hair_4">
-		<!-- MP Recovery + 0.04 -->
-		<!-- Max HP + 19 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Max HP +19 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Max HP +19 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.04</amount>
@@ -249,8 +280,10 @@
 		</effects>
 	</option>
 	<option id="29927" name="o_a_85_2g_hair_5">
-		<!-- MP Recovery + 0.04 -->
-		<!-- Max CP + 13 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Max CP +13 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Max CP +13 -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.04</amount>
@@ -263,7 +296,9 @@
 		</effects>
 	</option>
 	<option id="29928" name="o_a_85_2g_hair_6">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Dark P. Def. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Dark P. Def. -->
 		<effects>
 			<effect name="MpRegen">
@@ -277,7 +312,9 @@
 		</effects>
 	</option>
 	<option id="29929" name="o_a_85_2g_hair_7">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Wind P. Def. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Wind P. Def. -->
 		<effects>
 			<effect name="MpRegen">
@@ -291,7 +328,9 @@
 		</effects>
 	</option>
 	<option id="29930" name="o_a_85_2g_hair_8">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Water P. Def. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Water P. Def. -->
 		<effects>
 			<effect name="MpRegen">
@@ -305,7 +344,9 @@
 		</effects>
 	</option>
 	<option id="29931" name="o_a_85_2g_hair_9">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Fire P. Def. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Fire P. Def. -->
 		<effects>
 			<effect name="MpRegen">
@@ -319,7 +360,9 @@
 		</effects>
 	</option>
 	<option id="29932" name="o_a_85_2g_hair_10">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Earth P. Def. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Earth P. Def. -->
 		<effects>
 			<effect name="MpRegen">
@@ -333,7 +376,9 @@
 		</effects>
 	</option>
 	<option id="29933" name="o_a_85_2g_hair_11">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Holy P. Def. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Holy P. Def. -->
 		<effects>
 			<effect name="MpRegen">
@@ -347,7 +392,9 @@
 		</effects>
 	</option>
 	<option id="29934" name="o_a_85_2g_hair_12">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Bleed. -->
 		<effects>
 			<effect name="MpRegen">
@@ -360,7 +407,9 @@
 		</effects>
 	</option>
 	<option id="29935" name="o_a_85_2g_hair_13">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="MpRegen">
@@ -373,7 +422,9 @@
 		</effects>
 	</option>
 	<option id="29936" name="o_a_85_2g_hair_14">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="MpRegen">
@@ -386,7 +437,9 @@
 		</effects>
 	</option>
 	<option id="29937" name="o_a_85_2g_hair_15">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="MpRegen">
@@ -399,7 +452,9 @@
 		</effects>
 	</option>
 	<option id="29938" name="o_a_85_2g_hair_16">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="MpRegen">
@@ -412,7 +467,9 @@
 		</effects>
 	</option>
 	<option id="29939" name="o_a_85_2g_hair_17">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="MpRegen">
@@ -425,7 +482,9 @@
 		</effects>
 	</option>
 	<option id="29940" name="o_a_85_2g_hair_18">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="MpRegen">
@@ -438,7 +497,9 @@
 		</effects>
 	</option>
 	<option id="29941" name="o_a_85_2g_hair_19">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Knock Down. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="MpRegen">
@@ -451,7 +512,9 @@
 		</effects>
 	</option>
 	<option id="29942" name="o_a_85_2g_hair_20">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Drag. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="MpRegen">
@@ -464,7 +527,9 @@
 		</effects>
 	</option>
 	<option id="29943" name="o_a_85_2g_hair_21">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Binding. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="MpRegen">
@@ -477,7 +542,9 @@
 		</effects>
 	</option>
 	<option id="29944" name="o_a_85_2g_hair_22">
-		<!-- MP Recovery + 0.04 -->
+		<!-- MP Recovery +0.04 -->
+		<!-- Increases Resistance to Binding. -->
+		<!-- MP Recovery +0.04 -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="MpRegen">
@@ -490,8 +557,10 @@
 		</effects>
 	</option>
 	<option id="29945" name="o_a_85_2g_hair_23">
-		<!-- HP Recovery + 0.11 -->
-		<!-- CP Recovery + 0.08 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- CP Recovery +0.08 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.11</amount>
@@ -504,8 +573,10 @@
 		</effects>
 	</option>
 	<option id="29946" name="o_a_85_2g_hair_24">
-		<!-- HP Recovery + 0.11 -->
-		<!-- Max MP + 15 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Max MP +15 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Max MP +15 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.11</amount>
@@ -518,8 +589,10 @@
 		</effects>
 	</option>
 	<option id="29947" name="o_a_85_2g_hair_25">
-		<!-- HP Recovery + 0.11 -->
-		<!-- Max HP + 19 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Max HP +19 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Max HP +19 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.11</amount>
@@ -532,8 +605,10 @@
 		</effects>
 	</option>
 	<option id="29948" name="o_a_85_2g_hair_26">
-		<!-- HP Recovery + 0.11 -->
-		<!-- Max CP + 13 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Max CP +13 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Max CP +13 -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.11</amount>
@@ -546,7 +621,9 @@
 		</effects>
 	</option>
 	<option id="29949" name="o_a_85_2g_hair_27">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Dark P. Def. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Dark P. Def. -->
 		<effects>
 			<effect name="HpRegen">
@@ -560,7 +637,9 @@
 		</effects>
 	</option>
 	<option id="29950" name="o_a_85_2g_hair_28">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Wind P. Def. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Wind P. Def. -->
 		<effects>
 			<effect name="HpRegen">
@@ -574,7 +653,9 @@
 		</effects>
 	</option>
 	<option id="29951" name="o_a_85_2g_hair_29">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Water P. Def. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Water P. Def. -->
 		<effects>
 			<effect name="HpRegen">
@@ -588,7 +669,9 @@
 		</effects>
 	</option>
 	<option id="29952" name="o_a_85_2g_hair_30">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Fire P. Def. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Fire P. Def. -->
 		<effects>
 			<effect name="HpRegen">
@@ -602,7 +685,9 @@
 		</effects>
 	</option>
 	<option id="29953" name="o_a_85_2g_hair_31">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Earth P. Def. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Earth P. Def. -->
 		<effects>
 			<effect name="HpRegen">
@@ -616,7 +701,9 @@
 		</effects>
 	</option>
 	<option id="29954" name="o_a_85_2g_hair_32">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Holy P. Def. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Holy P. Def. -->
 		<effects>
 			<effect name="HpRegen">
@@ -630,7 +717,9 @@
 		</effects>
 	</option>
 	<option id="29955" name="o_a_85_2g_hair_33">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Bleed. -->
 		<effects>
 			<effect name="HpRegen">
@@ -643,7 +732,9 @@
 		</effects>
 	</option>
 	<option id="29956" name="o_a_85_2g_hair_34">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="HpRegen">
@@ -656,7 +747,9 @@
 		</effects>
 	</option>
 	<option id="29957" name="o_a_85_2g_hair_35">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="HpRegen">
@@ -669,7 +762,9 @@
 		</effects>
 	</option>
 	<option id="29958" name="o_a_85_2g_hair_36">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="HpRegen">
@@ -682,7 +777,9 @@
 		</effects>
 	</option>
 	<option id="29959" name="o_a_85_2g_hair_37">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="HpRegen">
@@ -695,7 +792,9 @@
 		</effects>
 	</option>
 	<option id="29960" name="o_a_85_2g_hair_38">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="HpRegen">
@@ -708,7 +807,9 @@
 		</effects>
 	</option>
 	<option id="29961" name="o_a_85_2g_hair_39">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="HpRegen">
@@ -721,7 +822,9 @@
 		</effects>
 	</option>
 	<option id="29962" name="o_a_85_2g_hair_40">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Knock Down. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="HpRegen">
@@ -734,7 +837,9 @@
 		</effects>
 	</option>
 	<option id="29963" name="o_a_85_2g_hair_41">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Drag. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="HpRegen">
@@ -747,7 +852,9 @@
 		</effects>
 	</option>
 	<option id="29964" name="o_a_85_2g_hair_42">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Binding. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="HpRegen">
@@ -760,7 +867,9 @@
 		</effects>
 	</option>
 	<option id="29965" name="o_a_85_2g_hair_43">
-		<!-- HP Recovery + 0.11 -->
+		<!-- HP Recovery +0.11 -->
+		<!-- Increases Resistance to Binding. -->
+		<!-- HP Recovery +0.11 -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="HpRegen">
@@ -773,8 +882,10 @@
 		</effects>
 	</option>
 	<option id="29966" name="o_a_85_2g_hair_44">
-		<!-- CP Recovery + 0.08 -->
-		<!-- Max MP + 15 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Max MP +15 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Max MP +15 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.08</amount>
@@ -787,8 +898,10 @@
 		</effects>
 	</option>
 	<option id="29967" name="o_a_85_2g_hair_45">
-		<!-- CP Recovery + 0.08 -->
-		<!-- Max HP + 19 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Max HP +19 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Max HP +19 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.08</amount>
@@ -801,8 +914,10 @@
 		</effects>
 	</option>
 	<option id="29968" name="o_a_85_2g_hair_46">
-		<!-- CP Recovery + 0.08 -->
-		<!-- Max CP + 13 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Max CP +13 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Max CP +13 -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.08</amount>
@@ -815,7 +930,9 @@
 		</effects>
 	</option>
 	<option id="29969" name="o_a_85_2g_hair_47">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Dark P. Def. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Dark P. Def. -->
 		<effects>
 			<effect name="CpRegen">
@@ -829,7 +946,9 @@
 		</effects>
 	</option>
 	<option id="29970" name="o_a_85_2g_hair_48">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Wind P. Def. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Wind P. Def. -->
 		<effects>
 			<effect name="CpRegen">
@@ -843,7 +962,9 @@
 		</effects>
 	</option>
 	<option id="29971" name="o_a_85_2g_hair_49">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Water P. Def. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Water P. Def. -->
 		<effects>
 			<effect name="CpRegen">
@@ -857,7 +978,9 @@
 		</effects>
 	</option>
 	<option id="29972" name="o_a_85_2g_hair_50">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Fire P. Def. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Fire P. Def. -->
 		<effects>
 			<effect name="CpRegen">
@@ -871,7 +994,9 @@
 		</effects>
 	</option>
 	<option id="29973" name="o_a_85_2g_hair_51">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Earth P. Def. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Earth P. Def. -->
 		<effects>
 			<effect name="CpRegen">
@@ -885,7 +1010,9 @@
 		</effects>
 	</option>
 	<option id="29974" name="o_a_85_2g_hair_52">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Holy P. Def. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Holy P. Def. -->
 		<effects>
 			<effect name="CpRegen">
@@ -899,7 +1026,9 @@
 		</effects>
 	</option>
 	<option id="29975" name="o_a_85_2g_hair_53">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Bleed. -->
 		<effects>
 			<effect name="CpRegen">
@@ -912,7 +1041,9 @@
 		</effects>
 	</option>
 	<option id="29976" name="o_a_85_2g_hair_54">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="CpRegen">
@@ -925,7 +1056,9 @@
 		</effects>
 	</option>
 	<option id="29977" name="o_a_85_2g_hair_55">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="CpRegen">
@@ -938,7 +1071,9 @@
 		</effects>
 	</option>
 	<option id="29978" name="o_a_85_2g_hair_56">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="CpRegen">
@@ -951,7 +1086,9 @@
 		</effects>
 	</option>
 	<option id="29979" name="o_a_85_2g_hair_57">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="CpRegen">
@@ -964,7 +1101,9 @@
 		</effects>
 	</option>
 	<option id="29980" name="o_a_85_2g_hair_58">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="CpRegen">
@@ -977,7 +1116,9 @@
 		</effects>
 	</option>
 	<option id="29981" name="o_a_85_2g_hair_59">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Knock Back. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Knock Back. -->
 		<effects>
 			<effect name="CpRegen">
@@ -990,7 +1131,9 @@
 		</effects>
 	</option>
 	<option id="29982" name="o_a_85_2g_hair_60">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Knock Down. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Knock Down. -->
 		<effects>
 			<effect name="CpRegen">
@@ -1003,7 +1146,9 @@
 		</effects>
 	</option>
 	<option id="29983" name="o_a_85_2g_hair_61">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Drag. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Drag. -->
 		<effects>
 			<effect name="CpRegen">
@@ -1016,7 +1161,9 @@
 		</effects>
 	</option>
 	<option id="29984" name="o_a_85_2g_hair_62">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Binding. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="CpRegen">
@@ -1029,7 +1176,9 @@
 		</effects>
 	</option>
 	<option id="29985" name="o_a_85_2g_hair_63">
-		<!-- CP Recovery + 0.08 -->
+		<!-- CP Recovery +0.08 -->
+		<!-- Increases Resistance to Binding. -->
+		<!-- CP Recovery +0.08 -->
 		<!-- Increases Resistance to Binding. -->
 		<effects>
 			<effect name="CpRegen">
@@ -1042,8 +1191,10 @@
 		</effects>
 	</option>
 	<option id="29986" name="o_a_85_2g_hair_64">
-		<!-- Max MP + 15 -->
-		<!-- Max HP + 19 -->
+		<!-- Max MP +15 -->
+		<!-- Max HP +19 -->
+		<!-- Max MP +15 -->
+		<!-- Max HP +19 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>15.0</amount>
@@ -1056,8 +1207,10 @@
 		</effects>
 	</option>
 	<option id="29987" name="o_a_85_2g_hair_65">
-		<!-- Max MP + 15 -->
-		<!-- Max CP + 13 -->
+		<!-- Max MP +15 -->
+		<!-- Max CP +13 -->
+		<!-- Max MP +15 -->
+		<!-- Max CP +13 -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>15.0</amount>
@@ -1070,7 +1223,9 @@
 		</effects>
 	</option>
 	<option id="29988" name="o_a_85_2g_hair_66">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Dark P. Def. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Dark P. Def. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1084,7 +1239,9 @@
 		</effects>
 	</option>
 	<option id="29989" name="o_a_85_2g_hair_67">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Wind P. Def. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Wind P. Def. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1098,7 +1255,9 @@
 		</effects>
 	</option>
 	<option id="29990" name="o_a_85_2g_hair_68">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Water P. Def. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Water P. Def. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1112,7 +1271,9 @@
 		</effects>
 	</option>
 	<option id="29991" name="o_a_85_2g_hair_69">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Fire P. Def. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Fire P. Def. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1126,7 +1287,9 @@
 		</effects>
 	</option>
 	<option id="29992" name="o_a_85_2g_hair_70">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Earth P. Def. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Earth P. Def. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1140,7 +1303,9 @@
 		</effects>
 	</option>
 	<option id="29993" name="o_a_85_2g_hair_71">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Holy P. Def. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Holy P. Def. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1154,7 +1319,9 @@
 		</effects>
 	</option>
 	<option id="29994" name="o_a_85_2g_hair_72">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Resistance to Bleed. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Resistance to Bleed. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1167,7 +1334,9 @@
 		</effects>
 	</option>
 	<option id="29995" name="o_a_85_2g_hair_73">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Resistance to Mental Attacks. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Resistance to Mental Attacks. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1180,7 +1349,9 @@
 		</effects>
 	</option>
 	<option id="29996" name="o_a_85_2g_hair_74">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Resistance to Paralysis. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Resistance to Paralysis. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1193,7 +1364,9 @@
 		</effects>
 	</option>
 	<option id="29997" name="o_a_85_2g_hair_75">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Resistance to Poison. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Resistance to Poison. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1206,7 +1379,9 @@
 		</effects>
 	</option>
 	<option id="29998" name="o_a_85_2g_hair_76">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Resistance to Shock. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Resistance to Shock. -->
 		<effects>
 			<effect name="MaxMp">
@@ -1219,7 +1394,9 @@
 		</effects>
 	</option>
 	<option id="29999" name="o_a_85_2g_hair_77">
-		<!-- Max MP + 15 -->
+		<!-- Max MP +15 -->
+		<!-- Increases Resistance to Sleep. -->
+		<!-- Max MP +15 -->
 		<!-- Increases Resistance to Sleep. -->
 		<effects>
 			<effect name="MaxMp">

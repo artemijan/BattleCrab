@@ -1,5 +1,6 @@
 //! The `{…}` computed-value expressions in skill XMLs (Java evaluates them
-//! with exp4j at parse time — `SkillData.parseNodeValue`). The dist uses 85
+//! at parse time — `SkillData.parseNodeValue`, an infix→postfix evaluator in
+//! Salvation where Interlude used exp4j). The Interlude dist used 85
 //! distinct expressions, all plain arithmetic over three variables:
 //! `{base + base / 100 * subIndex}`, `{23+index*3}`, `{0.99 - 0.006 *
 //! (subIndex - 1)}`, … — numbers, `+ − * /`, parentheses, unary minus,
@@ -174,6 +175,35 @@ mod tests {
         );
         assert_eq!(eval_braced("{base - (2 * subIndex)}", v(100.0)), Some(86.0));
         assert_eq!(eval_braced("{1800 + subIndex * 15}", v(0.0)), Some(1905.0));
+    }
+
+    /// Every `{…}` element text in Salvation's skill XML evaluates. Salvation
+    /// dropped exp4j for its own infix→postfix evaluator over the same grammar
+    /// (`+ - * /`, parentheses, a leading minus on a literal, and the
+    /// `base`/`index`/`subIndex` variables), and its 2,027 expressions are
+    /// all of that shape. Comments carry `{i_fly_away;…}` lookalikes, which
+    /// is why only element text is scanned.
+    #[test]
+    fn every_salvation_skill_expression_evaluates() {
+        let dir = format!("{}data/stats/skills", crate::data::DIST_GAME);
+        let mut seen = 0;
+        for path in crate::data::xml::xml_files_under(&dir) {
+            let text = std::fs::read_to_string(&path).unwrap();
+            let mut rest = text.as_str();
+            while let Some(i) = rest.find(">{") {
+                let tail = &rest[i + 1..];
+                let end = tail.find('<').unwrap_or(tail.len());
+                let expr = tail[..end].trim();
+                assert!(
+                    eval_braced(expr, v(10.0)).is_some(),
+                    "{expr} in {}",
+                    path.display()
+                );
+                seen += 1;
+                rest = &tail[end..];
+            }
+        }
+        assert_eq!(seen, 2027, "the element-text expressions Salvation ships");
     }
 
     /// Failure modes: the dist's one truncated expression, unknown names,

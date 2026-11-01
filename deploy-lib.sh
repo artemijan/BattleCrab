@@ -233,8 +233,8 @@ deploy_resolve_topology() {
     fi
 
     # Ports as the repo configures them: the deploy syncs these very files.
-    LOGIN_LINK_PORT="$(ini_value dist/login/config/LoginServer.ini LoginPort)"
-    LOGIN_STATUS_PORT="$(ini_value dist/login/config/LoginServer.ini InternalStatusPort)"
+    LOGIN_LINK_PORT="$(ini_value dist/login/config/Server.ini LoginPort)"
+    LOGIN_STATUS_PORT="$(ini_value dist/login/config/Server.ini InternalStatusPort)"
     LOGIN_MONITOR_PORT="$(ini_value dist/login/config/Monitor.ini InternalMonitorPort)"
     GAME_MONITOR_PORT="$(ini_value dist/game/config/Monitor.ini InternalMonitorPort)"
 
@@ -244,12 +244,12 @@ deploy_resolve_topology() {
 # SQLite is one file on one disk: login, game and dashboard can share it only
 # on one machine. A database server (the URL in each service's ini) lifts that.
 deploy_check_database() {
-    DB_URL="$(ini_value dist/login/config/LoginServer.ini URL)"
+    DB_URL="$(ini_value dist/login/config/Database.ini URL)"
     local f url
-    for f in dist/game/config/Server.ini dist/game/config/Dashboard.ini; do
+    for f in dist/game/config/Database.ini dist/game/config/Dashboard.ini; do
         url="$(ini_value "$f" URL)"
         if [[ "$url" != "$DB_URL" ]]; then
-            echo "error: $f has URL = $url, but LoginServer.ini has $DB_URL." >&2
+            echo "error: $f has URL = $url, but dist/login/config/Database.ini has $DB_URL." >&2
             echo "       All three services must open the same database." >&2
             exit 1
         fi
@@ -261,7 +261,7 @@ deploy_check_database() {
             echo "error: the services are on more than one machine, but the database is SQLite" >&2
             echo "       ($DB_URL): one file on one disk, which they can only share on one machine" >&2
             echo "       — SQLite over a network filesystem is not safe. Point URL in" >&2
-            echo "       LoginServer.ini, Server.ini and Dashboard.ini at PostgreSQL first" >&2
+            echo "       both Database.ini files and Dashboard.ini at PostgreSQL first" >&2
             echo "       (docs/DATABASE.md)." >&2
             exit 1
         fi

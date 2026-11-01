@@ -12,7 +12,7 @@ use crate::model::skill::effects::DispelSlot;
 use crate::world::World;
 /// `DispelBySlotMyself.instant` — same shape as `DispelBySlot` with two
 /// differences that both matter: the list carries **no levels** (every level
-/// of a listed abnormal goes), and an **`irreplacableBuff` is spared**, which
+/// of a listed abnormal goes), and an **`irreplaceableBuff` is spared**, which
 /// is what stops Flames of Invincibility from stripping the clan/transform
 /// buffs that `isStayAfterDeath()` also protects.
 pub(crate) fn dispel_by_slot_myself(world: &mut World, target_oid: i32, dispel: &[String]) {
@@ -41,7 +41,7 @@ pub(crate) fn dispel_by_slot_myself(world: &mut World, target_oid: i32, dispel: 
 /// Skill 4177 Cancellation, the raid-boss sweep.
 ///
 /// The predicate is `stay_after_death` for the same reason
-/// `dispel_by_slot_myself` uses it: this port folds `<irreplacableBuff>` into
+/// `dispel_by_slot_myself` uses it: this port folds `<irreplaceableBuff>` into
 /// that field (G34 S3) and cannot tell the three source tags apart. It spares
 /// marginally more than Java here — a skill with only `<stayAfterDeath>`
 /// survives a cancel it would lose upstream — which is the conservative

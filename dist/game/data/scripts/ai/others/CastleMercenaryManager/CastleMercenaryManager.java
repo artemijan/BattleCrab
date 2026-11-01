@@ -18,21 +18,19 @@ package ai.others.CastleMercenaryManager;
 
 import java.util.StringTokenizer;
 
-import org.l2jmobius.gameserver.enums.PlayerCondOverride;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.actor.instance.Merchant;
-import org.l2jmobius.gameserver.model.clan.ClanPrivilege;
+import org.l2jmobius.gameserver.model.clan.ClanAccess;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.siege.Castle;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
-
-import ai.AbstractNpcAI;
 
 /**
  * Castle Mercenary Manager AI.
  * @author malyelfik
  */
-public class CastleMercenaryManager extends AbstractNpcAI
+public class CastleMercenaryManager extends Script
 {
 	// NPCs
 	private static final int[] NPCS =
@@ -78,6 +76,7 @@ public class CastleMercenaryManager extends AbstractNpcAI
 				{
 					html.setHtml(getHtm(player, "mercmanager-limit.html"));
 				}
+				
 				html.replace("%feud_name%", String.valueOf(1001000 + castle.getResidenceId()));
 				player.sendPacket(html);
 				break;
@@ -99,6 +98,7 @@ public class CastleMercenaryManager extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -106,7 +106,7 @@ public class CastleMercenaryManager extends AbstractNpcAI
 	public String onFirstTalk(Npc npc, Player player)
 	{
 		final String htmltext;
-		if (player.canOverrideCond(PlayerCondOverride.CASTLE_CONDITIONS) || ((player.getClanId() == npc.getCastle().getOwnerId()) && player.hasClanPrivilege(ClanPrivilege.CS_MERCENARIES)))
+		if (player.isGM() || ((player.getClanId() == npc.getCastle().getOwnerId()) && player.hasAccess(ClanAccess.CASTLE_MERCENARIES)))
 		{
 			htmltext = npc.getCastle().getSiege().isInProgress() ? "mercmanager-siege.html" : "mercmanager.html";
 		}
@@ -114,6 +114,7 @@ public class CastleMercenaryManager extends AbstractNpcAI
 		{
 			htmltext = "mercmanager-no.html";
 		}
+		
 		return htmltext;
 	}
 	

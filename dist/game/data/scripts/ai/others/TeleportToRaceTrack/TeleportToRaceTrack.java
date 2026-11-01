@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.others.TeleportToRaceTrack;
 
@@ -22,17 +26,17 @@ import java.util.Map;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Monster Derby Track teleport AI.
  * @author Mobius
  */
-public class TeleportToRaceTrack extends AbstractNpcAI
+public class TeleportToRaceTrack extends Script
 {
 	// NPC
 	private static final int RACE_MANAGER = 30995;
+	
 	// Locations
 	private static final Location RACE_TRACK_TELEPORT = new Location(12661, 181687, -3540);
 	private static final Map<Integer, Location> TELEPORTER_LOCATIONS = new HashMap<>();
@@ -51,6 +55,7 @@ public class TeleportToRaceTrack extends AbstractNpcAI
 		TELEPORTER_LOCATIONS.put(31964, new Location(87386, -143246, -1293)); // Bilia
 		TELEPORTER_LOCATIONS.put(31210, new Location(12882, 181053, -3560)); // Race Track Gatekeeper
 	}
+	
 	// Other
 	private static final String MONSTER_RETURN = "MONSTER_RETURN";
 	
@@ -63,27 +68,33 @@ public class TeleportToRaceTrack extends AbstractNpcAI
 	}
 	
 	@Override
-	public String onTalk(Npc npc, Player player)
+	public String onEvent(String event, Npc npc, Player player)
 	{
-		if (npc.getId() == RACE_MANAGER)
+		if (event.equalsIgnoreCase("TELEPORT"))
 		{
-			final int returnId = player.getVariables().getInt(MONSTER_RETURN, -1);
-			if (returnId > 30000) // Old script compatibility.
+			if (npc.getId() == RACE_MANAGER)
 			{
-				player.teleToLocation(TELEPORTER_LOCATIONS.get(returnId));
-				player.getVariables().remove(MONSTER_RETURN);
+				final int returnId = player.getVariables().getInt(MONSTER_RETURN, -1);
+				if (returnId > 30000)
+				{
+					player.teleToLocation(TELEPORTER_LOCATIONS.get(returnId));
+					player.getVariables().remove(MONSTER_RETURN);
+				}
+				else
+				{
+					player.teleToLocation(TELEPORTER_LOCATIONS.get(30059)); // Default to Dion
+				}
 			}
 			else
 			{
-				player.teleToLocation(TELEPORTER_LOCATIONS.get(30059)); // Dion
+				player.teleToLocation(RACE_TRACK_TELEPORT);
+				player.getVariables().set(MONSTER_RETURN, npc.getId());
 			}
+			
+			return null;
 		}
-		else
-		{
-			player.teleToLocation(RACE_TRACK_TELEPORT);
-			player.getVariables().set(MONSTER_RETURN, npc.getId());
-		}
-		return super.onTalk(npc, player);
+		
+		return super.onEvent(event, npc, player);
 	}
 	
 	public static void main(String[] args)

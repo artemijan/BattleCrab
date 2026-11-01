@@ -19,13 +19,12 @@ package quests.Q00125_TheNameOfEvil1;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 import org.l2jmobius.gameserver.network.serverpackets.MagicSkillUse;
 
 import quests.Q00124_MeetingTheElroki.Q00124_MeetingTheElroki;
@@ -42,11 +41,13 @@ public class Q00125_TheNameOfEvil1 extends Quest
 	private static final int ULU_KAIMU = 32119;
 	private static final int BALU_KAIMU = 32120;
 	private static final int CHUTA_KAIMU = 32121;
+	
 	// Items
 	private static final int ORNITHOMIMUS_CLAW = 8779;
 	private static final int DEINONYCHUS_BONE = 8780;
 	private static final int EPITAPH_OF_WISDOM = 8781;
 	private static final int GAZKH_FRAGMENT = 8782;
+	
 	// Skills
 	private static final int REPRESENTATION_ENTER_THE_SAILREN_NEST_QUEST_ID = 5089;
 	
@@ -148,6 +149,7 @@ public class Q00125_TheNameOfEvil1 extends Quest
 				{
 					htmltext = "32119-07.html";
 				}
+				
 				qs.unset("T");
 				qs.unset("E");
 				qs.unset("P");
@@ -201,6 +203,7 @@ public class Q00125_TheNameOfEvil1 extends Quest
 				{
 					htmltext = "32120-07.html";
 				}
+				
 				qs.unset("T");
 				qs.unset("O");
 				qs.unset("O2");
@@ -213,7 +216,6 @@ public class Q00125_TheNameOfEvil1 extends Quest
 				qs.unset("O");
 				qs.unset("O2");
 				qs.unset("N");
-				break;
 			}
 			case "32120-17.html":
 			{
@@ -254,6 +256,7 @@ public class Q00125_TheNameOfEvil1 extends Quest
 				{
 					htmltext = "32121-07.html";
 				}
+				
 				qs.unset("W");
 				qs.unset("A");
 				qs.unset("G");
@@ -290,29 +293,30 @@ public class Q00125_TheNameOfEvil1 extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player partyMember = getRandomPartyMember(player, 3);
 		if (partyMember == null)
 		{
-			return null;
+			return;
 		}
 		
 		final QuestState qs = getQuestState(partyMember, false);
 		final int npcId = npc.getId();
 		if (ORNITHOMIMUS.containsKey(npcId))
 		{
-			if ((getQuestItemsCount(player, ORNITHOMIMUS_CLAW) < 2) && (getRandom(1000) < (ORNITHOMIMUS.get(npcId) * Config.RATE_QUEST_DROP)))
+			if ((getQuestItemsCount(player, ORNITHOMIMUS_CLAW) < 2) && (getRandom(1000) < ORNITHOMIMUS.get(npcId)))
 			{
 				giveItems(player, ORNITHOMIMUS_CLAW, 1);
 				playSound(player, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 			}
 		}
-		else if (DEINONYCHUS.containsKey(npcId) && (getQuestItemsCount(player, DEINONYCHUS_BONE) < 2) && (getRandom(1000) < (DEINONYCHUS.get(npcId) * Config.RATE_QUEST_DROP)))
+		else if (DEINONYCHUS.containsKey(npcId) && (getQuestItemsCount(player, DEINONYCHUS_BONE) < 2) && (getRandom(1000) < DEINONYCHUS.get(npcId)))
 		{
 			giveItems(player, DEINONYCHUS_BONE, 1);
 			playSound(player, QuestSound.ITEMSOUND_QUEST_ITEMGET);
@@ -322,7 +326,6 @@ public class Q00125_TheNameOfEvil1 extends Quest
 		{
 			qs.setCond(4, true);
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -596,6 +599,7 @@ public class Q00125_TheNameOfEvil1 extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

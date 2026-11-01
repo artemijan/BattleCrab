@@ -134,16 +134,15 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             .map(|side| vec![skill::effects::SkillEffect::TakeCastle { side }])
             .unwrap_or_default(),
         "Flag" => vec![skill::effects::SkillEffect::PvpFlag],
-        // `CallSkill.java` — cast another skill outright.
-        // Java's `skillLevel` default is 1; a declared 0 means
-        // "the effector's own learned level", and
-        // `skillLevelScaleTo` scales off an existing buff —
-        // neither is used by any reachable carrier here.
+        // `CallSkill.java` — `skillLevel` defaults to 1 and a declared 0
+        // means "the effector's own learned level"; `skillLevelScaleTo`
+        // defaults to 0 (off).
         "CallSkill" => match param("skillId") {
             Some(sid) if sid > 0.0 => {
                 vec![skill::effects::SkillEffect::CallSkill {
                     skill_id: sid as i32,
-                    skill_level: param("skillLevel").unwrap_or(1.0).max(1.0) as i32,
+                    skill_level: param("skillLevel").unwrap_or(1.0) as i32,
+                    skill_level_scale_to: param("skillLevelScaleTo").unwrap_or(0.0) as i32,
                     chance: param("chance").unwrap_or(100.0) as i32,
                 }]
             }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../xsd/skillTrees.xsd">
+	<skillTree type="classSkillTree" classId="49">
+		<skill skillName="Mana Recovery" skillId="214" skillLevel="1" getLevel="1" autoGet="true" />
+		<skill skillName="Toughness" skillId="134" skillLevel="1" getLevel="1" autoGet="true" />
+		<skill skillName="Magician's Movement" skillId="118" skillLevel="1" getLevel="1" autoGet="true" />
+		<skill skillName="Spellcraft" skillId="163" skillLevel="1" getLevel="1" autoGet="true" />
+		<skill skillName="Soul Cry" skillId="1001" skillLevel="1" getLevel="1" autoGet="true" />
+		<skill skillName="Chill Flame" skillId="1100" skillLevel="1" getLevel="1" levelUpSp="1" />
+		
+		<skill skillName="Anti Magic" skillId="146" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Anti Magic" skillId="146" skillLevel="2" getLevel="7" levelUpSp="1" />
+		<skill skillName="Light Armor Mastery" skillId="252" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Light Armor Mastery" skillId="252" skillLevel="2" getLevel="7" levelUpSp="1" />
+		<skill skillName="Robe Mastery" skillId="251" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Robe Mastery" skillId="251" skillLevel="2" getLevel="7" levelUpSp="1" />
+		<skill skillName="Weapon Mastery" skillId="250" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Life Drain" skillId="1090" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Venom" skillId="1095" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Dreaming Spirit" skillId="1097" skillLevel="1" getLevel="7" levelUpSp="1" />
+		<skill skillName="Soul Shield" skillId="1010" skillLevel="1" getLevel="7" levelUpSp="1" />
+		
+		<skill skillName="Anti Magic" skillId="146" skillLevel="3" getLevel="14" levelUpSp="2" />
+		<skill skillName="Anti Magic" skillId="146" skillLevel="4" getLevel="14" levelUpSp="2" />
+		<skill skillName="Light Armor Mastery" skillId="252" skillLevel="3" getLevel="14" levelUpSp="2" />
+		<skill skillName="Light Armor Mastery" skillId="252" skillLevel="4" getLevel="14" levelUpSp="2" />
+		<skill skillName="Robe Mastery" skillId="251" skillLevel="3" getLevel="14" levelUpSp="2" />
+		<skill skillName="Robe Mastery" skillId="251" skillLevel="4" getLevel="14" levelUpSp="2" />
+		<skill skillName="Weapon Mastery" skillId="250" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Heavy Armor Mastery" skillId="253" skillLevel="1" getLevel="14" levelUpSp="2" />
+		<skill skillName="Heavy Armor Mastery" skillId="253" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Life Drain" skillId="1090" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Soul Cry" skillId="1001" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Chill Flame" skillId="1100" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Chant of Battle" skillId="1007" skillLevel="1" getLevel="14" levelUpSp="2" />
+		<skill skillName="Venom" skillId="1095" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Dreaming Spirit" skillId="1097" skillLevel="2" getLevel="14" levelUpSp="2" />
+		<skill skillName="Fear" skillId="1092" skillLevel="1" getLevel="14" levelUpSp="2" />
+	</skillTree>
+</list>

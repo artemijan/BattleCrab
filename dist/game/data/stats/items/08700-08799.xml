@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="8700" name="Recipe: Tiphon's Spear (60%)" type="EtcItem">
 		<!-- For Dwarves only. Recipe for making Tiphon's Spear. Requires Create Item - Skill Lv. 8. 60% success rate. -->
@@ -298,9 +298,9 @@
 		<set name="price" val="5000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="46" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8724" name="Life Stone - Lv. 49" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 49 or above. -->
@@ -311,9 +311,9 @@
 		<set name="price" val="6000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="49" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8725" name="Life Stone - Lv. 52" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 52 or above. -->
@@ -324,9 +324,9 @@
 		<set name="price" val="7200" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="52" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8726" name="Life Stone - Lv. 55" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 55 or above. -->
@@ -337,9 +337,9 @@
 		<set name="price" val="8640" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="55" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8727" name="Life Stone - Lv. 58" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 58 or above. -->
@@ -350,9 +350,9 @@
 		<set name="price" val="10000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="58" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8728" name="Life Stone - Lv. 61" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 61 or above. -->
@@ -363,9 +363,9 @@
 		<set name="price" val="12000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="61" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8729" name="Life Stone - Lv. 64" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 64 or above. -->
@@ -376,9 +376,9 @@
 		<set name="price" val="15000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="64" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8730" name="Life Stone - Lv. 67" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 67 or above. -->
@@ -389,9 +389,9 @@
 		<set name="price" val="18000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="67" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8731" name="Life Stone - Lv. 70" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 70 or above. -->
@@ -402,9 +402,9 @@
 		<set name="price" val="21600" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="70" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8732" name="Life Stone - Lv. 76" type="EtcItem">
 		<!-- Ordinary mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 76 or above. -->
@@ -415,9 +415,9 @@
 		<set name="price" val="24000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="76" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8733" name="Mid-grade Life Stone - Lv. 46" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 46 or above. -->
@@ -428,9 +428,9 @@
 		<set name="price" val="20000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="46" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8734" name="Mid-grade Life Stone - Lv. 49" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 49 or above. -->
@@ -441,9 +441,9 @@
 		<set name="price" val="24000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="49" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8735" name="Mid-grade Life Stone - Lv. 52" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 52 or above. -->
@@ -454,9 +454,9 @@
 		<set name="price" val="28800" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="52" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8736" name="Mid-grade Life Stone - Lv. 55" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 55 or above. -->
@@ -467,9 +467,9 @@
 		<set name="price" val="34560" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="55" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8737" name="Mid-grade Life Stone - Lv. 58" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 58 or above. -->
@@ -480,9 +480,9 @@
 		<set name="price" val="40000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="58" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8738" name="Mid-grade Life Stone - Lv. 61" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 61 or above. -->
@@ -493,9 +493,9 @@
 		<set name="price" val="48000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="61" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8739" name="Mid-grade Life Stone - Lv. 64" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 64 or above. -->
@@ -506,9 +506,9 @@
 		<set name="price" val="60000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="64" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8740" name="Mid-grade Life Stone - Lv. 67" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 67 or above. -->
@@ -519,9 +519,9 @@
 		<set name="price" val="72000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="67" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8741" name="Mid-grade Life Stone - Lv. 70" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 70 or above. -->
@@ -532,9 +532,9 @@
 		<set name="price" val="86400" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="70" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8742" name="Mid-grade Life Stone - Lv. 76" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 76 or above. -->
@@ -545,9 +545,9 @@
 		<set name="price" val="96000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="76" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8743" name="High-grade Life Stone - Lv. 46" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 46 or above. -->
@@ -558,9 +558,9 @@
 		<set name="price" val="100000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="46" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8744" name="High-grade Life Stone - Lv. 49" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 49 or above. -->
@@ -571,9 +571,9 @@
 		<set name="price" val="120000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="49" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8745" name="High-grade Life Stone - Lv. 52" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 52 or above. -->
@@ -584,9 +584,9 @@
 		<set name="price" val="144000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="52" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8746" name="High-grade Life Stone - Lv. 55" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 55 or above. -->
@@ -597,9 +597,9 @@
 		<set name="price" val="172800" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="55" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8747" name="High-grade Life Stone - Lv. 58" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 58 or above. -->
@@ -610,9 +610,9 @@
 		<set name="price" val="200000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="58" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8748" name="High-grade Life Stone - Lv. 61" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 61 or above. -->
@@ -623,9 +623,9 @@
 		<set name="price" val="240000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="61" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8749" name="High-grade Life Stone - Lv. 64" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 64 or above. -->
@@ -636,9 +636,9 @@
 		<set name="price" val="300000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="64" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8750" name="High-grade Life Stone - Lv. 67" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 67 or above. -->
@@ -649,9 +649,9 @@
 		<set name="price" val="360000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="67" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8751" name="High-grade Life Stone - Lv. 70" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 70 or above. -->
@@ -662,9 +662,9 @@
 		<set name="price" val="432000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="70" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8752" name="High-grade Life Stone - Lv. 76" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 76 or above. -->
@@ -675,9 +675,9 @@
 		<set name="price" val="480000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="76" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8753" name="Top-grade Life Stone - Lv. 46" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 46 or above. -->
@@ -688,9 +688,9 @@
 		<set name="price" val="500000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="46" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8754" name="Top-grade Life Stone - Lv. 49" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 49 or above. -->
@@ -701,9 +701,9 @@
 		<set name="price" val="600000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="49" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8755" name="Top-grade Life Stone - Lv. 52" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 52 or above. -->
@@ -714,9 +714,9 @@
 		<set name="price" val="720000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="52" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8756" name="Top-grade Life Stone - Lv. 55" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 55 or above. -->
@@ -727,9 +727,9 @@
 		<set name="price" val="864000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="55" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8757" name="Top-grade Life Stone - Lv. 58" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 58 or above. -->
@@ -740,9 +740,9 @@
 		<set name="price" val="1000000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="58" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8758" name="Top-grade Life Stone - Lv. 61" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 61 or above. -->
@@ -753,9 +753,9 @@
 		<set name="price" val="1200000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="61" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8759" name="Top-grade Life Stone - Lv. 64" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 64 or above. -->
@@ -766,9 +766,9 @@
 		<set name="price" val="1500000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="64" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8760" name="Top-grade Life Stone - Lv. 67" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 67 or above. -->
@@ -779,9 +779,9 @@
 		<set name="price" val="1800000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="67" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8761" name="Top-grade Life Stone - Lv. 70" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 70 or above. -->
@@ -792,9 +792,9 @@
 		<set name="price" val="2160000" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="70" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8762" name="Top-grade Life Stone - Lv. 76" type="EtcItem">
 		<!-- The highest-grade mineral available that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 76 or above. -->
@@ -805,9 +805,9 @@
 		<set name="price" val="2400000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="76" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="8763" name="Elrokian Trap" type="Weapon">
 		<!-- Trap weapon used on the Primeval Isle. -->
@@ -824,15 +824,15 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="isAppearanceable" val="true" />
+		<stats>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3627" level="1" /> <!-- Tapirawa -->
 			<skill id="3628" level="1" /> <!-- Shabonoba -->
 			<skill id="3626" level="1" /> <!-- Kabokula -->
 		</skills>
-		<stats>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="8764" name="Trap Stone" type="EtcItem">
 		<!-- Stone used in the Elrokian Trap. -->
@@ -849,8 +849,8 @@
 		<set name="icon" val="icon.ets_red_abead_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -859,8 +859,8 @@
 		<set name="icon" val="icon.etc_bead_blue_i00" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="CRYSTAL" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -1093,7 +1093,7 @@
 		<set name="is_questitem" val="true" />
 	</item>
 	<item id="8786" name="Primeval Potion" type="EtcItem">
-		<!-- Increases Poison/Anesthesia Resistance. -->
+		<!-- Increases Poison/ Anesthesia Resistance. -->
 		<set name="icon" val="icon.etc_potion_red_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -1110,7 +1110,7 @@
 		</skills>
 	</item>
 	<item id="8787" name="Sprigant's Fruit" type="EtcItem">
-		<!-- This fruit, dropped by Sprigants, increases Poison/Anesthesia Resistance. -->
+		<!-- This fruit, dropped by Sprigants, increases Poison/ Anesthesia Resistance. -->
 		<set name="icon" val="icon.etc_fruit_green_i00" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
@@ -1144,17 +1144,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="8789" name="Sirra's Blade" additionalName="Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -1175,17 +1177,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="8790" name="Sirra's Blade" additionalName="Critical Poison" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Has a 15% chance of casting Poison on the target during a regular Critical Attack. Increases damage inflicted during PvP. -->
@@ -1206,18 +1210,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3061" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3061" level="3" type="ON_CRITICAL_SKILL" /> <!-- Special Ability: Critical Poison -->
+		</skills>
 	</item>
 	<item id="8791" name="Sword of Ipos" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1238,17 +1244,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="8792" name="Sword of Ipos" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -1269,17 +1277,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="8793" name="Sword of Ipos" additionalName="Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -1300,17 +1310,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="8794" name="Barakiel's Axe" additionalName="Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -1330,18 +1342,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="8795" name="Barakiel's Axe" additionalName="Haste" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Atk. Spd. by about 6%. Increases damage inflicted during PvP. -->
@@ -1361,18 +1375,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="8796" name="Barakiel's Axe" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1392,18 +1408,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="8797" name="Behemoth' Tuning Fork" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1423,18 +1441,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="8798" name="Behemoth' Tuning Fork" additionalName="Health" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Max HP by 25%. Increases damage inflicted during PvP. -->
@@ -1454,18 +1474,20 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="8799" name="Behemoth' Tuning Fork" additionalName="Anger" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. P. Atk. +32 and decreases Max HP by 15%. Increases damage inflicted during PvP. -->
@@ -1485,17 +1507,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_BLUNT_WEAPON" />
 		<set name="isAppearanceable" val="true" />
-		<skills>
-			<skill id="3057" level="3" /> <!-- Special Ability: Anger -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3057" level="3" /> <!-- Special Ability: Anger -->
+		</skills>
 	</item>
 </list>

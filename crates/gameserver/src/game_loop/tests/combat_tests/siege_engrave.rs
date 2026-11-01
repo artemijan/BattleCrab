@@ -4,7 +4,8 @@
 //! selection-testing target types that share its resolver.
 
 use super::*;
-use crate::game_loop::skills::cast::{resolve_cast_target, selection_fits, use_magic_on};
+use crate::game_loop::skills::cast::target::selection_fits;
+use crate::game_loop::skills::cast::{resolve_cast_target, use_magic_on};
 use crate::model::castle::CastleSide;
 use crate::model::siege::{Siege, SiegeClanType};
 use crate::model::skill::target::TargetType;

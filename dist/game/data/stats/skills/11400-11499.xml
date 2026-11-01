@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="11496" toLevel="2" name="Summoner Boss Penalty">
-		<!-- Decreases P. Atk. Toward bosses by 20%. -->
+		<!-- Level 1: Decreases P. Atk. Toward bosses by 20%. -->
+		<!-- Level 2: Decreases P. Atk. Toward bosses by 30%. -->
 		<icon>icon.skill0217</icon>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
@@ -30,27 +31,27 @@
 	<skill id="11498" toLevel="1" name="Summoner - Individual">
 		<!-- For 5 seconds, increases P. Atk., M. Atk., Critical rate, and critical damage by 10%. -->
 		<icon>icon.skill1543</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5</abnormalTime>
 		<abnormalType>SUMMON_CONDITION</abnormalType>
-		<operateType>A2</operateType>
-		<hitTime>500</hitTime>
-		<reuseDelay>5000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<reuseDelayGroup>11259</reuseDelayGroup>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<reuseDelayGroup>11259</reuseDelayGroup>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
@@ -68,18 +69,18 @@
 		<!-- Inflicts a powerful blow on target. -->
 		<icon>icon.skill10317</icon>
 		<operateType>A1</operateType>
-		<mpConsume>71</mpConsume>
-		<castRange>900</castRange>
-		<hitTime>2000</hitTime>
-		<coolTime>300</coolTime>
-		<reuseDelay>10000</reuseDelay>
-		<effectPoint>-687</effectPoint>
-		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>1400</effectRange>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
+		<castRange>900</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>-687</effectPoint>
+		<effectRange>1400</effectRange>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<mpConsume>71</mpConsume>
+		<reuseDelay>10000</reuseDelay>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>AIRBIND</type>
@@ -88,7 +89,7 @@
 			</condition>
 		</conditions>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>184</power>
 			</effect>
 		</effects>

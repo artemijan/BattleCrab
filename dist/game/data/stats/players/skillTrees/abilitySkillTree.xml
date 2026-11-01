@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/skillTrees.xsd">
+	<skillTree type="abilitySkillTree">
+		<!-- Guardian's Tree -->
+		<skill skillName="Guardian's Shield" skillId="19233" skillLevel="1" getLevel="85" treeId="1" row="1" column="1" />
+		<skill skillName="Guardian's Shield" skillId="19233" skillLevel="2" getLevel="85" treeId="1" row="1" column="1" />
+		<skill skillName="Guardian's Shield" skillId="19233" skillLevel="3" getLevel="85" treeId="1" row="1" column="1" />
+		<skill skillName="Guardian's Magic Barrier" skillId="19234" skillLevel="1" getLevel="85" treeId="1" row="1" column="2" />
+		<skill skillName="Guardian's Magic Barrier" skillId="19234" skillLevel="2" getLevel="85" treeId="1" row="1" column="2" />
+		<skill skillName="Guardian's Magic Barrier" skillId="19234" skillLevel="3" getLevel="85" treeId="1" row="1" column="2" />
+		<skill skillName="Guardian's Body" skillId="19235" skillLevel="1" getLevel="85" treeId="1" row="1" column="3" />
+		<skill skillName="Guardian's Body" skillId="19235" skillLevel="2" getLevel="85" treeId="1" row="1" column="3" />
+		<skill skillName="Guardian's Body" skillId="19235" skillLevel="3" getLevel="85" treeId="1" row="1" column="3" />
+		<skill skillName="Guardian's Elemental Cover" skillId="19236" skillLevel="1" getLevel="85" treeId="1" row="1" column="4" />
+		<skill skillName="Guardian's Elemental Cover" skillId="19236" skillLevel="2" getLevel="85" treeId="1" row="1" column="4" />
+		<skill skillName="Guardian's Elemental Cover" skillId="19236" skillLevel="3" getLevel="85" treeId="1" row="1" column="4" />
+		<skill skillName="Guardian's Armor Defense" skillId="19237" skillLevel="1" getLevel="85" treeId="1" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Guardian's Armor Defense" skillId="19237" skillLevel="2" getLevel="85" treeId="1" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Guardian's Leather Defense" skillId="19238" skillLevel="1" getLevel="85" treeId="1" pointsRequired="5" row="2" column="2" />
+		<skill skillName="Guardian's Leather Defense" skillId="19238" skillLevel="2" getLevel="85" treeId="1" pointsRequired="5" row="2" column="2" />
+		<skill skillName="Guardian's Tunic Defense" skillId="19239" skillLevel="1" getLevel="85" treeId="1" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Guardian's Tunic Defense" skillId="19239" skillLevel="2" getLevel="85" treeId="1" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Guardian's Resist" skillId="19240" skillLevel="1" getLevel="85" treeId="1" pointsRequired="5" row="2" column="4">
+			<preRequisiteSkill id="19236" lvl="3" /> <!-- Guardian's Elemental Cover -->
+		</skill>
+		<skill skillName="Guardian's Resist" skillId="19240" skillLevel="2" getLevel="85" treeId="1" pointsRequired="5" row="2" column="4">
+			<preRequisiteSkill id="19236" lvl="3" /> <!-- Guardian's Elemental Cover -->
+		</skill>
+		<skill skillName="Guardian's Life" skillId="19241" skillLevel="1" getLevel="85" treeId="1" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19237" lvl="2" /> <!-- Guardian's Armor Defense -->
+		</skill>
+		<skill skillName="Guardian's Life" skillId="19241" skillLevel="2" getLevel="85" treeId="1" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19237" lvl="2" /> <!-- Guardian's Armor Defense -->
+		</skill>
+		<skill skillName="Guardian's Life" skillId="19241" skillLevel="3" getLevel="85" treeId="1" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19237" lvl="2" /> <!-- Guardian's Armor Defense -->
+		</skill>
+		<skill skillName="Guardian's Life" skillId="19241" skillLevel="4" getLevel="85" treeId="1" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19237" lvl="2" /> <!-- Guardian's Armor Defense -->
+		</skill>
+		<skill skillName="Guardian's Block" skillId="19242" skillLevel="1" getLevel="85" treeId="1" pointsRequired="10" row="3" column="2" />
+		<skill skillName="Guardian's Armor" skillId="19243" skillLevel="2" getLevel="85" treeId="1" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19239" lvl="2" /> <!-- Guardian's Tunic Defense -->
+		</skill>
+		<skill skillName="Guardian's Armor" skillId="19243" skillLevel="3" getLevel="85" treeId="1" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19239" lvl="2" /> <!-- Guardian's Tunic Defense -->
+		</skill>
+		<skill skillName="Guardian's Armor" skillId="19243" skillLevel="4" getLevel="85" treeId="1" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19239" lvl="2" /> <!-- Guardian's Tunic Defense -->
+		</skill>
+		<skill skillName="Guardian's Armor" skillId="19243" skillLevel="1" getLevel="85" treeId="1" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19239" lvl="2" /> <!-- Guardian's Tunic Defense -->
+		</skill>
+		<skill skillName="Guardian's Guidance" skillId="19244" skillLevel="1" getLevel="85" treeId="1" pointsRequired="10" row="3" column="4" />
+		<skill skillName="Guardian's Death Shield" skillId="19245" skillLevel="1" getLevel="85" treeId="1" pointsRequired="15" row="4" column="1" />
+		<skill skillName="Guardian's Death Shield" skillId="19245" skillLevel="2" getLevel="85" treeId="1" pointsRequired="15" row="4" column="1" />
+		<skill skillName="Guardian's Focus Shield" skillId="19246" skillLevel="1" getLevel="85" treeId="1" pointsRequired="15" row="4" column="2" />
+		<skill skillName="Guardian's Focus Shield" skillId="19246" skillLevel="2" getLevel="85" treeId="1" pointsRequired="15" row="4" column="2" />
+		<skill skillName="Guardian's Mind Control" skillId="19247" skillLevel="1" getLevel="85" treeId="1" pointsRequired="15" row="4" column="3" />
+		<skill skillName="Guardian's Mind Control" skillId="19247" skillLevel="2" getLevel="85" treeId="1" pointsRequired="15" row="4" column="3" />
+		<skill skillName="Guardian's Blessing" skillId="19248" skillLevel="1" getLevel="85" treeId="1" pointsRequired="15" row="4" column="4" />
+		<skill skillName="Guardian's Blessing" skillId="19248" skillLevel="2" getLevel="85" treeId="1" pointsRequired="15" row="4" column="4" />
+		<skill skillName="Guardian's Binding Cover" skillId="19249" skillLevel="1" getLevel="85" treeId="1" pointsRequired="20" row="5" column="1" />
+		<skill skillName="Guardian's Binding Cover" skillId="19249" skillLevel="2" getLevel="85" treeId="1" pointsRequired="20" row="5" column="1" />
+		<skill skillName="Guardian's Spirit" skillId="19250" skillLevel="1" getLevel="85" treeId="1" pointsRequired="20" row="5" column="2" />
+		<skill skillName="Guardian's Potential" skillId="19251" skillLevel="1" getLevel="85" treeId="1" pointsRequired="20" row="5" column="3" />
+		<skill skillName="Guardian's Expert Potion" skillId="19252" skillLevel="1" getLevel="85" treeId="1" pointsRequired="20" row="5" column="4" />
+		<skill skillName="Guardian's Expert Potion" skillId="19252" skillLevel="2" getLevel="85" treeId="1" pointsRequired="20" row="5" column="4" />
+		<skill skillName="Guardian's Defense Master" skillId="19253" skillLevel="1" getLevel="85" treeId="1" pointsRequired="25" row="6" column="2" />
+		<!-- Berserker's Tree -->
+		<skill skillName="Berserker's Haste" skillId="19254" skillLevel="1" getLevel="85" treeId="2" row="1" column="1" />
+		<skill skillName="Berserker's Haste" skillId="19254" skillLevel="2" getLevel="85" treeId="2" row="1" column="1" />
+		<skill skillName="Berserker's Might" skillId="19255" skillLevel="1" getLevel="85" treeId="2" row="1" column="2" />
+		<skill skillName="Berserker's Might" skillId="19255" skillLevel="2" getLevel="85" treeId="2" row="1" column="2" />
+		<skill skillName="Berserker's Might" skillId="19255" skillLevel="3" getLevel="85" treeId="2" row="1" column="2" />
+		<skill skillName="Berserker's Might" skillId="19255" skillLevel="4" getLevel="85" treeId="2" row="1" column="2" />
+		<skill skillName="Berserker's Elemental Attack" skillId="19256" skillLevel="1" getLevel="85" treeId="2" row="1" column="4" />
+		<skill skillName="Berserker's Elemental Attack" skillId="19256" skillLevel="2" getLevel="85" treeId="2" row="1" column="4" />
+		<skill skillName="Berserker's Elemental Attack" skillId="19256" skillLevel="3" getLevel="85" treeId="2" row="1" column="4" />
+		<skill skillName="Berserker's Elemental Attack" skillId="19256" skillLevel="4" getLevel="85" treeId="2" row="1" column="4" />
+		<skill skillName="Berserker's Craft Focus" skillId="19257" skillLevel="1" getLevel="85" treeId="2" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Berserker's Craft Focus" skillId="19257" skillLevel="2" getLevel="85" treeId="2" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Berserker's Craft Focus" skillId="19257" skillLevel="3" getLevel="85" treeId="2" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Berserker's Backfire" skillId="19258" skillLevel="1" getLevel="85" treeId="2" pointsRequired="5" row="2" column="2" />
+		<skill skillName="Berserker's Backfire" skillId="19258" skillLevel="2" getLevel="85" treeId="2" pointsRequired="5" row="2" column="2" />
+		<skill skillName="Berserker's Focus" skillId="19259" skillLevel="1" getLevel="85" treeId="2" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Berserker's Focus" skillId="19259" skillLevel="2" getLevel="85" treeId="2" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Berserker's Focus" skillId="19259" skillLevel="3" getLevel="85" treeId="2" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Berserker's Cost" skillId="19260" skillLevel="1" getLevel="85" treeId="2" pointsRequired="5" row="2" column="4" />
+		<skill skillName="Berserker's Craft Death" skillId="19261" skillLevel="1" getLevel="85" treeId="2" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19257" lvl="3" /> <!-- Berserker's Craft Focus -->
+		</skill>
+		<skill skillName="Berserker's Craft Death" skillId="19261" skillLevel="2" getLevel="85" treeId="2" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19257" lvl="3" /> <!-- Berserker's Craft Focus -->
+		</skill>
+		<skill skillName="Berserker's Craft Death" skillId="19261" skillLevel="3" getLevel="85" treeId="2" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19257" lvl="3" /> <!-- Berserker's Craft Focus -->
+		</skill>
+		<skill skillName="Berserker's Mortal" skillId="19262" skillLevel="1" getLevel="85" treeId="2" pointsRequired="10" row="3" column="2" />
+		<skill skillName="Berserker's Mortal" skillId="19262" skillLevel="2" getLevel="85" treeId="2" pointsRequired="10" row="3" column="2" />
+		<skill skillName="Berserker's Death Whisper" skillId="19263" skillLevel="1" getLevel="85" treeId="2" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19259" lvl="3" /> <!-- Berserker's Focus -->
+		</skill>
+		<skill skillName="Berserker's Death Whisper" skillId="19263" skillLevel="2" getLevel="85" treeId="2" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19259" lvl="3" /> <!-- Berserker's Focus -->
+		</skill>
+		<skill skillName="Berserker's Death Whisper" skillId="19263" skillLevel="3" getLevel="85" treeId="2" pointsRequired="10" row="3" column="3">
+			<preRequisiteSkill id="19259" lvl="3" /> <!-- Berserker's Focus -->
+		</skill>
+		<skill skillName="Berserker's Eagle" skillId="19264" skillLevel="1" getLevel="85" treeId="2" pointsRequired="10" row="3" column="4" />
+		<skill skillName="Berserker's Battle" skillId="19265" skillLevel="1" getLevel="85" treeId="2" pointsRequired="15" row="4" column="1" />
+		<skill skillName="Berserker's Battle" skillId="19265" skillLevel="2" getLevel="85" treeId="2" pointsRequired="15" row="4" column="1" />
+		<skill skillName="Berserker's Fire" skillId="19266" skillLevel="1" getLevel="85" treeId="2" pointsRequired="15" row="4" column="2" />
+		<skill skillName="Berserker's Fire" skillId="19266" skillLevel="2" getLevel="85" treeId="2" pointsRequired="15" row="4" column="2" />
+		<skill skillName="Berserker's Skill Reduction" skillId="19267" skillLevel="1" getLevel="85" treeId="2" pointsRequired="15" row="4" column="3" />
+		<skill skillName="Berserker's Blessing" skillId="19268" skillLevel="1" getLevel="85" treeId="2" pointsRequired="15" row="4" column="4" />
+		<skill skillName="Berserker's Blessing" skillId="19268" skillLevel="2" getLevel="85" treeId="2" pointsRequired="15" row="4" column="4" />
+		<skill skillName="Berserker's Binding Attack" skillId="19269" skillLevel="1" getLevel="85" treeId="2" pointsRequired="20" row="5" column="1" />
+		<skill skillName="Berserker's Binding Attack" skillId="19269" skillLevel="2" getLevel="85" treeId="2" pointsRequired="20" row="5" column="1" />
+		<skill skillName="Berserker's Divine Attack" skillId="19270" skillLevel="1" getLevel="85" treeId="2" pointsRequired="20" row="5" column="2" />
+		<skill skillName="Berserker's Divine Attack" skillId="19270" skillLevel="2" getLevel="85" treeId="2" pointsRequired="20" row="5" column="2" />
+		<skill skillName="Berserker's Expert Potion" skillId="19271" skillLevel="1" getLevel="85" treeId="2" pointsRequired="20" row="5" column="4" />
+		<skill skillName="Berserker's Expert Potion" skillId="19271" skillLevel="2" getLevel="85" treeId="2" pointsRequired="20" row="5" column="4" />
+		<skill skillName="Berserker's Combat Master" skillId="19272" skillLevel="1" getLevel="85" treeId="2" pointsRequired="25" row="6" column="2" />
+		<!-- Magician's Tree -->
+		<skill skillName="Magician's Acumen" skillId="19273" skillLevel="1" getLevel="85" treeId="3" row="1" column="1" />
+		<skill skillName="Magician's Acumen" skillId="19273" skillLevel="2" getLevel="85" treeId="3" row="1" column="1" />
+		<skill skillName="Magician's Empower" skillId="19274" skillLevel="1" getLevel="85" treeId="3" row="1" column="2" />
+		<skill skillName="Magician's Empower" skillId="19274" skillLevel="2" getLevel="85" treeId="3" row="1" column="2" />
+		<skill skillName="Magician's Empower" skillId="19274" skillLevel="3" getLevel="85" treeId="3" row="1" column="2" />
+		<skill skillName="Magician's Elemental Shot" skillId="19275" skillLevel="1" getLevel="85" treeId="3" row="1" column="4" />
+		<skill skillName="Magician's Elemental Shot" skillId="19275" skillLevel="2" getLevel="85" treeId="3" row="1" column="4" />
+		<skill skillName="Magician's Elemental Shot" skillId="19275" skillLevel="3" getLevel="85" treeId="3" row="1" column="4" />
+		<skill skillName="Magician's Wild Magic" skillId="19276" skillLevel="1" getLevel="85" treeId="3" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Magician's Wild Magic" skillId="19276" skillLevel="2" getLevel="85" treeId="3" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Magician's Wild Magic" skillId="19276" skillLevel="3" getLevel="85" treeId="3" pointsRequired="5" row="2" column="1" />
+		<skill skillName="Magician's Condition" skillId="19277" skillLevel="1" getLevel="85" treeId="3" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Magician's Condition" skillId="19277" skillLevel="2" getLevel="85" treeId="3" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Magician's Condition" skillId="19277" skillLevel="3" getLevel="85" treeId="3" pointsRequired="5" row="2" column="3" />
+		<skill skillName="Magician's Eva" skillId="19278" skillLevel="1" getLevel="85" treeId="3" pointsRequired="5" row="2" column="4" />
+		<skill skillName="Magician's Mystic" skillId="19279" skillLevel="1" getLevel="85" treeId="3" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19276" lvl="3" /> <!-- Magician's Wild Magic -->
+		</skill>
+		<skill skillName="Magician's Mystic" skillId="19279" skillLevel="2" getLevel="85" treeId="3" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19276" lvl="3" /> <!-- Magician's Wild Magic -->
+		</skill>
+		<skill skillName="Magician's Mystic" skillId="19279" skillLevel="3" getLevel="85" treeId="3" pointsRequired="10" row="3" column="1">
+			<preRequisiteSkill id="19276" lvl="3" /> <!-- Magician's Wild Magic -->
+		</skill>
+		<skill skillName="Magician's Prominence" skillId="19280" skillLevel="1" getLevel="85" treeId="3" pointsRequired="10" row="3" column="2" />
+		<skill skillName="Magician's Prominence" skillId="19280" skillLevel="2" getLevel="85" treeId="3" pointsRequired="10" row="3" column="2" />
+		<skill skillName="Magician's Sight" skillId="19281" skillLevel="1" getLevel="85" treeId="3" pointsRequired="10" row="3" column="4" />
+		<skill skillName="Magician's Protection" skillId="19282" skillLevel="1" getLevel="85" treeId="3" pointsRequired="15" row="4" column="1" />
+		<skill skillName="Magician's Protection" skillId="19282" skillLevel="2" getLevel="85" treeId="3" pointsRequired="15" row="4" column="1" />
+		<skill skillName="Magician's Water" skillId="19283" skillLevel="1" getLevel="85" treeId="3" pointsRequired="15" row="4" column="2" />
+		<skill skillName="Magician's Water" skillId="19283" skillLevel="2" getLevel="85" treeId="3" pointsRequired="15" row="4" column="2" />
+		<skill skillName="Magician's Magic Reduction" skillId="19284" skillLevel="1" getLevel="85" treeId="3" pointsRequired="15" row="4" column="3" />
+		<skill skillName="Magician's Magic Reduction" skillId="19284" skillLevel="2" getLevel="85" treeId="3" pointsRequired="15" row="4" column="3" />
+		<skill skillName="Magician's Blessing" skillId="19285" skillLevel="1" getLevel="85" treeId="3" pointsRequired="15" row="4" column="4" />
+		<skill skillName="Magician's Blessing" skillId="19285" skillLevel="2" getLevel="85" treeId="3" pointsRequired="15" row="4" column="4" />
+		<skill skillName="Magician's Binding Shot" skillId="19286" skillLevel="1" getLevel="85" treeId="3" pointsRequired="20" row="5" column="1" />
+		<skill skillName="Magician's Binding Shot" skillId="19286" skillLevel="2" getLevel="85" treeId="3" pointsRequired="20" row="5" column="1" />
+		<skill skillName="Magician's Divine Shot" skillId="19287" skillLevel="1" getLevel="85" treeId="3" pointsRequired="20" row="5" column="2" />
+		<skill skillName="Magician's Divine Shot" skillId="19287" skillLevel="2" getLevel="85" treeId="3" pointsRequired="20" row="5" column="2" />
+		<skill skillName="Magician's Expert Potion" skillId="19288" skillLevel="1" getLevel="85" treeId="3" pointsRequired="20" row="5" column="4" />
+		<skill skillName="Magician's Expert Potion" skillId="19288" skillLevel="2" getLevel="85" treeId="3" pointsRequired="20" row="5" column="4" />
+		<skill skillName="Magician's Spell Master" skillId="19289" skillLevel="1" getLevel="85" treeId="3" pointsRequired="25" row="6" column="2" />
+	</skillTree>
+</list>

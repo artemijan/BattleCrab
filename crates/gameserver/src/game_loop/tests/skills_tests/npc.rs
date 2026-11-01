@@ -29,7 +29,12 @@ fn npc_body_spoil_gate_only_for_sweeper() {
     let corpse_burst = Skill {
         id: 1155,
         target_type: TargetType::NpcBody,
-        effects: vec![SkillEffect::MagicalAttack { power: 10.0 }],
+        effects: vec![SkillEffect::MagicalDamage {
+            power: 10.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         ..Default::default()
     };
     let sweeper = Skill {

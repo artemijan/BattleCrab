@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="1800" name="Recipe: Piece Bone Breastplate" type="EtcItem">
 		<!-- For Dwarves only. Recipe for a Piece Bone Breastplate. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
@@ -186,8 +186,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1814" name="Recipe: Leather" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Leather. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
+	<item id="1814" name="Recipe: Corroded Leather" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Leather. Requires Create Item - Skill Lv. 1. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -224,8 +224,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1817" name="Recipe: Cord" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Cord. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
+	<item id="1817" name="Recipe: Corroded Cord" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Cord. Requires Create Item - Skill Lv. 2. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_white_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -322,8 +322,8 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1825" name="Recipe: Oriharukon" type="EtcItem">
-		<!-- For Dwarves only. Recipe for Oriharukon. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
+	<item id="1825" name="Recipe: Corroded Oriharukon" type="EtcItem">
+		<!-- For Dwarves only. Recipe for Corroded Oriharukon. Requires Create Item - Skill Lv. 4. The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_blue_i00" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
@@ -384,9 +384,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2040" level="1" /> <!-- Scroll of Escape: Clan Hall -->
 		</skills>
@@ -403,9 +403,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2041" level="1" /> <!-- Scroll of Escape: Castle -->
 		</skills>
@@ -654,8 +654,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="200" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -666,8 +666,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="240" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -678,8 +678,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="240" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -690,8 +690,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="280" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -702,8 +702,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="1800" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -714,8 +714,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="2100" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -726,8 +726,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="2100" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -738,8 +738,8 @@
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="10" />
 		<set name="price" val="2550" />
-		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
+		<set name="is_questitem" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="is_depositable" val="false" />
 	</item>
@@ -834,8 +834,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="handler" val="Maps" />
 	</item>
-	<item id="1864" name="Stem" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1864" name="Corroded Stem" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_branch_gold_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -845,8 +845,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1865" name="Varnish" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1865" name="Corroded Varnish" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_pouch_yellow_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -856,8 +856,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1866" name="Suede" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1866" name="Corroded Suede" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_suede_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -867,8 +867,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1867" name="Animal Skin" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1867" name="Corroded Animal Skin" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_leather_brown_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -878,8 +878,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1868" name="Thread" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1868" name="Corroded Thread" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_skein_white_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -889,8 +889,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1869" name="Iron Ore" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1869" name="Corroded Iron Ore" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_lump_gray_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -900,8 +900,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1870" name="Coal" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1870" name="Corroded Coal" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_coal_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -911,8 +911,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1871" name="Charcoal" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1871" name="Corroded Charcoal" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_charcoal_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -922,8 +922,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1872" name="Animal Bone" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1872" name="Corroded Animal Bone Fragment" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_piece_bone_white_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -933,8 +933,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1873" name="Silver Nugget" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1873" name="Corroded Silver Nugget" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_silver_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -944,8 +944,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1874" name="Oriharukon Ore" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1874" name="Corroded Oriharukon Ore" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_oriharukon_ore_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -955,8 +955,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1875" name="Stone of Purity" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1875" name="Corroded Stone of Purity" type="EtcItem">
+		<!-- No longer usable due to corrosion. Sell at a store or trade in for new materials at the Aden Reconstruction Society. -->
 		<set name="icon" val="icon.etc_crystal_ball_white_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -966,8 +966,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1876" name="Mithril Ore" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1876" name="Corroded Mithril Ore" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_mithril_ore_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -977,8 +977,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1877" name="Adamantite Nugget" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1877" name="Corroded Adamantite Nugget" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_adamantite_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -988,8 +988,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1878" name="Durable Braid" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1878" name="Corroded Durable Braid" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_braided_hemp_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -999,8 +999,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1879" name="Cokes" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1879" name="Corroded Cokes" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_oil_pot_black_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1010,8 +1010,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1880" name="Steel" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1880" name="Corroded Steel" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_lump_black_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1021,8 +1021,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1881" name="Coarse Bone Powder" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1881" name="Corroded Coarse Bone Powder" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_powder_white_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1032,8 +1032,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1882" name="Leather" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1882" name="Corroded Leather" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_leather_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1043,8 +1043,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1883" name="Steel Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1883" name="Corroded Steel Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_mold_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1054,8 +1054,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1884" name="Cord" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1884" name="Corroded Cord" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_skein_gray_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1065,8 +1065,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1885" name="High-grade Suede" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1885" name="Corroded High-grade Suede" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_pouch_yellow_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1076,8 +1076,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1886" name="Silver Mold" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1886" name="Corroded Silver Mold" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_silver_mold_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1087,8 +1087,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1887" name="Varnish of Purity" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1887" name="Corroded Varnish of Purity" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_potion_clear_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1098,8 +1098,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1888" name="Synthetic Cokes" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1888" name="Corroded Synthetic Cokes" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_synthetic_cokes_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1109,8 +1109,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1889" name="Synthetic Braid" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1889" name="Corroded Synthetic Braid" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_compound_braid_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1120,8 +1120,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1890" name="Mithril Alloy" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1890" name="Corroded Mithril Alloy" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_lump_white_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1131,8 +1131,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1891" name="Artisan's Frame" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1891" name="Corroded Artisan's Frame" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_artisans_frame_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1142,8 +1142,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1892" name="Blacksmith' Frame" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1892" name="Corroded Blacksmith' Frame" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_blacksmiths_frame_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1153,8 +1153,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1893" name="Oriharukon" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1893" name="Corroded Oriharukon" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_oriharukon_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1164,8 +1164,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1894" name="Crafted Leather" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1894" name="Corroded Quality Leather" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_crafted_leather_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />
@@ -1175,8 +1175,8 @@
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="1895" name="Metallic Fiber" type="EtcItem">
-		<!-- Material used to make Dwarven items. Can be sold in any shop. -->
+	<item id="1895" name="Corroded Metallic Fiber" type="EtcItem">
+		<!-- Corroded ingredient. Sell it to a store or trade it in through the Aden Reconstruction Society for a new ingredient. -->
 		<set name="icon" val="icon.etc_metallic_fiber_i00" />
 		<set name="etcitem_type" val="MATERIAL" />
 		<set name="immediate_effect" val="true" />

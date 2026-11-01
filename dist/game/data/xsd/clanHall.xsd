@@ -48,7 +48,7 @@
 									<xs:attribute name="y" type="xs:integer" use="required" />
 									<xs:attribute name="z" type="xs:integer" use="required" />
 								</xs:complexType>
-							</xs:element>							
+							</xs:element>
 						</xs:sequence>
 						<xs:attribute type="xs:short" name="id" use="required" />
 						<xs:attribute type="xs:string" name="name" />
@@ -70,7 +70,7 @@
 								<xs:restriction base="xs:token">
 									<xs:enumeration value="AUCTIONABLE" />
 									<xs:enumeration value="SIEGEABLE" />
-									<xs:enumeration value="INSTANCED" />
+									<xs:enumeration value="OTHER" />
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:attribute>

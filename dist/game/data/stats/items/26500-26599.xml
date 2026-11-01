@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="26500" name="Cat's Eye" additionalName="Lv. 4" type="Armor">
 		<!-- Damage Reflect Resistance +40%. Effect does not stack with additional jewels of the same type. -->
@@ -15,7 +15,7 @@
 		</skills>
 	</item>
 	<item id="26501" name="Cat's Eye" additionalName="Lv. 5" type="Armor">
-		<!-- Damage Reflect Resistance +50%. Can remove invincibility. Effect does not stack with additional jewels of the same type. -->
+		<!-- Damage Reflect Resistance +50%. Adds 10 second invincibility skill. Effect does not stack with additional jewels of the same type. -->
 		<set name="icon" val="BranchIcon.Icon.etc_bm_jewel_catseye_i00" />
 		<set name="bodypart" val="brooch_jewel" />
 		<set name="default_action" val="EQUIP" />
@@ -84,7 +84,7 @@
 		</skills>
 	</item>
 	<item id="26506" name="Amethyst" additionalName="Lv. 5" type="Armor">
-		<!-- PvP Damage + 15%. Can remove invincibility and debuff invincibility. Effect does not stack with additional jewels of the same type. -->
+		<!-- PvP Damage +15%. Can remove invincibility and debuff invincibility. Effect does not stack with additional jewels of the same type. -->
 		<set name="icon" val="BranchIcon.Icon.etc_bm_jewel_amethyst_i00" />
 		<set name="bodypart" val="brooch_jewel" />
 		<set name="default_action" val="EQUIP" />
@@ -125,13 +125,13 @@
 		</capsuled_items>
 	</item>
 	<item id="26509" name="Summon Scroll: Pomona" additionalName="Event" type="EtcItem">
-		<!-- Scroll for summoning Pomona once. For 30 min., obtained XP +10%, Max HP/MP/CP +30%, P. Def./M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption - 15%. Cannot use with the Art of Seduction buff. -->
+		<!-- Scroll for summoning Pomona once. For 30 min., obtained XP +10%, Max HP/ MP/ CP +30%, P. Def./ M. Def. +30%, Speed +20, P. Atk. +10%, and M. Atk. +20%. Skill MP Consumption -15%. Cannot use with the Art of Seduction buff. -->
 		<set name="icon" val="icon.etc_star_scroll_baekisung" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="material" val="PAPER" />
 	</item>
@@ -142,18 +142,22 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<set name="material" val="LIQUID" />
+		<set name="immediate_effect" val="true" />
+		<conditions>
+			<player MaximumVitalityPoints="140000" />
+		</conditions>
 		<skills>
 			<skill id="27445" level="1" /> <!-- Attendance Vitality Tonic -->
 		</skills>
 	</item>
 	<item id="26511" name="Anakim Set Pack" type="EtcItem">
-		<!-- Double-click to obtain 1 Anakim Outfit Appearance Stone (30-day) and 1 Agathion - Anakim Holy Barrier (30-day). The Appearance Stone and bracelet cannot be dropped or exchanged. -->
+		<!-- Double-click to obtain 1 Anakim Outfit Appearance Stone (30-day) and 1 Agathion Charm - Anakim Holy Barrier (30-day). The Appearance Stone and bracelet cannot be dropped or exchanged. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -179,7 +183,7 @@
 		</capsuled_items>
 	</item>
 	<item id="26513" name="Lv. 5 Legendary CHA Dye Pack" type="EtcItem">
-		<!-- Double-click to get 1 of the following Lv. 5 Legendary Dyes: STR/DEX/CON/INT/WIT/MEN (CHA). -->
+		<!-- Double-click to get 1 of the following Lv. 5 Legendary Dyes: STR/ DEX/ CON/ INT/ WIT/ MEN (CHA). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -197,7 +201,7 @@
 		</capsuled_items>
 	</item>
 	<item id="26514" name="Lv. 5 Legendary LUC Dye Pack" type="EtcItem">
-		<!-- Double-click to get 1 of the following Lv. 5 Legendary Dyes: STR/DEX/CON/INT/WIT/MEN (LUC). -->
+		<!-- Double-click to get 1 of the following Lv. 5 Legendary Dyes: STR/ DEX/ CON/ INT/ WIT/ MEN (LUC). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -215,7 +219,7 @@
 		</capsuled_items>
 	</item>
 	<item id="26515" name="Lv. 3 Legendary CHA Dye Pack" type="EtcItem">
-		<!-- Double-click to get 1 of the following Lv. 3 Legendary Dyes: STR/DEX/CON/INT/WIT/MEN (CHA). -->
+		<!-- Double-click to get 1 of the following Lv. 3 Legendary Dyes: STR/ DEX/ CON/ INT/ WIT/ MEN (CHA). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -233,7 +237,7 @@
 		</capsuled_items>
 	</item>
 	<item id="26516" name="Lv. 3 Legendary LUC Dye Pack" type="EtcItem">
-		<!-- Double-click to get 1 of the following Lv. 3 Legendary Dyes: STR/DEX/CON/INT/WIT/MEN (LUC). -->
+		<!-- Double-click to get 1 of the following Lv. 3 Legendary Dyes: STR/ DEX/ CON/ INT/ WIT/ MEN (LUC). -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -283,8 +287,8 @@
 		<!-- Changes the appearance of the entire armor into that of a Pirate Captain. Can use Pirate Captain skill after appearance modification. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Captain. Appearance is restored through the use of a Restoration Stone. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="STEEL" />
 	</item>
@@ -292,8 +296,8 @@
 		<!-- Changes the appearance of the entire armor into that of a Pirate Crew member. Can use Pirate Crew skill after appearance modification. Can be used as a top or a one piece. It changes everything, making the appearance of all armor into that of a Pirate Crew member. Appearance is restored through the use of a Restoration Stone. -->
 		<set name="icon" val="BranchSys3.icon1.g_scrl_change_chest" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="STEEL" />
 	</item>
@@ -310,7 +314,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26523" name="Rabbit Ears" additionalName="DEX + Critical Rate" type="Armor">
@@ -326,7 +330,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26524" name="Rabbit Ears" additionalName="CON + Critical Rate" type="Armor">
@@ -342,7 +346,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26525" name="Rabbit Ears" additionalName="MEN + Critical Rate" type="Armor">
@@ -358,7 +362,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26526" name="Rabbit Ears" additionalName="INT + Critical Rate" type="Armor">
@@ -374,7 +378,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26527" name="Rabbit Ears" additionalName="WIT + Critical Rate" type="Armor">
@@ -390,7 +394,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26528" name="Rabbit Ears" additionalName="STR + Critical Damage" type="Armor">
@@ -694,7 +698,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26547" name="Rabbit Ears" additionalName="DEX + Evasion" type="Armor">
@@ -710,7 +714,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26548" name="Rabbit Ears" additionalName="CON + Evasion" type="Armor">
@@ -726,7 +730,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26549" name="Rabbit Ears" additionalName="MEN + Evasion" type="Armor">
@@ -742,7 +746,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26550" name="Rabbit Ears" additionalName="INT + Evasion" type="Armor">
@@ -758,7 +762,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26551" name="Rabbit Ears" additionalName="WIT + Evasion" type="Armor">
@@ -774,7 +778,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26552" name="Rabbit Ears" additionalName="STR + P. Atk." type="Armor">
@@ -982,7 +986,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26565" name="Rabbit Ears" additionalName="DEX + Accuracy" type="Armor">
@@ -998,7 +1002,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26566" name="Rabbit Ears" additionalName="CON + Accuracy" type="Armor">
@@ -1014,7 +1018,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26567" name="Rabbit Ears" additionalName="MEN + Accuracy" type="Armor">
@@ -1030,7 +1034,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26568" name="Rabbit Ears" additionalName="INT + Accuracy" type="Armor">
@@ -1046,7 +1050,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26569" name="Rabbit Ears" additionalName="WIT + Accuracy" type="Armor">
@@ -1062,7 +1066,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12896" level="1" /> <!-- Demon Circlet - P. Accuracy -->
+			<skill id="12896" level="1" /> <!-- Demon Circlet - Accuracy -->
 		</skills>
 	</item>
 	<item id="26570" name="Raccoon Ears" additionalName="STR + Critical Rate" type="Armor">
@@ -1078,7 +1082,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26571" name="Raccoon Ears" additionalName="DEX + Critical Rate" type="Armor">
@@ -1094,7 +1098,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26572" name="Raccoon Ears" additionalName="CON + Critical Rate" type="Armor">
@@ -1110,7 +1114,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26573" name="Raccoon Ears" additionalName="MEN + Critical Rate" type="Armor">
@@ -1126,7 +1130,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26574" name="Raccoon Ears" additionalName="INT + Critical Rate" type="Armor">
@@ -1142,7 +1146,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26575" name="Raccoon Ears" additionalName="WIT + Critical Rate" type="Armor">
@@ -1158,7 +1162,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12889" level="1" /> <!-- Romantic Chapeau - P. Critical Rate -->
+			<skill id="12889" level="1" /> <!-- Romantic Chapeau - Critical Rate -->
 		</skills>
 	</item>
 	<item id="26576" name="Raccoon Ears" additionalName="STR + Critical Damage" type="Armor">
@@ -1462,7 +1466,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12883" level="1" /> <!-- Rabbit Ears - STR -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26595" name="Raccoon Ears" additionalName="DEX + Evasion" type="Armor">
@@ -1478,7 +1482,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12884" level="1" /> <!-- Rabbit Ears - DEX -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26596" name="Raccoon Ears" additionalName="CON + Evasion" type="Armor">
@@ -1494,7 +1498,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12885" level="1" /> <!-- Raccoon Ears: CON -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26597" name="Raccoon Ears" additionalName="MEN + Evasion" type="Armor">
@@ -1510,7 +1514,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12886" level="1" /> <!-- Raccoon Ears: MEN -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26598" name="Raccoon Ears" additionalName="INT + Evasion" type="Armor">
@@ -1526,7 +1530,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12887" level="1" /> <!-- Cat Ears: INT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 	<item id="26599" name="Raccoon Ears" additionalName="WIT + Evasion" type="Armor">
@@ -1542,7 +1546,7 @@
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="12888" level="1" /> <!-- Cat Ears: WIT -->
-			<skill id="12893" level="1" /> <!-- Angel Circlet - P. Evasion -->
+			<skill id="12893" level="1" /> <!-- Angel Circlet - Evasion -->
 		</skills>
 	</item>
 </list>

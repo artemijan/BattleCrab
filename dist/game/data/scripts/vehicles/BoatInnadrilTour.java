@@ -19,11 +19,11 @@ package vehicles;
 import java.util.logging.Logger;
 
 import org.l2jmobius.commons.threads.ThreadPool;
-import org.l2jmobius.gameserver.enums.ChatType;
-import org.l2jmobius.gameserver.instancemanager.BoatManager;
-import org.l2jmobius.gameserver.model.VehiclePathPoint;
+import org.l2jmobius.gameserver.managers.BoatManager;
+import org.l2jmobius.gameserver.model.actor.holders.creature.VehiclePathPoint;
 import org.l2jmobius.gameserver.model.actor.instance.Boat;
 import org.l2jmobius.gameserver.network.SystemMessageId;
+import org.l2jmobius.gameserver.network.enums.ChatType;
 import org.l2jmobius.gameserver.network.serverpackets.CreatureSay;
 import org.l2jmobius.gameserver.network.serverpackets.PlaySound;
 
@@ -94,17 +94,17 @@ public class BoatInnadrilTour implements Runnable
 	{
 		_boat = boat;
 		
-		ARRIVED_AT_INNADRIL = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_HAS_ARRIVED_IT_WILL_ANCHOR_FOR_TEN_MINUTES);
-		LEAVE_INNADRIL5 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_LEAVE_IN_FIVE_MINUTES);
-		LEAVE_INNADRIL1 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_LEAVE_IN_ONE_MINUTE);
+		ARRIVED_AT_INNADRIL = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_HAS_ARRIVED_IT_WILL_ANCHOR_FOR_TEN_MIN);
+		LEAVE_INNADRIL5 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_LEAVE_IN_FIVE_MIN);
+		LEAVE_INNADRIL1 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_LEAVE_IN_ONE_MIN);
 		LEAVE_INNADRIL0 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_BE_LEAVING_SOON);
 		LEAVING_INNADRIL = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_IS_LEAVING);
 		
-		ARRIVAL20 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_20_MINUTES);
-		ARRIVAL15 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_15_MINUTES);
-		ARRIVAL10 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_10_MINUTES);
-		ARRIVAL5 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_5_MINUTES);
-		ARRIVAL1 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_1_MINUTE);
+		ARRIVAL20 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_20_MIN);
+		ARRIVAL15 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_15_MIN);
+		ARRIVAL10 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_10_MIN);
+		ARRIVAL5 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_5_MIN);
+		ARRIVAL1 = new CreatureSay(ChatType.BOAT, 801, SystemMessageId.THE_INNADRIL_PLEASURE_BOAT_WILL_ARRIVE_IN_APPROXIMATELY_1_MIN);
 		
 		INNADRIL_SOUND = new PlaySound(0, "itemsound.ship_arrival_departure", 1, _boat.getObjectId(), DOCK.getX(), DOCK.getY(), DOCK.getZ());
 	}
@@ -178,6 +178,7 @@ public class BoatInnadrilTour implements Runnable
 					break;
 				}
 			}
+			
 			_cycle++;
 			if (_cycle > 9)
 			{

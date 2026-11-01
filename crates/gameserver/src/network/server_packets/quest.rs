@@ -63,6 +63,7 @@ pub fn play_sound_at(sound_file: &str, object_id: i32, x: i32, y: i32, z: i32) -
 pub mod quest_sounds {
     pub const ACCEPT: &str = "ItemSound.quest_accept";
     pub const MIDDLE: &str = "ItemSound.quest_middle";
+    pub const TUTORIAL: &str = "ItemSound.quest_tutorial";
     pub const FINISH: &str = "ItemSound.quest_finish";
     pub const ITEMGET: &str = "ItemSound.quest_itemget";
     pub const JACKPOT: &str = "ItemSound.quest_jackpot";
@@ -105,10 +106,10 @@ pub fn tutorial_show_html(html: &str) -> Vec<u8> {
 /// a leading mark-type byte before the mark id (a later-chronicle field the
 /// Mobius build keeps; the paired client packet 0x87 reads the same layout) —
 /// Q255 always sends type 0.
-pub fn tutorial_show_question_mark(mark_id: i32) -> Vec<u8> {
+pub fn tutorial_show_question_mark(mark_id: i32, mark_type: u8) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::TUTORIAL_SHOW_QUESTION_MARK);
-    w.write_u8(0); // mark type
+    w.write_u8(mark_type);
     w.write_i32(mark_id);
     w.into_bytes()
 }
@@ -117,6 +118,82 @@ pub fn tutorial_show_question_mark(mark_id: i32) -> Vec<u8> {
 pub fn tutorial_close_html() -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::TUTORIAL_CLOSE_HTML);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExShowUsm`: the client plays USM video
+/// `video_id` (`ExShowUsm.SECOND_TRANSFER_QUEST` is 4).
+pub fn ex_show_usm(video_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_USM);
+    w.write_i32(video_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExChangeToAwakenedClass`.
+pub fn ex_change_to_awakened_class(class_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_CHANGE_TO_AWAKENED_CLASS);
+    w.write_i32(class_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExSendUIEvent(player, hide, countUp, startTime,
+/// endTime, npcString)`: the times are seconds, split into minutes and
+/// seconds on the wire, and travel as strings.
+pub fn ex_send_ui_event(
+    object_id: i32,
+    hide: bool,
+    count_up: bool,
+    start_time: i32,
+    end_time: i32,
+    npc_string_id: i32,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SEND_UI_EVENT);
+    w.write_i32(object_id);
+    w.write_i32(i32::from(hide));
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_string(&i32::from(count_up).to_string());
+    w.write_string(&(start_time / 60).to_string());
+    w.write_string(&(start_time % 60).to_string());
+    w.write_string(&(end_time / 60).to_string());
+    w.write_string(&(end_time % 60).to_string());
+    w.write_i32(npc_string_id);
+    w.into_bytes()
+}
+
+/// `new PlaySound(3, soundFile, 0, 0, 0, 0, 0)` — the NPC voice-line shape
+/// the Ertheia quests use (`Npcdialog1.*`).
+pub fn play_voice(sound_file: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLAY_SOUND);
+    w.write_i32(3);
+    w.write_string(sound_file);
+    for _ in 0..6 {
+        w.write_i32(0);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/ExQuestNpcLogList`: per entry the id (an NPC id
+/// plus 1,000,000, or an `NpcStringId`), whether it is an `NpcStringId`, and
+/// the count.
+pub fn ex_quest_npc_log_list(quest_id: i32, entries: &[(i32, bool, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_QUEST_NPC_LOG_LIST);
+    w.write_i32(quest_id);
+    w.write_u8(entries.len() as u8);
+    for &(id, is_npc_string, count) in entries {
+        w.write_i32(if is_npc_string { id } else { id + 1_000_000 });
+        w.write_u8(u8::from(is_npc_string));
+        w.write_i32(count);
+    }
     w.into_bytes()
 }
 

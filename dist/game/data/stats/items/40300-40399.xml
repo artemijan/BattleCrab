@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="40300" name="Freya's Recovery Potion" type="EtcItem">
 		<!-- Restores 3500 HP. If HP is full, CP is restored. No cooldown. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.freya_potion" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="ItemSkills" />
@@ -73,7 +73,7 @@
 		</skills>
 	</item>
 	<item id="40306" name="Expertise Rune Pack" additionalName="R99-grade" type="EtcItem">
-		<!-- Double-click to obtain an Expertise Rune Pack (R99-grade) (30-day). -->
+		<!-- Double-click to obtain a Dual Expertise Rune Pack (R99-grade) (30-day). Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_treasure_box_i06" />
 		<set name="weight" val="10" />
 		<set name="is_tradable" val="false" />
@@ -89,7 +89,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40307" name="Dynamic Dual Master Gift Pack" type="EtcItem">
-		<!-- Double-click to obtain an Expertise Rune Pack (R99-grade) (30-day) and a Mysterious Friend Summon Bracelet Pack (30-day). -->
+		<!-- Double-click to obtain a Dual Expertise Rune Pack (R99-grade) (30-day) and a Mysterious Friend Summon Bracelet Pack (30-day). -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="weight" val="10" />
 		<set name="is_tradable" val="false" />
@@ -105,7 +105,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40308" name="Dynamic Dual Knight Gift Pack" type="EtcItem">
-		<!-- Double-click to obtain an Expertise Rune Pack (R99-grade) (30-day), a Mysterious Friend Summon Bracelet Pack (30-day), and 2 Ertheia's Rare Accessory Packs. -->
+		<!-- Double-click to obtain a Dual Expertise Rune Pack (R99-grade) (30-day), a Mysterious Friend Summon Bracelet Pack (30-day), and 2 Ertheia's Rare Accessory Packs. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="weight" val="10" />
 		<set name="is_tradable" val="false" />
@@ -132,11 +132,11 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
-			<skill id="18167" level="1" /> <!-- Scroll of Escape: Ivory Tower -->
+			<skill id="18167" level="1" /> <!-- Scroll of Escape: Dwarven Village -->
 		</skills>
 	</item>
 	<item id="40310" name="Appearance Stone: Santa Hat" type="EtcItem">
@@ -173,12 +173,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="220" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">20</stat>
 		</stats>
@@ -442,7 +442,7 @@
 		<set name="material" val="WOOD" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="18048" level="1" /> <!-- Hair Accessory: LUC -->
+			<skill id="18048" level="1" /> <!-- Hair Accessory (LUC) -->
 		</skills>
 	</item>
 	<item id="40329" name="Santa Hat" additionalName="CHA" type="Armor">
@@ -459,7 +459,7 @@
 		<set name="material" val="WOOD" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="18049" level="1" /> <!-- Hair Accessory: CHA -->
+			<skill id="18049" level="1" /> <!-- Hair Accessory (CHA) -->
 		</skills>
 	</item>
 	<item id="40330" name="Appearance Stone: Santa Suit" type="EtcItem">
@@ -491,7 +491,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40332" name="Mother Tree's Branch of Fortune" additionalName="90-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. PvP damage increased. -->
+		<!-- <Special Option>. Casting Spd. +15%. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_worldtrees_branch_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -511,13 +511,13 @@
 			<stat type="mAtk">167</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40333" name="Foundation Staff of Evil Spirits of Fortune" additionalName="90-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 6% chance of inflicting Curse Poison on target when using a magical skill on them. -->
+		<!-- <Special Option>. Has a 6% chance of inflicting Curse Poison on target when using a magical skill on them. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -537,13 +537,13 @@
 			<stat type="mAtk">145</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40334" name="Inferno Staff of Fortune" additionalName="90-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. -->
+		<!-- <Special Option>. Casting Spd. +15%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_inferno_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -563,7 +563,7 @@
 			<stat type="mAtk">111</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -588,13 +588,13 @@
 			<stat type="mAtk">79</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40336" name="Imperial Staff of Fortune" additionalName="90-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. + 60. PvP damage increased. -->
+		<!-- <Special Option>. M. Atk. +60. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_imperial_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -614,13 +614,13 @@
 			<stat type="mAtk">193</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40337" name="Dynasty Staff of Fortune" additionalName="90-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. PvP damage increased. -->
+		<!-- <Special Option>. Casting Spd. +15%. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -640,7 +640,7 @@
 			<stat type="mAtk">222</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -744,7 +744,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40343" name="Mother Tree's Branch of Fortune" additionalName="30-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. PvP damage increased. -->
+		<!-- <Special Option>. Casting Spd. +15%. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_worldtrees_branch_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -764,13 +764,13 @@
 			<stat type="mAtk">167</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40344" name="Foundation Staff of Evil Spirits of Fortune" additionalName="30-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 6% chance of inflicting Curse Poison on target when using a magical skill on them. -->
+		<!-- <Special Option>. Has a 6% chance of inflicting Curse Poison on target when using a magical skill on them. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -790,13 +790,13 @@
 			<stat type="mAtk">145</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40345" name="Inferno Staff of Fortune" additionalName="30-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. -->
+		<!-- <Special Option>. Casting Spd. +15%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_inferno_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -816,7 +816,7 @@
 			<stat type="mAtk">111</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -841,13 +841,13 @@
 			<stat type="mAtk">79</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40347" name="Imperial Staff of Fortune" additionalName="30-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. + 60. PvP damage increased. -->
+		<!-- <Special Option>. M. Atk. +60. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_imperial_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -867,13 +867,13 @@
 			<stat type="mAtk">193</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40348" name="Dynasty Staff of Fortune" additionalName="30-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. PvP damage increased. -->
+		<!-- <Special Option>. Casting Spd. +15%. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -893,7 +893,7 @@
 			<stat type="mAtk">222</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -971,7 +971,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40353" name="Mother Tree's Branch of Fortune" additionalName="10-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. PvP damage increased. -->
+		<!-- <Special Option>. Casting Spd. +15%. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_worldtrees_branch_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -991,13 +991,13 @@
 			<stat type="mAtk">167</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40354" name="Foundation Staff of Evil Spirits of Fortune" additionalName="10-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Has a 6% chance of inflicting Curse Poison on target when using a magical skill on them. -->
+		<!-- <Special Option>. Has a 6% chance of inflicting Curse Poison on target when using a magical skill on them. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_staff_of_evil_sprit_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1017,13 +1017,13 @@
 			<stat type="mAtk">145</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40355" name="Inferno Staff of Fortune" additionalName="10-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. -->
+		<!-- <Special Option>. Casting Spd. +15%. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_inferno_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1043,7 +1043,7 @@
 			<stat type="mAtk">111</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1068,13 +1068,13 @@
 			<stat type="mAtk">79</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40357" name="Imperial Staff of Fortune" additionalName="10-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. M. Atk. + 60. PvP damage increased. -->
+		<!-- <Special Option>. M. Atk. +60. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_imperial_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1094,13 +1094,13 @@
 			<stat type="mAtk">193</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
 	</item>
 	<item id="40358" name="Dynasty Staff of Fortune" additionalName="10-day" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Casting Spd. + 15%. PvP damage increased. -->
+		<!-- <Special Option>. Casting Spd. +15%. PvP damage increased. No Soul Crystal option. -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_staff_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1120,7 +1120,7 @@
 			<stat type="mAtk">222</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="pAtkRange">40</stat>
 			<stat type="randomDamage">20</stat>
 		</stats>
@@ -1166,7 +1166,7 @@
 		</capsuled_items>
 	</item>
 	<item id="40361" name="Agathion - Joon Pack" additionalName="30-day" type="EtcItem">
-		<!-- Double-click to obtain an Agathion - Joon (30-day). Cannot be shared once open. -->
+		<!-- Double-click to obtain an Agathion - Joon Charm (30-day). Cannot be shared once open. -->
 		<set name="icon" val="icon.lucky_bag_box_i00" />
 		<set name="weight" val="10" />
 		<set name="is_stackable" val="true" />
@@ -1179,11 +1179,11 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
-			<item id="48133" min="1" max="1" chance="100" /> <!-- Agathion Joon Charm (30-day) -->
+			<item id="48133" min="1" max="1" chance="100" /> <!-- Agathion - Joon Charm (30-day) -->
 		</capsuled_items>
 	</item>
 	<item id="40362" name="Agathion - Joon (30-day)" type="Armor">
-		<!-- Can summon Joon when equipped. 30-day. Cannot be used in the Olympiad. <Active Skill>. 1. Joon's Magic: For 30 min., XP/SP Gain +10%, Attack Attribute +100, P. Atk. +20%, M. Atk. +30%, Atk./Casting Spd. +10%, P./M. Accuracy +4, Speed +10, Max. HP/MP/CP +10%, P./M. Def. +10%, and Skill MP Consumption - 10%. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Buff remains after death. <Active Skill>. 2. Joon's Resurrection: can use Blessed Resurrection. Cooldown is 3 hr. -->
+		<!-- Can summon Joon when equipped. 30-day. Cannot be used in the Olympiad. <Active Skill>. 1. Joon's Magic: For 30 min., XP/ SP Gain +10%, Attack Attribute +100, P. Atk. +20%, M. Atk. +30%, Atk./ Casting Spd. +10%, P./ M. Accuracy +4, Speed +10, Max. HP/ MP/ CP +10%, P./ M. Def. +10%, and Skill MP Consumption -10%. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Buff remains after death. <Active Skill>. 2. Joon's Resurrection: can use Blessed Resurrection. Cooldown is 3 hr. -->
 		<set name="icon" val="icon.pi_high_agathion_bracelet_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />

@@ -49,6 +49,9 @@ fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
+        soul_max_consume_count: 0,
+        is_triggered_skill: false,
+        charge_consume_count: 0,
         abnormal_visuals: Vec::new(),
         toggle_group_id: 0,
         affect_scope: AffectScope::Single,
@@ -89,6 +92,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
     refresh_zone_masks(world);
 }
@@ -98,7 +102,12 @@ fn zone_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     // A flat 50-damage burn, and a stat buff with an abnormal type.
     world.data.skill_data.insert_for_test(zone_skill(
         BURN_ID,
-        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        vec![SkillEffect::MagicalDamage {
+            power: 50.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        }],
         "",
     ));
     world.data.skill_data.insert_for_test(zone_skill(

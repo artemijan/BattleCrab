@@ -14,6 +14,9 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // with it off, Java moves them to the instance's exit location instead so
     // they do not wake up inside a world that no longer exists.
     crate::game_loop::space::instances::on_player_logout(world, player_object_id);
+    // `Player.deleteMe`: `removeFromZones`, then the timer-holder loop.
+    crate::game_loop::space::zones::leave_script_zones(world, player_object_id);
+    crate::game_loop::quests::timers::stop_timer_holders(world, player_object_id);
     // deleteMe → leaveParty (DISCONNECTED semantics: leadership transfers)
     // + pending party/friend request cleanup on both sides.
     crate::game_loop::party::on_player_leave_world(world, player_object_id);

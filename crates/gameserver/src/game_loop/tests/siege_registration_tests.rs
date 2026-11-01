@@ -830,6 +830,7 @@ fn a_headquarters_needs_an_hq_zone() {
             swamp: None,
             condition: None,
             mother_tree: None,
+            sayune_map_id: -1,
         }
     }
 

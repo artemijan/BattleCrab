@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
-	<item id="28200" name="Transcendent Eternal Breatplate" additionalName="Defense Type / Heavy Armor / Lv. 4" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def.Sigel Knights only. -->
+	<item id="28200" name="Transcendent Eternal Breastplate" additionalName="Defense Type / Heavy Armor / Lv. 4" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Sigel Knights only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -17,15 +17,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="4" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">479</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="4" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28201" name="Transcendent Eternal Gaiters" additionalName="Defense Type / Heavy Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Sigel Knights only. -->
@@ -44,13 +44,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">299</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="4" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28202" name="Transcendent Eternal Gauntlets" additionalName="Defense Type / Heavy Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Sigel Knights only. -->
@@ -68,13 +68,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">120</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="4" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28203" name="Transcendent Eternal Boots" additionalName="Defense Type / Heavy Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Sigel Knights only. -->
@@ -92,13 +92,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">120</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="4" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28204" name="Transcendent Eternal Leather Helmet" additionalName="Enchant Type / Light Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -115,16 +115,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">180</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="4" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28205" name="Transcendent Eternal Leather Armor" additionalName="Enchant Type / Light Armor / Lv. 4" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -140,16 +140,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="4" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">383</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="4" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28206" name="Transcendent Eternal Leather Leggings" additionalName="Enchant Type / Light Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -168,14 +168,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">239</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="4" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28207" name="Transcendent Eternal Leather Gloves" additionalName="Enchant Type / Light Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -193,13 +193,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">120</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="4" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28208" name="Transcendent Eternal Leather Boots" additionalName="Enchant Type / Light Armor / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -217,13 +217,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">120</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="4" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28209" name="Transcendent Eternal Circlet" additionalName="Recovery Type / Robe / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Aeore Healers only. -->
@@ -240,16 +240,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">180</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="4" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28210" name="Transcendent Eternal Tunic" additionalName="Recovery Type / Robe / Lv. 4" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -265,17 +265,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="4" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">263</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="4" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28211" name="Transcendent Eternal Stockings" additionalName="Recovery Type / Robe / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Aeore Healers only. -->
@@ -294,15 +294,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">164</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="4" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28212" name="Transcendent Eternal Gloves" additionalName="Recovery Type / Robe / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Aeore Healers only. -->
@@ -320,13 +320,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">120</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="4" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28213" name="Transcendent Eternal Shoes" additionalName="Recovery Type / Robe / Lv. 4" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.3% and M. Atk. by 2.6%. Aeore Healers only. -->
@@ -344,13 +344,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="4" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">120</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="4" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28214" name="Transcendent Eternal Helmet" additionalName="Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -367,16 +367,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
-	<item id="28215" name="Transcendent Eternal Breatplate" additionalName="Heavy Armor / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an attack or defense type set option. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
+	<item id="28215" name="Transcendent Eternal Breastplate" additionalName="Heavy Armor / Lv. 5" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an attack or defense type set option. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -392,15 +392,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">488</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28216" name="Transcendent Eternal Gaiters" additionalName="Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -419,13 +419,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">305</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28217" name="Transcendent Eternal Gauntlets" additionalName="Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -443,13 +443,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28218" name="Transcendent Eternal Boots" additionalName="Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -467,13 +467,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28219" name="Transcendent Eternal Leather Helmet" additionalName="Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -490,16 +490,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28220" name="Transcendent Eternal Leather Armor" additionalName="Light Armor / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an assassin or enchant type set option. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an assassin or enchant type set option. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -515,16 +515,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">390</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28221" name="Transcendent Eternal Leather Leggings" additionalName="Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -543,14 +543,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">244</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28222" name="Transcendent Eternal Leather Gloves" additionalName="Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -568,13 +568,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28223" name="Transcendent Eternal Leather Boots" additionalName="Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -592,13 +592,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28224" name="Transcendent Eternal Circlet" additionalName="Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -615,16 +615,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28225" name="Transcendent Eternal Tunic" additionalName="Robe / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows a magic or recovery type set option. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows a magic or recovery type set option. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -640,17 +640,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">268</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28226" name="Transcendent Eternal Stockings" additionalName="Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -669,15 +669,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">168</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28227" name="Transcendent Eternal Gloves" additionalName="Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -695,13 +695,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28228" name="Transcendent Eternal Shoes" additionalName="Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -719,13 +719,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28229" name="Transcendent Eternal Helmet" additionalName="Attack Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -742,16 +742,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
-	<item id="28230" name="Transcendent Eternal Breatplate" additionalName="Attack Type / Heavy Armor / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
+	<item id="28230" name="Transcendent Eternal Breastplate" additionalName="Attack Type / Heavy Armor / Lv. 5" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -767,15 +767,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">488</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28231" name="Transcendent Eternal Gaiters" additionalName="Attack Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -794,13 +794,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">305</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28232" name="Transcendent Eternal Gauntlets" additionalName="Attack Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -818,13 +818,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28233" name="Transcendent Eternal Boots" additionalName="Attack Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -842,13 +842,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28234" name="Transcendent Eternal Leather Helmet" additionalName="Assassin Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues and Yul Archers only. -->
@@ -865,16 +865,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28235" name="Transcendent Eternal Leather Armor" additionalName="Assassin Type / Light Armor / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues and Yul Archers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues and Yul Archers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -890,16 +890,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">390</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28236" name="Transcendent Eternal Leather Leggings" additionalName="Assassin Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues and Yul Archers only. -->
@@ -918,14 +918,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">244</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28237" name="Transcendent Eternal Leather Gloves" additionalName="Assassin Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues and Yul Archers only. -->
@@ -943,13 +943,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28238" name="Transcendent Eternal Leather Boots" additionalName="Assassin Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues and Yul Archers only. -->
@@ -967,13 +967,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28239" name="Transcendent Eternal Circlet" additionalName="Magic Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -990,16 +990,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28240" name="Transcendent Eternal Tunic" additionalName="Magic Type / Robe / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -1015,17 +1015,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">268</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28241" name="Transcendent Eternal Stockings" additionalName="Magic Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1044,15 +1044,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">168</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28242" name="Transcendent Eternal Gloves" additionalName="Magic Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1070,13 +1070,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28243" name="Transcendent Eternal Shoes" additionalName="Magic Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1094,13 +1094,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28244" name="Transcendent Eternal Helmet" additionalName="Defense Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Sigel Knights only. -->
@@ -1117,16 +1117,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
-	<item id="28245" name="Transcendent Eternal Breatplate" additionalName="Defense Type / Heavy Armor / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def.Sigel Knights only. -->
+	<item id="28245" name="Transcendent Eternal Breastplate" additionalName="Defense Type / Heavy Armor / Lv. 5" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Sigel Knights only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1142,15 +1142,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">488</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28246" name="Transcendent Eternal Gaiters" additionalName="Defense Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Sigel Knights only. -->
@@ -1169,13 +1169,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">305</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28247" name="Transcendent Eternal Gauntlets" additionalName="Defense Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Sigel Knights only. -->
@@ -1193,13 +1193,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28248" name="Transcendent Eternal Boots" additionalName="Defense Type / Heavy Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Sigel Knights only. -->
@@ -1217,13 +1217,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28249" name="Transcendent Eternal Leather Helmet" additionalName="Enchant Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1240,16 +1240,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28250" name="Transcendent Eternal Leather Armor" additionalName="Enchant Type / Light Armor / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -1265,16 +1265,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">390</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28251" name="Transcendent Eternal Leather Leggings" additionalName="Enchant Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1293,14 +1293,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">244</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28252" name="Transcendent Eternal Leather Gloves" additionalName="Enchant Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1318,13 +1318,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28253" name="Transcendent Eternal Leather Boots" additionalName="Enchant Type / Light Armor / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1342,13 +1342,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28254" name="Transcendent Eternal Circlet" additionalName="Recovery Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers only. -->
@@ -1365,16 +1365,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">183</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="5" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28255" name="Transcendent Eternal Tunic" additionalName="Recovery Type / Robe / Lv. 5" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -1390,17 +1390,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="5" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">268</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="5" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28256" name="Transcendent Eternal Stockings" additionalName="Recovery Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers only. -->
@@ -1419,15 +1419,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">168</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="5" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28257" name="Transcendent Eternal Gloves" additionalName="Recovery Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers only. -->
@@ -1445,13 +1445,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="5" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28258" name="Transcendent Eternal Shoes" additionalName="Recovery Type / Robe / Lv. 5" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.4% and M. Atk. by 2.8%. Aeore Healers only. -->
@@ -1469,13 +1469,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="5" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">122</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="5" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28259" name="Transcendent Eternal Helmet" additionalName="Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1492,16 +1492,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
-	<item id="28260" name="Transcendent Eternal Breatplate" additionalName="Heavy Armor / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an attack or defense type set option. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
+	<item id="28260" name="Transcendent Eternal Breastplate" additionalName="Heavy Armor / Lv. 6" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an attack or defense type set option. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1517,15 +1517,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">498</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28261" name="Transcendent Eternal Gaiters" additionalName="Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1544,13 +1544,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">311</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28262" name="Transcendent Eternal Gauntlets" additionalName="Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1568,13 +1568,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28263" name="Transcendent Eternal Boots" additionalName="Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an attack or defense type set option. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1592,13 +1592,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28264" name="Transcendent Eternal Leather Helmet" additionalName="Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1615,16 +1615,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28265" name="Transcendent Eternal Leather Armor" additionalName="Light Armor / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an assassin or enchant type set option. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an assassin or enchant type set option. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -1640,16 +1640,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">398</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28266" name="Transcendent Eternal Leather Leggings" additionalName="Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1668,14 +1668,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">249</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28267" name="Transcendent Eternal Leather Gloves" additionalName="Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1693,13 +1693,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28268" name="Transcendent Eternal Leather Boots" additionalName="Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows an assassin or enchant type set option. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -1717,13 +1717,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28269" name="Transcendent Eternal Circlet" additionalName="Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1740,16 +1740,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28270" name="Transcendent Eternal Tunic" additionalName="Robe / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows a magic or recovery type set option. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows a magic or recovery type set option. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -1765,17 +1765,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">274</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28271" name="Transcendent Eternal Stockings" additionalName="Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1794,15 +1794,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">171</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28272" name="Transcendent Eternal Gloves" additionalName="Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1820,13 +1820,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28273" name="Transcendent Eternal Shoes" additionalName="Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Bestows a magic or recovery type set option. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -1844,13 +1844,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28274" name="Transcendent Eternal Helmet" additionalName="Attack Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1867,16 +1867,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
-	<item id="28275" name="Transcendent Eternal Breatplate" additionalName="Attack Type / Heavy Armor / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
+	<item id="28275" name="Transcendent Eternal Breastplate" additionalName="Attack Type / Heavy Armor / Lv. 6" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -1892,15 +1892,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">498</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28276" name="Transcendent Eternal Gaiters" additionalName="Attack Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1919,13 +1919,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">311</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28277" name="Transcendent Eternal Gauntlets" additionalName="Attack Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1943,13 +1943,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28278" name="Transcendent Eternal Boots" additionalName="Attack Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Tyrr Warriors, Sigel Knights and Iss Enchanters only. -->
@@ -1967,13 +1967,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28279" name="Transcendent Eternal Leather Helmet" additionalName="Assassin Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues and Yul Archers only. -->
@@ -1990,16 +1990,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28280" name="Transcendent Eternal Leather Armor" additionalName="Assassin Type / Light Armor / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues and Yul Archers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues and Yul Archers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -2015,16 +2015,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">398</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28281" name="Transcendent Eternal Leather Leggings" additionalName="Assassin Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues and Yul Archers only. -->
@@ -2043,14 +2043,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">249</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28282" name="Transcendent Eternal Leather Gloves" additionalName="Assassin Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues and Yul Archers only. -->
@@ -2068,13 +2068,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28283" name="Transcendent Eternal Leather Boots" additionalName="Assassin Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues and Yul Archers only. -->
@@ -2092,13 +2092,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28284" name="Transcendent Eternal Circlet" additionalName="Magic Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -2115,16 +2115,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28285" name="Transcendent Eternal Tunic" additionalName="Magic Type / Robe / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -2140,17 +2140,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">274</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28286" name="Transcendent Eternal Stockings" additionalName="Magic Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -2169,15 +2169,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">171</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28287" name="Transcendent Eternal Gloves" additionalName="Magic Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -2195,13 +2195,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28288" name="Transcendent Eternal Shoes" additionalName="Magic Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers, Feoh Wizards, Wynn Summoners, Iss Enchanters, and Sayha's Seers only. -->
@@ -2219,13 +2219,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28289" name="Transcendent Eternal Helmet" additionalName="Defense Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Sigel Knights only. -->
@@ -2242,16 +2242,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27682" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
-	<item id="28290" name="Transcendent Eternal Breatplate" additionalName="Defense Type / Heavy Armor / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to + 4, decreases P. Critical Damage and additionally increases P. Def.Sigel Knights only. -->
+	<item id="28290" name="Transcendent Eternal Breastplate" additionalName="Defense Type / Heavy Armor / Lv. 6" type="Armor">
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to +4, decreases received P. Critical Damage and additionally increases P. Def. Sigel Knights only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t801_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="HEAVY" />
@@ -2267,15 +2267,15 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">498</stat>
 		</stats>
+		<skills>
+			<skill id="27683" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13310" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Heavy Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28291" name="Transcendent Eternal Gaiters" additionalName="Defense Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Sigel Knights only. -->
@@ -2294,13 +2294,13 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">311</stat>
 		</stats>
+		<skills>
+			<skill id="27684" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28292" name="Transcendent Eternal Gauntlets" additionalName="Defense Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Sigel Knights only. -->
@@ -2318,13 +2318,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27685" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28293" name="Transcendent Eternal Boots" additionalName="Defense Type / Heavy Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Sigel Knights only. -->
@@ -2342,13 +2342,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27686" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28294" name="Transcendent Eternal Leather Helmet" additionalName="Enchant Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -2365,16 +2365,16 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27687" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 	<item id="28295" name="Transcendent Eternal Leather Armor" additionalName="Enchant Type / Light Armor / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to + 4, increases Evasion, Speed and Physical Attack Resistance, and decreases the chance of receiving P. Critical Hit. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to +4, increases P. Evasion, Speed and P. Debuff Resistance, and decreases chance of receiving P. Critical Attack. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t802_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -2390,16 +2390,16 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pDef">398</stat>
 			<stat type="rEvas">5</stat>
 		</stats>
+		<skills>
+			<skill id="27688" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13311" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Light Armor Top Special Ability -->
+		</skills>
 	</item>
 	<item id="28296" name="Transcendent Eternal Leather Leggings" additionalName="Enchant Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -2418,14 +2418,14 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">249</stat>
 			<stat type="rEvas">3</stat>
 		</stats>
+		<skills>
+			<skill id="27689" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28297" name="Transcendent Eternal Leather Gloves" additionalName="Enchant Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -2443,13 +2443,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27690" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28298" name="Transcendent Eternal Leather Boots" additionalName="Enchant Type / Light Armor / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Othell Rogues, Yul Archers, Iss Enchanters, Aeore Healers, Wynn Summoners, Tyrr Warriors, and Eviscerators only. -->
@@ -2467,13 +2467,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27691" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28299" name="Transcendent Eternal Circlet" additionalName="Recovery Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 3%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers only. -->
@@ -2490,12 +2490,12 @@
 		<set name="commissionItemType" val="HELMET" />
 		<set name="crystal_count" val="3378" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27697" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">187</stat>
 		</stats>
+		<skills>
+			<skill id="27692" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27697" level="6" /> <!-- Inherent Abilities - Helm Attack -->
+		</skills>
 	</item>
 </list>

@@ -66,6 +66,8 @@ pub(crate) async fn load_mail(
             augment_mineral: 0,
             augment_option1: 0,
             augment_option2: 0,
+            ensoul_options: [0; 2],
+            ensoul_special_option: 0,
         });
     }
     (messages, by_message.into_iter().collect())

@@ -356,6 +356,28 @@ fn attacking_a_minion_pulls_in_the_leader_and_the_pack() {
     }
 }
 
+/// A real hit on the leader calls the pack twice, as Java does: once from
+/// `AttackableAI.onActionAttacked` and once from `Attackable.reduceCurrentHp`,
+/// 10 hate each.
+#[test]
+fn a_damaging_hit_on_the_leader_calls_the_pack_from_both_java_sites() {
+    let (mut world, _db, _l) = minion_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    place_leader(&mut world, LEADER_ID);
+    let pack = minions_of(&mut world, LEADER_OID);
+
+    combat::apply_physical_damage(
+        &mut world,
+        PLAYER,
+        LEADER_OID,
+        1.0,
+        combat::DamageHit::default(),
+    );
+    for oid in &pack {
+        assert_eq!(hate_on(&world, *oid, PLAYER), 20.0);
+    }
+}
+
 #[test]
 fn attacking_the_leader_aggros_the_pack_harder_than_hitting_a_minion() {
     // Java: aggro is 10 when the leader was struck, 1 when a minion was.

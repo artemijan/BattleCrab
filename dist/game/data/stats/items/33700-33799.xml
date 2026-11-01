@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="33700" name="Unidentified Dragon Slayer" additionalName="Event" type="EtcItem">
-		<!-- Dragon Slayer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / sword) -->
+		<!-- Dragon Slayer in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ sword) -->
 		<set name="icon" val="icon.weapon_dragon_slayer_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -14,7 +14,7 @@
 		</skills>
 	</item>
 	<item id="33701" name="Unidentified Soul Bow" additionalName="Event" type="EtcItem">
-		<!-- Soul Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Soul Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_soul_bow_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -27,7 +27,7 @@
 		</skills>
 	</item>
 	<item id="33702" name="Unidentified Elysian" additionalName="Event" type="EtcItem">
-		<!-- Elysian in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Elysian in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_elysian_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -40,7 +40,7 @@
 		</skills>
 	</item>
 	<item id="33703" name="Unidentified Flaming Dragon Skull" additionalName="Event" type="EtcItem">
-		<!-- Flaming Dragon Skull in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon / blunt) -->
+		<!-- Flaming Dragon Skull in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_dragon_flame_head_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -53,7 +53,7 @@
 		</skills>
 	</item>
 	<item id="33704" name="Unidentified Branch of the Mother Tree" additionalName="Event" type="EtcItem">
-		<!-- Branch of the Mother Tree in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / blunt) -->
+		<!-- Branch of the Mother Tree in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_worldtrees_branch_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -66,7 +66,7 @@
 		</skills>
 	</item>
 	<item id="33705" name="Unidentified Doom Crusher" additionalName="Event" type="EtcItem">
-		<!-- Doom Crusher in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / blunt) -->
+		<!-- Doom Crusher in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ blunt) -->
 		<set name="icon" val="icon.weapon_doom_crusher_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -79,7 +79,7 @@
 		</skills>
 	</item>
 	<item id="33706" name="Unidentified Tallum Glaive" additionalName="Event" type="EtcItem">
-		<!-- Tallum Glaive in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / spear) -->
+		<!-- Tallum Glaive in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ spear) -->
 		<set name="icon" val="icon.weapon_tallum_glaive_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -92,7 +92,7 @@
 		</skills>
 	</item>
 	<item id="33707" name="Unidentified Dragon Grinder" additionalName="Event" type="EtcItem">
-		<!-- Dragon Grinder in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / fist weapon) -->
+		<!-- Dragon Grinder in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ fist weapon) -->
 		<set name="icon" val="icon.weapon_dragon_grinder_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -105,7 +105,7 @@
 		</skills>
 	</item>
 	<item id="33708" name="Unidentified Tallum Blade*Damascus" additionalName="Event" type="EtcItem">
-		<!-- Tallum Blade*Damascus in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / dual weapon) -->
+		<!-- Tallum Blade*Damascus in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ dual weapon) -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -131,7 +131,7 @@
 		</skills>
 	</item>
 	<item id="33710" name="Unidentified Shield of Nightmare" additionalName="Event" type="EtcItem">
-		<!-- Shield of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: Shield) -->
+		<!-- Shield of nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: Shield) -->
 		<set name="icon" val="icon.shield_shield_of_nightmare_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -157,7 +157,7 @@
 		</skills>
 	</item>
 	<item id="33712" name="Unidentified Robe of Nightmare" additionalName="Event" type="EtcItem">
-		<!-- Robe of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one piece / robe) -->
+		<!-- Robe of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one piece/ robe) -->
 		<set name="icon" val="icon.armor_t82_ul_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -170,7 +170,7 @@
 		</skills>
 	</item>
 	<item id="33713" name="Unidentified Leather Armor of Nightmare" additionalName="Event" type="EtcItem">
-		<!-- Leather Armor of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one piece / light armor) -->
+		<!-- Leather Armor of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one piece/ light armor) -->
 		<set name="icon" val="icon.armor_t81_ul_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -196,7 +196,7 @@
 		</skills>
 	</item>
 	<item id="33715" name="Unidentified Armor of Nightmare" additionalName="Event" type="EtcItem">
-		<!-- Armor of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one piece / heavy armor) -->
+		<!-- Armor of Nightmare in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: one piece/ heavy armor) -->
 		<set name="icon" val="icon.armor_t80_ul_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="A" />
@@ -209,7 +209,7 @@
 		</skills>
 	</item>
 	<item id="33716" name="Unidentified Dynasty Bow" additionalName="Event" type="EtcItem">
-		<!-- Dynasty Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon / bow) -->
+		<!-- Dynasty Bow in an Unidentified state. Double-click the item to identify it. The acquired item can be Standard or Bound. (Type: two-handed weapon/ bow) -->
 		<set name="icon" val="icon.weapon_dynasty_bow_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="crystal_type" val="S" />
@@ -221,8 +221,8 @@
 			<skill id="12934" level="1" /> <!-- Check Item -->
 		</skills>
 	</item>
-	<item id="33717" name="Legacy Duelist Dualsword" type="Weapon">
-		<!-- Dualsword that contains the power of a Duelist. Cannot be enchanted, agumented, or assigned an attribute. -->
+	<item id="33717" name="Legacy Duelist Dual Sword" type="Weapon">
+		<!-- dual sword that contains the power of a Duelist. Cannot be enchanted, agumented, or assigned an attribute. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="is_tradable" val="false" />
@@ -241,7 +241,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -262,18 +262,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="33719" name="Legacy Phoenix Knight Sword" type="Weapon">
 		<!-- Sword that contains the power of a Phoenix Knight. Cannot be enchanted, agumented, or assigned an attribute. -->
@@ -295,7 +295,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -320,7 +320,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -347,7 +347,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -373,7 +373,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -400,7 +400,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -426,7 +426,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -453,7 +453,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -480,7 +480,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -507,7 +507,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -532,7 +532,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -557,7 +557,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -582,7 +582,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -610,7 +610,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -637,7 +637,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -664,7 +664,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -691,7 +691,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -716,13 +716,13 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="33736" name="Legacy Spectral Dancer Dualsword" type="Weapon">
-		<!-- Dualsword that contains the power of a Spectral Dancer. Cannot be enchanted, agumented, or assigned an attribute. -->
+	<item id="33736" name="Legacy Spectral Dancer Dual Sword" type="Weapon">
+		<!-- dual sword that contains the power of a Spectral Dancer. Cannot be enchanted, agumented, or assigned an attribute. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="is_tradable" val="false" />
@@ -741,7 +741,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -766,7 +766,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -794,7 +794,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -821,7 +821,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -847,7 +847,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -874,7 +874,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -899,7 +899,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -925,7 +925,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -950,13 +950,13 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="33745" name="Legacy Doomcryer Dualsword" type="Weapon">
-		<!-- Dualsword that contains the power of a Doomcryer. Cannot be enchanted, agumented, or assigned an attribute. -->
+	<item id="33745" name="Legacy Doomcryer Dual Sword" type="Weapon">
+		<!-- dual sword that contains the power of a Doomcryer. Cannot be enchanted, agumented, or assigned an attribute. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="is_tradable" val="false" />
@@ -975,7 +975,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1000,7 +1000,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1028,7 +1028,7 @@
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1042,9 +1042,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1060,9 +1060,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1089,17 +1089,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33751" name="Test - color varying requiem weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1120,17 +1120,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33752" name="Test - apo requiem weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1151,17 +1151,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33753" name="Test - color varying apo weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1182,17 +1182,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33754" name="Test - old fanta weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1213,17 +1213,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33755" name="Test - color varying fanta weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1244,17 +1244,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33756" name="Test - old heli weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1275,17 +1275,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33757" name="Test - color varying heli weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1306,17 +1306,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33758" name="Test - Old Celestial Weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1337,17 +1337,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33759" name="Test - Color Varying Celestial Weapon" type="Weapon">
 		<!-- Dummy item - do not delete. Deleting this causes errors to the AI. It must be kept in the level time in the event that numbers 33717 - 33765 are changed. Must be maintained even if the order of the items is changed. -->
@@ -1368,17 +1368,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">489</stat>
 			<stat type="mAtk">226</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="33760" name="Legacy Fortune Seeker Dagger" type="Weapon">
 		<!-- Dagger that contains the power of a Fortune Seeker. Cannot be enchanted, agumented, or assigned an attribute. -->
@@ -1401,7 +1401,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1428,7 +1428,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1455,7 +1455,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1482,7 +1482,7 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
@@ -1524,18 +1524,19 @@
 			<stat type="pAtk">30</stat>
 			<stat type="mAtk">30</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="33766" name="Elixir of Blessing" type="EtcItem">
-		<!-- For 30 minutes, it receives the following level 1 effects: Horn Melody, Lute Melody, Pipe Organ Melody, Guitar Melody, Harp Melody and Drum Melody. Can be used at level 85 or above. Cooldown is 2 min. -->
+		<!-- For 30 minutes, it receives the following level 1 effects: Horn Melody, Pipe Organ Melody, Guitar Melody, and Drum Melody. Can be used at level 85 or above. Cooldown is 2 min. -->
 		<set name="icon" val="icon.etc_super_potion_i03" />
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="reuse_delay" val="120000" />
@@ -1544,13 +1545,11 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
-			<skill id="9220" level="1" /> <!-- Elixir of Blessing - Lute Melody -->
+			<skill id="9219" level="1" /> <!-- Elixir of Blessing - Drum Melody -->
 			<skill id="9221" level="1" /> <!-- Elixir of Blessing - Pipe Organ Melody -->
 			<skill id="9222" level="1" /> <!-- Elixir of Blessing - Guitar Melody -->
-			<skill id="9223" level="1" /> <!-- Elixir of Blessing - Harp Melody -->
 			<skill id="9218" level="1" /> <!-- Elixir of Blessing - Horn Melody -->
 		</skills>
 	</item>
@@ -1630,9 +1629,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1649,9 +1648,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1668,9 +1667,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1685,10 +1684,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SOULSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SoulShots" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1701,11 +1700,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="D" />
 		<set name="default_action" val="SOULSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SoulShots" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1804,10 +1803,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1820,11 +1819,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="D" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1837,11 +1836,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="C" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1854,11 +1853,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="B" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1871,11 +1870,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="A" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1888,11 +1887,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="S" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1905,11 +1904,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="R" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="SpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1922,10 +1921,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="BlessedSpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1938,11 +1937,11 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="D" />
 		<set name="default_action" val="SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="BlessedSpiritShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -2042,9 +2041,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -2060,9 +2059,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -2095,12 +2094,12 @@
 		<set name="icon" val="icon.tersi_specter_seed" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9225" level="1" /> <!-- Specter of Light -->
@@ -2111,11 +2110,11 @@
 		<set name="icon" val="icon.tersi_light_gragment" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9226" level="1" /> <!-- Fragment of Light -->

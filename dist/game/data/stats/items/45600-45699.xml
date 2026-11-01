@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="45600" name="Special Resistance Earring - Paralyze" type="Armor">
-		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Paralysis Attack/Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
+		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Paralysis Attack/ Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -9,15 +9,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">130</stat>
+		</stats>
 		<skills>
 			<skill id="13685" level="1" /> <!-- Special Resistance Earring - Paralyze -->
 		</skills>
-		<stats>
-			<stat type="mDef">130</stat>
-		</stats>
 	</item>
 	<item id="45601" name="Special Resistance Earring - Mental Attack" type="Armor">
-		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Mental Attack/Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
+		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Mental Attack/ Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -25,15 +25,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">130</stat>
+		</stats>
 		<skills>
 			<skill id="13686" level="1" /> <!-- Special Resistance Earring - Mental Attack -->
 		</skills>
-		<stats>
-			<stat type="mDef">130</stat>
-		</stats>
 	</item>
 	<item id="45602" name="Special Resistance Earring - Sleep" type="Armor">
-		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Sleep Attack/Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
+		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Sleep Attack/ Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -41,15 +41,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">130</stat>
+		</stats>
 		<skills>
 			<skill id="13687" level="1" /> <!-- Special Resistance Earring - Sleep -->
 		</skills>
-		<stats>
-			<stat type="mDef">130</stat>
-		</stats>
 	</item>
 	<item id="45603" name="Special Resistance Earring - Poison" type="Armor">
-		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Poison Attack/Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
+		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Poison Attack/ Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -57,15 +57,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">130</stat>
+		</stats>
 		<skills>
 			<skill id="13688" level="1" /> <!-- Special Resistance Earring - Poison -->
 		</skills>
-		<stats>
-			<stat type="mDef">130</stat>
-		</stats>
 	</item>
 	<item id="45604" name="Special Resistance Earring - Knock Back/Knock Down" type="Armor">
-		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Knock Back/Knock Down Attack/Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
+		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Knock Back/ Knock Down Attack/ Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -73,15 +73,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">130</stat>
+		</stats>
 		<skills>
 			<skill id="13689" level="1" /> <!-- Special Resistance Earring - Knock Back/Knock Down -->
 		</skills>
-		<stats>
-			<stat type="mDef">130</stat>
-		</stats>
 	</item>
 	<item id="45605" name="Special Resistance Earring - Aerial Yoke" type="Armor">
-		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Aerial Yoke Attack/Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
+		<!-- Earring purchased with a Mark of Battle. MP +49, CP +10%, Aerial Yoke Attack/ Resistance +40%, and Vampiric Rage Effect by +3%. Only one effect is applied even when wearing two earrings with the same effect. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -89,15 +89,15 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="13690" level="1" /> <!-- Special Resistance Earring - Aerial Yoke -->
-		</skills>
 		<stats>
 			<stat type="mDef">130</stat>
 		</stats>
+		<skills>
+			<skill id="13690" level="1" /> <!-- Special Resistance Earring - Aerial Yoke -->
+		</skills>
 	</item>
-	<item id="45606" name="Special Magic Ornament Eternal Belt" additionalName="PVE Attack" type="Armor">
-		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PVE Damage +6%. -->
+	<item id="45606" name="Special Magic Ornament Eternal Belt" additionalName="PvE Attack" type="Armor">
+		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PvE Damage +6%. -->
 		<set name="icon" val="icon.r99_magic_pouch_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -108,15 +108,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
+		<stats>
+			<stat type="pDef">25</stat>
+		</stats>
 		<skills>
 			<skill id="18352" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
 		</skills>
-		<stats>
-			<stat type="pDef">25</stat>
-		</stats>
 	</item>
-	<item id="45607" name="Special Magic Ornament Eternal Belt" additionalName="PVE Defense" type="Armor">
-		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PVE Damage - 7%. -->
+	<item id="45607" name="Special Magic Ornament Eternal Belt" additionalName="PvE Defense" type="Armor">
+		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PvE Damage -7%. -->
 		<set name="icon" val="icon.r99_magic_pouch_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -127,12 +127,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="18353" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">25</stat>
 		</stats>
+		<skills>
+			<skill id="18353" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
+		</skills>
 	</item>
 	<item id="45608" name="Special Magic Ornament Eternal Belt" additionalName="PVP Attack" type="Armor">
 		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PVP Damage +6%. -->
@@ -146,15 +146,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="18354" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">25</stat>
 		</stats>
+		<skills>
+			<skill id="18354" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
+		</skills>
 	</item>
 	<item id="45609" name="Special Magic Ornament Eternal Belt" additionalName="PVP Defense" type="Armor">
-		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PVP Damage - 7%. -->
+		<!-- Belt purchased with a Mark of Battle. Weight +12800, Inventory Slots +18, PVP Damage -7%. -->
 		<set name="icon" val="icon.r99_magic_pouch_belt_i00" />
 		<set name="armor_type" val="LIGHT" />
 		<set name="default_action" val="EQUIP" />
@@ -165,12 +165,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="440" />
 		<set name="material" val="CLOTH" />
-		<skills>
-			<skill id="18355" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">25</stat>
 		</stats>
+		<skills>
+			<skill id="18355" level="1" /> <!-- Special Magic Ornament Eternal Belt -->
+		</skills>
 	</item>
 	<item id="45610" name="Atelia Energy Crystal" type="EtcItem">
 		<!-- Artificial crystal created with Atelia. Take it to Merlot to get a Dimensional Coin. -->
@@ -213,7 +213,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45614" name="Talisman - Battle: Attack (1-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Attack skill when equipped. P. Atk./M. Atk./Skill Critical Rate/Skill Critical Damage +20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 1-day. -->
+		<!-- Can use the Talisman - Battle: Attack skill when equipped. P. Atk./ M. Atk./ Skill Critical Rate/ Skill Critical Damage +20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 1-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -226,7 +226,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45615" name="Talisman - Battle: Attack (3-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Attack skill when equipped. P. Atk./M. Atk./Skill Critical Rate/Skill Critical Damage +20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 3-day. -->
+		<!-- Can use the Talisman - Battle: Attack skill when equipped. P. Atk./ M. Atk./ Skill Critical Rate/ Skill Critical Damage +20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 3-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -239,7 +239,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45616" name="Talisman - Battle: Attack (30-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Attack skill when equipped. P. Atk./M. Atk./Skill Critical Rate/Skill Critical Damage +20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 30-day. -->
+		<!-- Can use the Talisman - Battle: Attack skill when equipped. P. Atk./ M. Atk./ Skill Critical Rate/ Skill Critical Damage +20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 30-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -252,7 +252,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45617" name="Talisman - Battle: Speed (1-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Speed skill when equipped. Atk. Spd./Casting Spd. +20%, Speed +60, and Cooldown - 20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 1-day. -->
+		<!-- Can use the Talisman - Battle: Speed skill when equipped. Atk. Spd./ Casting Spd. +20%, Speed +60, and Cooldown -20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 1-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -265,7 +265,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45618" name="Talisman - Battle: Speed (3-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Speed skill when equipped. Atk. Spd./Casting Spd. +20%, Speed +60, and Cooldown - 20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 3-day. -->
+		<!-- Can use the Talisman - Battle: Speed skill when equipped. Atk. Spd./ Casting Spd. +20%, Speed +60, and Cooldown -20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 3-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -278,7 +278,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45619" name="Talisman - Battle: Speed (30-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Speed skill when equipped. Atk. Spd./Casting Spd. +20%, Speed +60, and Cooldown - 20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 30-day. -->
+		<!-- Can use the Talisman - Battle: Speed skill when equipped. Atk. Spd./ Casting Spd. +20%, Speed +60, and Cooldown -20% for 10 seconds. Can only be used in the Olympiad and Ceremony of Chaos. 30-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -317,7 +317,7 @@
 		<set name="material" val="GOLD" />
 	</item>
 	<item id="45622" name="Talisman - Battle: Support (30-day)" type="Armor">
-		<!-- Can use the Talisman - Battle: Support skill when equipped. Cancels hiding, invincible, and talisman buffs of those within sight. Can only be used in the Olympiad and Ceremony of Chaos. 30-day. -->
+		<!-- Can use the Talisman - Battle: Support skill when equipped. Cancels hiding, invincible, and talisman buffs of enemies within range. Can only be used in the Olympiad and Ceremony of Chaos. 30-day. -->
 		<set name="icon" val="icon.etc_talisman_i07" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -526,7 +526,7 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="45641" name="Rodemai's Rune" additionalName="15-day" type="EtcItem">
-		<!-- Keep this in your inventory to gain XP/SP +7% when hunting. -->
+		<!-- Keep this in your inventory to gain XP/ SP +7% when hunting. -->
 		<set name="icon" val="icon.skill19226" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
@@ -641,12 +641,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="4000" level="1" /> <!-- Returning Warrior's Bracelet -->
-		</skills>
 		<stats>
 			<stat type="maxMp">187</stat>
 		</stats>
+		<skills>
+			<skill id="4000" level="1" /> <!-- Returning Warrior's Bracelet -->
+		</skills>
 	</item>
 	<item id="45648" name="Pippi's Talisman" additionalName="Event" type="Armor">
 		<!-- Talisman to summon Pippi. Will be deleted once the event ends. -->
@@ -676,8 +676,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45651" name="Pippi's Fortune Pocket - Stage 2" additionalName="Event" type="EtcItem">
@@ -686,8 +686,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45652" name="Pippi's Fortune Pocket - Stage 3" additionalName="Event" type="EtcItem">
@@ -696,8 +696,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="45653" name="Dynasty Breastplate of Fortune Set Pack" additionalName="30-day" type="EtcItem">

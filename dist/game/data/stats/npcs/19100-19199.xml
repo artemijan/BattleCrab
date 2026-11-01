@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="19100" level="97" type="Folk" name="Antharas Transparent 5">
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
@@ -21,7 +21,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -64,7 +64,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -107,7 +107,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -150,7 +150,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -193,7 +193,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -236,7 +236,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -279,7 +279,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -322,7 +322,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -365,7 +365,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -408,7 +408,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -451,7 +451,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -481,7 +481,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -511,7 +511,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -538,7 +538,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -567,7 +567,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -603,7 +603,7 @@
 		</parameters>
 		<race>HUMANOID</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5382" hpRegen="8.5" mp="2023" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -635,7 +635,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6555" hpRegen="8.5" mp="2169" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -661,7 +661,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6555" hpRegen="8.5" mp="2169" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -687,7 +687,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -714,7 +714,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -741,7 +741,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="2081767" hpRegen="8.5" mp="33087" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -769,7 +769,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8023" hpRegen="8.5" mp="2317" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -844,17 +844,17 @@
 				<item id="35350" min="1" max="1" chance="1.858" /> <!-- Eternal Tunic Ingredient -->
 				<item id="35354" min="1" max="1" chance="1.854" /> <!-- Eternal Sigil Ingredient -->
 				<item id="35341" min="1" max="1" chance="1.825" /> <!-- Eternal Gauntlet Ingredient -->
-				<item id="35328" min="1" max="1" chance="0.75" /> <!-- Amaranthine Cutter Fragment -->
-				<item id="35329" min="1" max="1" chance="0.75" /> <!-- Amaranthine Slasher Fragment -->
-				<item id="35327" min="1" max="1" chance="0.75" /> <!-- Amaranthine Shaper Fragment -->
-				<item id="35331" min="1" max="1" chance="0.75" /> <!-- Amaranthine Fighter Fragment -->
-				<item id="35337" min="1" max="1" chance="0.75" /> <!-- Amaranthine Retributer Fragment -->
-				<item id="35332" min="1" max="1" chance="0.75" /> <!-- Amaranthine Stormer Fragment -->
-				<item id="35333" min="1" max="1" chance="0.75" /> <!-- Amaranthine Thrower Fragment -->
-				<item id="35335" min="1" max="1" chance="0.75" /> <!-- Amaranthine Buster Fragment -->
-				<item id="35334" min="1" max="1" chance="0.75" /> <!-- Amaranthine Shooter Fragment -->
-				<item id="35336" min="1" max="1" chance="0.75" /> <!-- Amaranthine Caster Fragment -->
-				<item id="35330" min="1" max="1" chance="0.75" /> <!-- Amaranthine Avenger Fragment -->
+				<item id="35328" min="1" max="1" chance="0.75" /> <!-- Helios Cutter Fragment -->
+				<item id="35329" min="1" max="1" chance="0.75" /> <!-- Helios Slasher Fragment -->
+				<item id="35327" min="1" max="1" chance="0.75" /> <!-- Helios Shaper Fragment -->
+				<item id="35331" min="1" max="1" chance="0.75" /> <!-- Helios Fighter Fragment -->
+				<item id="35337" min="1" max="1" chance="0.75" /> <!-- Helios Retributer Fragment -->
+				<item id="35332" min="1" max="1" chance="0.75" /> <!-- Helios Stormer Fragment -->
+				<item id="35333" min="1" max="1" chance="0.75" /> <!-- Helios Thrower Fragment -->
+				<item id="35335" min="1" max="1" chance="0.75" /> <!-- Helios Buster Fragment -->
+				<item id="35334" min="1" max="1" chance="0.75" /> <!-- Helios Shooter Fragment -->
+				<item id="35336" min="1" max="1" chance="0.75" /> <!-- Helios Caster Fragment -->
+				<item id="35330" min="1" max="1" chance="0.75" /> <!-- Helios Avenger Fragment -->
 				<item id="35473" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Circlet (60%) -->
 				<item id="35472" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Leather Boots (60%) -->
 				<item id="35471" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Leather Gloves (60%) -->
@@ -865,25 +865,63 @@
 				<item id="35476" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Gloves (60%) -->
 				<item id="35477" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Shoes (60%) -->
 				<item id="35478" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Sigil (60%) -->
+				<item id="46476" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46491" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46506" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 3 -->
 				<item id="35468" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Leather Helmet (60%) -->
 				<item id="35467" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Shield (60%) -->
 				<item id="35466" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Boots (60%) -->
-				<item id="35452" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Cutter (60%) -->
-				<item id="35451" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Shaper (60%) -->
-				<item id="35454" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Avenger (60%) -->
-				<item id="35455" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Fighter (60%) -->
-				<item id="35456" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Stormer (60%) -->
-				<item id="35457" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Thrower (60%) -->
-				<item id="35458" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Shooter (60%) -->
-				<item id="35459" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Buster (60%) -->
+				<item id="35452" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Cutter (60%) -->
+				<item id="35451" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Shaper (60%) -->
+				<item id="35454" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Avenger (60%) -->
+				<item id="35455" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Fighter (60%) -->
+				<item id="35456" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Stormer (60%) -->
+				<item id="35457" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Thrower (60%) -->
+				<item id="35458" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Shooter (60%) -->
+				<item id="35459" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Buster (60%) -->
 				<item id="35465" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Gauntlets (60%) -->
 				<item id="35464" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Gaiters (60%) -->
 				<item id="35463" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Breastplate (60%) -->
 				<item id="35462" min="1" max="1" chance="0.3" /> <!-- Recipe: Eternal Helmet (60%) -->
-				<item id="35460" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Caster (60%) -->
-				<item id="35453" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Slasher (60%) -->
-				<item id="35461" min="1" max="1" chance="0.3" /> <!-- Recipe: Amaranthine Retributer (60%) -->
+				<item id="35460" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Caster (60%) -->
+				<item id="35453" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Slasher (60%) -->
+				<item id="35461" min="1" max="1" chance="0.3" /> <!-- Recipe: Helios Retributer (60%) -->
+				<item id="46493" min="1" max="1" chance="0.075" /> <!-- Pantheon's Soul Crystal - Stage 5 -->
+				<item id="46507" min="1" max="1" chance="0.075" /> <!-- Lionel's Soul Crystal - Stage 4 -->
+				<item id="46508" min="1" max="1" chance="0.075" /> <!-- Lionel's Soul Crystal - Stage 5 -->
+				<item id="46478" min="1" max="1" chance="0.075" /> <!-- Leona's Soul Crystal - Stage 5 -->
+				<item id="46477" min="1" max="1" chance="0.075" /> <!-- Leona's Soul Crystal - Stage 4 -->
+				<item id="46492" min="1" max="1" chance="0.075" /> <!-- Pantheon's Soul Crystal - Stage 4 -->
+				<item id="46446" min="1" max="1" chance="0.075" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46447" min="1" max="1" chance="0.075" /> <!-- Kain's Soul Crystal - Stage 4 -->
+				<item id="46462" min="1" max="1" chance="0.075" /> <!-- Mermoden's Soul Crystal - Stage 4 -->
+				<item id="46461" min="1" max="1" chance="0.075" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46448" min="1" max="1" chance="0.03" /> <!-- Kain's Soul Crystal - Stage 5 -->
+				<item id="46495" min="1" max="1" chance="0.03" /> <!-- Pantheon's Soul Crystal - Stage 7 -->
+				<item id="46494" min="1" max="1" chance="0.03" /> <!-- Pantheon's Soul Crystal - Stage 6 -->
+				<item id="46509" min="1" max="1" chance="0.03" /> <!-- Lionel's Soul Crystal - Stage 6 -->
+				<item id="46510" min="1" max="1" chance="0.03" /> <!-- Lionel's Soul Crystal - Stage 7 -->
+				<item id="46480" min="1" max="1" chance="0.03" /> <!-- Leona's Soul Crystal - Stage 7 -->
+				<item id="46479" min="1" max="1" chance="0.03" /> <!-- Leona's Soul Crystal - Stage 6 -->
+				<item id="46463" min="1" max="1" chance="0.03" /> <!-- Mermoden's Soul Crystal - Stage 5 -->
+				<item id="46464" min="1" max="1" chance="0.03" /> <!-- Mermoden's Soul Crystal - Stage 6 -->
+				<item id="46449" min="1" max="1" chance="0.03" /> <!-- Kain's Soul Crystal - Stage 6 -->
+				<item id="46465" min="1" max="1" chance="0.0075" /> <!-- Mermoden's Soul Crystal - Stage 7 -->
+				<item id="46450" min="1" max="1" chance="0.0075" /> <!-- Kain's Soul Crystal - Stage 7 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="3" max="3" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="19126" level="30" type="FriendlyNpc" name="Commando">
@@ -943,7 +981,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="35" />
@@ -970,7 +1008,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="32" />
@@ -997,7 +1035,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -1025,7 +1063,7 @@
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="80" lhand="641" /> <!-- Tallum Blade / Dark Crystal Shield -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -1052,7 +1090,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1080,7 +1118,7 @@
 		<race>HUMAN</race>
 		<sex>MALE</sex>
 		<equipment rhand="8683" /> <!-- Tiphon's Spear -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1107,7 +1145,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1134,7 +1172,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="7624" hpRegen="8.5" mp="2280" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1162,7 +1200,7 @@
 		<race>DARK_ELF</race>
 		<sex>FEMALE</sex>
 		<equipment rhand="288" /> <!-- Carnage Bow -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1188,7 +1226,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="28" />
@@ -1214,7 +1252,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1240,7 +1278,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ELF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="30" />
@@ -1266,7 +1304,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>HUMAN</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="4234" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -1321,7 +1359,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1348,7 +1386,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1375,7 +1413,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1402,7 +1440,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1429,7 +1467,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1456,7 +1494,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1483,7 +1521,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1510,7 +1548,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1537,7 +1575,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1564,7 +1602,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>ETC</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="6891" hpRegen="8.5" mp="2205" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1698,7 +1736,7 @@
 		</parameters>
 		<race>ELEMENTAL</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13256" hpRegen="8.5" mp="1881" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -1813,17 +1851,17 @@
 		<dropLists>
 			<drop>
 				<item id="17623" min="1" max="1" chance="9.946" /> <!-- Earth Wyrm Heart Ring -->
-				<item id="17418" min="1" max="1" chance="9.137" /> <!-- Amaranthine Slasher -->
-				<item id="17423" min="1" max="1" chance="9.122" /> <!-- Amaranthine Shooter -->
-				<item id="17424" min="1" max="1" chance="9.105" /> <!-- Amaranthine Buster -->
-				<item id="17420" min="1" max="1" chance="9.093" /> <!-- Amaranthine Fighter -->
-				<item id="17421" min="1" max="1" chance="9.091" /> <!-- Amaranthine Stormer -->
-				<item id="17417" min="1" max="1" chance="9.09" /> <!-- Amaranthine Cutter -->
-				<item id="17419" min="1" max="1" chance="9.082" /> <!-- Amaranthine Avenger -->
-				<item id="17416" min="1" max="1" chance="9.079" /> <!-- Amaranthine Shaper -->
-				<item id="17425" min="1" max="1" chance="9.075" /> <!-- Amaranthine Caster -->
-				<item id="17426" min="1" max="1" chance="9.037" /> <!-- Amaranthine Retributer -->
-				<item id="17422" min="1" max="1" chance="9.023" /> <!-- Amaranthine Thrower -->
+				<item id="17418" min="1" max="1" chance="9.137" /> <!-- Helios Slasher -->
+				<item id="17423" min="1" max="1" chance="9.122" /> <!-- Helios Shooter -->
+				<item id="17424" min="1" max="1" chance="9.105" /> <!-- Helios Buster -->
+				<item id="17420" min="1" max="1" chance="9.093" /> <!-- Helios Fighter -->
+				<item id="17421" min="1" max="1" chance="9.091" /> <!-- Helios Stormer -->
+				<item id="17417" min="1" max="1" chance="9.09" /> <!-- Helios Cutter -->
+				<item id="17419" min="1" max="1" chance="9.082" /> <!-- Helios Avenger -->
+				<item id="17416" min="1" max="1" chance="9.079" /> <!-- Helios Shaper -->
+				<item id="17425" min="1" max="1" chance="9.075" /> <!-- Helios Caster -->
+				<item id="17426" min="1" max="1" chance="9.037" /> <!-- Helios Retributer -->
+				<item id="17422" min="1" max="1" chance="9.023" /> <!-- Helios Thrower -->
 				<item id="17440" min="1" max="1" chance="5.943" /> <!-- Eternal Leather Boots - Light Armor -->
 				<item id="17430" min="1" max="1" chance="5.942" /> <!-- Eternal Helmet - Heavy Armor -->
 				<item id="17441" min="1" max="1" chance="5.94" /> <!-- Eternal Circlet - Robe -->
@@ -1845,32 +1883,71 @@
 				<item id="37781" min="1" max="1" chance="49.21" /> <!-- Scroll of Blessing: Armor (R99-grade) -->
 				<item id="19448" min="5" max="5" chance="31.49" /> <!-- Blessed Scroll: Enchant Armor (R-grade) -->
 				<item id="36389" min="5" max="5" chance="30.88" /> <!-- Giant's Scroll: Enchant Armor (R-grade) -->
-				<item id="35568" min="1" max="1" chance="30.37" /> <!-- Bloody Amaranthine Enhancement Stone -->
+				<item id="35568" min="1" max="1" chance="30.37" /> <!-- Bloody Helios Enhancement Stone -->
+				<item id="46476" min="1" max="2" chance="23.6" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46505" min="1" max="2" chance="23.4" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46506" min="1" max="2" chance="22.95" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<item id="46491" min="1" max="2" chance="22.64" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46490" min="1" max="2" chance="22.23" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46475" min="1" max="2" chance="21.89" /> <!-- Leona's Soul Crystal - Stage 2 -->
 				<item id="19447" min="2" max="2" chance="20.59" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
+				<item id="46478" min="1" max="1" chance="20.37" /> <!-- Leona's Soul Crystal - Stage 5 -->
+				<item id="46508" min="1" max="1" chance="20.08" /> <!-- Lionel's Soul Crystal - Stage 5 -->
+				<item id="46477" min="1" max="1" chance="19.94" /> <!-- Leona's Soul Crystal - Stage 4 -->
+				<item id="46493" min="1" max="1" chance="19.93" /> <!-- Pantheon's Soul Crystal - Stage 5 -->
 				<item id="36386" min="2" max="2" chance="19.63" /> <!-- Giant's Scroll: Enchant Weapon (R-grade) -->
-				<item id="17706" min="1" max="1" chance="17.48" /> <!-- Lv. 5 Ancient INT Dye - INT + 5 / Water Resistance + 25 -->
-				<item id="17702" min="1" max="1" chance="17.46" /> <!-- Lv. 5 Giant MEN Dye - Men + 5 -->
-				<item id="17698" min="1" max="1" chance="17.03" /> <!-- Lv. 5 Giant DEX Dye - DEX + 5 -->
-				<item id="17708" min="1" max="1" chance="16.95" /> <!-- Lv. 5 Ancient MEN Dye - MEN + 5 / Holy Resistance + 25 -->
-				<item id="17713" min="1" max="1" chance="16.94" /> <!-- Lv. 5 Legendary WIT Dye - WIT + 5 / MEN + 1 / Wind Resistance + 25 -->
-				<item id="17712" min="1" max="1" chance="16.78" /> <!-- Lv. 5 Legendary INT Dye - INT + 5 / WIT + 1 / Water Resistance + 25 -->
-				<item id="17700" min="1" max="1" chance="16.78" /> <!-- Lv. 5 Giant INT Dye - INT + 5 -->
-				<item id="17707" min="1" max="1" chance="16.73" /> <!-- Lv. 5 Ancient WIT Dye - WIT + 5 / Wind Resistance + 25 -->
-				<item id="17709" min="1" max="1" chance="16.57" /> <!-- Lv. 5 Legendary STR Dye - STR + 5 / DEX + 1 / Fire Resistance + 25 -->
-				<item id="17711" min="1" max="1" chance="16.52" /> <!-- Lv. 5 Legendary CON Dye - CON + 5 / STR + 1 / Dark Resistance + 25 -->
-				<item id="17703" min="1" max="1" chance="16.5" /> <!-- Lv. 5 Ancient STR Dye - STR + 5 / Fire Resistance + 25 -->
-				<item id="17699" min="1" max="1" chance="16.44" /> <!-- Lv. 5 Giant CON Dye - CON + 5 -->
-				<item id="17710" min="1" max="1" chance="16.35" /> <!-- Lv. 5 Legendary DEX Dye - DEX + 5 / CON + 1 / Earth Resistance + 25 -->
-				<item id="17701" min="1" max="1" chance="16.34" /> <!-- Lv. 5 Giant WIT Dye - Wit + 5 -->
-				<item id="17704" min="1" max="1" chance="16.21" /> <!-- Lv. 5 Ancient DEX Dye - DEX + 5 / Earth Resistance + 25 -->
-				<item id="17714" min="1" max="1" chance="16.17" /> <!-- Lv. 5 Legendary MEN Dye - MEN + 5 / INT + 1 / Holy Resistance + 25 -->
-				<item id="17705" min="1" max="1" chance="16.1" /> <!-- Lv. 5 Ancient CON Dye - CON + 5 / Dark Resistance + 25 -->
-				<item id="17697" min="1" max="1" chance="16.06" /> <!-- Lv. 5 Giant STR Dye - STR + 5 -->
-				<item id="36162" min="1" max="1" chance="10.022" /> <!-- Scroll of Blessing: (R99-grade) -->
+				<item id="46507" min="1" max="1" chance="19.24" /> <!-- Lionel's Soul Crystal - Stage 4 -->
+				<item id="46492" min="1" max="1" chance="19.09" /> <!-- Pantheon's Soul Crystal - Stage 4 -->
+				<item id="17706" min="1" max="1" chance="17.48" /> <!-- Lv. 5 Ancient INT Dye - INT +5 / Water Resistance +25 -->
+				<item id="17702" min="1" max="1" chance="17.46" /> <!-- Lv. 5 Giant MEN Dye - Men +5 -->
+				<item id="17698" min="1" max="1" chance="17.03" /> <!-- Lv. 5 Giant DEX Dye - DEX +5 -->
+				<item id="17708" min="1" max="1" chance="16.95" /> <!-- Lv. 5 Ancient MEN Dye - MEN +5 / Holy Resistance +25 -->
+				<item id="17713" min="1" max="1" chance="16.94" /> <!-- Lv. 5 Legendary WIT Dye - WIT +5 / MEN +1 / Wind Resistance +25 -->
+				<item id="17712" min="1" max="1" chance="16.78" /> <!-- Lv. 5 Legendary INT Dye - INT +5 / WIT +1 / Water Resistance +25 -->
+				<item id="17700" min="1" max="1" chance="16.78" /> <!-- Lv. 5 Giant INT Dye - INT +5 -->
+				<item id="17707" min="1" max="1" chance="16.73" /> <!-- Lv. 5 Ancient WIT Dye - WIT +5 / Wind Resistance +25 -->
+				<item id="17709" min="1" max="1" chance="16.57" /> <!-- Lv. 5 Legendary STR Dye - STR +5 / DEX +1 / Fire Resistance +25 -->
+				<item id="17711" min="1" max="1" chance="16.52" /> <!-- Lv. 5 Legendary CON Dye - CON +5 / STR +1 / Dark Resistance +25 -->
+				<item id="17703" min="1" max="1" chance="16.5" /> <!-- Lv. 5 Ancient STR Dye - STR +5 / Fire Resistance +25 -->
+				<item id="17699" min="1" max="1" chance="16.44" /> <!-- Lv. 5 Giant CON Dye - CON +5 -->
+				<item id="17710" min="1" max="1" chance="16.35" /> <!-- Lv. 5 Legendary DEX Dye - DEX +5 / CON +1 / Earth Resistance +25 -->
+				<item id="17701" min="1" max="1" chance="16.34" /> <!-- Lv. 5 Giant WIT Dye - Wit +5 -->
+				<item id="17704" min="1" max="1" chance="16.21" /> <!-- Lv. 5 Ancient DEX Dye - DEX +5 / Earth Resistance +25 -->
+				<item id="17714" min="1" max="1" chance="16.17" /> <!-- Lv. 5 Legendary MEN Dye - MEN +5 / INT +1 / Holy Resistance +25 -->
+				<item id="17705" min="1" max="1" chance="16.1" /> <!-- Lv. 5 Ancient CON Dye - CON +5 / Dark Resistance +25 -->
+				<item id="17697" min="1" max="1" chance="16.06" /> <!-- Lv. 5 Giant STR Dye - STR +5 -->
+				<item id="46445" min="1" max="2" chance="15.8" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46446" min="1" max="2" chance="15.54" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46461" min="1" max="2" chance="15.5" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46460" min="1" max="2" chance="15.22" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46448" min="1" max="1" chance="13.77" /> <!-- Kain's Soul Crystal - Stage 5 -->
+				<item id="46463" min="1" max="1" chance="13.01" /> <!-- Mermoden's Soul Crystal - Stage 5 -->
+				<item id="46462" min="1" max="1" chance="13" /> <!-- Mermoden's Soul Crystal - Stage 4 -->
+				<item id="46447" min="1" max="1" chance="12.83" /> <!-- Kain's Soul Crystal - Stage 4 -->
+				<item id="36162" min="1" max="1" chance="10.022" /> <!-- Scroll of Blessing (R99-grade) -->
+				<item id="46509" min="1" max="1" chance="4.968" /> <!-- Lionel's Soul Crystal - Stage 6 -->
+				<item id="46494" min="1" max="1" chance="4.966" /> <!-- Pantheon's Soul Crystal - Stage 6 -->
+				<item id="46479" min="1" max="1" chance="4.897" /> <!-- Leona's Soul Crystal - Stage 6 -->
 				<item id="39483" min="1" max="1" chance="3.388" /> <!-- Alchemic Tome: Enchant Scroll -->
+				<item id="46449" min="1" max="1" chance="3.339" /> <!-- Kain's Soul Crystal - Stage 6 -->
+				<item id="46464" min="1" max="1" chance="3.312" /> <!-- Mermoden's Soul Crystal - Stage 6 -->
 				<item id="39485" min="1" max="1" chance="3.295" /> <!-- Alchemic Tome: Dye -->
 				<item id="39484" min="1" max="1" chance="3.274" /> <!-- Alchemic Tome: Life Stone -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="3" max="3" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+				<item id="40198" min="1" max="1" chance="2.524" /> <!-- Disassembly Recipe Pouch: Armor -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="500" />
@@ -1881,7 +1958,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="5632617" hpRegen="1" mp="22800" mpRegen="3000" />
 			<speed>
 				<walk ground="45" />
@@ -1920,7 +1997,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -1952,7 +2029,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="1" />
@@ -2004,7 +2081,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2030,7 +2107,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2056,7 +2133,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ORC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2082,7 +2159,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ORC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2108,7 +2185,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ORC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2134,7 +2211,7 @@
 		<!-- AUTO GENERATED NPC TODO: FIX IT -->
 		<race>ORC</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="8446" hpRegen="8.5" mp="2355" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2194,7 +2271,40 @@
 				<item id="17290" min="1" max="1" chance="0.3" /> <!-- Requiem Shaper -->
 				<item id="17527" min="1" max="1" chance="28.17" /> <!-- Scroll: Enchant Armor (R-grade) -->
 				<item id="17526" min="1" max="1" chance="2.314" /> <!-- Scroll: Enchant Weapon (R-grade) -->
+				<item id="46474" min="1" max="1" chance="1.173" /> <!-- Leona's Soul Crystal - Stage 1 -->
+				<item id="46489" min="1" max="1" chance="1.077" /> <!-- Pantheon's Soul Crystal - Stage 1 -->
+				<item id="46504" min="1" max="1" chance="1.065" /> <!-- Lionel's Soul Crystal - Stage 1 -->
+				<item id="46505" min="1" max="1" chance="0.75" /> <!-- Lionel's Soul Crystal - Stage 2 -->
+				<item id="46506" min="1" max="1" chance="0.75" /> <!-- Lionel's Soul Crystal - Stage 3 -->
+				<item id="46490" min="1" max="1" chance="0.75" /> <!-- Pantheon's Soul Crystal - Stage 2 -->
+				<item id="46476" min="1" max="1" chance="0.75" /> <!-- Leona's Soul Crystal - Stage 3 -->
+				<item id="46475" min="1" max="1" chance="0.75" /> <!-- Leona's Soul Crystal - Stage 2 -->
+				<item id="46491" min="1" max="1" chance="0.75" /> <!-- Pantheon's Soul Crystal - Stage 3 -->
+				<item id="46461" min="1" max="1" chance="0.75" /> <!-- Mermoden's Soul Crystal - Stage 3 -->
+				<item id="46444" min="1" max="1" chance="0.75" /> <!-- Kain's Soul Crystal - Stage 1 -->
+				<item id="46460" min="1" max="1" chance="0.75" /> <!-- Mermoden's Soul Crystal - Stage 2 -->
+				<item id="46459" min="1" max="1" chance="0.75" /> <!-- Mermoden's Soul Crystal - Stage 1 -->
+				<item id="46445" min="1" max="1" chance="0.75" /> <!-- Kain's Soul Crystal - Stage 2 -->
+				<item id="46446" min="1" max="1" chance="0.75" /> <!-- Kain's Soul Crystal - Stage 3 -->
+				<item id="46462" min="1" max="1" chance="0.3" /> <!-- Mermoden's Soul Crystal - Stage 4 -->
+				<item id="46492" min="1" max="1" chance="0.3" /> <!-- Pantheon's Soul Crystal - Stage 4 -->
+				<item id="46447" min="1" max="1" chance="0.3" /> <!-- Kain's Soul Crystal - Stage 4 -->
+				<item id="46477" min="1" max="1" chance="0.3" /> <!-- Leona's Soul Crystal - Stage 4 -->
+				<item id="46507" min="1" max="1" chance="0.3" /> <!-- Lionel's Soul Crystal - Stage 4 -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 	</npc>
 	<npc id="19171" level="85" type="FriendlyNpc" name="Tentacle">
@@ -2204,7 +2314,7 @@
 		</parameters>
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2233,7 +2343,7 @@
 		</parameters>
 		<race>BUG</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="45" />
@@ -2262,7 +2372,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2291,7 +2401,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2320,7 +2430,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2349,7 +2459,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2378,7 +2488,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2407,7 +2517,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2436,7 +2546,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2465,7 +2575,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2494,7 +2604,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2523,7 +2633,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="10" />
@@ -2552,7 +2662,7 @@
 		</parameters>
 		<race>SIEGE_WEAPON</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="60" />
@@ -2581,7 +2691,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2610,7 +2720,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2639,7 +2749,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2668,7 +2778,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2697,7 +2807,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2726,7 +2836,7 @@
 		</parameters>
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="40" />
@@ -2755,7 +2865,7 @@
 		</parameters>
 		<race>SIEGE_WEAPON</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="60" />
@@ -2785,7 +2895,7 @@
 		<race>ORC</race>
 		<sex>MALE</sex>
 		<equipment rhand="171" /> <!-- Deadman's Glory -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="35" />
@@ -2815,7 +2925,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<equipment rhand="1511" /> <!-- Silversmith Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2845,7 +2955,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<equipment rhand="91" /> <!-- Heavy War Axe -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2874,7 +2984,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="20" />
@@ -2903,7 +3013,7 @@
 		</parameters>
 		<race>DWARF</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2933,7 +3043,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<equipment rhand="7897" /> <!-- Dwarven Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2963,7 +3073,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<equipment rhand="7896" /> <!-- Lesser Giant's Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -2993,7 +3103,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<equipment rhand="2502" /> <!-- Dwarven War Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />
@@ -3023,7 +3133,7 @@
 		<race>DWARF</race>
 		<sex>MALE</sex>
 		<equipment rhand="293" /> <!-- War Hammer -->
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13188" hpRegen="8.5" mp="1846" mpRegen="3" />
 			<speed>
 				<walk ground="50" />

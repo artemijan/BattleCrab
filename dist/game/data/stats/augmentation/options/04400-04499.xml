@@ -1,8 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="4400" name="o_w_70_1g_32">
-		<!-- M. Def. + 7.92. -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- M. Def. +7.92. -->
+		<!-- MP Recovery +0.08. -->
+		<!-- M. Def. +7.92. -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>7.92</amount>
@@ -15,8 +17,10 @@
 		</effects>
 	</option>
 	<option id="4401" name="o_w_70_1g_33">
-		<!-- M. Def. + 7.92. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- M. Def. +7.92. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- M. Def. +7.92. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>7.92</amount>
@@ -29,8 +33,10 @@
 		</effects>
 	</option>
 	<option id="4402" name="o_w_70_1g_34">
-		<!-- M. Def. + 7.92. -->
-		<!-- Evasion + 0.91. -->
+		<!-- M. Def. +7.92. -->
+		<!-- Evasion +0.91. -->
+		<!-- M. Def. +7.92. -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>7.92</amount>
@@ -43,8 +49,10 @@
 		</effects>
 	</option>
 	<option id="4403" name="o_w_70_1g_35">
-		<!-- M. Def. + 7.92. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- M. Def. +7.92. -->
+		<!-- Accuracy +0.91. -->
+		<!-- M. Def. +7.92. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>7.92</amount>
@@ -57,8 +65,10 @@
 		</effects>
 	</option>
 	<option id="4404" name="o_w_70_1g_36">
-		<!-- M. Def. + 7.92. -->
-		<!-- Critical + 9.86. -->
+		<!-- M. Def. +7.92. -->
+		<!-- Critical +9.86. -->
+		<!-- M. Def. +7.92. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>7.92</amount>
@@ -71,8 +81,10 @@
 		</effects>
 	</option>
 	<option id="4405" name="o_w_70_1g_37">
-		<!-- Max HP + 24.91 -->
-		<!-- Max MP + 26.19. -->
+		<!-- Max HP +24.91 -->
+		<!-- Max MP +26.19. -->
+		<!-- Max HP +24.91 -->
+		<!-- Max MP +26.19. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -85,8 +97,10 @@
 		</effects>
 	</option>
 	<option id="4406" name="o_w_70_1g_38">
-		<!-- Max HP + 24.91 -->
-		<!-- Max CP + 33.84. -->
+		<!-- Max HP +24.91 -->
+		<!-- Max CP +33.84. -->
+		<!-- Max HP +24.91 -->
+		<!-- Max CP +33.84. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -99,36 +113,42 @@
 		</effects>
 	</option>
 	<option id="4407" name="o_w_70_1g_39">
-		<!-- Max HP + 24.91 -->
-		<!-- P. Atk. + 5.44. -->
+		<!-- Max HP +24.91 -->
+		<!-- P. Atk. +5.44. -->
+		<!-- Max HP +24.91 -->
+		<!-- P. Atk. +5.44. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.436</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4408" name="o_w_70_1g_40">
-		<!-- Max HP + 24.91 -->
-		<!-- M. Atk. + 6.3. -->
+		<!-- Max HP +24.91 -->
+		<!-- M. Atk. +6.3. -->
+		<!-- Max HP +24.91 -->
+		<!-- M. Atk. +6.3. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4409" name="o_w_70_1g_41">
-		<!-- Max HP + 24.91 -->
-		<!-- HP Recovery + 0.13. -->
+		<!-- Max HP +24.91 -->
+		<!-- HP Recovery +0.13. -->
+		<!-- Max HP +24.91 -->
+		<!-- HP Recovery +0.13. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -141,8 +161,10 @@
 		</effects>
 	</option>
 	<option id="4410" name="o_w_70_1g_42">
-		<!-- Max HP + 24.91 -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- Max HP +24.91 -->
+		<!-- MP Recovery +0.08. -->
+		<!-- Max HP +24.91 -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -155,8 +177,10 @@
 		</effects>
 	</option>
 	<option id="4411" name="o_w_70_1g_43">
-		<!-- Max HP + 24.91 -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- Max HP +24.91 -->
+		<!-- CP Recovery +0.13. -->
+		<!-- Max HP +24.91 -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -169,8 +193,10 @@
 		</effects>
 	</option>
 	<option id="4412" name="o_w_70_1g_44">
-		<!-- Max HP + 24.91 -->
-		<!-- Evasion + 0.91. -->
+		<!-- Max HP +24.91 -->
+		<!-- Evasion +0.91. -->
+		<!-- Max HP +24.91 -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -183,8 +209,10 @@
 		</effects>
 	</option>
 	<option id="4413" name="o_w_70_1g_45">
-		<!-- Max HP + 24.91 -->
-		<!-- Accuracy + 0.91. -->
+		<!-- Max HP +24.91 -->
+		<!-- Accuracy +0.91. -->
+		<!-- Max HP +24.91 -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -197,8 +225,10 @@
 		</effects>
 	</option>
 	<option id="4414" name="o_w_70_1g_46">
-		<!-- Max HP + 24.91 -->
-		<!-- Critical + 9.86. -->
+		<!-- Max HP +24.91 -->
+		<!-- Critical +9.86. -->
+		<!-- Max HP +24.91 -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>24.91</amount>
@@ -211,8 +241,10 @@
 		</effects>
 	</option>
 	<option id="4415" name="o_w_70_1g_47">
-		<!-- Max MP + 29.1. -->
-		<!-- Max CP + 33.84. -->
+		<!-- Max MP +29.1. -->
+		<!-- Max CP +33.84. -->
+		<!-- Max MP +29.1. -->
+		<!-- Max CP +33.84. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -225,36 +257,42 @@
 		</effects>
 	</option>
 	<option id="4416" name="o_w_70_1g_48">
-		<!-- Max MP + 29.1. -->
-		<!-- P. Atk. + 5.44. -->
+		<!-- Max MP +29.1. -->
+		<!-- P. Atk. +5.44. -->
+		<!-- Max MP +29.1. -->
+		<!-- P. Atk. +5.44. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.436</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4417" name="o_w_70_1g_49">
-		<!-- Max MP + 29.1. -->
-		<!-- M. Atk. + 6.3. -->
+		<!-- Max MP +29.1. -->
+		<!-- M. Atk. +6.3. -->
+		<!-- Max MP +29.1. -->
+		<!-- M. Atk. +6.3. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4418" name="o_w_70_1g_50">
-		<!-- Max MP + 29.1. -->
-		<!-- HP Recovery + 0.13. -->
+		<!-- Max MP +29.1. -->
+		<!-- HP Recovery +0.13. -->
+		<!-- Max MP +29.1. -->
+		<!-- HP Recovery +0.13. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -267,8 +305,10 @@
 		</effects>
 	</option>
 	<option id="4419" name="o_w_70_1g_51">
-		<!-- Max MP + 29.1. -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- Max MP +29.1. -->
+		<!-- MP Recovery +0.08. -->
+		<!-- Max MP +29.1. -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -281,8 +321,10 @@
 		</effects>
 	</option>
 	<option id="4420" name="o_w_70_1g_52">
-		<!-- Max MP + 29.1. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- Max MP +29.1. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- Max MP +29.1. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -295,8 +337,10 @@
 		</effects>
 	</option>
 	<option id="4421" name="o_w_70_1g_53">
-		<!-- Max MP + 29.1. -->
-		<!-- Evasion + 0.91. -->
+		<!-- Max MP +29.1. -->
+		<!-- Evasion +0.91. -->
+		<!-- Max MP +29.1. -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -309,8 +353,10 @@
 		</effects>
 	</option>
 	<option id="4422" name="o_w_70_1g_54">
-		<!-- Max MP + 29.1. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- Max MP +29.1. -->
+		<!-- Accuracy +0.91. -->
+		<!-- Max MP +29.1. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -323,8 +369,10 @@
 		</effects>
 	</option>
 	<option id="4423" name="o_w_70_1g_55">
-		<!-- Max MP + 29.1. -->
-		<!-- Critical + 9.86. -->
+		<!-- Max MP +29.1. -->
+		<!-- Critical +9.86. -->
+		<!-- Max MP +29.1. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>29.1</amount>
@@ -337,36 +385,42 @@
 		</effects>
 	</option>
 	<option id="4424" name="o_w_70_1g_56">
-		<!-- Max CP + 37.6. -->
-		<!-- P. Atk. + 5.44. -->
+		<!-- Max CP +37.6. -->
+		<!-- P. Atk. +5.44. -->
+		<!-- Max CP +37.6. -->
+		<!-- P. Atk. +5.44. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>5.436</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4425" name="o_w_70_1g_57">
-		<!-- Max CP + 37.6. -->
-		<!-- M. Atk. + 6.3. -->
+		<!-- Max CP +37.6. -->
+		<!-- M. Atk. +6.3. -->
+		<!-- Max CP +37.6. -->
+		<!-- M. Atk. +6.3. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4426" name="o_w_70_1g_58">
-		<!-- Max CP + 37.6. -->
-		<!-- HP Recovery + 0.13. -->
+		<!-- Max CP +37.6. -->
+		<!-- HP Recovery +0.13. -->
+		<!-- Max CP +37.6. -->
+		<!-- HP Recovery +0.13. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
@@ -379,8 +433,10 @@
 		</effects>
 	</option>
 	<option id="4427" name="o_w_70_1g_59">
-		<!-- Max CP + 37.6. -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- Max CP +37.6. -->
+		<!-- MP Recovery +0.08. -->
+		<!-- Max CP +37.6. -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
@@ -393,8 +449,10 @@
 		</effects>
 	</option>
 	<option id="4428" name="o_w_70_1g_60">
-		<!-- Max CP + 37.6. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- Max CP +37.6. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- Max CP +37.6. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
@@ -407,8 +465,10 @@
 		</effects>
 	</option>
 	<option id="4429" name="o_w_70_1g_61">
-		<!-- Max CP + 37.6. -->
-		<!-- Evasion + 0.91. -->
+		<!-- Max CP +37.6. -->
+		<!-- Evasion +0.91. -->
+		<!-- Max CP +37.6. -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
@@ -421,8 +481,10 @@
 		</effects>
 	</option>
 	<option id="4430" name="o_w_70_1g_62">
-		<!-- Max CP + 37.6. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- Max CP +37.6. -->
+		<!-- Accuracy +0.91. -->
+		<!-- Max CP +37.6. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
@@ -435,8 +497,10 @@
 		</effects>
 	</option>
 	<option id="4431" name="o_w_70_1g_63">
-		<!-- Max CP + 37.6. -->
-		<!-- Critical + 9.86. -->
+		<!-- Max CP +37.6. -->
+		<!-- Critical +9.86. -->
+		<!-- Max CP +37.6. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>37.603</amount>
@@ -449,24 +513,28 @@
 		</effects>
 	</option>
 	<option id="4432" name="o_w_70_1g_64">
-		<!-- P. Atk. + 6.04. -->
-		<!-- M. Atk. + 6.3. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- M. Atk. +6.3. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- M. Atk. +6.3. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>6.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4433" name="o_w_70_1g_65">
-		<!-- P. Atk. + 6.04. -->
-		<!-- HP Recovery + 0.13. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- HP Recovery +0.13. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- HP Recovery +0.13. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -477,10 +545,12 @@
 		</effects>
 	</option>
 	<option id="4434" name="o_w_70_1g_66">
-		<!-- P. Atk. + 6.04. -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- MP Recovery +0.08. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -491,10 +561,12 @@
 		</effects>
 	</option>
 	<option id="4435" name="o_w_70_1g_67">
-		<!-- P. Atk. + 6.04. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -505,10 +577,12 @@
 		</effects>
 	</option>
 	<option id="4436" name="o_w_70_1g_68">
-		<!-- P. Atk. + 6.04. -->
-		<!-- Evasion + 0.91. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- Evasion +0.91. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- Evasion +0.91. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -519,10 +593,12 @@
 		</effects>
 	</option>
 	<option id="4437" name="o_w_70_1g_69">
-		<!-- P. Atk. + 6.04. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- Accuracy +0.91. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -533,10 +609,12 @@
 		</effects>
 	</option>
 	<option id="4438" name="o_w_70_1g_70">
-		<!-- P. Atk. + 6.04. -->
-		<!-- Critical + 9.86. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- Critical +9.86. -->
+		<!-- P. Atk. +6.04. -->
+		<!-- Critical +9.86. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.04</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -547,10 +625,12 @@
 		</effects>
 	</option>
 	<option id="4439" name="o_w_70_1g_71">
-		<!-- M. Atk. + 7. -->
-		<!-- HP Recovery + 0.13. -->
+		<!-- M. Atk. +7. -->
+		<!-- HP Recovery +0.13. -->
+		<!-- M. Atk. +7. -->
+		<!-- HP Recovery +0.13. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.0</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -561,10 +641,12 @@
 		</effects>
 	</option>
 	<option id="4440" name="o_w_70_1g_72">
-		<!-- M. Atk. + 7. -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- M. Atk. +7. -->
+		<!-- MP Recovery +0.08. -->
+		<!-- M. Atk. +7. -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.0</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -575,10 +657,12 @@
 		</effects>
 	</option>
 	<option id="4441" name="o_w_70_1g_73">
-		<!-- M. Atk. + 7. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- M. Atk. +7. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- M. Atk. +7. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.0</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -589,10 +673,12 @@
 		</effects>
 	</option>
 	<option id="4442" name="o_w_70_1g_74">
-		<!-- M. Atk. + 7. -->
-		<!-- Evasion + 0.91. -->
+		<!-- M. Atk. +7. -->
+		<!-- Evasion +0.91. -->
+		<!-- M. Atk. +7. -->
+		<!-- Evasion +0.91. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.0</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -603,10 +689,12 @@
 		</effects>
 	</option>
 	<option id="4443" name="o_w_70_1g_75">
-		<!-- M. Atk. + 7. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- M. Atk. +7. -->
+		<!-- Accuracy +0.91. -->
+		<!-- M. Atk. +7. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.0</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -617,10 +705,12 @@
 		</effects>
 	</option>
 	<option id="4444" name="o_w_70_1g_76">
-		<!-- M. Atk. + 7. -->
-		<!-- Critical + 9.86. -->
+		<!-- M. Atk. +7. -->
+		<!-- Critical +9.86. -->
+		<!-- M. Atk. +7. -->
+		<!-- Critical +9.86. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.0</amount>
 				<mode>DIFF</mode>
 			</effect>
@@ -631,8 +721,10 @@
 		</effects>
 	</option>
 	<option id="4445" name="o_w_70_1g_77">
-		<!-- HP Recovery + 0.14. -->
-		<!-- MP Recovery + 0.08. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- MP Recovery +0.08. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- MP Recovery +0.08. -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.143</amount>
@@ -645,8 +737,10 @@
 		</effects>
 	</option>
 	<option id="4446" name="o_w_70_1g_78">
-		<!-- HP Recovery + 0.14. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.143</amount>
@@ -659,8 +753,10 @@
 		</effects>
 	</option>
 	<option id="4447" name="o_w_70_1g_79">
-		<!-- HP Recovery + 0.14. -->
-		<!-- Evasion + 0.91. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- Evasion +0.91. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.143</amount>
@@ -673,8 +769,10 @@
 		</effects>
 	</option>
 	<option id="4448" name="o_w_70_1g_80">
-		<!-- HP Recovery + 0.14. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- Accuracy +0.91. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.143</amount>
@@ -687,8 +785,10 @@
 		</effects>
 	</option>
 	<option id="4449" name="o_w_70_1g_81">
-		<!-- HP Recovery + 0.14. -->
-		<!-- Critical + 9.86. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- Critical +9.86. -->
+		<!-- HP Recovery +0.14. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.143</amount>
@@ -701,8 +801,10 @@
 		</effects>
 	</option>
 	<option id="4450" name="o_w_70_1g_82">
-		<!-- MP Recovery + 0.09. -->
-		<!-- CP Recovery + 0.13. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- CP Recovery +0.13. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- CP Recovery +0.13. -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.0943</amount>
@@ -715,8 +817,10 @@
 		</effects>
 	</option>
 	<option id="4451" name="o_w_70_1g_83">
-		<!-- MP Recovery + 0.09. -->
-		<!-- Evasion + 0.91. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- Evasion +0.91. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.0943</amount>
@@ -729,8 +833,10 @@
 		</effects>
 	</option>
 	<option id="4452" name="o_w_70_1g_84">
-		<!-- MP Recovery + 0.09. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- Accuracy +0.91. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.0943</amount>
@@ -743,8 +849,10 @@
 		</effects>
 	</option>
 	<option id="4453" name="o_w_70_1g_85">
-		<!-- MP Recovery + 0.09. -->
-		<!-- Critical + 9.85. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- Critical +9.85. -->
+		<!-- MP Recovery +0.09. -->
+		<!-- Critical +9.85. -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.0943</amount>
@@ -757,8 +865,10 @@
 		</effects>
 	</option>
 	<option id="4454" name="o_w_70_1g_86">
-		<!-- CP Recovery + 0.14. -->
-		<!-- Evasion + 0.91. -->
+		<!-- CP Recovery +0.14. -->
+		<!-- Evasion +0.91. -->
+		<!-- CP Recovery +0.14. -->
+		<!-- Evasion +0.91. -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.143</amount>
@@ -771,8 +881,10 @@
 		</effects>
 	</option>
 	<option id="4455" name="o_w_70_1g_87">
-		<!-- CP Recovery + 0.14. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- CP Recovery +0.14. -->
+		<!-- Accuracy +0.91. -->
+		<!-- CP Recovery +0.14. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.143</amount>
@@ -785,8 +897,10 @@
 		</effects>
 	</option>
 	<option id="4456" name="o_w_70_1g_88">
-		<!-- CP Recovery + 0.14. -->
-		<!-- Critical + 9.86. -->
+		<!-- CP Recovery +0.14. -->
+		<!-- Critical +9.86. -->
+		<!-- CP Recovery +0.14. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.143</amount>
@@ -799,8 +913,10 @@
 		</effects>
 	</option>
 	<option id="4457" name="o_w_70_1g_89">
-		<!-- Evasion + 1.01. -->
-		<!-- Accuracy + 0.91. -->
+		<!-- Evasion +1.01. -->
+		<!-- Accuracy +0.91. -->
+		<!-- Evasion +1.01. -->
+		<!-- Accuracy +0.91. -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>1.005987</amount>
@@ -813,8 +929,10 @@
 		</effects>
 	</option>
 	<option id="4458" name="o_w_70_1g_90">
-		<!-- Evasion + 1.01. -->
-		<!-- Critical + 9.86. -->
+		<!-- Evasion +1.01. -->
+		<!-- Critical +9.86. -->
+		<!-- Evasion +1.01. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>1.005987</amount>
@@ -827,8 +945,10 @@
 		</effects>
 	</option>
 	<option id="4459" name="o_w_70_1g_91">
-		<!-- Accuracy + 1.01. -->
-		<!-- Critical + 9.86. -->
+		<!-- Accuracy +1.01. -->
+		<!-- Critical +9.86. -->
+		<!-- Accuracy +1.01. -->
+		<!-- Critical +9.86. -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>1.005987</amount>
@@ -841,7 +961,8 @@
 		</effects>
 	</option>
 	<option id="4460" name="o_w_75_1g_1">
-		<!-- P. Def. + 20.77. -->
+		<!-- P. Def. +20.77. -->
+		<!-- P. Def. +20.77. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>20.767</amount>
@@ -850,7 +971,8 @@
 		</effects>
 	</option>
 	<option id="4461" name="o_w_75_1g_2">
-		<!-- M. Def. + 16.72. -->
+		<!-- M. Def. +16.72. -->
+		<!-- M. Def. +16.72. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>16.72</amount>
@@ -859,7 +981,8 @@
 		</effects>
 	</option>
 	<option id="4462" name="o_w_75_1g_3">
-		<!-- Max HP + 52.63 -->
+		<!-- Max HP +52.63 -->
+		<!-- Max HP +52.63 -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>52.63</amount>
@@ -868,7 +991,8 @@
 		</effects>
 	</option>
 	<option id="4463" name="o_w_75_1g_4">
-		<!-- Max MP + 62.51. -->
+		<!-- Max MP +62.51. -->
+		<!-- Max MP +62.51. -->
 		<effects>
 			<effect name="MaxMp">
 				<amount>62.51</amount>
@@ -877,7 +1001,8 @@
 		</effects>
 	</option>
 	<option id="4464" name="o_w_75_1g_5">
-		<!-- Max CP + 79.44. -->
+		<!-- Max CP +79.44. -->
+		<!-- Max CP +79.44. -->
 		<effects>
 			<effect name="MaxCp">
 				<amount>79.4409</amount>
@@ -886,25 +1011,28 @@
 		</effects>
 	</option>
 	<option id="4465" name="o_w_75_1g_6">
-		<!-- P. Atk. + 13.15. -->
+		<!-- P. Atk. +13.15. -->
+		<!-- P. Atk. +13.15. -->
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>13.148</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4466" name="o_w_75_1g_7">
-		<!-- M. Atk. + 15.35. -->
+		<!-- M. Atk. +15.35. -->
+		<!-- M. Atk. +15.35. -->
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>15.352</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4467" name="o_w_75_1g_8">
-		<!-- HP Recovery + 0.31. -->
+		<!-- HP Recovery +0.31. -->
+		<!-- HP Recovery +0.31. -->
 		<effects>
 			<effect name="HpRegen">
 				<amount>0.31122</amount>
@@ -913,7 +1041,8 @@
 		</effects>
 	</option>
 	<option id="4468" name="o_w_75_1g_9">
-		<!-- MP Recovery + 0.2. -->
+		<!-- MP Recovery +0.2. -->
+		<!-- MP Recovery +0.2. -->
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.20235</amount>
@@ -922,7 +1051,8 @@
 		</effects>
 	</option>
 	<option id="4469" name="o_w_75_1g_10">
-		<!-- CP Recovery + 0.31. -->
+		<!-- CP Recovery +0.31. -->
+		<!-- CP Recovery +0.31. -->
 		<effects>
 			<effect name="CpRegen">
 				<amount>0.31122</amount>
@@ -931,7 +1061,8 @@
 		</effects>
 	</option>
 	<option id="4470" name="o_w_75_1g_11">
-		<!-- Evasion + 2.1. -->
+		<!-- Evasion +2.1. -->
+		<!-- Evasion +2.1. -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>2.096766</amount>
@@ -940,7 +1071,8 @@
 		</effects>
 	</option>
 	<option id="4471" name="o_w_75_1g_12">
-		<!-- Accuracy + 2.1. -->
+		<!-- Accuracy +2.1. -->
+		<!-- Accuracy +2.1. -->
 		<effects>
 			<effect name="Accuracy">
 				<amount>2.096766</amount>
@@ -949,7 +1081,8 @@
 		</effects>
 	</option>
 	<option id="4472" name="o_w_75_1g_13">
-		<!-- Critical + 22.7. -->
+		<!-- Critical +22.7. -->
+		<!-- Critical +22.7. -->
 		<effects>
 			<effect name="CriticalRate">
 				<amount>22.703782248</amount>
@@ -958,8 +1091,10 @@
 		</effects>
 	</option>
 	<option id="4473" name="o_w_75_1g_14">
-		<!-- P. Def. + 10.93. -->
-		<!-- M. Def. + 7.92. -->
+		<!-- P. Def. +10.93. -->
+		<!-- M. Def. +7.92. -->
+		<!-- P. Def. +10.93. -->
+		<!-- M. Def. +7.92. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -972,8 +1107,10 @@
 		</effects>
 	</option>
 	<option id="4474" name="o_w_75_1g_15">
-		<!-- P. Def. + 10.93. -->
-		<!-- Max HP + 24.93 -->
+		<!-- P. Def. +10.93. -->
+		<!-- Max HP +24.93 -->
+		<!-- P. Def. +10.93. -->
+		<!-- Max HP +24.93 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -986,8 +1123,10 @@
 		</effects>
 	</option>
 	<option id="4475" name="o_w_75_1g_16">
-		<!-- P. Def. + 10.93. -->
-		<!-- Max MP + 29.61. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Max MP +29.61. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Max MP +29.61. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1000,8 +1139,10 @@
 		</effects>
 	</option>
 	<option id="4476" name="o_w_75_1g_17">
-		<!-- P. Def. + 10.93. -->
-		<!-- Max CP + 37.63. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Max CP +37.63. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Max CP +37.63. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1014,36 +1155,42 @@
 		</effects>
 	</option>
 	<option id="4477" name="o_w_75_1g_18">
-		<!-- P. Def. + 10.93. -->
-		<!-- P. Atk. + 6.23. -->
+		<!-- P. Def. +10.93. -->
+		<!-- P. Atk. +6.23. -->
+		<!-- P. Def. +10.93. -->
+		<!-- P. Atk. +6.23. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.228</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4478" name="o_w_75_1g_19">
-		<!-- P. Def. + 10.93. -->
-		<!-- M. Atk. + 7.27. -->
+		<!-- P. Def. +10.93. -->
+		<!-- M. Atk. +7.27. -->
+		<!-- P. Def. +10.93. -->
+		<!-- M. Atk. +7.27. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.272</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4479" name="o_w_75_1g_20">
-		<!-- P. Def. + 10.93. -->
-		<!-- HP Recovery + 0.15. -->
+		<!-- P. Def. +10.93. -->
+		<!-- HP Recovery +0.15. -->
+		<!-- P. Def. +10.93. -->
+		<!-- HP Recovery +0.15. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1056,8 +1203,10 @@
 		</effects>
 	</option>
 	<option id="4480" name="o_w_75_1g_21">
-		<!-- P. Def. + 10.93. -->
-		<!-- MP Recovery + 0.1. -->
+		<!-- P. Def. +10.93. -->
+		<!-- MP Recovery +0.1. -->
+		<!-- P. Def. +10.93. -->
+		<!-- MP Recovery +0.1. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1070,8 +1219,10 @@
 		</effects>
 	</option>
 	<option id="4481" name="o_w_75_1g_22">
-		<!-- P. Def. + 10.93. -->
-		<!-- CP Recovery + 0.15. -->
+		<!-- P. Def. +10.93. -->
+		<!-- CP Recovery +0.15. -->
+		<!-- P. Def. +10.93. -->
+		<!-- CP Recovery +0.15. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1084,8 +1235,10 @@
 		</effects>
 	</option>
 	<option id="4482" name="o_w_75_1g_23">
-		<!-- P. Def. + 10.93. -->
-		<!-- Evasion + 1. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Evasion +1. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Evasion +1. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1098,8 +1251,10 @@
 		</effects>
 	</option>
 	<option id="4483" name="o_w_75_1g_24">
-		<!-- P. Def. + 10.93. -->
-		<!-- Accuracy + 1. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Accuracy +1. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Accuracy +1. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1112,8 +1267,10 @@
 		</effects>
 	</option>
 	<option id="4484" name="o_w_75_1g_25">
-		<!-- P. Def. + 10.93. -->
-		<!-- Critical + 10.78. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Critical +10.78. -->
+		<!-- P. Def. +10.93. -->
+		<!-- Critical +10.78. -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10.93</amount>
@@ -1126,8 +1283,10 @@
 		</effects>
 	</option>
 	<option id="4485" name="o_w_75_1g_26">
-		<!-- M. Def. + 8.8. -->
-		<!-- Max HP + 24.93 -->
+		<!-- M. Def. +8.8. -->
+		<!-- Max HP +24.93 -->
+		<!-- M. Def. +8.8. -->
+		<!-- Max HP +24.93 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1140,8 +1299,10 @@
 		</effects>
 	</option>
 	<option id="4486" name="o_w_75_1g_27">
-		<!-- M. Def. + 8.8. -->
-		<!-- Max MP + 29.61. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Max MP +29.61. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Max MP +29.61. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1154,8 +1315,10 @@
 		</effects>
 	</option>
 	<option id="4487" name="o_w_75_1g_28">
-		<!-- M. Def. + 8.8. -->
-		<!-- Max CP + 37.63. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Max CP +37.63. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Max CP +37.63. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1168,36 +1331,42 @@
 		</effects>
 	</option>
 	<option id="4488" name="o_w_75_1g_29">
-		<!-- M. Def. + 8.8. -->
-		<!-- P. Atk. + 6.23. -->
+		<!-- M. Def. +8.8. -->
+		<!-- P. Atk. +6.23. -->
+		<!-- M. Def. +8.8. -->
+		<!-- P. Atk. +6.23. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.228</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4489" name="o_w_75_1g_30">
-		<!-- M. Def. + 8.8. -->
-		<!-- M. Atk. + 7.27. -->
+		<!-- M. Def. +8.8. -->
+		<!-- M. Atk. +7.27. -->
+		<!-- M. Def. +8.8. -->
+		<!-- M. Atk. +7.27. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.272</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4490" name="o_w_75_1g_31">
-		<!-- M. Def. + 8.8. -->
-		<!-- HP Recovery + 0.15. -->
+		<!-- M. Def. +8.8. -->
+		<!-- HP Recovery +0.15. -->
+		<!-- M. Def. +8.8. -->
+		<!-- HP Recovery +0.15. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1210,8 +1379,10 @@
 		</effects>
 	</option>
 	<option id="4491" name="o_w_75_1g_32">
-		<!-- M. Def. + 8.8. -->
-		<!-- MP Recovery + 0.1. -->
+		<!-- M. Def. +8.8. -->
+		<!-- MP Recovery +0.1. -->
+		<!-- M. Def. +8.8. -->
+		<!-- MP Recovery +0.1. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1224,8 +1395,10 @@
 		</effects>
 	</option>
 	<option id="4492" name="o_w_75_1g_33">
-		<!-- M. Def. + 8.8. -->
-		<!-- CP Recovery + 0.15. -->
+		<!-- M. Def. +8.8. -->
+		<!-- CP Recovery +0.15. -->
+		<!-- M. Def. +8.8. -->
+		<!-- CP Recovery +0.15. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1238,8 +1411,10 @@
 		</effects>
 	</option>
 	<option id="4493" name="o_w_75_1g_34">
-		<!-- M. Def. + 8.8. -->
-		<!-- Evasion + 1. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Evasion +1. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Evasion +1. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1252,8 +1427,10 @@
 		</effects>
 	</option>
 	<option id="4494" name="o_w_75_1g_35">
-		<!-- M. Def. + 8.8. -->
-		<!-- Accuracy + 1. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Accuracy +1. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Accuracy +1. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1266,8 +1443,10 @@
 		</effects>
 	</option>
 	<option id="4495" name="o_w_75_1g_36">
-		<!-- M. Def. + 8.8. -->
-		<!-- Critical + 10.78. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Critical +10.78. -->
+		<!-- M. Def. +8.8. -->
+		<!-- Critical +10.78. -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>8.8</amount>
@@ -1280,8 +1459,10 @@
 		</effects>
 	</option>
 	<option id="4496" name="o_w_75_1g_37">
-		<!-- Max HP + 27.7 -->
-		<!-- Max MP + 29.61. -->
+		<!-- Max HP +27.7 -->
+		<!-- Max MP +29.61. -->
+		<!-- Max HP +27.7 -->
+		<!-- Max MP +29.61. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>27.7</amount>
@@ -1294,8 +1475,10 @@
 		</effects>
 	</option>
 	<option id="4497" name="o_w_75_1g_38">
-		<!-- Max HP + 27.7 -->
-		<!-- Max CP + 37.63. -->
+		<!-- Max HP +27.7 -->
+		<!-- Max CP +37.63. -->
+		<!-- Max HP +27.7 -->
+		<!-- Max CP +37.63. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>27.7</amount>
@@ -1308,28 +1491,32 @@
 		</effects>
 	</option>
 	<option id="4498" name="o_w_75_1g_39">
-		<!-- Max HP + 27.7 -->
-		<!-- P. Atk. + 6.23. -->
+		<!-- Max HP +27.7 -->
+		<!-- P. Atk. +6.23. -->
+		<!-- Max HP +27.7 -->
+		<!-- P. Atk. +6.23. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>27.7</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>6.228</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</option>
 	<option id="4499" name="o_w_75_1g_40">
-		<!-- Max HP + 27.7 -->
-		<!-- M. Atk. + 7.27. -->
+		<!-- Max HP +27.7 -->
+		<!-- M. Atk. +7.27. -->
+		<!-- Max HP +27.7 -->
+		<!-- M. Atk. +7.27. -->
 		<effects>
 			<effect name="MaxHp">
 				<amount>27.7</amount>
 				<mode>DIFF</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>7.272</amount>
 				<mode>DIFF</mode>
 			</effect>

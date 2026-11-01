@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47501" name="Rune Stone Fragment" type="EtcItem">
 		<!-- A Rune Stone Fragment engraved in ancient Rune language. Collect 10 and take them to Lias in the Dimensional Rift to exchange for a Rune Stone. -->
@@ -61,7 +61,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13584" level="1" /> <!-- NOT RETAIL SKILL - But uses the same status -->
+			<skill id="13584" level="1" /> <!-- Aria's Bracelet: CON -->
 		</skills>
 	</item>
 	<item id="47506" name="Bracelet of the Conqueror - MEN" type="Armor">
@@ -78,7 +78,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13585" level="1" /> <!-- NOT RETAIL SKILL - But uses the same status -->
+			<skill id="13585" level="1" /> <!-- Aria's Bracelet: MEN -->
 		</skills>
 	</item>
 	<item id="47507" name="Bracelet of the Conqueror - DEX" type="Armor">
@@ -95,7 +95,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13586" level="1" /> <!-- NOT RETAIL SKILL - But uses the same status -->
+			<skill id="13586" level="1" /> <!-- Aria's Bracelet: DEX -->
 		</skills>
 	</item>
 	<item id="47508" name="Bracelet of the Conqueror - WIT" type="Armor">
@@ -112,7 +112,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13587" level="1" /> <!-- NOT RETAIL SKILL - But uses the same status -->
+			<skill id="13587" level="1" /> <!-- Aria's Bracelet: WIT -->
 		</skills>
 	</item>
 	<item id="47509" name="Bracelet of the Conqueror - STR" type="Armor">
@@ -129,7 +129,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13588" level="1" /> <!-- NOT RETAIL SKILL - But uses the same status -->
+			<skill id="13588" level="1" /> <!-- Aria's Bracelet: STR -->
 		</skills>
 	</item>
 	<item id="47510" name="Bracelet of the Conqueror - INT" type="Armor">
@@ -146,7 +146,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<skills>
-			<skill id="13589" level="1" /> <!-- NOT RETAIL SKILL - But uses the same status -->
+			<skill id="13589" level="1" /> <!-- Aria's Bracelet: INT -->
 		</skills>
 	</item>
 	<item id="47511" name="Dimensional Traces" type="EtcItem">
@@ -250,7 +250,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="47520" name="Request - Cruma Marshlands" type="EtcItem">
-		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Bloody Swampland. The request can be accepted by characters between Lv. 92-102. Double-click to receive the request -->
+		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Cruma Marshlands. The request can be accepted by characters between Lv. 92-102. Double-click to receive the request -->
 		<set name="icon" val="icon.hunter_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -338,7 +338,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="47528" name="Request - Garden of Spirits" type="EtcItem">
-		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Garden of Spirits. The request can be accepted by characters between Lv. 98-108. Double-click to receive the request -->
+		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Garden of Spirits. The request can be accepted by characters between Lv. 100-110. Double-click to receive the request -->
 		<set name="icon" val="icon.hunter_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -349,7 +349,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="47529" name="Request - Atelia Fortress" type="EtcItem">
-		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Atelia Fortress. The request can be accepted by characters between Lv. 98-108. Double-click to receive the request -->
+		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Atelia Fortress. The request can be accepted by characters between Lv. 100-110. Double-click to receive the request -->
 		<set name="icon" val="icon.hunter_comminssion_paper" />
 		<set name="default_action" val="START_QUEST" />
 		<set name="immediate_effect" val="true" />
@@ -430,7 +430,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="47537" name="Request - Cruma Marshlands" type="EtcItem">
-		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Bloody Swampland. -->
+		<!-- A request from the Hunter Guild calling on you to defeat the giant monsters in the Cruma Marshlands. -->
 		<set name="icon" val="icon.hunter_comminssion_paper" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -555,8 +555,8 @@
 		<set name="is_event_restricted" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="47549" name="Premium Account Bait" type="EtcItem">
-		<!-- Fishing time: 105 seconds. Standby time: 15 seconds. Special Fishing Bait. Fish using this bait to catch a Purplish Box with low probability. Can be used outside Premium Accounts. -->
+	<item id="47549" name="PA Bait" type="EtcItem">
+		<!-- Fishing time: 105 seconds. Standby time: 15 seconds. Special Fishing Bait. Fish using this bait to catch a Purplish Box with low probability. Can be used outside PAs. -->
 		<set name="icon" val="icon.etc_bait_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="etcitem_type" val="LURE" />
@@ -644,13 +644,15 @@
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="38154" min="50" max="50" chance="16.666666666667" /> <!-- Fishing Shot -->
+			<item id="39720" min="1" max="1" chance="16.666666666667" /> <!-- Maphr's Luck Potion -->
 			<item id="8034" min="1" max="1" chance="16.666666666667" /> <!-- Rainbow Springs Clan Hall War Decree -->
 			<item id="47556" min="1" max="1" chance="16.666666666667" /> <!-- Stardust -->
 			<item id="45494" min="1" max="1" chance="16.666666666667" /> <!-- Sturdy Fishing Rod -->
+			<item id="48065" min="1" max="1" chance="16.666666666667" /> <!-- Zodiac Cube Fragment -->
 		</capsuled_items>
 	</item>
 	<item id="47556" name="Stardust" type="EtcItem">
-		<!-- Ingredient used to produce the Zodiac Agathion -->
+		<!-- Ingredient needed to exchange Elementary Seed Bracelet. -->
 		<set name="icon" val="icon.star_crystal_piece" />
 		<set name="weight" val="1" />
 		<set name="price" val="1000000" />
@@ -772,8 +774,8 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LEATHER" />
 	</item>
-	<item id="47563" name="Zodiac Agathion Box" type="EtcItem">
-		<!-- Double click to obtain one of the 12 types of Zodiac Agathion Stage 1. -->
+	<item id="47563" name="Zodiac Agathion Pack" type="EtcItem">
+		<!-- Double click to obtain one of the twelve Agathions Stage 1. -->
 		<set name="icon" val="icon.etc_exchange_box_i00" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
 		<set name="weight" val="10" />
@@ -913,7 +915,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="FISH" />
 	</item>
-	<item id="47574" name="Premium Account Treasure Chest" type="EtcItem">
+	<item id="47574" name="PA Treasure Chest" type="EtcItem">
 		<!-- Double click to obtain the item. -->
 		<set name="icon" val="icon.new_user_box" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
@@ -961,7 +963,7 @@
 		</skills>
 	</item>
 	<item id="47579" name="Christmas Party Herb" type="EtcItem">
-		<!-- Christmas Party Herb. P. Atk./M. Atk./P. Def./M. Def. are increased by 50%, and you are turned into Santa for 2 minutes. Effect disappears when restarted. -->
+		<!-- Christmas Party Herb. P. Atk./ M. Atk./ P. Def./ M. Def. are increased by 50%, and you are turned into Santa for 2 minutes. Effect disappears when restarted. -->
 		<set name="icon" val="icon.general_fuel_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
@@ -1080,7 +1082,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18683" level="1" /> <!-- Cat Fighter Appearance Stone - Ertheia Only -->
+			<skill id="18683" level="1" /> <!-- Cat Fighter Appearance Stone -->
 		</skills>
 	</item>
 	<item id="47592" name="Warm Bear Paws Appearance Stone" type="EtcItem">
@@ -1132,7 +1134,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18687" level="1" /> <!-- Wedding Bouquet Appearance Stone -->
+			<skill id="18687" level="1" /> <!-- Wedding Bouquet Appearance Stone -One-handed Blunt Weapon -->
 		</skills>
 	</item>
 	<item id="47596" name="Pig Lollipop Appearance Stone" type="EtcItem">
@@ -1145,7 +1147,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18688" level="1" /> <!-- Pig Lollipop Appearance Stone -->
+			<skill id="18688" level="1" /> <!-- Pig Lollipop -->
 		</skills>
 	</item>
 	<item id="47597" name="Wedding Bouquet" type="Weapon">
@@ -1163,7 +1165,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">1</stat>
+			<stat type="critRate">1</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">1</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1185,7 +1187,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">1</stat>
@@ -1206,7 +1208,7 @@
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>

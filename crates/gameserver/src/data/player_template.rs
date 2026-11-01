@@ -1,6 +1,13 @@
 //! Port of `data/xml/PlayerTemplateData` — per-class base data from
-//! `data/stats/chars/baseStats/*.xml`. G3 needs the creation-screen stats
-//! (base STR/DEX/…), the level-1 HP/MP, and the creation spawn points.
+//! `data/stats/players/templates/**/*.xml` (`StartingClass`, `1stClass` …
+//! `4rthClass`, `Ertheia`, `BalthusKnights`). G3 needs the creation-screen
+//! stats (base STR/DEX/…), the level-1 HP/MP, and the creation spawn points.
+//!
+//! The per-level tables are sized by `ExperienceData.getMaxLevel()` (Java's
+//! `MAX_LEVEL`, one above the cap), and a `<level val>` past `MAX_LEVEL - 1`
+//! ends that file's `lvlUpgainData`. A file that stops short of the cap has its
+//! remaining levels extrapolated, exactly as Java's "Generate missing stats
+//! automatically" loop does.
 
 use std::collections::HashMap;
 
@@ -10,7 +17,7 @@ use tracing::info;
 
 use crate::enums::Race;
 
-pub const BASE_STATS_DIR: &str = "data/stats/chars/baseStats";
+pub const TEMPLATES_DIR: &str = "data/stats/players/templates";
 
 /// The creatable base classes and their race / mage flag (from `ClassId`).
 /// Only these can be created; `NewCharacter` offers exactly this set.
@@ -46,6 +53,8 @@ pub struct PlayerTemplate {
     pub base_int: i32,
     pub base_wit: i32,
     pub base_men: i32,
+    pub base_luc: i32,
+    pub base_cha: i32,
     /// Per-level max HP/MP/CP (`lvlUpgainData`), indexed by level.
     pub hp_table: Vec<f64>,
     pub mp_table: Vec<f64>,
@@ -63,6 +72,9 @@ pub struct PlayerTemplate {
     pub base_m_atk_spd: i32,
     pub base_crit_rate: i32,
     pub base_m_crit_rate: i32,
+    /// `basePSkillCritRate`; no template sets it, so every class has Java's
+    /// default of 5.
+    pub base_p_skill_crit_rate: i32,
     pub base_atk_range: i32,
     /// Sum of the base armor-slot defenses / jewel defenses.
     pub base_p_def: i32,
@@ -192,23 +204,29 @@ impl PlayerTemplateData {
     pub fn load() -> Self {
         Self::load_from("")
     }
+    /// The templates under this dist's shipped level cap.
     pub fn load_from(file_path: &str) -> Self {
+        Self::load_from_with(
+            file_path,
+            crate::data::experience::DIST_PLAYER_MAXIMUM_LEVEL as u8,
+        )
+    }
+
+    /// `max_level` is `ExperienceData.getMaxLevel()` (Java `MAX_LEVEL`).
+    pub fn load_from_with(file_path: &str, max_level: u8) -> Self {
         let mut templates = HashMap::new();
         // Deliberately **not** `xml::xml_files_in`: that helper answers an
         // unreadable directory with an empty list, and an empty player-template
         // set is not a degraded server, it is one where no character can be
         // created or loaded. The panic names the CWD because the usual cause is
         // a datapack path resolved from the wrong directory.
-        let dir = std::fs::read_dir(format!("{file_path}{BASE_STATS_DIR}")).unwrap_or_else(|e| {
+        let dir = format!("{file_path}{TEMPLATES_DIR}");
+        if let Err(e) = std::fs::read_dir(&dir) {
             let cwd = std::env::current_dir().unwrap();
-            panic!("PlayerTemplateData: cannot read {BASE_STATS_DIR}: {e}, CWD: {cwd:?}")
-        });
-        for entry in dir.flatten() {
-            let path = entry.path();
-            if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-                continue;
-            }
-            if let Some(t) = parse_template(&path) {
+            panic!("PlayerTemplateData: cannot read {TEMPLATES_DIR}: {e}, CWD: {cwd:?}")
+        }
+        for path in crate::data::xml::xml_files_under(&dir) {
+            if let Some(t) = parse_template(&path, max_level as usize) {
                 templates.insert(t.class_id, t);
             }
         }
@@ -246,21 +264,26 @@ impl PlayerTemplateData {
     }
 }
 
-fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
+fn parse_template(path: &std::path::Path, max_level: usize) -> Option<PlayerTemplate> {
     let content = std::fs::read_to_string(path).ok()?;
     let mut reader = Reader::from_str(&content);
 
     let mut t = PlayerTemplate {
         class_id: -1,
+        base_p_skill_crit_rate: 5,
         ..Default::default()
     };
-    // Level tables sized to the classic max (85, +buffer); index by level.
-    t.hp_table = vec![0.0; 90];
-    t.mp_table = vec![0.0; 90];
-    t.cp_table = vec![0.0; 90];
-    t.hp_regen_table = vec![0.0; 90];
-    t.mp_regen_table = vec![0.0; 90];
-    t.cp_regen_table = vec![0.0; 90];
+    // Java `new double[ExperienceData.getMaxLevel()]`; index by level.
+    t.hp_table = vec![0.0; max_level];
+    t.mp_table = vec![0.0; max_level];
+    t.cp_table = vec![0.0; max_level];
+    t.hp_regen_table = vec![0.0; max_level];
+    t.mp_regen_table = vec![0.0; max_level];
+    t.cp_regen_table = vec![0.0; max_level];
+    // The last `<level val>` read, for the missing-level extrapolation; and
+    // whether a level past the cap ended the gain data (Java `return`s).
+    let mut last_level: usize = 0;
+    let mut gain_ended = false;
 
     let mut cur_tag = String::new();
     let mut in_creation_points = false;
@@ -276,13 +299,21 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                     "creationPoints" => in_creation_points = true,
                     "basePDef" | "baseMDef" | "baseMoveSpd" | "collisionMale"
                     | "collisionFemale" => section = Some(name.clone()),
-                    "level" => {
+                    "level" if !gain_ended => {
                         cur_level = e
                             .attributes()
                             .flatten()
                             .find(|a| a.key.as_ref() == "val")
                             .and_then(|a| a.value.parse::<i32>().ok())
                             .unwrap_or(0);
+                        if cur_level as usize > max_level.saturating_sub(1) {
+                            // `if (level > (maxLevel - 1)) return;` — the rest
+                            // of the file, extrapolation included, is skipped.
+                            gain_ended = true;
+                            cur_level = 0;
+                        } else {
+                            last_level = cur_level.max(0) as usize;
+                        }
                     }
                     _ => {}
                 }
@@ -376,12 +407,15 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                     "baseINT" => t.base_int = int(),
                     "baseWIT" => t.base_wit = int(),
                     "baseMEN" => t.base_men = int(),
+                    "baseLUC" => t.base_luc = int(),
+                    "baseCHA" => t.base_cha = int(),
                     "basePAtk" => t.base_p_atk = int(),
                     "basePAtkSpd" => t.base_p_atk_spd = int(),
                     "baseMAtk" => t.base_m_atk = int(),
                     "baseMAtkSpd" => t.base_m_atk_spd = int(),
                     "baseCritRate" => t.base_crit_rate = int(),
                     "baseMCritRate" => t.base_m_crit_rate = int(),
+                    "basePSkillCritRate" => t.base_p_skill_crit_rate = int(),
                     "baseAtkRange" => t.base_atk_range = int(),
                     _ => {}
                 }
@@ -403,13 +437,60 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     if t.class_id < 0 {
         return None;
     }
+    if !gain_ended {
+        generate_missing_levels(&mut t, last_level, max_level);
+    }
     Some(t)
+}
+
+/// Java's "Generate missing stats automatically" loop, run when a template's
+/// `lvlUpgainData` stops short of `maxLevel - 1`.
+fn generate_missing_levels(t: &mut PlayerTemplate, mut level: usize, max_level: usize) {
+    while level >= 2 && level + 1 < max_level {
+        level += 1;
+        let l = level as f64;
+        let grow = |m1: f64| (((m1 * l) / (l - 1.0)) + ((m1 * (l + 1.0)) / (l - 1.0))) / 2.0;
+        t.hp_table[level] = grow(t.hp_table[level - 1]);
+        t.mp_table[level] = grow(t.mp_table[level - 1]);
+        t.cp_table[level] = grow(t.cp_table[level - 1]);
+        t.hp_regen_table[level] = t.hp_regen_table[level - 1] * 2.0 - t.hp_regen_table[level - 2];
+        t.mp_regen_table[level] = t.mp_regen_table[level - 1] * 2.0 - t.mp_regen_table[level - 2];
+        t.cp_regen_table[level] = t.cp_regen_table[level - 1] * 2.0 - t.cp_regen_table[level - 2];
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::data::dist;
+
+    /// All 155 Salvation templates load from the tiered directories, and the
+    /// tables reach the level-110 cap: Human Fighter (0, `StartingClass/`) at
+    /// level 110 is `hp 2134.65 / mp 978.3 / cp 853.6`, and Tyrr Duelist (152,
+    /// `4rthClass/`) and the Balthus Sigel Knight (139, `BalthusKnights/`) are
+    /// present.
+    #[test]
+    fn loads_every_salvation_template_up_to_the_cap() {
+        let data = dist::player_templates();
+        assert_eq!(data.class_ids().len(), 155);
+        let hf = data.get(0).expect("Human Fighter");
+        assert_eq!(hf.base_hp_max(110), 2134.65);
+        assert_eq!(hf.base_mp_max(110), 978.3);
+        assert_eq!(hf.base_cp_max(110), 853.6);
+        assert!(data.get(152).is_some(), "Tyrr Duelist");
+        assert!(data.get(139).is_some(), "Balthus Sigel Knight");
+        // The two Balthus-only classes, from `BalthusKnights/`.
+        for id in [190, 191] {
+            assert!(data.get(id).is_some(), "Balthus class {id}");
+        }
+        // LUC and CHA come from every template; `basePSkillCritRate` from none.
+        let evisc = data.get(190).unwrap();
+        assert_eq!((evisc.base_luc, evisc.base_cha), (34, 41));
+        assert!(data.class_ids().iter().all(|&id| {
+            let t = data.get(id).unwrap();
+            t.base_luc > 0 && t.base_cha > 0 && t.base_p_skill_crit_rate == 5
+        }));
+    }
 
     /// Every class ships **both** collision boxes and they differ, so reading
     /// the male one for a female character is a visible error — collision feeds
@@ -448,11 +529,15 @@ mod tests {
                 differing += 1;
             }
         }
+        // Male Soul Hound (132) is the one Salvation template whose two boxes
+        // are the same (8.0 / 25.2); every other class differs, so a test that
+        // passed while returning the male box for both would still fail here.
         assert_eq!(
             differing,
-            all.len(),
-            "the two boxes differ for every class on this dist, so a test that \
-             passed while returning the male box for both would be vacuous"
+            all.len() - 1,
+            "the two boxes differ for every class but Male Soul Hound"
         );
+        let soul_hound = data.get(132).expect("Male Soul Hound");
+        assert_eq!(soul_hound.collision(true), (8.0, 25.2));
     }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="9400" name="Weapon Master Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Weapon Master class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -11,13 +11,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="WEAPON_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9401" name="Dagger Master Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Dagger Master class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -30,13 +30,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="DAGGER_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9402" name="Bow Master Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Bow Master class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -49,13 +49,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="BOW_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9403" name="Wizard Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Wizard class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -68,13 +68,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="WIZARD_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9404" name="Summoner Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Summoner class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -87,13 +87,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="SUMMON_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9405" name="Healer Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Healer class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -106,13 +106,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="HEAL_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9406" name="Enchanter Circlet" type="Armor">
 		<!-- Circlet that can be worn by the Enchanter class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -125,13 +125,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="BUFF_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9407" name="Weapon Master Circlet (Kamael only)" type="Armor">
 		<!-- Circlet that can be worn by the Kamael Race only, exclusively for the Weapon Master class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -144,13 +144,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="WEAPON_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9408" name="Bow Master Circlet (Kamael only)" type="Armor">
 		<!-- Circlet that can be worn by the Kamael Race only, exclusively for the Bow Master class after completion of 2nd or 3rd class transfer. Cannot be worn in a subclass condition. Uses 2 hair accessory slots. -->
@@ -163,13 +163,13 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player categoryType="BOW_MASTER2_3" />
 				<player subclass="false" />
 				<player level="40" />
 			</and>
-		</cond>
+		</conditions>
 	</item>
 	<item id="9409" name="Black Phantom Mask (Event)" type="Armor">
 		<!-- A Phantom Mask hair accessory accented with black and gold metals. Uses 2 hair accessory slots. Event item. -->
@@ -197,9 +197,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="HUMAN" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9411" name="Elven Veteran's Circlet" type="Armor">
 		<!-- A Veteran's Circlet that can be worn by Elf Race only. Uses 2 hair accessory slots. -->
@@ -212,9 +212,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="ELF" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9412" name="Dark Elven Veteran's Circlet" type="Armor">
 		<!-- A Veteran's Circlet that can be worn by the Dark Elf Race only. Uses 2 hair accessory slots. -->
@@ -227,9 +227,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="DARK_ELF" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9413" name="Orcish Veteran's Circlet" type="Armor">
 		<!-- A Veteran's Circlet that can be worn by the Orc Race only. Uses 2 hair accessory slots. -->
@@ -242,9 +242,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="ORC" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9414" name="Dwarf Veteran's Circlet" type="Armor">
 		<!-- A Veteran's Circlet that can be worn by the Dwarf Race only. Uses 2 hair accessory slots. -->
@@ -257,9 +257,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="DWARF" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9415" name="Kamaelic Veteran's Circlet" type="Armor">
 		<!-- A Veteran's Circlet that can be worn by the Kamael Race only. Uses 2 hair accessory slots. -->
@@ -272,9 +272,9 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 		<set name="isAppearanceable" val="true" />
 		<set name="weight" val="10" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9416" name="Dynasty Breastplate" type="Armor">
 		<set name="icon" val="icon.armor_t91_u_i00" />
@@ -311,12 +311,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SHIELD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -337,12 +337,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WEAPON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -363,12 +363,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="FORCE_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -389,12 +389,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BARD" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">226</stat>
 		</stats>
@@ -438,6 +438,7 @@
 	<item id="9423" name="Dynasty Gauntlets" additionalName="Heavy Armor" type="Armor">
 		<set name="icon" val="icon.armor_t91_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="195" />
@@ -456,6 +457,7 @@
 	<item id="9424" name="Dynasty Boots" additionalName="Heavy Armor" type="Armor">
 		<set name="icon" val="icon.armor_t91_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="195" />
@@ -506,9 +508,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ARMOR_TOP" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="DAGGER_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -529,9 +531,9 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player categoryType="BOW_MASTER" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">170</stat>
 		</stats>
@@ -575,6 +577,7 @@
 	<item id="9430" name="Dynasty Leather Gloves" additionalName="Light Armor" type="Armor">
 		<set name="icon" val="icon.armor_t92_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="195" />
@@ -593,6 +596,7 @@
 	<item id="9431" name="Dynasty Leather Boots" additionalName="Light Armor" type="Armor">
 		<set name="icon" val="icon.armor_t92_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="195" />
@@ -644,12 +648,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="HEAL_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -671,12 +675,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="BUFF_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -698,12 +702,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="SUMMON_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -725,12 +729,12 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="isAppearanceable" val="true" />
 		<set name="enchant_enabled" val="true" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<and>
 				<player races="HUMAN,ELF,DARK_ELF,ORC,DWARF" />
 				<player categoryType="WIZARD_MASTER" />
 			</and>
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pDef">113</stat>
 			<stat type="maxMp">592</stat>
@@ -776,6 +780,7 @@
 	<item id="9439" name="Dynasty Gloves" additionalName="Robe" type="Armor">
 		<set name="icon" val="icon.armor_t93_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="195" />
@@ -794,6 +799,7 @@
 	<item id="9440" name="Dynasty Shoes" additionalName="Robe" type="Armor">
 		<set name="icon" val="icon.armor_t93_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="195" />
@@ -830,6 +836,7 @@
 		</stats>
 	</item>
 	<item id="9442" name="Dynasty Sword" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_blade_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -848,16 +855,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_SWORD" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">333</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="9443" name="Dynasty Blade" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_twohand_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -876,16 +886,19 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="TWO_HAND_SWORD" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="9444" name="Dynasty Phantom" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_magic_sword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="SWORD" />
@@ -902,18 +915,21 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_SWORD" />
 		<stats>
 			<stat type="pAtk">267</stat>
 			<stat type="mAtk">202</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
 	<item id="9445" name="Dynasty Bow" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_bow_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BOW" />
@@ -934,10 +950,12 @@
 		<set name="reuse_delay" val="1500" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BOW" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">654</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -945,6 +963,7 @@
 		</stats>
 	</item>
 	<item id="9446" name="Dynasty Knife" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_dagger_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DAGGER" />
@@ -962,10 +981,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="DAGGER" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">291</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -973,6 +994,7 @@
 		</stats>
 	</item>
 	<item id="9447" name="Dynasty Halberd" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_spear_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="POLE" />
@@ -990,20 +1012,23 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="SPEAR" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">333</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="9448" name="Dynasty Cudgel" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_hammer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1021,10 +1046,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="BLUNT_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">333</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -1032,6 +1059,7 @@
 		</stats>
 	</item>
 	<item id="9449" name="Dynasty Mace" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_staff_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="BLUNT" />
@@ -1048,12 +1076,14 @@
 		<set name="element_enabled" val="true" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="ONE_HAND_MAGIC_BLUNT_WEAPON" />
 		<stats>
 			<stat type="pAtk">267</stat>
 			<stat type="mAtk">202</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -1061,6 +1091,7 @@
 		</stats>
 	</item>
 	<item id="9450" name="Dynasty Bagh-Nakh" type="Weapon">
+		<!-- Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="icon.weapon_dynasty_jamadhr_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUALFIST" />
@@ -1078,10 +1109,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="commissionItemType" val="FIST_WEAPON" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -1216,13 +1249,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3367" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3367" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9459" name="Dynasty Necklace" additionalName="Stun Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Stun Resistance +18. -->
@@ -1237,13 +1270,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3365" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3365" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9460" name="Dynasty Ring" additionalName="Stun Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Stun Resistance +8. -->
@@ -1258,13 +1291,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3366" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3366" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9461" name="Dynasty Earring" additionalName="Poison Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Poison Resistance +11. -->
@@ -1279,13 +1312,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3379" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3379" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9462" name="Dynasty Necklace" additionalName="Poison Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Poison Resistance +16. -->
@@ -1300,13 +1333,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3377" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3377" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9463" name="Dynasty Ring" additionalName="Poison Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Poison Resistance +7. -->
@@ -1321,13 +1354,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3378" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3378" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9464" name="Dynasty Earring" additionalName="Bleed Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Bleed Resistance +8. -->
@@ -1342,13 +1375,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3373" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3373" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9465" name="Dynasty Necklace" additionalName="Bleed Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Bleed Resistance +11. -->
@@ -1363,13 +1396,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3371" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3371" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9466" name="Dynasty Ring" additionalName="Bleed Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Bleed Resistance +5. -->
@@ -1384,13 +1417,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3372" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3372" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9467" name="Dynasty Earring" additionalName="Sleep Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Sleep Resistance +12. -->
@@ -1405,13 +1438,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3397" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3397" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9468" name="Dynasty Necklace" additionalName="Sleep Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Sleep Resistance +18. -->
@@ -1426,13 +1459,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3395" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3395" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9469" name="Dynasty Ring" additionalName="Sleep Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Sleep Resistance +8. -->
@@ -1447,13 +1480,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3396" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3396" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9470" name="Dynasty Earring" additionalName="Paralysis Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Paralysis Resistance +6. -->
@@ -1468,13 +1501,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3385" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3385" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9471" name="Dynasty Necklace" additionalName="Paralysis Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Paralysis Resistance +9. -->
@@ -1489,13 +1522,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3383" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3383" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9472" name="Dynasty Ring" additionalName="Paralysis Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Paralysis Resistance +4. -->
@@ -1510,13 +1543,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3384" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3384" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9473" name="Dynasty Earring" additionalName="Hold Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Hold Resistance +12. -->
@@ -1531,13 +1564,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3391" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3391" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9474" name="Dynasty Necklace" additionalName="Hold Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Hold Resistance +18. -->
@@ -1552,13 +1585,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3389" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3389" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9475" name="Dynasty Ring" additionalName="Hold Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Hold Resistance +8. -->
@@ -1573,13 +1606,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3390" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3390" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9476" name="Dynasty Earring" additionalName="Fear Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Fear Resistance +6. -->
@@ -1594,13 +1627,13 @@
 		<set name="price" val="5956000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="EARRING" />
-		<skills>
-			<skill id="3403" level="1" /> <!-- Dynasty Resistance Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">27</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="3403" level="1" /> <!-- Dynasty Resistance Earring -->
+		</skills>
 	</item>
 	<item id="9477" name="Dynasty Necklace" additionalName="Fear Resistance" type="Armor">
 		<!-- Produces the effect of MP +46, Fear Resistance +9. -->
@@ -1615,13 +1648,13 @@
 		<set name="price" val="7942000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="NECKLACE" />
-		<skills>
-			<skill id="3401" level="1" /> <!-- Dynasty Resistance Necklace -->
-		</skills>
 		<stats>
 			<stat type="mDef">36</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="3401" level="1" /> <!-- Dynasty Resistance Necklace -->
+		</skills>
 	</item>
 	<item id="9478" name="Dynasty Ring" additionalName="Fear Resistance" type="Armor">
 		<!-- Produces the effect of MP +23, Fear Resistance +4. -->
@@ -1636,13 +1669,13 @@
 		<set name="price" val="3971000" />
 		<set name="enchant_enabled" val="true" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3402" level="1" /> <!-- Dynasty Resistance Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">18</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="3402" level="1" /> <!-- Dynasty Resistance Ring -->
+		</skills>
 	</item>
 	<item id="9479" name="Dynasty Earring (Not in Use)" additionalName="Dark Resistance" type="Armor">
 		<!-- Produces the effect of MP +35, Dark Resistance +6. -->

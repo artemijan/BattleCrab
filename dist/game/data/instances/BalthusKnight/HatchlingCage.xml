@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance id="270" maxWorlds="20" name="Hatchling Cage" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/instance.xsd">
+	<time duration="60" empty="0" />
+	<locations>
+		<enter type="FIXED">
+			<location x="178895" y="178150" z="-12504" />
+		</enter>
+		<exit type="FIXED">
+			<location x="178987" y="178534" z="-11936" />
+		</exit>
+	</locations>
+	<spawnlist>
+		<group name="balthus_cage_2523_02m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_cage_2523_02" minZ="-12342" maxZ="-12542">
+					<node x="178707" y="178074" />
+					<node x="178907" y="178074" />
+					<node x="178907" y="178274" />
+					<node x="178707" y="178274" />
+				</territory>
+			</territories>
+			<npc id="18919" count="1" respawnTime="1min" x="178816" y="178172" z="-12501" heading="-16400" />
+			<npc id="34365" count="1" respawnTime="1min" x="178816" y="178172" z="-12501" heading="-16400" />
+		</group>
+		<group name="balthus_cage_2523_01m1" spawnByDefault="true">
+			<territories>
+				<territory name="balthus_cage_2523_01" minZ="-12345" maxZ="-12545">
+					<node x="178628" y="177575" />
+					<node x="179150" y="177574" />
+					<node x="179148" y="178094" />
+					<node x="178631" y="178091" />
+				</territory>
+			</territories>
+			<npc id="24089" count="5" />
+		</group>
+		<group name="balthus_cage_2523_01m2" spawnByDefault="false">
+			<territories>
+				<territory name="balthus_cage_2523_01" minZ="-12345" maxZ="-12545">
+					<node x="178628" y="177575" />
+					<node x="179150" y="177574" />
+					<node x="179148" y="178094" />
+					<node x="178631" y="178091" />
+				</territory>
+			</territories>
+			<npc id="24097" count="1" x="178713" y="177906" z="-12528" heading="-3920" />
+			<npc id="24097" count="1" x="178819" y="177661" z="-12528" heading="10864" />
+			<npc id="24097" count="1" x="178963" y="178006" z="-12528" heading="-21880" />
+			<npc id="24097" count="1" x="179054" y="177765" z="-12528" heading="28792" />
+		</group>
+	</spawnlist>
+</instance>

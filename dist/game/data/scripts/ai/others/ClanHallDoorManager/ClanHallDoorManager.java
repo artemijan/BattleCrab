@@ -20,16 +20,15 @@ import java.util.StringTokenizer;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.clan.ClanPrivilege;
+import org.l2jmobius.gameserver.model.clan.ClanAccess;
 import org.l2jmobius.gameserver.model.residences.ClanHall;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Clan Hall Door Manager AI.
  * @author St3eT
  */
-public class ClanHallDoorManager extends AbstractNpcAI
+public class ClanHallDoorManager extends Script
 {
 	// NPCs
 	// @formatter:off
@@ -74,7 +73,7 @@ public class ClanHallDoorManager extends AbstractNpcAI
 				}
 				case "manageDoors":
 				{
-					if (isOwningClan(player, npc) && st.hasMoreTokens() && player.hasClanPrivilege(ClanPrivilege.CH_OPEN_DOOR))
+					if (isOwningClan(player, npc) && st.hasMoreTokens() && player.hasAccess(ClanAccess.HALL_OPEN_DOOR))
 					{
 						final boolean open = st.nextToken().equals("1");
 						clanHall.openCloseDoors(open);
@@ -88,6 +87,7 @@ public class ClanHallDoorManager extends AbstractNpcAI
 				}
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -111,6 +111,7 @@ public class ClanHallDoorManager extends AbstractNpcAI
 			htmltext = htmltext.replace("%ownerName%", clanHall.getOwner().getLeaderName());
 			htmltext = htmltext.replace("%ownerClanName%", clanHall.getOwner().getName());
 		}
+		
 		return htmltext;
 	}
 	

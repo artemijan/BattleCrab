@@ -1,18 +1,18 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="9100" toLevel="1" name="Vesper Weapon Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17069</itemConsumeId> <!-- Vesper Weapon Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -70,17 +70,17 @@
 	</skill>
 	<skill id="9101" toLevel="1" name="Icarus Weapon Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17070</itemConsumeId> <!-- Icarus Weapon Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -132,17 +132,17 @@
 	</skill>
 	<skill id="9102" toLevel="1" name="Dynasty Weapon Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17071</itemConsumeId> <!-- Dynasty Weapon Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -200,17 +200,17 @@
 	</skill>
 	<skill id="9103" toLevel="1" name="Vesper Armor Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17072</itemConsumeId> <!-- Vesper Armor Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -277,17 +277,17 @@
 	</skill>
 	<skill id="9104" toLevel="1" name="Moirai Armor Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17073</itemConsumeId> <!-- Moirai Armor Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -354,17 +354,17 @@
 	</skill>
 	<skill id="9105" toLevel="1" name="Dynasty Armor Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17074</itemConsumeId> <!-- Dynasty Armor Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -431,17 +431,17 @@
 	</skill>
 	<skill id="9106" toLevel="1" name="Soul Crystal - Step 14 Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17075</itemConsumeId> <!-- Soul Crystal - Stage 14 Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -466,17 +466,17 @@
 	</skill>
 	<skill id="9107" toLevel="1" name="Soul Crystal - Step 15 Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17076</itemConsumeId> <!-- Soul Crystal - Stage 15 Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -501,17 +501,17 @@
 	</skill>
 	<skill id="9108" toLevel="1" name="Soul Crystal - Step 16 Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17077</itemConsumeId> <!-- Soul Crystal - Stage 16 Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -536,17 +536,17 @@
 	</skill>
 	<skill id="9109" toLevel="1" name="Facelifting Potion Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17078</itemConsumeId> <!-- Potion Box of Mask Type -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -574,17 +574,17 @@
 	</skill>
 	<skill id="9110" toLevel="1" name="Dye Potion Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17079</itemConsumeId> <!-- Potion Box of Hair Color -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -615,17 +615,17 @@
 	</skill>
 	<skill id="9111" toLevel="1" name="Hairstyle Change Potion Pack">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17080</itemConsumeId> <!-- Potion Box of Hair Style -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -665,17 +665,17 @@
 	</skill>
 	<skill id="9112" toLevel="1" name="Golden Apigas Box">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17081</itemConsumeId> <!-- Golden Apigas Box -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -713,42 +713,42 @@
 	<skill id="9113" toLevel="1" name="Vitality Maintaining Potion">
 		<!-- Maintains Vitality for 10 minutes. -->
 		<icon>icon.etc_lesser_potion_blue_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>VP_KEEP</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17093</itemConsumeId> <!-- Vitality Maintaining Potion (10 mintues) (Event) -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 		</conditions>
 	</skill>
 	<skill id="9114" toLevel="1" name="Nevit's Voice">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17094</itemConsumeId> <!-- Nevit's Voice -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="GiveRecommendation">
 				<amount>10</amount>
@@ -762,22 +762,22 @@
 	<skill id="9115" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17095</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -794,22 +794,22 @@
 	<skill id="9116" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17096</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -826,22 +826,22 @@
 	<skill id="9117" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17097</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -858,22 +858,22 @@
 	<skill id="9118" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17098</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -890,22 +890,22 @@
 	<skill id="9119" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17099</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -922,22 +922,22 @@
 	<skill id="9120" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17100</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -954,22 +954,22 @@
 	<skill id="9121" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17101</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -986,22 +986,22 @@
 	<skill id="9122" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17102</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1018,22 +1018,22 @@
 	<skill id="9123" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17103</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1050,22 +1050,22 @@
 	<skill id="9124" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17104</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1082,22 +1082,22 @@
 	<skill id="9125" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17105</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1114,22 +1114,22 @@
 	<skill id="9126" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17106</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1146,22 +1146,22 @@
 	<skill id="9127" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17107</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1178,22 +1178,22 @@
 	<skill id="9128" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17108</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1210,22 +1210,22 @@
 	<skill id="9129" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17109</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1242,22 +1242,22 @@
 	<skill id="9130" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17110</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1274,22 +1274,22 @@
 	<skill id="9131" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17111</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1306,22 +1306,22 @@
 	<skill id="9132" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17112</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1338,22 +1338,22 @@
 	<skill id="9133" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17113</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1370,22 +1370,22 @@
 	<skill id="9134" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17114</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1402,22 +1402,22 @@
 	<skill id="9135" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17115</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1434,22 +1434,22 @@
 	<skill id="9136" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17116</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1466,22 +1466,22 @@
 	<skill id="9137" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17117</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1498,22 +1498,22 @@
 	<skill id="9138" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17118</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1530,22 +1530,22 @@
 	<skill id="9139" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17119</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1562,22 +1562,22 @@
 	<skill id="9140" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17120</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1594,22 +1594,22 @@
 	<skill id="9141" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17121</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1626,22 +1626,22 @@
 	<skill id="9142" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17122</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1658,22 +1658,22 @@
 	<skill id="9143" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17123</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1690,22 +1690,22 @@
 	<skill id="9144" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17124</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1722,22 +1722,22 @@
 	<skill id="9145" toLevel="1" name="XP Buff 50% (1-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17125</itemConsumeId> <!-- Nevit's Hourglass - 1 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1754,22 +1754,22 @@
 	<skill id="9146" toLevel="1" name="XP Buff 50% (1.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17126</itemConsumeId> <!-- Nevit's Hourglass - 1.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1786,22 +1786,22 @@
 	<skill id="9147" toLevel="1" name="XP Buff 50% (2-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17127</itemConsumeId> <!-- Nevit's Hourglass - 2 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1818,22 +1818,22 @@
 	<skill id="9148" toLevel="1" name="XP Buff 50% (2.5-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17128</itemConsumeId> <!-- Nevit's Hourglass - 2.5 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1850,22 +1850,22 @@
 	<skill id="9149" toLevel="1" name="XP Buff 50% (3-hour)">
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
 		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17129</itemConsumeId> <!-- Nevit's Hourglass - 3 hour -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -1882,161 +1882,161 @@
 	<skill id="9150" toLevel="1" name="Freesia Bouquet (Event)">
 		<!-- Bouquet of freesia flowers, which stand for "Innocence. -->
 		<icon>icon.etc_flower_bouquet_i02</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17130</itemConsumeId> <!-- Freesia Bouquet (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9151" toLevel="1" name="Baby's Breath Bouquet (Event)">
 		<!-- Bouquet of baby's breath flowers, which stand for "Sorrow. -->
 		<icon>icon.etc_flower_bouquet_i03</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17131</itemConsumeId> <!-- Baby Breath Bouquet (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9152" toLevel="1" name="Pink Lady (Event)">
 		<!-- This cocktail drink was first made in London, England in 1912, as a tribute to the leading heroine in the play "Pink Lady," which was a great hit at the time. -->
 		<icon>icon.etc_fruit_cocktail_i02</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17132</itemConsumeId> <!-- Pink Lady (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9153" toLevel="1" name="June Bug (Event)">
 		<!-- This fragrant and refreshing cocktail is named after the insects of June that fly in search of nectar-filled flowers. -->
 		<icon>icon.etc_fruit_cocktail_i03</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17133</itemConsumeId> <!-- June Bug (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9154" toLevel="1" name="Soft Cheesecake (Event)">
 		<!-- Highest-quality cheesecake that is fluffy, soft, and not too sweet. -->
 		<icon>icon.etc_herb_of_cheesecake</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17134</itemConsumeId> <!-- Soft Cheesecake (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9155" toLevel="1" name="Freshly-Baked Baguette (Event)">
 		<!-- This freshly-baked baguette is soft and delicious, unlike the regular hard baguette. -->
 		<icon>icon.etc_herb_of_baguette</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17135</itemConsumeId> <!-- Freshly-Baked Baguette (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9156" toLevel="1" name="Sweet Cream Bun (Event)">
 		<!-- Cream bread filled with soft custard made with egg yolks rather than butter cream or whipped cream. -->
 		<icon>icon.etc_herb_of_cream</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17136</itemConsumeId> <!-- Sweet Cream Bun (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9157" toLevel="1" name="Valentine's Day Candy (Event)">
 		<!-- Cute candy that someone would be very happy to receive as a gift. -->
 		<icon>icon.etc_whiteday_candy_i00</icon>
+		<operateType>A1</operateType>
+		<targetType>TARGET</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>500</castRange>
 		<effectPoint>500</effectPoint>
+		<effectRange>700</effectRange>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17137</itemConsumeId> <!-- White Day Candy (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<effectRange>700</effectRange>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>TARGET</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9158" toLevel="1" name="Freya's Gift">
 		<!-- Gift box containing Freya's heart. Cannot be traded or dropped. -->
 		<icon>icon.etc_pi_gift_box_i04</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17138</itemConsumeId> <!-- Freya's Gift -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2077,23 +2077,23 @@
 	<skill id="9159" toLevel="1" name="Transformation Scroll: Anakim">
 		<!-- Transforms into Anakim. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17139</itemConsumeId> <!-- Transformation Scroll: Anakim -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>306</transformId>
@@ -2108,23 +2108,23 @@
 	<skill id="9160" toLevel="1" name="Transformation Scroll: Zaken">
 		<!-- Transforms into Zaken. -->
 		<icon>icon.skilltransform1</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>TRANSFORM</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17140</itemConsumeId> <!-- Transformation Scroll: Zaken -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>7200000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>7200000</reuseDelay>
 		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>305</transformId>
@@ -2139,27 +2139,27 @@
 	<skill id="9161" toLevel="1" name="Vesper's Mighty Power">
 		<!-- Increase P. Atk. by 15%, M. Atk. by 20%, and Speed by 10 for 10 minutes. -->
 		<icon>icon.weapon_vesper_slasher_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalInstant>true</abnormalInstant>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>WP_CHANGE_EVENT</abnormalType>
 		<abnormalVisualEffect>CHANGE_VES_S</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>100</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>15</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
@@ -2172,21 +2172,21 @@
 	<skill id="9162" toLevel="1" name="Vesper's Critical Damage">
 		<!-- Increase P. Critical Rate by 15, M. Critical Rate by 2, and Speed by 10 for 10 minutes. Recovers 5% of the physical damage inflicted on the enemy as HP with a certain probability. -->
 		<icon>icon.weapon_vesper_caster_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalInstant>true</abnormalInstant>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>WP_CHANGE_EVENT</abnormalType>
 		<abnormalVisualEffect>CHANGE_VES_C</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>100</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>5</amount>
@@ -2209,21 +2209,21 @@
 	<skill id="9163" toLevel="1" name="Invincible Vesper">
 		<!-- Increase Max. Atk. Spd. by 20%, Casting Spd. by 20%, and Speed by 20 for 10 minutes. -->
 		<icon>icon.weapon_dual_sword_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalInstant>true</abnormalInstant>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
 		<abnormalType>WP_CHANGE_EVENT</abnormalType>
 		<abnormalVisualEffect>CHANGE_VES_D</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
 		<hitTime>100</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>2000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="Speed">
 				<amount>20</amount>
@@ -2242,17 +2242,17 @@
 	<skill id="9164" toLevel="1" name="April Fools' Day Special Gift (Event)">
 		<!-- The special box of good luck given to the luckiest guy on April Fool's Day. What will be inside? -->
 		<icon>icon.etc_pi_gift_box_i04</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17161</itemConsumeId> <!-- Special Gift of April Fool's Day (Event) -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -2318,45 +2318,45 @@
 		</effects>
 	</skill>
 	<skill id="9165" toLevel="1" name="Leaf of Appreciation">
-		<!-- For 1 hour, receives help from the Leaf of Appreciation to increase Max MP by 20%, MP Recovery Bonus by 20%, HP recovery bonus by 20%, the chance of prominent damage occurring through magic damage by 2, the power of critical attacks by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20% and MP consumption needed for skill use by 5%. -->
+		<!-- For 1 hour, receives help from the Leaf of Appreciation to increase Max MP by 20%, MP Recovery Bonus by 20%, HP Recovery Bonus by 20%, the chance of prominent damage occurring through magic damage by 2, the power of critical attacks by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases Speed by 20% and MP consumption needed for skill use by 5%. -->
 		<icon>icon.etc_leaf_green_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>4</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
 		<abnormalType>MULTI_BUFF</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17163</itemConsumeId> <!-- Event - Leaf of Appreciation -->
-		<magicLevel>1</magicLevel>
-		<operateType>A2</operateType>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
-		<irreplacableBuff>true</irreplacableBuff>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>10000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 	</skill>
 	<skill id="9166" toLevel="1" name="Vitality Recovering Potion">
 		<!-- Recovers Vitality upon acquiring XP for 30 minutes. -->
 		<icon>icon.etc_hot_spring_nectar_i00</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>3</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>VP_UP</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
 		<isMagic>4</isMagic> <!-- Item Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>14744</itemConsumeId> <!-- Event - Vitality Replenishing Herb Tea 30 minutes -->
-		<magicLevel>-1</magicLevel>
-		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
-		<basicProperty>NONE</basicProperty>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
 		<specialLevel>-1</specialLevel>
-		<irreplacableBuff>true</irreplacableBuff>
-		<hitTime>100</hitTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VP_UP</type>
@@ -2369,18 +2369,18 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3600</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2398,18 +2398,18 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>5400</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2427,18 +2427,18 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>7200</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2456,18 +2456,18 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>9000</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2485,18 +2485,18 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>10800</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2514,18 +2514,18 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>14400</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -2541,17 +2541,17 @@
 	</skill>
 	<skill id="9173" toLevel="1" name="Nevit's Voice">
 		<icon>icon.skill0000</icon>
-		<itemConsumeId>17212</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>17212</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="GiveRecommendation">
 				<amount>10</amount>
@@ -2564,17 +2564,17 @@
 	</skill>
 	<skill id="9174" toLevel="1" name="Scroll: 5,000 SP">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<blockedInOlympiad>false</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17184</itemConsumeId> <!-- 500,000 SP scroll -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>500000</sp>
@@ -2583,17 +2583,17 @@
 	</skill>
 	<skill id="9175" toLevel="1" name="Scroll: 10,000 SP">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<blockedInOlympiad>false</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17185</itemConsumeId> <!-- 1,000,000 SP scroll -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>1000000</sp>
@@ -2602,17 +2602,17 @@
 	</skill>
 	<skill id="9176" toLevel="1" name="Provided gift of cheers">
 		<icon>icon.etc_pi_gift_box_i04</icon>
-		<itemConsumeId>17235</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>17235</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -3033,18 +3033,18 @@
 	</skill>
 	<skill id="9177" toLevel="1" name="Olympiad Reward Box">
 		<icon>icon.etc_pi_gift_box_i04</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<blockedInOlympiad>false</blockedInOlympiad>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17169</itemConsumeId> <!-- Olympiad Treasure Chest -->
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpEncumbered">
 				<weightPercent>10</weightPercent>
@@ -3091,17 +3091,17 @@
 	</skill>
 	<skill id="9178" toLevel="1" name="Theodric's Box">
 		<icon>icon.etc_pi_gift_box_i04</icon>
-		<itemConsumeId>17254</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>17254</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
 		<reuseDelay>2000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -3243,23 +3243,22 @@
 	</skill>
 	<skill id="9179" toLevel="1" name="Antharas' Blood Crystal">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<affectLimit>50-50</affectLimit>
+		<affectObject>FRIEND</affectObject>
+		<affectRange>6000</affectRange>
+		<affectScope>DEAD_UNION</affectScope>
 		<blockedInOlympiad>true</blockedInOlympiad>
-		<effectPoint>578</effectPoint>
+		<effectPoint>0</effectPoint>
 		<effectRange>2000</effectRange>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>17268</itemConsumeId>
-		<operateType>A1</operateType>
-		<reuseDelay>3600000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>1</magicLevel>
-		<affectRange>6000</affectRange>
-		<!-- TODO: revive all dead characters in the Command Channel -->
-		<targetType>SELF</targetType>
-		<affectScope>DEAD_UNION</affectScope>
-		<affectObject>FRIEND</affectObject>
+		<reuseDelay>3600000</reuseDelay>
 		<conditions>
 			<condition name="OpResurrection" />
 		</conditions>
@@ -3271,19 +3270,19 @@
 	</skill>
 	<skill id="9180" toLevel="2" name="Scroll: 50,000 SP">
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">17276</value>
 			<value level="2">17277</value>
 		</itemConsumeId>
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>2000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>2000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>
@@ -3297,19 +3296,19 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>14400</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -3327,19 +3326,19 @@
 		<!-- Additional 50% XP is acquired while in effect. -->
 		<icon>icon.etc_dragons_blood_i03</icon>
 		<operateType>A2</operateType>
-		<abnormalType>VOTE</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>14400</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VOTE</abnormalType>
 		<abnormalVisualEffect>VP_KEEP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="OpCheckAbnormal">
 				<type>VOTE</type>
@@ -3357,21 +3356,21 @@
 		<!-- For 4 hours, recovers Vitality when XP is acquired through hunting. Will not be deleted upon death. -->
 		<icon>icon.etc_I.etc_hot_spring_mineral_i00</icon>
 		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
-		<abnormalType>VP_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-2</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>14400</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<reuseDelay>3600000</reuseDelay>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VP_UP</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>3600000</reuseDelay>
+		<specialLevel>-2</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 			<condition name="OpCheckAbnormal">
@@ -3385,21 +3384,21 @@
 		<!-- For 4 hours, recovers Vitality when XP is acquired through hunting. Will not be deleted upon death. -->
 		<icon>icon.etc_I.etc_hot_spring_mineral_i00</icon>
 		<operateType>A2</operateType>
-		<effectPoint>100</effectPoint>
-		<abnormalType>VP_UP</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>8</abnormalLevel>
 		<abnormalTime>14400</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<reuseDelay>3600000</reuseDelay>
-		<isMagic>4</isMagic>
-		<staticReuse>true</staticReuse>
+		<abnormalType>VP_UP</abnormalType>
 		<abnormalVisualEffect>VP_UP</abnormalVisualEffect>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>100</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>4</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>3600000</reuseDelay>
+		<specialLevel>-1</specialLevel>
+		<staticReuse>true</staticReuse>
 		<conditions>
 			<condition name="CanUseVitalityIncreaseItem" />
 			<condition name="OpCheckAbnormal">
@@ -3412,74 +3411,74 @@
 	<skill id="9185" toLevel="1" name="Scroll: Enchant Weapon (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9186" toLevel="1" name="Scroll: Enchant Armor (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9187" toLevel="1" name="Blessed Scroll: Enchant Weapon (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9188" toLevel="1" name="Player Commendation - Scroll: Enchant Weapon (R-grade)">
+	<skill id="9188" toLevel="1" name="PA - Scroll: Enchant Weapon (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9189" toLevel="1" name="Player Commendation - Scroll: Enchant Armor (R-grade)">
+	<skill id="9189" toLevel="1" name="PA - Scroll: Enchant Armor (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
-	<skill id="9190" toLevel="1" name="Player Commendation - Blessed Scroll: Enchant Weapon (R-grade)">
+	<skill id="9190" toLevel="1" name="PA - Blessed Scroll: Enchant Weapon (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9191" toLevel="1" name="Scroll of Escape: Cruma Tower">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>20000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>17726</itemConsumeId> <!-- Scroll of Escape: Cruma Tower -->
+		<hitTime>20000</hitTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>17726</itemConsumeId> <!-- Scroll of Escape: Cruma Tower -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -3498,14 +3497,14 @@
 	<skill id="9192" toLevel="1" name="Scroll of Escape: Tower of Insolence">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<hitTime>20000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<itemConsumeId>17727</itemConsumeId> <!-- Scroll of Escape: Tower of Insolence -->
+		<hitTime>20000</hitTime>
+		<isMagic>2</isMagic>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>17727</itemConsumeId> <!-- Scroll of Escape: Tower of Insolence -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -3524,54 +3523,54 @@
 	<skill id="9193" toLevel="1" name="Soulshot (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9194" toLevel="1" name="Spiritshot (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9195" toLevel="1" name="Blessed Spiritshot (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9196" toLevel="1" name="Blessed Scroll: Enchant Armor (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="9197" toLevel="1" name="Scroll: 1,000,000 SP">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>200</hitTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
-		<reuseDelay>3000</reuseDelay>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>200</hitTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
 			<effect name="GiveSp">
 				<sp>1000000</sp>
@@ -3579,34 +3578,34 @@
 		</effects>
 	</skill>
 	<skill id="9198" toLevel="1" name="Elixir: Horn Melody">
-		<!-- For 30 minutes, increases P. Atk. by 17%, P. Def. by 15%, M. Atk. by 79%, and M. Def. by 30%. -->
+		<!-- For 30 minutes, P. Atk. +23%, M. Atk. +88%, P. Def. +35%, and M. Def. +40%. -->
 		<icon>icon.skill11517</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BUFF_SPECIAL_ATTACK</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="PAtk">
-				<amount>17</amount>
+			<effect name="PhysicalAttack">
+				<amount>23</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
-				<amount>79</amount>
+			<effect name="MagicalAttack">
+				<amount>88</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="PhysicalDefence">
-				<amount>15</amount>
+				<amount>35</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="MagicalDefence">
-				<amount>30</amount>
+				<amount>40</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DispelBySlotProbability">
@@ -3619,87 +3618,51 @@
 		</effects>
 	</skill>
 	<skill id="9199" toLevel="1" name="Elixir: Drum Melody">
-		<!-- For 30 minutes, increases Max MP by 20%, HP recovery bonus by 20%, M. Critical Rate by 20, Critical Damage during a standard attack by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, and Debuff Resistance by 10%. Decreases damage received from a critical attack by 30% and Speed by 15%, and additionally increases Critical Damage during a standard attack when receiving more than a certain amount of damage. -->
+		<!-- For 30 minutes, P. Critical Rate +30%, P. Critical Damage +30%, M. Critical Rate +40, and P. Critical Damage Received +50%. A chance to increase Critical Damage when hit. -->
 		<icon>icon.skill11522</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<abnormalType>BUFF_SPECIAL_DEFENCE</abnormalType>
-		<operateType>A2</operateType>
-		<effectPoint>1</effectPoint>
+		<abnormalType>BUFF_SPECIAL_CRITICAL</abnormalType>
+		<affectScope>SINGLE</affectScope>
 		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<isMagic>1</isMagic>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
-			<effect name="TriggerSkillByDamage">
+			<effect name="TriggerSkillByDamageReceived">
 				<!-- Critical Damage Increase -->
 				<attackerType>Creature</attackerType>
 				<chance>80</chance>
 				<targetType>SELF</targetType>
 				<minDamage>300</minDamage>
-				<skillId>11569</skillId> <!-- Critical Damage Increase -->
+				<skillId>11569</skillId> <!-- Critical Strike -->
 				<skillLevel>1</skillLevel>
-			</effect>
-			<effect name="MaxMp">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="HpRegen">
-				<amount>20</amount>
-				<mode>PER</mode>
 			</effect>
 			<effect name="MagicCriticalRate">
 				<amount>20</amount>
 				<mode>DIFF</mode>
 			</effect>
 			<effect name="CriticalDamage">
-				<amount>20</amount>
+				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
-				<amount>10</amount>
+			<effect name="CriticalRate">
+				<amount>30</amount>
 				<mode>PER</mode>
-			</effect>
-			<effect name="MAtk">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalDefence">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="PhysicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="MagicalAttackSpeed">
-				<amount>20</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="ResistAbnormalByCategory">
-				<amount>-10</amount>
-				<slot>DEBUFF</slot>
 			</effect>
 			<effect name="DefenceCriticalDamage">
-				<amount>-30</amount>
-				<mode>PER</mode>
-			</effect>
-			<effect name="Speed">
-				<amount>-15</amount>
+				<amount>50</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DispelBySlotProbability">
-				<dispel>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP</dispel>
+				<dispel>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</dispel>
 				<rate>100</rate>
 			</effect>
 			<effect name="BlockAbnormalSlot">
-				<slot>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP</slot>
+				<slot>MULTI_BUFF;COUNTER_CRITICAL;CRITICAL_PROB_UP;CRITICAL_DMG_UP;MAGIC_CRITICAL_UP;IMPROVE_HIT_DEFENCE_CRT_RATE_UP;IMPROVE_CRT_RATE_DMG_UP;HIT_UP;T_CRT_DMG_DOWN;IMPROVE_SPEED_AVOID_UP;SPEED_UP;MAX_BREATH_UP;HOLY_ATTACK;AVOID_UP;DECREASE_WEIGHT_PENALTY;RESIST_HOLY_UNHOLY</slot>
 			</effect>
 		</effects>
 	</skill>

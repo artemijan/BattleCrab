@@ -293,7 +293,7 @@ pub(crate) fn do_revive_with(
     restore_percent: f64,
 ) {
     do_revive(world, player_oid);
-    {
+    let restored = {
         let Some((mut p, mut vitals, mut pvitals)) = revive_target(world, player_oid) else {
             return;
         };
@@ -305,9 +305,16 @@ pub(crate) fn do_revive_with(
             mp_percent as f64,
             cp_percent as f64,
         );
+        let had_loss = p.lost_exp_on_death > 0;
         let restored = ((p.lost_exp_on_death as f64 * restore_percent) / 100.0).round() as i64;
         p.exp += restored;
         p.lost_exp_on_death = 0;
+        had_loss.then_some(restored)
+    };
+    // `restoreExp` goes through `PlayableStat.addExp` (only when there was a
+    // loss to restore), so `ON_PLAYABLE_EXP_CHANGED` fires here too.
+    if let Some(restored) = restored {
+        crate::game_loop::skills::effects::souls::on_exp_gained(world, player_oid, restored);
     }
     crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
 }

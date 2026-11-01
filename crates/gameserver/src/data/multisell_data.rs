@@ -403,18 +403,21 @@ mod tests {
         let data = MultisellData::load_from(&root, items, true, true);
         assert!(data.len() > 100, "loaded {} lists", data.len());
 
-        // 600026.xml (custom CB belt shop): 4 adena→belt entries, npc -1.
+        // 600026.xml (custom CB belt shop): 33 adena→belt entries, npc -1.
         let belts = data.get(600026).expect("cb belt list 600026");
-        assert_eq!(belts.entries.len(), 4);
+        assert_eq!(belts.entries.len(), 33);
         assert!(belts.is_npc_only(), "the <npcs> tag makes it npc-only");
         assert!(belts.is_npc_allowed(-1), "the CB sentinel -1 is allowed");
         assert!(!belts.is_npc_allowed(30001), "an arbitrary merchant is not");
         let first = &belts.entries[0];
         assert_eq!(first.ingredients.len(), 1);
         assert_eq!(first.ingredients[0].id, 57, "adena");
-        assert_eq!(first.ingredients[0].count, 50_000_000);
+        assert_eq!(first.ingredients[0].count, 20_000_000);
         assert_eq!(first.products.len(), 1);
-        assert_eq!(first.products[0].id, 13894, "Cloth Belt");
+        assert_eq!(
+            first.products[0].id, 13950,
+            "Low-grade Magic Pouch Mithril Belt"
+        );
         assert_eq!(first.products[0].count, 1);
     }
 
@@ -427,7 +430,7 @@ mod tests {
         assert_eq!(list.ingredient_multiplier, 1.0);
         assert_eq!(list.product_multiplier, 1.0);
         let ing = &list.entries[0].ingredients[0];
-        assert_eq!(list.ingredient_count(ing), 50_000_000);
+        assert_eq!(list.ingredient_count(ing), 20_000_000);
     }
 }
 

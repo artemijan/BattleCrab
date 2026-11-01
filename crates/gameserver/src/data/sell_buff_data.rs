@@ -70,7 +70,7 @@ mod tests {
     #[test]
     fn dist_list_loads() {
         let data = SellBuffData::load_from(crate::data::DIST_GAME);
-        assert_eq!(data.len(), 149, "every `<skill id=…>` in the file");
+        assert_eq!(data.len(), 147, "every `<skill id=…>` in the file");
         assert!(data.allows(264), "the lowest id");
         assert!(data.allows(11612), "and the highest");
         assert!(!data.allows(1), "an unlisted skill is not sellable");

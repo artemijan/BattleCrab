@@ -115,7 +115,6 @@ fn recv(rx: &std::sync::mpsc::Receiver<gameserver::events::GameEvent>) -> DbEven
             | DbEvent::GlobalVariablesLoaded { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
-            | DbEvent::LotteryLoaded { .. }
             | DbEvent::MdtLoaded { .. }
             | DbEvent::ItemAuctionsLoaded { .. }
             | DbEvent::PunishmentsLoaded { .. }
@@ -158,7 +157,7 @@ async fn create_persist_delete_restore() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -291,7 +290,7 @@ async fn login_char_count_excludes_expired_deletions() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -415,7 +414,7 @@ async fn shortcuts_and_macros_persist() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -607,7 +606,7 @@ async fn friendships_persist() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -716,7 +715,7 @@ async fn quest_states_persist() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -738,7 +737,7 @@ async fn quest_states_persist() {
         _ => panic!("expected CharactersLoaded"),
     };
 
-    let quest = "Q00258_BringWolfPelts";
+    let quest = "Q00623_TheFinestFood";
     // Flush the quest STARTED at cond 2 as one memory-first `StorePlayer`. The DB
     // thread writes one `<state>` row + a `cond` row inside the reconcile
     // transaction; the load path rebuilds the `QuestState`.
@@ -850,7 +849,7 @@ async fn recommendations_persist() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -959,7 +958,7 @@ async fn skill_reuse_cooldowns_persist() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -1073,7 +1072,7 @@ async fn active_buffs_persist_with_frozen_countdown() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -1199,7 +1198,7 @@ async fn pets_persist() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -1364,7 +1363,7 @@ async fn current_cp_persists() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -1445,7 +1444,7 @@ async fn restorable_exp_survives_a_relog() {
         url.clone(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,
@@ -1530,7 +1529,7 @@ fn boot_db_thread(
         url.to_string(),
         1,
         7,
-        false,
+        db::IdManagerBoot::dist(false),
         db::GroundItemBootConfig {
             save_dropped_item: false,
             clear_dropped_item_table: false,

@@ -250,7 +250,7 @@ fn take_buff(world: &mut World, index: usize) {
         world,
         CID,
         &bypass_body(&format!(
-            "npc_{BUFFER_OID}_Quest OlyBuffer giveBuff;{index}"
+            "npc_{BUFFER_OID}_Script OlyBuffer giveBuff;{index}"
         )),
     );
 }
@@ -302,7 +302,7 @@ fn a_forged_buff_index_grants_nothing() {
     handle_request_bypass_to_server(
         &mut world,
         CID,
-        &bypass_body(&format!("npc_{BUFFER_OID}_Quest OlyBuffer giveBuff;xyz")),
+        &bypass_body(&format!("npc_{BUFFER_OID}_Script OlyBuffer giveBuff;xyz")),
     );
 
     assert_eq!(

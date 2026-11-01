@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list enabled="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/zones.xsd">
+	<zone name="bk_nest" type="BalthusKnightZone" shape="NPoly" minZ="-11432" maxZ="-11032">
+		<node X="180709" Y="167452" />
+		<node X="180321" Y="167799" />
+		<node X="180108" Y="168093" />
+		<node X="179813" Y="168244" />
+		<node X="179413" Y="168234" />
+		<node X="179022" Y="168660" />
+		<node X="178667" Y="168580" />
+		<node X="178429" Y="168370" />
+		<node X="178743" Y="167309" />
+		<node X="178796" Y="166687" />
+		<node X="179088" Y="166527" />
+		<node X="179310" Y="166578" />
+		<node X="179763" Y="166578" />
+		<node X="180016" Y="166576" />
+		<node X="180420" Y="166821" />
+	</zone>
+	<zone name="bk_cage" type="BalthusKnightZone" shape="NPoly" minZ="-12804" maxZ="-12204">
+		<node X="178636" Y="177228" />
+		<node X="179174" Y="177247" />
+		<node X="179507" Y="177605" />
+		<node X="179458" Y="178135" />
+		<node X="179129" Y="178451" />
+		<node X="178623" Y="178443" />
+		<node X="178269" Y="178087" />
+		<node X="178267" Y="177601" />
+	</zone>
+	<zone name="bk_antharas" type="BalthusKnightZone" shape="NPoly" minZ="-11836" maxZ="-11236">
+		<node X="173914" Y="190206" />
+		<node X="174469" Y="191286" />
+		<node X="174086" Y="192002" />
+		<node X="173648" Y="192134" />
+		<node X="172977" Y="192509" />
+		<node X="172382" Y="192838" />
+		<node X="171896" Y="193092" />
+		<node X="170589" Y="191996" />
+		<node X="170149" Y="190458" />
+		<node X="170300" Y="188635" />
+		<node X="171043" Y="187661" />
+		<node X="172411" Y="186277" />
+		<node X="173011" Y="187194" />
+		<node X="173902" Y="188290" />
+		<node X="174280" Y="188916" />
+	</zone>
+	<zone name="bk_awake_1" type="BalthusKnightZone" shape="NPoly" minZ="-3500" maxZ="-2000">
+		<node X="-114650" Y="228384" />
+		<node X="-115673" Y="228385" />
+		<node X="-116132" Y="227797" />
+		<node X="-116138" Y="227393" />
+		<node X="-116060" Y="226769" />
+		<node X="-115469" Y="226296" />
+		<node X="-114817" Y="226166" />
+		<node X="-114345" Y="225562" />
+		<node X="-114420" Y="225371" />
+		<node X="-114066" Y="225377" />
+		<node X="-113564" Y="225373" />
+		<node X="-113323" Y="225616" />
+		<node X="-113163" Y="225963" />
+		<node X="-113152" Y="226288" />
+		<node X="-113151" Y="227519" />
+		<node X="-113129" Y="227971" />
+		<node X="-113767" Y="228351" />
+	</zone>
+	<zone name="bk_awake_2" type="BalthusKnightZone" shape="NPoly" minZ="-3372" maxZ="-2772">
+		<node X="215236" Y="-9320" />
+		<node X="215210" Y="-9979" />
+		<node X="215728" Y="-10158" />
+		<node X="215683" Y="-10727" />
+		<node X="215227" Y="-10801" />
+		<node X="214955" Y="-10700" />
+		<node X="214199" Y="-10836" />
+		<node X="213900" Y="-10531" />
+		<node X="213920" Y="-9990" />
+		<node X="214157" Y="-9536" />
+		<node X="214267" Y="-9307" />
+		<node X="214589" Y="-9081" />
+		<node X="214882" Y="-9067" />
+	</zone>
+</list>

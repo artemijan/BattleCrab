@@ -19,26 +19,26 @@ package village_master.ClanMaster;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.l2jmobius.gameserver.enums.SkillFinishType;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.clan.Clan;
 import org.l2jmobius.gameserver.model.events.EventType;
 import org.l2jmobius.gameserver.model.events.ListenerRegisterType;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterEvent;
 import org.l2jmobius.gameserver.model.events.annotations.RegisterType;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerClanJoin;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerClanLeft;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerLogin;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerLogout;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerProfessionChange;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerClanJoin;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerClanLeft;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerLogin;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerLogout;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerProfessionChange;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.CommonSkill;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.skill.enums.SkillFinishType;
 
 /**
  * @author UnAfraid
  */
-public class ClanMaster extends AbstractNpcAI
+public class ClanMaster extends Script
 {
 	// @formatter:off
 	private static final int[] NPCS =
@@ -49,6 +49,12 @@ public class ClanMaster extends AbstractNpcAI
 		30511,30512,30513,30520,30525,30565,30594,30595,30676,30677,
 		30681,30685,30687,30689,30694,30699,30704,30845,30847,30849,
 		30854,30857,30862,30865,30894,30897,30900,30905,30910,30913,
+		31269,31272,31276,31279,31285,31288,31314,31317,31321,31324,
+		31326,31328,31331,31334,31336,31755,31958,31961,31965,31968,
+		31974,31977,31996,32092,32093,32094,32095,32096,32097,32098,
+		32145,32146,32147,32150,32153,32154,32157,32158,32160,32171,
+		32193,32196,32199,32202,32205,32206,32209,32210,32213,32214,
+		32217,32218,32221,32222,32225,32226,32229,32230,32233,32234
 	};
 	// @formatter:on
 	private static final Map<String, String> LEADER_REQUIRED = new HashMap<>();
@@ -58,13 +64,6 @@ public class ClanMaster extends AbstractNpcAI
 		LEADER_REQUIRED.put("9000-04.htm", "9000-04-no.htm");
 		LEADER_REQUIRED.put("9000-05.htm", "9000-05-no.htm");
 		LEADER_REQUIRED.put("9000-07.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-12a.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-12b.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-13a.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-13b.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-14a.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-14b.htm", "9000-07-no.htm");
-		LEADER_REQUIRED.put("9000-15.htm", "9000-07-no.htm");
 	}
 	
 	private ClanMaster()
@@ -80,6 +79,7 @@ public class ClanMaster extends AbstractNpcAI
 		{
 			return LEADER_REQUIRED.get(event);
 		}
+		
 		return event;
 	}
 	
@@ -94,9 +94,10 @@ public class ClanMaster extends AbstractNpcAI
 	public void onPlayerLogin(OnPlayerLogin event)
 	{
 		final Player player = event.getPlayer();
+		final Clan clan = player.getClan();
 		if (player.isClanLeader())
 		{
-			player.getClan().getMembers().forEach(member ->
+			clan.getMembers().forEach(member ->
 			{
 				if (member.isOnline())
 				{
@@ -104,7 +105,7 @@ public class ClanMaster extends AbstractNpcAI
 				}
 			});
 		}
-		else if ((player.getClan() != null) && player.getClan().getLeader().isOnline())
+		else if ((clan != null) && clan.getLeader().isOnline())
 		{
 			CommonSkill.CLAN_ADVENT.getSkill().applyEffects(player, player);
 		}
@@ -115,9 +116,10 @@ public class ClanMaster extends AbstractNpcAI
 	public void onPlayerLogout(OnPlayerLogout event)
 	{
 		final Player player = event.getPlayer();
+		final Clan clan = player.getClan();
 		if (player.isClanLeader())
 		{
-			player.getClan().getMembers().forEach(member ->
+			clan.getMembers().forEach(member ->
 			{
 				if (member.isOnline())
 				{
@@ -125,7 +127,8 @@ public class ClanMaster extends AbstractNpcAI
 				}
 			});
 		}
-		if (player.getClan() != null)
+		
+		if (clan != null)
 		{
 			player.getEffectList().stopSkillEffects(SkillFinishType.REMOVED, CommonSkill.CLAN_ADVENT.getId());
 		}

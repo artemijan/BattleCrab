@@ -2179,4 +2179,132 @@
 		<!-- Dualsword Craft Stamp -->
 		<production count="1" id="5126" />
 	</item>
+	<item>
+		<!-- Mature Red Coda -->
+		<ingredient count="10000" id="5098" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Red Coda -->
+		<ingredient count="10000" id="5839" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Blue Coda -->
+		<ingredient count="5000" id="5097" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Blue Coda -->
+		<ingredient count="5000" id="5841" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Lute Coda -->
+		<ingredient count="1667" id="5101" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Lute Coda -->
+		<ingredient count="1667" id="5843" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Red Cobol -->
+		<ingredient count="2500" id="5108" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Red Cobol -->
+		<ingredient count="2500" id="5845" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Blue Cobol -->
+		<ingredient count="1000" id="5107" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Blue Cobol -->
+		<ingredient count="1000" id="5847" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Blue Codran -->
+		<ingredient count="1000" id="5117" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Blue Codran -->
+		<ingredient count="1000" id="5854" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Great Codran -->
+		<ingredient count="667" id="5124" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Mature Alternative Great Codran -->
+		<ingredient count="667" id="5856" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Blue Coba -->
+		<ingredient count="400" id="6555" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
+	<item>
+		<!-- Ripe Alternative Blue Coba -->
+		<ingredient count="400" id="6562" />
+		<!-- Adena -->
+		<ingredient count="50000" id="57" />
+		<!-- Giant's Codex -->
+		<production count="1" id="6622" />
+	</item>
 </list>

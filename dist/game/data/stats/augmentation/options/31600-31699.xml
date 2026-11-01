@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
 	<option id="31600" name="helios_opt">
-		<!-- Mental/Poison Resistance + 3% -->
+		<!-- Mental/Poison Resistance +3% -->
+		<!-- Mental/Poison Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>3</DERANGEMENT>
@@ -10,7 +11,8 @@
 		</effects>
 	</option>
 	<option id="31601" name="helios_opt">
-		<!-- Mental/Knock Back/Knock Down Resistance + 3% -->
+		<!-- Mental/Knock Back/Knock Down Resistance +3% -->
+		<!-- Mental/Knock Back/Knock Down Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>3</DERANGEMENT>
@@ -20,7 +22,8 @@
 		</effects>
 	</option>
 	<option id="31602" name="helios_opt">
-		<!-- Mental/Aerial Yoke Resistance + 3% -->
+		<!-- Mental/Aerial Yoke Resistance +3% -->
+		<!-- Mental/Aerial Yoke Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>3</DERANGEMENT>
@@ -29,7 +32,8 @@
 		</effects>
 	</option>
 	<option id="31603" name="helios_opt">
-		<!-- Mental/Pull Resistance + 3% -->
+		<!-- Mental/Pull Resistance +3% -->
+		<!-- Mental/Pull Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>3</DERANGEMENT>
@@ -38,11 +42,13 @@
 		</effects>
 	</option>
 	<option id="31604" name="helios_opt">
-		<!-- Passive: Mental/Petrification Resistance + 3%. -->
+		<!-- Passive: Mental/Petrification Resistance +3%. -->
+		<!-- Passive: Mental/Petrification Resistance +3%. -->
 		<passive_skill id="13767" level="1" /> <!-- Item Skill: Mental Attack, Petrification Resistance -->
 	</option>
 	<option id="31605" name="helios_opt">
-		<!-- Sleep/Poison Resistance + 3% -->
+		<!-- Sleep/Poison Resistance +3% -->
+		<!-- Sleep/Poison Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>3</SLEEP>
@@ -51,7 +57,8 @@
 		</effects>
 	</option>
 	<option id="31606" name="helios_opt">
-		<!-- Sleep/Knock Back/Knock Down Resistance + 3% -->
+		<!-- Sleep/Knock Back/Knock Down Resistance +3% -->
+		<!-- Sleep/Knock Back/Knock Down Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>3</SLEEP>
@@ -61,7 +68,8 @@
 		</effects>
 	</option>
 	<option id="31607" name="helios_opt">
-		<!-- Sleep/Aerial Yoke Resistance + 3% -->
+		<!-- Sleep/Aerial Yoke Resistance +3% -->
+		<!-- Sleep/Aerial Yoke Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>3</SLEEP>
@@ -70,7 +78,8 @@
 		</effects>
 	</option>
 	<option id="31608" name="helios_opt">
-		<!-- Sleep/Pull Resistance + 3% -->
+		<!-- Sleep/Pull Resistance +3% -->
+		<!-- Sleep/Pull Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>3</SLEEP>
@@ -79,11 +88,13 @@
 		</effects>
 	</option>
 	<option id="31609" name="helios_opt">
-		<!-- Passive: Sleep/Petrification Resistance + 3%. -->
+		<!-- Passive: Sleep/Petrification Resistance +3%. -->
+		<!-- Passive: Sleep/Petrification Resistance +3%. -->
 		<passive_skill id="13766" level="1" /> <!-- Item Skill: Sleep, Petrification Resistance -->
 	</option>
 	<option id="31610" name="helios_opt">
-		<!-- Poison/Knock Back/Knock Down Resistance + 3% -->
+		<!-- Poison/Knock Back/Knock Down Resistance +3% -->
+		<!-- Poison/Knock Back/Knock Down Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>3</POISON>
@@ -93,7 +104,8 @@
 		</effects>
 	</option>
 	<option id="31611" name="helios_opt">
-		<!-- Poison/Aerial Yoke Resistance + 3% -->
+		<!-- Poison/Aerial Yoke Resistance +3% -->
+		<!-- Poison/Aerial Yoke Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>3</POISON>
@@ -102,7 +114,8 @@
 		</effects>
 	</option>
 	<option id="31612" name="helios_opt">
-		<!-- Poison/Pull Resistance + 3% -->
+		<!-- Poison/Pull Resistance +3% -->
+		<!-- Poison/Pull Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>3</POISON>
@@ -111,11 +124,13 @@
 		</effects>
 	</option>
 	<option id="31613" name="helios_opt">
-		<!-- Passive: Poison/Petrification Resistance + 3%. -->
+		<!-- Passive: Poison/Petrification Resistance +3%. -->
+		<!-- Passive: Poison/Petrification Resistance +3%. -->
 		<passive_skill id="13757" level="1" /> <!-- Item Skill: Poison, Petrification Resistance -->
 	</option>
 	<option id="31614" name="helios_opt">
-		<!-- Knock Back/Knock Down/Aerial Yoke Resistance + 3% -->
+		<!-- Knock Back/Knock Down/Aerial Yoke Resistance +3% -->
+		<!-- Knock Back/Knock Down/Aerial Yoke Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>3</KNOCKBACK>
@@ -125,7 +140,8 @@
 		</effects>
 	</option>
 	<option id="31615" name="helios_opt">
-		<!-- Knock Back/Knock Down/Pull Resistance + 3% -->
+		<!-- Knock Back/Knock Down/Pull Resistance +3% -->
+		<!-- Knock Back/Knock Down/Pull Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>3</KNOCKBACK>
@@ -135,11 +151,13 @@
 		</effects>
 	</option>
 	<option id="31616" name="helios_opt">
-		<!-- Passive: Knock Back/Knock Down/Petrification Resistance + 3%. -->
+		<!-- Passive: Knock Back/Knock Down/Petrification Resistance +3%. -->
+		<!-- Passive: Knock Back/Knock Down/Petrification Resistance +3%. -->
 		<passive_skill id="13756" level="1" /> <!-- Item Skill: Knock Back/Knock Down, Petrification Resistance -->
 	</option>
 	<option id="31617" name="helios_opt">
-		<!-- Aerial Yoke/Pull Resistance + 3% -->
+		<!-- Aerial Yoke/Pull Resistance +3% -->
+		<!-- Aerial Yoke/Pull Resistance +3% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>3</AIRBIND>
@@ -148,15 +166,18 @@
 		</effects>
 	</option>
 	<option id="31618" name="helios_opt">
-		<!-- Passive: Aerial Yoke/Petrification Resistance + 3%. -->
+		<!-- Passive: Aerial Yoke/Petrification Resistance +3%. -->
+		<!-- Passive: Aerial Yoke/Petrification Resistance +3%. -->
 		<passive_skill id="13754" level="1" /> <!-- Item Skill: Aerial Yoke, Petrification Resistance -->
 	</option>
 	<option id="31619" name="helios_opt">
-		<!-- Passive: Pull/Petrification Resistance + 3%. -->
+		<!-- Passive: Pull/Petrification Resistance +3%. -->
+		<!-- Passive: Pull/Petrification Resistance +3%. -->
 		<passive_skill id="13755" level="1" /> <!-- Item Skill: Pull, Petrification Resistance -->
 	</option>
 	<option id="31620" name="helios_opt">
-		<!-- Stun/Hold Resistance + 4% -->
+		<!-- Stun/Hold Resistance +4% -->
+		<!-- Stun/Hold Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -165,7 +186,8 @@
 		</effects>
 	</option>
 	<option id="31621" name="helios_opt">
-		<!-- Stun/Bleed Resistance + 4% -->
+		<!-- Stun/Bleed Resistance +4% -->
+		<!-- Stun/Bleed Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -174,7 +196,8 @@
 		</effects>
 	</option>
 	<option id="31622" name="helios_opt">
-		<!-- Stun/Paralysis Resistance + 4% -->
+		<!-- Stun/Paralysis Resistance +4% -->
+		<!-- Stun/Paralysis Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -183,7 +206,8 @@
 		</effects>
 	</option>
 	<option id="31623" name="helios_opt">
-		<!-- Stun/Mental Resistance + 4% -->
+		<!-- Stun/Mental Resistance +4% -->
+		<!-- Stun/Mental Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -192,7 +216,8 @@
 		</effects>
 	</option>
 	<option id="31624" name="helios_opt">
-		<!-- Stun/Sleep Resistance + 4% -->
+		<!-- Stun/Sleep Resistance +4% -->
+		<!-- Stun/Sleep Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -201,7 +226,8 @@
 		</effects>
 	</option>
 	<option id="31625" name="helios_opt">
-		<!-- Stun/Poison Resistance + 4% -->
+		<!-- Stun/Poison Resistance +4% -->
+		<!-- Stun/Poison Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -210,7 +236,8 @@
 		</effects>
 	</option>
 	<option id="31626" name="helios_opt">
-		<!-- Stun/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Stun/Knock Back/Knock Down Resistance +4% -->
+		<!-- Stun/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -220,7 +247,8 @@
 		</effects>
 	</option>
 	<option id="31627" name="helios_opt">
-		<!-- Stun/Aerial Yoke Resistance + 4% -->
+		<!-- Stun/Aerial Yoke Resistance +4% -->
+		<!-- Stun/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -229,7 +257,8 @@
 		</effects>
 	</option>
 	<option id="31628" name="helios_opt">
-		<!-- Stun/Pull Resistance + 4% -->
+		<!-- Stun/Pull Resistance +4% -->
+		<!-- Stun/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4</SHOCK>
@@ -238,11 +267,13 @@
 		</effects>
 	</option>
 	<option id="31629" name="helios_opt">
-		<!-- Passive: Stun/Petrification Resistance + 4%. -->
+		<!-- Passive: Stun/Petrification Resistance +4%. -->
+		<!-- Passive: Stun/Petrification Resistance +4%. -->
 		<passive_skill id="13765" level="2" /> <!-- Item Skill: Stun, Petrifaction Resistance -->
 	</option>
 	<option id="31630" name="helios_opt">
-		<!-- Hold/Bleed Resistance + 4% -->
+		<!-- Hold/Bleed Resistance +4% -->
+		<!-- Hold/Bleed Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -251,7 +282,8 @@
 		</effects>
 	</option>
 	<option id="31631" name="helios_opt">
-		<!-- Hold/Paralysis Resistance + 4% -->
+		<!-- Hold/Paralysis Resistance +4% -->
+		<!-- Hold/Paralysis Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -260,7 +292,8 @@
 		</effects>
 	</option>
 	<option id="31632" name="helios_opt">
-		<!-- Hold/Mental Resistance + 4% -->
+		<!-- Hold/Mental Resistance +4% -->
+		<!-- Hold/Mental Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -269,7 +302,8 @@
 		</effects>
 	</option>
 	<option id="31633" name="helios_opt">
-		<!-- Hold/Sleep Resistance + 4% -->
+		<!-- Hold/Sleep Resistance +4% -->
+		<!-- Hold/Sleep Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -278,7 +312,8 @@
 		</effects>
 	</option>
 	<option id="31634" name="helios_opt">
-		<!-- Hold/Poison Resistance + 4% -->
+		<!-- Hold/Poison Resistance +4% -->
+		<!-- Hold/Poison Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -287,7 +322,8 @@
 		</effects>
 	</option>
 	<option id="31635" name="helios_opt">
-		<!-- Hold/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Hold/Knock Back/Knock Down Resistance +4% -->
+		<!-- Hold/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -297,7 +333,8 @@
 		</effects>
 	</option>
 	<option id="31636" name="helios_opt">
-		<!-- Hold/Aerial Yoke Resistance + 4% -->
+		<!-- Hold/Aerial Yoke Resistance +4% -->
+		<!-- Hold/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -306,7 +343,8 @@
 		</effects>
 	</option>
 	<option id="31637" name="helios_opt">
-		<!-- Hold/Pull Resistance + 4% -->
+		<!-- Hold/Pull Resistance +4% -->
+		<!-- Hold/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>4</HOLD>
@@ -315,11 +353,13 @@
 		</effects>
 	</option>
 	<option id="31638" name="helios_opt">
-		<!-- Passive: Hold/Petrification Resistance + 4%. -->
+		<!-- Passive: Hold/Petrification Resistance +4%. -->
+		<!-- Passive: Hold/Petrification Resistance +4%. -->
 		<passive_skill id="13769" level="2" /> <!-- Item Skill: Hold, Petrification Resistance -->
 	</option>
 	<option id="31639" name="helios_opt">
-		<!-- Bleed/Paralysis Resistance + 4% -->
+		<!-- Bleed/Paralysis Resistance +4% -->
+		<!-- Bleed/Paralysis Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -328,7 +368,8 @@
 		</effects>
 	</option>
 	<option id="31640" name="helios_opt">
-		<!-- Bleed/Mental Resistance + 4% -->
+		<!-- Bleed/Mental Resistance +4% -->
+		<!-- Bleed/Mental Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -337,7 +378,8 @@
 		</effects>
 	</option>
 	<option id="31641" name="helios_opt">
-		<!-- Bleed/Sleep Resistance + 4% -->
+		<!-- Bleed/Sleep Resistance +4% -->
+		<!-- Bleed/Sleep Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -346,7 +388,8 @@
 		</effects>
 	</option>
 	<option id="31642" name="helios_opt">
-		<!-- Bleed/Poison Resistance + 4% -->
+		<!-- Bleed/Poison Resistance +4% -->
+		<!-- Bleed/Poison Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -355,7 +398,8 @@
 		</effects>
 	</option>
 	<option id="31643" name="helios_opt">
-		<!-- Bleed/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Bleed/Knock Back/Knock Down Resistance +4% -->
+		<!-- Bleed/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -365,7 +409,8 @@
 		</effects>
 	</option>
 	<option id="31644" name="helios_opt">
-		<!-- Bleed/Aerial Yoke Resistance + 4% -->
+		<!-- Bleed/Aerial Yoke Resistance +4% -->
+		<!-- Bleed/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -374,7 +419,8 @@
 		</effects>
 	</option>
 	<option id="31645" name="helios_opt">
-		<!-- Bleed/Pull Resistance + 4% -->
+		<!-- Bleed/Pull Resistance +4% -->
+		<!-- Bleed/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>4</BLEED>
@@ -383,11 +429,13 @@
 		</effects>
 	</option>
 	<option id="31646" name="helios_opt">
-		<!-- Passive: Bleed/Petrification Resistance + 4%. -->
+		<!-- Passive: Bleed/Petrification Resistance +4%. -->
+		<!-- Passive: Bleed/Petrification Resistance +4%. -->
 		<passive_skill id="13768" level="2" /> <!-- Item Skill: Bleed, Petrification Resistance -->
 	</option>
 	<option id="31647" name="helios_opt">
-		<!-- Paralysis/Mental Resistance + 4% -->
+		<!-- Paralysis/Mental Resistance +4% -->
+		<!-- Paralysis/Mental Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>4</PARALYZE>
@@ -396,7 +444,8 @@
 		</effects>
 	</option>
 	<option id="31648" name="helios_opt">
-		<!-- Paralysis/Sleep Resistance + 4% -->
+		<!-- Paralysis/Sleep Resistance +4% -->
+		<!-- Paralysis/Sleep Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>4</PARALYZE>
@@ -405,7 +454,8 @@
 		</effects>
 	</option>
 	<option id="31649" name="helios_opt">
-		<!-- Paralysis/Poison Resistance + 4% -->
+		<!-- Paralysis/Poison Resistance +4% -->
+		<!-- Paralysis/Poison Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>4</PARALYZE>
@@ -414,7 +464,8 @@
 		</effects>
 	</option>
 	<option id="31650" name="helios_opt">
-		<!-- Paralysis/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Paralysis/Knock Back/Knock Down Resistance +4% -->
+		<!-- Paralysis/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>4</PARALYZE>
@@ -424,7 +475,8 @@
 		</effects>
 	</option>
 	<option id="31651" name="helios_opt">
-		<!-- Paralysis/Aerial Yoke Resistance + 4% -->
+		<!-- Paralysis/Aerial Yoke Resistance +4% -->
+		<!-- Paralysis/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>4</PARALYZE>
@@ -433,7 +485,8 @@
 		</effects>
 	</option>
 	<option id="31652" name="helios_opt">
-		<!-- Paralysis/Pull Resistance + 4% -->
+		<!-- Paralysis/Pull Resistance +4% -->
+		<!-- Paralysis/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>4</PARALYZE>
@@ -442,11 +495,13 @@
 		</effects>
 	</option>
 	<option id="31653" name="helios_opt">
-		<!-- Passive: Paralysis/Petrification Resistance + 4%. -->
+		<!-- Passive: Paralysis/Petrification Resistance +4%. -->
+		<!-- Passive: Paralysis/Petrification Resistance +4%. -->
 		<passive_skill id="13761" level="2" /> <!-- Item Skill: Paralysis, Petrification Resistance -->
 	</option>
 	<option id="31654" name="helios_opt">
-		<!-- Mental/Sleep Resistance + 4% -->
+		<!-- Mental/Sleep Resistance +4% -->
+		<!-- Mental/Sleep Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>4</DERANGEMENT>
@@ -455,7 +510,8 @@
 		</effects>
 	</option>
 	<option id="31655" name="helios_opt">
-		<!-- Mental/Poison Resistance + 4% -->
+		<!-- Mental/Poison Resistance +4% -->
+		<!-- Mental/Poison Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>4</DERANGEMENT>
@@ -464,7 +520,8 @@
 		</effects>
 	</option>
 	<option id="31656" name="helios_opt">
-		<!-- Mental/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Mental/Knock Back/Knock Down Resistance +4% -->
+		<!-- Mental/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>4</DERANGEMENT>
@@ -474,7 +531,8 @@
 		</effects>
 	</option>
 	<option id="31657" name="helios_opt">
-		<!-- Mental/Aerial Yoke Resistance + 4% -->
+		<!-- Mental/Aerial Yoke Resistance +4% -->
+		<!-- Mental/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>4</DERANGEMENT>
@@ -483,7 +541,8 @@
 		</effects>
 	</option>
 	<option id="31658" name="helios_opt">
-		<!-- Mental/Pull Resistance + 4% -->
+		<!-- Mental/Pull Resistance +4% -->
+		<!-- Mental/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>4</DERANGEMENT>
@@ -492,11 +551,13 @@
 		</effects>
 	</option>
 	<option id="31659" name="helios_opt">
-		<!-- When equipped, Mental/Petrification Resistance + 4%. -->
+		<!-- When equipped, Mental/Petrification Resistance +4%. -->
+		<!-- When equipped, Mental/Petrification Resistance +4%. -->
 		<passive_skill id="13767" level="2" /> <!-- Item Skill: Mental Attack, Petrification Resistance -->
 	</option>
 	<option id="31660" name="helios_opt">
-		<!-- Sleep/Poison Resistance + 4% -->
+		<!-- Sleep/Poison Resistance +4% -->
+		<!-- Sleep/Poison Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>4</SLEEP>
@@ -505,7 +566,8 @@
 		</effects>
 	</option>
 	<option id="31661" name="helios_opt">
-		<!-- Sleep/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Sleep/Knock Back/Knock Down Resistance +4% -->
+		<!-- Sleep/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>4</SLEEP>
@@ -515,7 +577,8 @@
 		</effects>
 	</option>
 	<option id="31662" name="helios_opt">
-		<!-- Sleep/Aerial Yoke Resistance + 4% -->
+		<!-- Sleep/Aerial Yoke Resistance +4% -->
+		<!-- Sleep/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>4</SLEEP>
@@ -524,7 +587,8 @@
 		</effects>
 	</option>
 	<option id="31663" name="helios_opt">
-		<!-- Sleep/Pull Resistance + 4% -->
+		<!-- Sleep/Pull Resistance +4% -->
+		<!-- Sleep/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>4</SLEEP>
@@ -533,11 +597,13 @@
 		</effects>
 	</option>
 	<option id="31664" name="helios_opt">
-		<!-- Passive: Sleep/Petrification Resistance + 4%. -->
+		<!-- Passive: Sleep/Petrification Resistance +4%. -->
+		<!-- Passive: Sleep/Petrification Resistance +4%. -->
 		<passive_skill id="13766" level="2" /> <!-- Item Skill: Sleep, Petrification Resistance -->
 	</option>
 	<option id="31665" name="helios_opt">
-		<!-- Poison/Knock Back/Knock Down Resistance + 4% -->
+		<!-- Poison/Knock Back/Knock Down Resistance +4% -->
+		<!-- Poison/Knock Back/Knock Down Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>4</POISON>
@@ -547,7 +613,8 @@
 		</effects>
 	</option>
 	<option id="31666" name="helios_opt">
-		<!-- Poison/Aerial Yoke Resistance + 4% -->
+		<!-- Poison/Aerial Yoke Resistance +4% -->
+		<!-- Poison/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>4</POISON>
@@ -556,7 +623,8 @@
 		</effects>
 	</option>
 	<option id="31667" name="helios_opt">
-		<!-- Poison/Pull Resistance + 4% -->
+		<!-- Poison/Pull Resistance +4% -->
+		<!-- Poison/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>4</POISON>
@@ -565,11 +633,13 @@
 		</effects>
 	</option>
 	<option id="31668" name="helios_opt">
-		<!-- Passive: Poison/Petrification Resistance + 4%. -->
+		<!-- Passive: Poison/Petrification Resistance +4%. -->
+		<!-- Passive: Poison/Petrification Resistance +4%. -->
 		<passive_skill id="13757" level="2" /> <!-- Item Skill: Poison, Petrification Resistance -->
 	</option>
 	<option id="31669" name="helios_opt">
-		<!-- Knock Back/Knock Down/Aerial Yoke Resistance + 4% -->
+		<!-- Knock Back/Knock Down/Aerial Yoke Resistance +4% -->
+		<!-- Knock Back/Knock Down/Aerial Yoke Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>4</KNOCKBACK>
@@ -579,7 +649,8 @@
 		</effects>
 	</option>
 	<option id="31670" name="helios_opt">
-		<!-- Knock Back/Knock Down/Pull Resistance + 4% -->
+		<!-- Knock Back/Knock Down/Pull Resistance +4% -->
+		<!-- Knock Back/Knock Down/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>4</KNOCKBACK>
@@ -589,11 +660,13 @@
 		</effects>
 	</option>
 	<option id="31671" name="helios_opt">
-		<!-- Passive: Knock Back/Knock Down/Petrification Resistance + 4%. -->
+		<!-- Passive: Knock Back/Knock Down/Petrification Resistance +4%. -->
+		<!-- Passive: Knock Back/Knock Down/Petrification Resistance +4%. -->
 		<passive_skill id="13756" level="2" /> <!-- Item Skill: Knock Back/Knock Down, Petrification Resistance -->
 	</option>
 	<option id="31672" name="helios_opt">
-		<!-- Aerial Yoke/Pull Resistance + 4% -->
+		<!-- Aerial Yoke/Pull Resistance +4% -->
+		<!-- Aerial Yoke/Pull Resistance +4% -->
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>4</AIRBIND>
@@ -602,15 +675,18 @@
 		</effects>
 	</option>
 	<option id="31673" name="helios_opt">
-		<!-- Passive: Aerial Yoke/Petrification Resistance + 4%. -->
+		<!-- Passive: Aerial Yoke/Petrification Resistance +4%. -->
+		<!-- Passive: Aerial Yoke/Petrification Resistance +4%. -->
 		<passive_skill id="13754" level="2" /> <!-- Item Skill: Aerial Yoke, Petrification Resistance -->
 	</option>
 	<option id="31674" name="helios_opt">
-		<!-- Passive: Pull/Petrification Resistance + 4%. -->
+		<!-- Passive: Pull/Petrification Resistance +4%. -->
+		<!-- Passive: Pull/Petrification Resistance +4%. -->
 		<passive_skill id="13755" level="2" /> <!-- Item Skill: Pull, Petrification Resistance -->
 	</option>
 	<option id="31675" name="helios_opt">
-		<!-- P. Def. + 18 -->
+		<!-- P. Def. +18 -->
+		<!-- P. Def. +18 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>18</amount>
@@ -619,7 +695,8 @@
 		</effects>
 	</option>
 	<option id="31676" name="helios_opt">
-		<!-- P. Def. + 22 -->
+		<!-- P. Def. +22 -->
+		<!-- P. Def. +22 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>22</amount>
@@ -628,7 +705,8 @@
 		</effects>
 	</option>
 	<option id="31677" name="helios_opt">
-		<!-- P. Def. + 28 -->
+		<!-- P. Def. +28 -->
+		<!-- P. Def. +28 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>28</amount>
@@ -637,7 +715,8 @@
 		</effects>
 	</option>
 	<option id="31678" name="helios_opt">
-		<!-- P. Def. + 35 -->
+		<!-- P. Def. +35 -->
+		<!-- P. Def. +35 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>35</amount>
@@ -646,7 +725,8 @@
 		</effects>
 	</option>
 	<option id="31679" name="helios_opt">
-		<!-- P. Def. + 42 -->
+		<!-- P. Def. +42 -->
+		<!-- P. Def. +42 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>42</amount>
@@ -655,7 +735,8 @@
 		</effects>
 	</option>
 	<option id="31680" name="helios_opt">
-		<!-- P. Def. + 50 -->
+		<!-- P. Def. +50 -->
+		<!-- P. Def. +50 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>50</amount>
@@ -664,7 +745,8 @@
 		</effects>
 	</option>
 	<option id="31681" name="helios_opt">
-		<!-- P. Def. + 59 -->
+		<!-- P. Def. +59 -->
+		<!-- P. Def. +59 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>59</amount>
@@ -673,7 +755,8 @@
 		</effects>
 	</option>
 	<option id="31682" name="helios_opt">
-		<!-- P. Def. + 67 -->
+		<!-- P. Def. +67 -->
+		<!-- P. Def. +67 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>67</amount>
@@ -682,7 +765,8 @@
 		</effects>
 	</option>
 	<option id="31683" name="helios_opt">
-		<!-- P. Def. + 84 -->
+		<!-- P. Def. +84 -->
+		<!-- P. Def. +84 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>84</amount>
@@ -691,7 +775,8 @@
 		</effects>
 	</option>
 	<option id="31684" name="helios_opt">
-		<!-- P. Def. + 169 -->
+		<!-- P. Def. +169 -->
+		<!-- P. Def. +169 -->
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>169</amount>
@@ -700,7 +785,8 @@
 		</effects>
 	</option>
 	<option id="31685" name="helios_opt">
-		<!-- M. Def. + 37 -->
+		<!-- M. Def. +37 -->
+		<!-- M. Def. +37 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>37</amount>
@@ -709,7 +795,8 @@
 		</effects>
 	</option>
 	<option id="31686" name="helios_opt">
-		<!-- M. Def. + 44 -->
+		<!-- M. Def. +44 -->
+		<!-- M. Def. +44 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>44</amount>
@@ -718,7 +805,8 @@
 		</effects>
 	</option>
 	<option id="31687" name="helios_opt">
-		<!-- M. Def. + 57 -->
+		<!-- M. Def. +57 -->
+		<!-- M. Def. +57 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>57</amount>
@@ -727,7 +815,8 @@
 		</effects>
 	</option>
 	<option id="31688" name="helios_opt">
-		<!-- M. Def. + 71 -->
+		<!-- M. Def. +71 -->
+		<!-- M. Def. +71 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>71</amount>
@@ -736,7 +825,8 @@
 		</effects>
 	</option>
 	<option id="31689" name="helios_opt">
-		<!-- M. Def. + 84 -->
+		<!-- M. Def. +84 -->
+		<!-- M. Def. +84 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>84</amount>
@@ -745,7 +835,8 @@
 		</effects>
 	</option>
 	<option id="31690" name="helios_opt">
-		<!-- M. Def. + 101 -->
+		<!-- M. Def. +101 -->
+		<!-- M. Def. +101 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>101</amount>
@@ -754,7 +845,8 @@
 		</effects>
 	</option>
 	<option id="31691" name="helios_opt">
-		<!-- M. Def. + 118 -->
+		<!-- M. Def. +118 -->
+		<!-- M. Def. +118 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>118</amount>
@@ -763,7 +855,8 @@
 		</effects>
 	</option>
 	<option id="31692" name="helios_opt">
-		<!-- M. Def. + 135 -->
+		<!-- M. Def. +135 -->
+		<!-- M. Def. +135 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>135</amount>
@@ -772,7 +865,8 @@
 		</effects>
 	</option>
 	<option id="31693" name="helios_opt">
-		<!-- M. Def. + 169 -->
+		<!-- M. Def. +169 -->
+		<!-- M. Def. +169 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>169</amount>
@@ -781,7 +875,8 @@
 		</effects>
 	</option>
 	<option id="31694" name="helios_opt">
-		<!-- M. Def. + 339 -->
+		<!-- M. Def. +339 -->
+		<!-- M. Def. +339 -->
 		<effects>
 			<effect name="MagicalDefence">
 				<amount>339</amount>
@@ -790,7 +885,8 @@
 		</effects>
 	</option>
 	<option id="31695" name="helios_opt">
-		<!-- P. Evasion + 1 -->
+		<!-- P. Evasion +1 -->
+		<!-- P. Evasion +1 -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>1</amount>
@@ -799,7 +895,8 @@
 		</effects>
 	</option>
 	<option id="31696" name="helios_opt">
-		<!-- P. Evasion + 2 -->
+		<!-- P. Evasion +2 -->
+		<!-- P. Evasion +2 -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>2</amount>
@@ -808,7 +905,8 @@
 		</effects>
 	</option>
 	<option id="31697" name="helios_opt">
-		<!-- P. Evasion + 3 -->
+		<!-- P. Evasion +3 -->
+		<!-- P. Evasion +3 -->
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>3</amount>
@@ -817,11 +915,13 @@
 		</effects>
 	</option>
 	<option id="31698" name="helios_opt">
-		<!-- Passive: M. Evasion + 1. -->
+		<!-- Passive: M. Evasion +1. -->
+		<!-- Passive: M. Evasion +1. -->
 		<passive_skill id="13760" level="3" /> <!-- Item Skill: M. Evasion -->
 	</option>
 	<option id="31699" name="helios_opt">
-		<!-- Passive: M. Evasion + 2. -->
+		<!-- Passive: M. Evasion +2. -->
+		<!-- Passive: M. Evasion +2. -->
 		<passive_skill id="13760" level="4" /> <!-- Item Skill: M. Evasion -->
 	</option>
 </list>

@@ -19,10 +19,15 @@ pub enum MagicFailure {
 }
 
 /// `Formulas.calcMagicDam` (the `77 * power * sqrt(mAtk) / mDef` MDAM
-/// formula). `mcrit` doubles the damage via `calcCritDamage`'s magic branch
-/// (`2 * MAGIC_CRITICAL_DAMAGE(1) * DEFENCE_MAGIC_CRITICAL_DAMAGE(1)`).
-/// `shots_bonus` is Java's `bss ? 4 : sps ? 2 : 1` (times the `SHOTS_BONUS`
-/// stat, 1.0 here) applied to the base magic damage.
+/// formula). `mcrit` multiplies the damage by `calcCritDamage`'s magic branch
+/// (`1 + MAGIC_CRITICAL_DAMAGE · max(0.2, 2 − DEFENCE_MAGIC_CRITICAL_DAMAGE)`,
+/// 2 with no stats). `shots_bonus` is [`spiritshot_bonus`], applied to the
+/// base magic damage.
+///
+/// This is the multiplicative body only. Java then multiplies in the trait,
+/// attribute, pvp/pve and `MAGICAL_SKILL_POWER` terms, adds
+/// `calcCritDamageAdd` on a crit and returns `max(1, damage)` — the caller
+/// does those, in that order, through [`finish_magic_dam`].
 ///
 /// `failure` is the `ALT_GAME_MAGICFAILURES` verdict. Java mutates `damage`
 /// inside the failure block and only then multiplies by `critMod` and the
@@ -51,6 +56,55 @@ pub fn calc_magic_dam(
     // `randomDamage` (10 on every class template) makes the same cast land
     // anywhere in ±10 %.
     damage * if mcrit { crit_mul } else { 1.0 } * random_mul
+}
+
+/// `calcMagicDam`'s tail, after every multiplier: `damage += critMagicAdd;
+/// return Math.max(1, damage);` — `crit_add` is `calcCritDamageAdd`'s magic
+/// branch, already zero when the cast did not crit.
+pub fn finish_magic_dam(damage: f64, crit_add: f64) -> f64 {
+    (damage + crit_add).max(1.0)
+}
+
+/// The spiritshot multiplier of `calcMagicDam`:
+///
+/// ```java
+/// if (bss) shotsBonus = 4 + (attacker.getStat().getValue(Stat.SHOTS_BONUS) / 100);
+/// else if (sps) shotsBonus = 2 + (attacker.getStat().getValue(Stat.SHOTS_BONUS) / 100);
+/// else shotsBonus = 1;
+/// ```
+///
+/// Additive, and the stat is divided by 100 first — a +10 weapon's 1.07 adds
+/// 0.0107 to the flat 2 or 4.
+pub fn spiritshot_bonus(sps: bool, bss: bool, shots_bonus: f64) -> f64 {
+    if bss {
+        4.0 + (shots_bonus / 100.0)
+    } else if sps {
+        2.0 + (shots_bonus / 100.0)
+    } else {
+        1.0
+    }
+}
+
+/// `calcManaDam`'s spiritshot multiplier on mAtk, which carries the sapphire
+/// jewel where [`spiritshot_bonus`] does not:
+///
+/// ```java
+/// final double shotsBonus = attacker.getStat().getValue(Stat.SHOTS_BONUS) / 100;
+/// double sapphireBonus = attacker.isPlayer() && (activeShappireJewel != null) ? jewel.getBonus() : 0;
+/// mAtk *= bss ? 4 + (shotsBonus + sapphireBonus) : sps ? 2 + (shotsBonus + sapphireBonus) : 1;
+/// ```
+///
+/// The sapphire term is 0 until brooch jewels can be worn (item skills).
+pub fn mana_spiritshot_bonus(sps: bool, bss: bool, shots_bonus: f64) -> f64 {
+    let sapphire_bonus = 0.0;
+    let bonus = (shots_bonus / 100.0) + sapphire_bonus;
+    if bss {
+        4.0 + bonus
+    } else if sps {
+        2.0 + bonus
+    } else {
+        1.0
+    }
 }
 
 /// `Formulas.calcProbability` — the chance gate on `Confuse`/`RandomizeHate`.
@@ -97,17 +151,16 @@ pub fn calc_probability(
 /// HP one: `(sqrt(mAtk) * power * (targetMaxMp / 97)) / mDef`.
 ///
 /// Note the target's **max MP** is a direct multiplier, so the same nuke drains
-/// far more from a high-MP mage than from a fighter. `shots_bonus` is Java's
-/// `bss ? 4 : sps ? 2 : 1` applied to `mAtk` *before* the square root (unlike
-/// [`calc_magic_dam`], where it scales the finished damage).
+/// far more from a high-MP mage than from a fighter. `shots_bonus` is
+/// [`mana_spiritshot_bonus`], applied to `mAtk` *before* the square root
+/// (unlike [`calc_magic_dam`], where it scales the finished damage).
 ///
 /// A magic crit triples the result and then **clamps to `crit_limit`** — a
 /// per-skill cap (1600 on Aura Sink / Seal of Gloom, 7000 on Mana Burn / Mana
 /// Storm) with no equivalent anywhere in the HP formulas.
 ///
-/// Dropped terms, all identity here: `calcGeneralTraitBonus`,
-/// `calculatePvpPveBonus`, and the sapphire-jewel bonus (a later chronicle's
-/// item, absent from this dist).
+/// Unlike `calcMagicDam`, Salvation's `calcManaDam` has no `max(1, …)` floor
+/// and no crit add.
 #[allow(clippy::too_many_arguments)]
 pub fn calc_mana_dam(
     m_atk: f64,
@@ -178,49 +231,51 @@ pub fn calc_magic_affected(m_atk: f64, defence: f64, gaussian: f64) -> bool {
 /// `Formulas.calcCrit`'s magic branch:
 ///
 /// ```java
-/// rate = creature.getStat().getValue(Stat.MAGIC_CRITICAL_RATE);
-/// if ((target == null) || !skill.isBad()) return Math.min(rate, 320) > Rnd.get(1000);
-/// double finalRate = target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE, rate) + target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE_ADD, 0);
-/// if ((creature.getLevel() >= 78) && (target.getLevel() >= 78))
+/// final double magicRate = creature.getStat().getValue(Stat.MAGIC_CRITICAL_RATE);
+/// if ((target == null) || !skill.hasNegativeEffect()) return Math.min(magicRate, 320) > Rnd.get(1000);
+/// final double defenceMagicCriticalRate = target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE, 1) - 1;
+/// double magicRateFinal = (magicRate - target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE_ADD, 0)) * (1 - Math.min(0.8, defenceMagicCriticalRate));
+/// if ((creature.getLevel() >= 78) || (target.getLevel() >= 78))
 /// {
-///     finalRate += Math.sqrt(creature.getLevel()) + ((creature.getLevel() - target.getLevel()) / 25);
-///     return Math.min(finalRate, 320 * balanceMod) > Rnd.get(1000);
+///     magicRateFinal += Math.sqrt(creature.getLevel()) + ((creature.getLevel() - target.getLevel()) / 25);
 /// }
-/// return (Math.min(finalRate, 200) * balanceMod) > Rnd.get(1000);
+/// return MathUtil.clamp(magicRateFinal * balanceMod, 30, PlayerConfig.MAX_MCRIT_RATE) > Rnd.get(1000);
 /// ```
 ///
-/// `m_crit_rate` is the per-mille `Player.m_crit_hit`; `roll` is
-/// `Rnd.get(1000)`. A good skill caps at 320‰ and never reaches the level
-/// branch; a bad one caps at 200‰ until **both** sides are 78 or over, where
-/// the cap lifts to 320‰ and a `sqrt(level)` bonus comes with it.
+/// `m_crit_rate` is the per-mille `CombatStats::m_crit_hit`; `roll` is
+/// `Rnd.get(1000)`. A skill with no negative effect still caps at 320‰ with
+/// no floor. A negative one is clamped to `[30, MaxMCritRate]` — so even a
+/// caster with no crit rate at all lands 3 % — and the level term fires when
+/// **either** side is 78 or over (Interlude needed both).
 ///
-/// Two narrowings, carriers named: the balance multipliers are 1.0 (the dist
-/// leaves `PVP_/PVE_MAGICAL_SKILL_CRITICAL_CHANCE_MULTIPLIERS` unpopulated),
-/// and `DEFENCE_MAGIC_CRITICAL_RATE`/`_ADD` are declared only by skills in the
-/// 10500+ id ranges, none of them learnable or on an NPC list here — so the
-/// defender's term stays the identity `getValue(stat, rate) = rate`.
+/// The defender's `DEFENCE_MAGIC_CRITICAL_RATE` reduces the rate by
+/// `min(0.8, value − 1)`, and `_ADD` is subtracted first. The balance
+/// multipliers are 1.0 (the dist leaves the tables unpopulated).
 ///
-/// Java's own `(creature.getLevel() - target.getLevel()) / 25` is **integer**
-/// division, so it contributes 0 for every level gap this chronicle can
-/// produce; it is written out here rather than dropped, for the same reason
-/// the sweep keeps identity terms.
+/// Java's `(creature.getLevel() - target.getLevel()) / 25` is **integer**
+/// division; it is written out rather than dropped.
+#[allow(clippy::too_many_arguments)]
 pub fn calc_magic_crit(
     m_crit_rate: f64,
-    is_bad: bool,
+    has_negative_effect: bool,
+    // `target.getValue(DEFENCE_MAGIC_CRITICAL_RATE, 1)` — `1 · mul + add`.
+    defence_rate: f64,
+    // `target.getValue(DEFENCE_MAGIC_CRITICAL_RATE_ADD, 0)`.
+    defence_add: f64,
     caster_level: i32,
     target_level: i32,
+    // `PlayerConfig.MAX_MCRIT_RATE` (`MaxMCritRate`, 200).
+    max_rate: f64,
     roll: i32,
 ) -> bool {
-    if !is_bad {
+    if !has_negative_effect {
         return m_crit_rate.min(320.0) > roll as f64;
     }
-    if caster_level >= 78 && target_level >= 78 {
-        let rate = m_crit_rate
-            + f64::from(caster_level).sqrt()
-            + f64::from((caster_level - target_level) / 25);
-        return rate.min(320.0) > roll as f64;
+    let mut rate = (m_crit_rate - defence_add) * (1.0 - (defence_rate - 1.0).min(0.8));
+    if caster_level >= 78 || target_level >= 78 {
+        rate += f64::from(caster_level).sqrt() + f64::from((caster_level - target_level) / 25);
     }
-    m_crit_rate.min(200.0) > roll as f64
+    rate.clamp(30.0, max_rate) > roll as f64
 }
 
 /// Inputs to [`calc_magic_success_rate`] — one field per term of Java's
@@ -340,13 +395,31 @@ mod tests {
         assert!((dmg - 154.0).abs() < 1e-9);
         let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, none, 1.0);
         assert!((crit - 308.0).abs() < 1e-9);
-        // Spiritshot doubles, blessed spiritshot quadruples the base.
+        // Spiritshot: ×(2 + SHOTS_BONUS/100); blessed: ×(4 + SHOTS_BONUS/100).
+        let sps = spiritshot_bonus(true, false, 1.0);
+        let bss = spiritshot_bonus(false, true, 1.0);
+        assert!((sps - 2.01).abs() < 1e-12 && (bss - 4.01).abs() < 1e-12);
         assert!(
-            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 2.0, none, 1.0) - 308.0).abs() < 1e-9
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, sps, none, 1.0) - 154.0 * 2.01).abs()
+                < 1e-9
         );
         assert!(
-            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 4.0, none, 1.0) - 616.0).abs() < 1e-9
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, bss, none, 1.0) - 154.0 * 4.01).abs()
+                < 1e-9
         );
+        assert_eq!(spiritshot_bonus(false, false, 1.07), 1.0);
+        // Blessed wins when both flags are up.
+        assert!((spiritshot_bonus(true, true, 1.07) - 4.0107).abs() < 1e-12);
+        // `calcManaDam` adds the same `SHOTS_BONUS/100` (the sapphire term is 0).
+        assert!((mana_spiritshot_bonus(true, false, 1.07) - 2.0107).abs() < 1e-12);
+    }
+
+    /// `calcMagicDam`'s tail: `damage += critMagicAdd; return Math.max(1,
+    /// damage);`.
+    #[test]
+    fn magic_dam_adds_the_crit_add_and_floors_at_one() {
+        assert_eq!(finish_magic_dam(100.0, 25.0), 125.0);
+        assert_eq!(finish_magic_dam(0.4, 0.0), 1.0);
     }
 
     /// mDef is floored at 1 so a zero-defence target can't divide by zero.
@@ -503,29 +576,47 @@ mod tests {
         assert_eq!(calc_magic_success_rate(&input), 0);
     }
 
-    /// Good skills cap the per-mille rate at 320, bad skills at 200; the
-    /// comparison is strict (`rate > roll`).
+    /// A skill with no negative effect caps at 320 with no floor; a negative
+    /// one is clamped to `[30, MaxMCritRate]`. The comparison is strict
+    /// (`rate > roll`).
     #[test]
     fn magic_crit_caps_and_thresholds() {
-        assert!(calc_magic_crit(1000.0, false, 40, 40, 319));
-        assert!(!calc_magic_crit(1000.0, false, 40, 40, 320));
-        assert!(calc_magic_crit(1000.0, true, 40, 40, 199));
-        assert!(!calc_magic_crit(1000.0, true, 40, 40, 200));
-        assert!(!calc_magic_crit(0.0, false, 40, 40, 0));
+        let roll =
+            |rate: f64, bad: bool, r: i32| calc_magic_crit(rate, bad, 1.0, 0.0, 40, 40, 200.0, r);
+        assert!(roll(1000.0, false, 319));
+        assert!(!roll(1000.0, false, 320));
+        assert!(!roll(0.0, false, 0));
+        assert!(roll(1000.0, true, 199));
+        assert!(!roll(1000.0, true, 200));
+        // The 30 floor: a caster with no crit rate still lands 3 %.
+        assert!(roll(0.0, true, 29));
+        assert!(!roll(0.0, true, 30));
     }
 
-    /// The bad-skill cap lifts to 320 once **both** sides are 78+, and the
-    /// `sqrt(level)` bonus rides in with it — a good skill never reaches that
-    /// branch, since Java returns before it.
+    /// The defender's `DEFENCE_MAGIC_CRITICAL_RATE` strips `min(0.8, value −
+    /// 1)` after `_ADD` is subtracted.
     #[test]
-    fn magic_crit_lifts_its_cap_for_high_level_pairs() {
-        assert!(calc_magic_crit(1000.0, true, 78, 78, 319));
-        assert!(!calc_magic_crit(1000.0, true, 78, 78, 320));
-        // One side below 78 keeps the 200 cap.
-        assert!(!calc_magic_crit(1000.0, true, 78, 77, 200));
-        // 100%o at level 81 → 100 + 9 = 109 (the level-gap term is Java's own
-        // integer division, 0 for any gap under 25).
-        assert!(calc_magic_crit(100.0, true, 81, 78, 108));
-        assert!(!calc_magic_crit(100.0, true, 81, 78, 109));
+    fn magic_crit_reads_the_defenders_reduction() {
+        // 100 · (1 − 0.5) = 50.
+        assert!(calc_magic_crit(100.0, true, 1.5, 0.0, 40, 40, 200.0, 49));
+        assert!(!calc_magic_crit(100.0, true, 1.5, 0.0, 40, 40, 200.0, 50));
+        // (100 − 20) · 1 = 80.
+        assert!(calc_magic_crit(100.0, true, 1.0, 20.0, 40, 40, 200.0, 79));
+        assert!(!calc_magic_crit(100.0, true, 1.0, 20.0, 40, 40, 200.0, 80));
+    }
+
+    /// The level term fires when **either** side is 78+: `+ √level + (level −
+    /// targetLevel) / 25`, the second half in Java's truncating integer
+    /// division.
+    #[test]
+    fn magic_crit_level_term() {
+        // 100 + √81 + 3/25 = 109.
+        assert!(calc_magic_crit(100.0, true, 1.0, 0.0, 81, 78, 200.0, 108));
+        assert!(!calc_magic_crit(100.0, true, 1.0, 0.0, 81, 78, 200.0, 109));
+        // Only the target is 78: 100 + √40 + (−38/25 → −1) = 105.32.
+        assert!(calc_magic_crit(100.0, true, 1.0, 0.0, 40, 78, 200.0, 105));
+        assert!(!calc_magic_crit(100.0, true, 1.0, 0.0, 40, 78, 200.0, 106));
+        // The cap still binds: 1000 at level 80 stays 200.
+        assert!(!calc_magic_crit(1000.0, true, 1.0, 0.0, 80, 80, 200.0, 200));
     }
 }

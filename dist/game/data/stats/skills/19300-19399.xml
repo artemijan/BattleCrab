@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="19300" toLevel="1" name="Reverse Mana Drain">
 		<icon>icon.skill19299</icon>
 		<operateType>A1</operateType>
-		<effectPoint>-709</effectPoint>
-		<isTriggeredSkill>true</isTriggeredSkill>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>-709</effectPoint>
+		<isTriggeredSkill>true</isTriggeredSkill>
 		<effects>
 			<effect name="ManaHealPercent">
 				<power>3</power>
@@ -14,12 +14,10 @@
 		</effects>
 	</skill>
 	<skill id="19301" toLevel="9" name="Istina Acid Swarm">
-		<!-- Creates Danger Zone which sprays poison onto nearby targets for 15 seconds. Decreases P. Atk., Speed, Shield Defense, P. Def., and M. Def. Inflicts Poison that blocks the use of magic skills. -->
+		<!-- Throws the bottle containing Istina's Acid at the target point to create an acidic area for 15 seconds. Enemies within the area suffer P. Def/ M. Def -30% and Atk. Spd./ Speed/ Shield Def. -50% and cannot use magic skills. -->
 		<icon>icon.skill19301</icon>
-		<operateType>A1</operateType>
-		<coolTime>500</coolTime>
-		<mpConsume>107</mpConsume>
-		<castRange>900</castRange>
+		<operateType>A2</operateType>
+		<targetType>GROUND</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -31,15 +29,24 @@
 			<value level="8">8</value>
 			<value level="9">9</value>
 		</abnormalLevel>
-		<reuseDelay>15000</reuseDelay>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>POISON</abnormalType>
 		<abnormalVisualEffect>DOT_POISON</abnormalVisualEffect>
 		<activateRate>130</activateRate>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
-		<operateType>A2</operateType>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<castRange>900</castRange>
+		<channelingStart>1</channelingStart>
 		<coolTime>500</coolTime>
+		<effectPoint>0</effectPoint>
+		<effectRange>900</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>20</lvlBonusRate>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
@@ -52,19 +59,10 @@
 			<value level="8">103</value>
 			<value level="9">105</value>
 		</magicLevel>
-		<lvlBonusRate>20</lvlBonusRate>
 		<mpConsume>1</mpConsume>
-		<effectPoint>-711</effectPoint>
-		<effectRange>900</effectRange>
-		<isDebuff>true</isDebuff>
-		<basicProperty>NONE</basicProperty>
-		<hitTime>2000</hitTime>
-		<hitCancelTime>0</hitCancelTime>
+		<mpConsume>107</mpConsume>
+		<reuseDelay>15000</reuseDelay>
 		<trait>ZONE</trait>
-		<targetType>GROUND</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<channelingStart>1</channelingStart>
 		<effects>
 			<effect name="SummonNpc">
 				<npcId>
@@ -104,8 +102,18 @@
 		</effects>
 	</skill>
 	<skill id="19302" toLevel="9" name="Thrown Acid Swarm">
-		<!-- Poisoned. Decreases Speed/P. Atk/P. Def/M. Def/Shield Defense, blocks magic skills and drains HP by 780 every second. -->
+		<!-- Level 1: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -780 per second. -->
+		<!-- Level 2: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -930 per second. -->
+		<!-- Level 3: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -1180 per second. -->
+		<!-- Level 4: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -1330 per second. -->
+		<!-- Level 5: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -1480 per second. -->
+		<!-- Level 6: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -1630 per second. -->
+		<!-- Level 7: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -1780 per second. -->
+		<!-- Level 8: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -1930 per second. -->
+		<!-- Level 9: Poisoned. P. Def/ M. Def -30% and, Atk. Spd./ Speed/ Shield Def. -50%, blocks magic skills, and HP -2080 per second. -->
 		<icon>icon.skill19301</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -122,8 +130,14 @@
 		<abnormalVisualEffect>DOT_POISON</abnormalVisualEffect>
 		<activateRate>130</activateRate>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>300</affectRange>
-		<operateType>A2</operateType>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-709</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>20</lvlBonusRate>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
@@ -136,15 +150,7 @@
 			<value level="8">103</value>
 			<value level="9">105</value>
 		</magicLevel>
-		<lvlBonusRate>20</lvlBonusRate>
-		<effectPoint>-709</effectPoint>
-		<isDebuff>true</isDebuff>
-		<basicProperty>NONE</basicProperty>
-		<hitCancelTime>0</hitCancelTime>
 		<trait>POISON</trait>
-		<targetType>SELF</targetType>
-		<affectScope>POINT_BLANK</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Heal">
 				<power>
@@ -192,13 +198,25 @@
 		</selfEffects>
 	</skill>
 	<skill id="19303" toLevel="7" name="Right Angle Reverse">
-		<!-- Moves to the right side of the target to attempt Deadly Attack with 35530 power added to P. Atk.. Causes Bleed on the target for 15 seconds. Half-kill is possible. Requires dagger/dual dagger. -->
+		<!-- Level 1: Moves to the right side of the target to attempt the Deadly Attack with 35530 Power added to P. Atk and stun the target for 3 seconds. Half-kill is possible. Requires a dagger or dual dagger to be equipped. -->
+		<!-- Level 2: Moves to the right side of the target to attempt the Deadly Attack with 41630 Power added to P. Atk and stun the target for 3 seconds. Half-kill is possible. Requires a dagger or dual dagger to be equipped. -->
+		<!-- Level 3: Moves to the right side of the target to attempt the Deadly Attack with 47730 Power added to P. Atk and stun the target for 3 seconds. Half-kill is possible. Requires a dagger or dual dagger to be equipped. -->
+		<!-- Level 4: Moves to the right side of the target to attempt the Deadly Attack with 52610 Power added to P. Atk and stun the target for 3 seconds. Half-kill is possible. Requires a dagger or dual dagger to be equipped. -->
+		<!-- Level 5: Moves to the right side of the target to attempt Deadly Attack with 56030 Power added to P. Atk.. Causes Stun on the target for 3 seconds. Adds the Easterly Wind effect to the caster, which resets cooldown of Right Angle Reverse and Eastery Wind Strike. Half-kill is possible. Requires dagger/ dual dagger to be equipped. -->
+		<!-- Level 6: Moves to the right side of the target to attempt Deadly Attack with 58530 Power added to P. Atk.. Causes Stun on the target for 3 seconds. Adds the Easterly Wind effect to the caster, which resets cooldown of Right Angle Reverse and Eastery Wind Strike. Half-kill is possible. Requires dagger/ dual dagger to be equipped. -->
+		<!-- Level 7: Moves to the right side of the target to attempt Deadly Attack with 61030 Power added to P. Atk.. Causes Stun on the target for 3 seconds. Adds the Easterly Wind effect to the caster, which resets cooldown of Right Angle Reverse and Eastery Wind Strike. Half-kill is possible. Requires dagger/ dual dagger to be equipped. -->
 		<icon>icon.skill19303</icon>
+		<operateType>DA5</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1</abnormalTime>
 		<abnormalType>STUN</abnormalType>
-		<operateType>DA5</operateType>
+		<activateRate>0</activateRate>
+		<affectScope>SINGLE</affectScope>
 		<castRange>80</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-709</effectPoint>
+		<hitTime>1500</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -217,15 +235,9 @@
 			<value level="6">105</value>
 			<value level="7">110</value>
 		</mpConsume>
-		<activateRate>0</activateRate>
-		<hitTime>1500</hitTime>
-		<coolTime>500</coolTime>
+		<nextAction>ATTACK</nextAction>
 		<reuseDelay>6000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<effectPoint>-709</effectPoint>
-		<nextAction>ATTACK</nextAction>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -259,21 +271,25 @@
 				<halfLethal>15</halfLethal>
 			</effect>
 			<effect name="CallSkill">
-				<skillId>19528</skillId> <!-- Right Angle Reverse - Stun -->
+				<skillId>19528</skillId> <!-- Right Angle Reverse -->
 				<skillLevel>1</skillLevel>
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19304" toLevel="1" name="Easterly Wind Strike">
-		<!-- Increases critical rate/critical damage inflicted from the side by 20% and critical rate/critical damage inflicted from behind by 10%. -->
+	<skill id="19304" toLevel="2" name="Easterly Wind Strike">
+		<!-- Level 1: Critical rate/ critical damage inflicted from the flank +20% and critical rate/ critical damage inflicted from behind +10%, and also resets cooldown of Right Angle Reverse and Easterly Wind Strike. -->
+		<!-- Level 2: Critical rate/ critical damage inflicted from the flank +20% and critical rate/ critical damage inflicted from behind +10%. -->
 		<icon>icon.skill10705</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>10</abnormalTime>
-		<abnormalType>EASTERLY_WIND_STRIKE</abnormalType>
-		<effectPoint>80</effectPoint>
 		<operateType>A2</operateType>
 		<targetType>SELF</targetType>
+		<abnormalLevel>
+			<value level="1">1</value>
+			<value level="2">2</value>
+		</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>EASTERLY_WIND_STRIKE</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>80</effectPoint>
 		<isTriggeredSkill>true</isTriggeredSkill>
 		<reuseDelayGroup>10705</reuseDelayGroup>
 		<effects>
@@ -306,14 +322,32 @@
 		</effects>
 	</skill>
 	<skill id="19305" toLevel="7" name="Shadow Reverse">
-		<!-- Teleports to the back of the target and attempts Deadly Attack with 38160 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/dual dagger. -->
+		<!-- Level 1: Teleports to the back of the target and attempts Deadly Attack with 38160 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 2: Teleports to the back of the target and attempts Deadly Attack with 44710 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 3: Teleports to the back of the target and attempts Deadly Attack with 51270 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 4: Teleports to the back of the target and attempts Deadly Attack with 56510 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 5: Teleports to the back of the target and attempts Deadly Attack with 60180 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 6: Teleports to the back of the target and attempts Deadly Attack with 62870 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
+		<!-- Level 7: Teleports to the back of the target and attempts Deadly Attack with 65560 power added to P. Atk. Additionally, decreases target Accuracy by 5 for 3 seconds. Half-kill is possible. Requires dagger/ dual dagger. -->
 		<icon>icon.skill19305</icon>
-		<abnormalLevel>1</abnormalLevel>
-		<abnormalTime>3</abnormalTime>
 		<operateType>A2</operateType>
 		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
 		<affectScope>SINGLE</affectScope>
 		<castRange>120</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>
+			<value level="1">-709</value>
+			<value level="2">-711</value>
+			<value level="3">-713</value>
+			<value level="4">-715</value>
+			<value level="5">-715</value>
+			<value level="6">-715</value>
+			<value level="7">-715</value>
+		</effectPoint>
+		<hitTime>2030</hitTime>
+		<isDebuff>true</isDebuff>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -332,20 +366,8 @@
 			<value level="6">124</value>
 			<value level="7">130</value>
 		</mpConsume>
-		<hitTime>2030</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>8000</reuseDelay>
-		<effectPoint>
-			<value level="1">-709</value>
-			<value level="2">-711</value>
-			<value level="3">-713</value>
-			<value level="4">-715</value>
-			<value level="5">-715</value>
-			<value level="6">-715</value>
-			<value level="7">-715</value>
-		</effectPoint>
-		<isDebuff>true</isDebuff>
 		<nextAction>ATTACK</nextAction>
+		<reuseDelay>8000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -383,21 +405,21 @@
 		</effects>
 	</skill>
 	<skill id="19306" toLevel="1" name="Coin of Maphr">
-		<!-- Leave your luck to the thumb -->
+		<!-- Each party member will receive a random set of effects based on a coin flip: Increased P./ M. Atk. and P./ M. Skill Power or Increased Head size and P./ M. Def. Consumes 7777 Adena. Requires dagger/ dual dagger. -->
 		<icon>icon.skill19306</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectObject>FRIEND_PC</affectObject>
+		<affectRange>600</affectRange>
+		<affectScope>PARTY</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>669</effectPoint>
+		<effectRange>600</effectRange>
+		<hitTime>2000</hitTime>
 		<itemConsumeCount>7777</itemConsumeCount>
 		<itemConsumeId>57</itemConsumeId> <!-- Adena -->
 		<mpConsume>36</mpConsume>
-		<hitTime>2000</hitTime>
-		<coolTime>500</coolTime>
 		<reuseDelay>300000</reuseDelay>
-		<affectRange>600</affectRange>
-		<effectRange>600</effectRange>
-		<effectPoint>669</effectPoint>
-		<targetType>SELF</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND_PC</affectObject>
 		<conditions>
 			<condition name="TargetMyParty">
 				<includeMe>true</includeMe>
@@ -409,22 +431,23 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19307" toLevel="2" name="Lucky Heads">
-		<!-- Maphr Blessing increases P. Atk. by 7%, M. Atk. by 14%, and P./M. Skill Power by 5% for 1 minute. -->
+	<skill id="19307" toLevel="2" name="Lucky Coin: Attack">
+		<!-- Level 1: Maphr's Blessing increases P. Atk. by 7%, M. Atk. by 14%, and P./ M. Skill Power by 5% for 1 minute. -->
+		<!-- Level 2: Maphr is smiling. -->
 		<icon>icon.skill19307</icon>
-		<effectPoint>669</effectPoint>
 		<operateType>A2</operateType>
-		<abnormalType>DWARF_BUFF</abnormalType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
-		<targetType>SELF</targetType>
+		<abnormalType>DWARF_BUFF</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>669</effectPoint>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>7</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>14</amount>
 				<mode>PER</mode>
 			</effect>
@@ -438,17 +461,17 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="19308" toLevel="1" name="Lucky Tails">
-		<!-- Energy of Luck increases party members P. Def./M. Def. by 10% and enlarges their head size for 1 minute. -->
+	<skill id="19308" toLevel="1" name="Lucky Coin: Defense">
+		<!-- Maphr's Blessing increases allly's P. Defense/ M. Defense by 10% and enlarges their head size for 1 minute. -->
 		<icon>icon.skill19308</icon>
-		<effectPoint>669</effectPoint>
 		<operateType>A2</operateType>
-		<abnormalType>DWARF_BUFF</abnormalType>
-		<abnormalVisualEffect>BIG_HEAD</abnormalVisualEffect>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>60</abnormalTime>
-		<targetType>SELF</targetType>
+		<abnormalType>DWARF_BUFF</abnormalType>
+		<abnormalVisualEffect>BIG_HEAD</abnormalVisualEffect>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>669</effectPoint>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>10</amount>
@@ -461,21 +484,21 @@
 		</effects>
 	</skill>
 	<skill id="19309" toLevel="7" name="Reverse Plunder">
-		<!-- Attempts Deadly Attack with 36840 power added to P. Atk. and steals an item. Requires dagger/dual dagger. -->
+		<!-- Level 1: Attempts Deadly Attack with 36840 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
+		<!-- Level 2: Attempts Deadly Attack with 43170 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
+		<!-- Level 3: Attempts Deadly Attack with 49500 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
+		<!-- Level 4: Attempts Deadly Attack with 54560 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
+		<!-- Level 5: Attempts Deadly Attack with 58100 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
+		<!-- Level 6: Attempts Deadly Attack with 60700 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
+		<!-- Level 7: Attempts Deadly Attack with 63290 power added to P. Atk. and steals an item. Requires dagger/ dual dagger. -->
 		<icon>icon.skill19309</icon>
 		<operateType>A1</operateType>
 		<targetType>ENEMY</targetType>
 		<affectScope>SINGLE</affectScope>
 		<castRange>40</castRange>
-		<mpConsume>
-			<value level="1">90</value>
-			<value level="2">98</value>
-			<value level="3">106</value>
-			<value level="4">112</value>
-			<value level="5">118</value>
-			<value level="6">124</value>
-			<value level="7">130</value>
-		</mpConsume>
+		<coolTime>500</coolTime>
+		<effectPoint>-709</effectPoint>
+		<hitTime>2030</hitTime>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">90</value>
@@ -485,11 +508,17 @@
 			<value level="6">103</value>
 			<value level="7">105</value>
 		</magicLevel>
-		<hitTime>2030</hitTime>
-		<coolTime>500</coolTime>
-		<reuseDelay>7000</reuseDelay>
-		<effectPoint>-709</effectPoint>
+		<mpConsume>
+			<value level="1">90</value>
+			<value level="2">98</value>
+			<value level="3">106</value>
+			<value level="4">112</value>
+			<value level="5">118</value>
+			<value level="6">124</value>
+			<value level="7">130</value>
+		</mpConsume>
 		<nextAction>ATTACK</nextAction>
+		<reuseDelay>7000</reuseDelay>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -515,36 +544,36 @@
 			<effect name="Plunder" />
 		</effects>
 	</skill>
-	<skill id="19311" toLevel="3" name="Dwarven Special Bang">
-		<!-- Fires Special Flare to inflict Bluff on enemies in front for 3 seconds. Requires dagger/dual dagger. Consumes 2 Soulstones. -->
+	<skill id="19311" toLevel="3" name="Dwarven Flare Bluff">
+		<!-- Fires Special Flare to inflict Bluff on enemies in front for 3 seconds. Requires dagger/ dual dagger. Consumes 2 Soulstones. -->
 		<icon>icon.skill0537</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>3</abnormalTime>
 		<abnormalType>POWER_BLUFF</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>120</activateRate>
-		<basicProperty>MAGIC</basicProperty>
-		<trait>DERANGEMENT</trait>
-		<operateType>A2</operateType>
-		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>FAN</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
-		<fanRange>0;0;200;150</fanRange>
 		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
 		<affectRange>200</affectRange>
+		<affectScope>FAN</affectScope>
+		<basicProperty>MAGIC</basicProperty>
 		<castRange>40</castRange>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;200;150</fanRange>
+		<hitTime>1000</hitTime>
+		<isDebuff>true</isDebuff>
+		<itemConsumeCount>2</itemConsumeCount>
+		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
 		<magicLevel>
 			<value level="1">101</value>
 			<value level="2">103</value>
 			<value level="3">105</value>
 		</magicLevel>
 		<mpConsume>155</mpConsume>
-		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
-		<effectPoint>-1</effectPoint>
-		<isDebuff>true</isDebuff>
-		<itemConsumeCount>2</itemConsumeCount>
-		<itemConsumeId>1785</itemConsumeId> <!-- Soulstones -->
+		<trait>DERANGEMENT</trait>
 		<conditions>
 			<condition name="EquipWeapon">
 				<weaponType>
@@ -566,15 +595,15 @@
 		</effects>
 	</skill>
 	<skill id="19312" toLevel="1" name="Holy Stance">
-		<!-- Decreases damage received by 5% and increases Divinity Defense by 100, and applies Divinity to attribute magic. -->
+		<!-- Damage received -5%, Damage dealt +5%, and Holy Attribute Def. +100, and applies Holy to attribute magic. -->
 		<icon>icon.skill19312</icon>
-		<toggleGroupId>1</toggleGroupId>
-		<isNecessaryToggle>true</isNecessaryToggle>
-		<magicLevel>85</magicLevel>
 		<operateType>TG</operateType>
-		<reuseDelay>5000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<isMagic>1</isMagic>
+		<isNecessaryToggle>true</isNecessaryToggle>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<toggleGroupId>1</toggleGroupId>
 		<effects>
 			<effect name="PvpMagicalSkillDamageBonus">
 				<amount>5</amount>
@@ -624,13 +653,13 @@
 	<skill id="19313" toLevel="1" name="Dark Stance">
 		<!-- Increases Magical Skill Power by 5% and Dark defense by 100, and applies Dark to attribute magic. -->
 		<icon>icon.skill19313</icon>
-		<toggleGroupId>1</toggleGroupId>
-		<isNecessaryToggle>true</isNecessaryToggle>
-		<magicLevel>85</magicLevel>
 		<operateType>TG</operateType>
-		<reuseDelay>5000</reuseDelay>
-		<magicCriticalRate>5</magicCriticalRate>
 		<isMagic>1</isMagic>
+		<isNecessaryToggle>true</isNecessaryToggle>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>5000</reuseDelay>
+		<toggleGroupId>1</toggleGroupId>
 		<effects>
 			<effect name="MagicalSkillPower">
 				<amount>5</amount>
@@ -647,10 +676,245 @@
 		</effects>
 	</skill>
 	<skill id="19314" toLevel="11" name="Elemental Spike (Dark)">
-		<!-- Deals M. Atk. of 133 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 1: Deals M. Atk. of 133 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 2: Deals M. Atk. of 134 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 3: Deals M. Atk. of 139 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 4: Deals M. Atk. of 142 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 5: Deals M. Atk. of 146 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 6: Deals M. Atk. of 150 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7: Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8: Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9: Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10: Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11: Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1001 (+1% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1009 (+4% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1017 (+7% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 7 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 154 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1001 (+1% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1009 (+4% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1017 (+7% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 8 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 157 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1001 (+1% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1009 (+4% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1017 (+7% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 9 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 164 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1001 (+1% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1009 (+4% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1017 (+7% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 10 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 168 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1001 (+1% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1009 (+4% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1017 (+7% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
+		<!-- Level 11 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 172 power added with attribute damage on the target and decreases the corresponding attribute defense. Over-hit. -->
 		<icon>icon.skill11011</icon>
 		<operateType>A1</operateType>
-		<reuseDelayGroup>11011</reuseDelayGroup>
+		<targetType>ENEMY</targetType>
+		<affectScope>SINGLE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>100</attributeValue>
+		<castRange>1100</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>
+			<value level="1">-687</value>
+			<value level="2">-694</value>
+			<value level="3">-700</value>
+			<value level="4">-705</value>
+			<value level="5">-709</value>
+			<value level="6">-712</value>
+			<value level="7">-712</value>
+			<value level="8">-712</value>
+			<value level="9">-712</value>
+			<value level="10">-712</value>
+			<value level="11">-712</value>
+		</effectPoint>
+		<effectRange>1400</effectRange>
+		<hitTime>2280</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>
+			<value fromLevel="1" toLevel="11">6</value>
+			<value fromLevel="7" toLevel="11" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
+		</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">86</value>
@@ -677,35 +941,10 @@
 			<value level="10">54</value>
 			<value level="11">56</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<effectRange>1400</effectRange>
-		<hitTime>2280</hitTime>
-		<coolTime>300</coolTime>
-		<effectPoint>
-			<value level="1">-687</value>
-			<value level="2">-694</value>
-			<value level="3">-700</value>
-			<value level="4">-705</value>
-			<value level="5">-709</value>
-			<value level="6">-712</value>
-			<value level="7">-712</value>
-			<value level="8">-712</value>
-			<value level="9">-712</value>
-			<value level="10">-712</value>
-			<value level="11">-712</value>
-		</effectPoint>
 		<nextAction>CAST</nextAction>
-		<magicCriticalRate>
-			<value fromLevel="1" toLevel="11">6</value>
-			<value fromLevel="7" toLevel="11" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
-		</magicCriticalRate>
-		<isMagic>1</isMagic>
-		<targetType>ENEMY</targetType>
-		<affectScope>SINGLE</affectScope>
-		<attributeType>DARK</attributeType>
-		<attributeValue>100</attributeValue>
+		<reuseDelayGroup>11011</reuseDelayGroup>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">133</value>
 					<value level="2">134</value>
@@ -737,8 +976,13 @@
 		</effects>
 	</skill>
 	<skill id="19315" toLevel="4" name="Mana Burst">
-		<!-- For 5 seconds, increases M. Atk. by 50%. Able to cast Quadruple Elemental Blast if reached level 4. -->
+		<!-- Level 1: For 5 seconds increases M. Atk. by 50%. Able to cast Quadruple Elemental Blast if reached level 4. -->
+		<!-- Level 2: For 5 seconds, increases M. Atk. by 60%, Casting Spd. by 100. Able to cast Quadruple Elemental Blast if reached level 4. -->
+		<!-- Level 3: For 5 seconds, increases M. Atk. by 70%, Casting Spd. by 200. Able to cast Quadruple Elemental Blast if reached level 4. -->
+		<!-- Level 4: For 15 seconds, increases M. Atk. by 100%, Casting Spd. by 300. Able to cast Quadruple Elemental Blast if reached level 4. -->
 		<icon>icon.skill11046</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -753,15 +997,13 @@
 		</abnormalTime>
 		<abnormalType>MANA_BURST</abnormalType>
 		<activateRate>100</activateRate>
-		<operateType>A2</operateType>
+		<affectScope>SINGLE</affectScope>
+		<effectPoint>696</effectPoint>
 		<isMagic>22</isMagic>
 		<mpConsume>70</mpConsume>
-		<effectPoint>696</effectPoint>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<reuseDelay>1800</reuseDelay>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
 					<value level="1">50</value>
 					<value level="2">60</value>
@@ -798,17 +1040,123 @@
 		</endEffects>
 	</skill>
 	<skill id="19316" toLevel="8" name="Elemental Final Storm (Dark)">
-		<!-- Deals M. Atk. of 262 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 1: Deals M. Atk. of 262 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 2: Deals M. Atk. of 270 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 3: Deals M. Atk. of 277 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 4: Deals M. Atk. of 285 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 5: Deals M. Atk. of 292 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 6: Deals M. Atk. of 299 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7: Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8: Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1001 (+1% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1009 (+4% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1017 (+7% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 7 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 307 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1001 (+1% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1002 (+1.4% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1003 (+1.8% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1004 (+2.2% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1005 (+2.6% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1006 (+2.8% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1007 (+3.3% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1008 (+3.6% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1009 (+4% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1010 (+4.4% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1011 (+4.8% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1012 (+5.1% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1013 (+5.5% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1014 (+5.9% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1015 (+6.2% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1016 (+6.6% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1017 (+7% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1018 (+7.4% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1019 (+7.7% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 1020 (+8.1% Power): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2001 (+1% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2002 (+2% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2003 (+3% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2004 (+4% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2005 (+5% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2006 (+6% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2007 (+7% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2008 (+8% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2009 (+9% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2010 (+10% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2011 (+11% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2012 (+12% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2013 (+13% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2014 (+14% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2015 (+15% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2016 (+16% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2017 (+17% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2018 (+18% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2019 (+19% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
+		<!-- Level 8 - SubLevel 2020 (+20% Wild): Deals M. Atk. of 315 power added with attribute damage on the target and the enemies near it. -->
 		<icon>icon.skill11040</icon>
-		<affectLimit>5-12</affectLimit>
-		<affectRange>150</affectRange>
-		<attributeType>DARK</attributeType>
-		<attributeValue>100</attributeValue>
 		<operateType>A1</operateType>
 		<targetType>ENEMY_ONLY</targetType>
-		<affectScope>RANGE</affectScope>
+		<affectLimit>5-12</affectLimit>
 		<affectObject>NOT_FRIEND</affectObject>
-		<reuseDelayGroup>11040</reuseDelayGroup>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<attributeType>DARK</attributeType>
+		<attributeValue>100</attributeValue>
+		<castRange>1100</castRange>
+		<coolTime>300</coolTime>
+		<effectPoint>
+			<value level="1">-687</value>
+			<value level="2">-696</value>
+			<value level="3">-704</value>
+			<value level="4">-709</value>
+			<value level="5">-712</value>
+			<value level="6">-712</value>
+			<value level="7">-712</value>
+			<value level="8">-712</value>
+		</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>4780</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>
+			<value fromLevel="1" toLevel="8">11</value>
+			<value fromLevel="7" toLevel="8" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
+		</magicCriticalRate>
 		<magicLevel>
 			<value level="1">85</value>
 			<value level="2">87</value>
@@ -829,29 +1177,10 @@
 			<value level="7">336</value>
 			<value level="8">351</value>
 		</mpConsume>
-		<castRange>1100</castRange>
-		<effectRange>1100</effectRange>
-		<hitTime>4780</hitTime>
-		<coolTime>300</coolTime>
 		<reuseDelay>6700</reuseDelay>
-		<isMagic>1</isMagic>
-		<magicCriticalRate>
-			<value fromLevel="1" toLevel="8">11</value>
-			<value fromLevel="7" toLevel="8" fromSubLevel="2001" toSubLevel="2020">{base + base / 100 * subIndex}</value>
-		</magicCriticalRate>
-		<effectPoint>
-			<value level="1">-687</value>
-			<value level="2">-696</value>
-			<value level="3">-704</value>
-			<value level="4">-709</value>
-			<value level="5">-712</value>
-			<value level="6">-712</value>
-			<value level="7">-712</value>
-			<value level="8">-712</value>
-		</effectPoint>
-		<isDebuff>true</isDebuff>
+		<reuseDelayGroup>11040</reuseDelayGroup>
 		<effects>
-			<effect name="MagicalAttack">
+			<effect name="MagicalDamage">
 				<power>
 					<value level="1">262</value>
 					<value level="2">270</value>

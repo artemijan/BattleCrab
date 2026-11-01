@@ -120,8 +120,8 @@ pub struct TickOutcome {
     /// `moveToNextRoutePoint` → `broadcastMoveToLocation`).
     pub route_advanced: Vec<i32>,
     /// Movers that reached their destination this tick — Java's
-    /// `CreatureAI.onEvtArrived`. Only the `AI_INTENTION_MOVE_TO` → `ACTIVE`
-    /// reset is ported off it (see `visibility::movement_tick`).
+    /// `CreatureAI.onEvtArrived`: the `AI_INTENTION_MOVE_TO` → `ACTIVE` reset,
+    /// the think and `ON_NPC_MOVE_FINISHED` (see `visibility::movement_tick`).
     pub arrived: Vec<i32>,
 }
 

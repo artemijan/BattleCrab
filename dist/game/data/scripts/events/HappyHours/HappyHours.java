@@ -1,25 +1,30 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package events.HappyHours;
 
 import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.LongTimeEvent;
+import org.l2jmobius.gameserver.model.item.enums.ItemProcessType;
+import org.l2jmobius.gameserver.model.script.LongTimeEvent;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
@@ -31,11 +36,14 @@ public class HappyHours extends LongTimeEvent
 {
 	// NPC
 	private static final int SIBI = 34262;
+	
 	// Items
-	private static final int SUPPLY_BOX = 49782;
+	private static final int SUPPLY_BOX = 47399;
 	private static final int SIBIS_COIN = 49783;
+	
 	// Skill
 	private static final int TRANSFORMATION_SKILL = 39171;
+	
 	// Other
 	private static final int MIN_LEVEL = 20;
 	private static final int REWARD_INTERVAL = 60 * 60 * 1000; // 1 hour
@@ -65,10 +73,12 @@ public class HappyHours extends LongTimeEvent
 				{
 					return "34262-2.htm";
 				}
+				
 				if (ownsAtLeastOneItem(player, SUPPLY_BOX))
 				{
 					return "34262-3.htm";
 				}
+				
 				giveItems(player, SUPPLY_BOX, 1);
 				break;
 			}
@@ -80,13 +90,13 @@ public class HappyHours extends LongTimeEvent
 					{
 						_lastRewardTime = System.currentTimeMillis();
 						final ExShowScreenMessage screenMsg = new ExShowScreenMessage("You obtained 20 Sibi's coins.", ExShowScreenMessage.TOP_CENTER, 7000, 0, true, true);
-						final SystemMessage systemMsg = new SystemMessage(SystemMessageId.YOU_OBTAINED_S1_SIBI_S_COINS);
+						final SystemMessage systemMsg = new SystemMessage(SystemMessageId.YOU_HAVE_OBTAINED_S1_SIBI_S_COINS);
 						systemMsg.addInt(20);
 						for (Player plr : World.getInstance().getPlayers())
 						{
 							if ((plr != null) && (plr.isOnlineInt() == 1) && plr.isAffectedBySkill(TRANSFORMATION_SKILL))
 							{
-								plr.addItem("HappyHours", SIBIS_COIN, 20, player, false);
+								plr.addItem(ItemProcessType.REWARD, SIBIS_COIN, 20, player, false);
 								plr.sendPacket(screenMsg);
 								plr.sendPacket(systemMsg);
 								// TODO: Random reward.
@@ -101,6 +111,7 @@ public class HappyHours extends LongTimeEvent
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	

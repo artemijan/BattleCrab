@@ -19,21 +19,22 @@ package ai.others.TeleportWithCharm;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.model.script.Script;
 
 /**
  * Charm teleport AI.<br>
  * @author Plim
  */
-public class TeleportWithCharm extends AbstractNpcAI
+public class TeleportWithCharm extends Script
 {
 	// NPCs
 	private static final int WHIRPY = 30540;
 	private static final int TAMIL = 30576;
+	
 	// Items
 	private static final int ORC_GATEKEEPER_CHARM = 1658;
 	private static final int DWARF_GATEKEEPER_TOKEN = 1659;
+	
 	// Locations
 	private static final Location ORC_TELEPORT = new Location(-80826, 149775, -3043);
 	private static final Location DWARF_TELEPORT = new Location(-80826, 149775, -3043);
@@ -76,6 +77,7 @@ public class TeleportWithCharm extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return super.onTalk(npc, player);
 	}
 	

@@ -15,16 +15,16 @@
 								<xs:complexType>
 									<xs:simpleContent>
 										<xs:extension base="xs:string">
-											<xs:attribute type="xs:short" name="id" use="required"/>
-											<xs:attribute type="xs:byte" name="level" use="required"/>
-											<xs:attribute type="xs:byte" name="price" use="required"/>
-											<xs:attribute type="xs:string" name="desc" use="required"/>
+											<xs:attribute type="xs:short" name="id" use="required" />
+											<xs:attribute type="xs:byte" name="level" use="required" />
+											<xs:attribute type="xs:byte" name="price" use="required" />
+											<xs:attribute type="xs:string" name="desc" use="required" />
 										</xs:extension>
 									</xs:simpleContent>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
-						<xs:attribute type="xs:string" name="type" use="required"/>
+						<xs:attribute type="xs:string" name="type" use="required" />
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>

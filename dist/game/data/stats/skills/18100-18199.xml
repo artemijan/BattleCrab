@@ -1,22 +1,21 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="18100" toLevel="1" name="Scroll: 100,000 SP">
 		<!-- Instantly boosts 100,000 SP. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>200</hitTime>
-		<reuseDelay>3000</reuseDelay>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>40051</itemConsumeId> <!-- Scroll: 100,000 SP -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
-			<effect name="SpModify">
+			<effect name="GiveSp">
 				<sp>100000</sp>
 			</effect>
 		</effects>
@@ -24,20 +23,19 @@
 	<skill id="18101" toLevel="1" name="Scroll: 1,000,000 SP">
 		<!-- Instantly boosts 1,000,000 SP. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>200</hitTime>
-		<reuseDelay>3000</reuseDelay>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>40052</itemConsumeId> <!-- Scroll: 1,000,000 SP -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
-			<effect name="SpModify">
+			<effect name="GiveSp">
 				<sp>1000000</sp>
 			</effect>
 		</effects>
@@ -45,20 +43,19 @@
 	<skill id="18102" toLevel="1" name="Scroll: 10,000,000 SP">
 		<!-- Instantly boosts 10,000,000 SP. -->
 		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
 		<hitTime>200</hitTime>
-		<reuseDelay>3000</reuseDelay>
 		<isMagic>2</isMagic> <!-- Static Skill -->
 		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>40053</itemConsumeId> <!-- Scroll: 10,000,000 SP -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
-		<reuseDelay>3000</reuseDelay>
 		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
+		<magicLevel>1</magicLevel>
+		<reuseDelay>3000</reuseDelay>
 		<effects>
-			<effect name="SpModify">
+			<effect name="GiveSp">
 				<sp>10000000</sp>
 			</effect>
 		</effects>
@@ -80,12 +77,12 @@
 		<affectScope>SINGLE</affectScope>
 		<hitTime>20000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>40195</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40195</itemConsumeId>
 		<magicLevel>1</magicLevel>
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
-		</cond>
+		</conditions>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -98,7 +95,7 @@
 		</effects>
 	</skill>
 	<skill id="18106" toLevel="1" name="Ertheia Bracelet">
-		<!-- Activates 5 Talisman slots. STR/INT +1. -->
+		<!-- Activates 5 Talisman slots. STR/ INT +1. -->
 		<icon>icon.skill0000</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -171,39 +168,38 @@
 		<!-- Changes the appearance of a fist weapon into that of a Cat Fighter. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18119" toLevel="1" name="Appearance Stone: Cat Staff (Ertheia Only)">
 		<!-- Changes the appearance of a staff into a Cat Staff. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18120" toLevel="1" name="Supply Box (R-grade)">
-		<!-- Double-click to obtain a random normal/blessed weapon/armor/accessory (R-grade). -->
+		<!-- Double-click to obtain a random normal/ blessed weapon/ armor/ accessory (R-grade). -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>40202</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40202</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -584,20 +580,19 @@
 		</effects>
 	</skill>
 	<skill id="18121" toLevel="1" name="Supply Box (R95-grade)">
-		<!-- Double-click to obtain a random normal/blessed weapon/armor/accessory (R95-grade). -->
+		<!-- Double-click to obtain a random normal/ blessed weapon/ armor/ accessory (R95-grade). -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>40203</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40203</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -792,20 +787,19 @@
 		</effects>
 	</skill>
 	<skill id="18122" toLevel="1" name="Supply Box (R99-grade)">
-		<!-- Double-click to obtain a random normal/blessed weapon/armor/accessory (R99-grade). -->
+		<!-- Double-click to obtain a random normal/ blessed weapon/ armor/ accessory (R99-grade). -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>40204</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<operateType>A1</operateType>
-		<hitTime>500</hitTime>
-		<coolTime>500</coolTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<coolTime>500</coolTime>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>0</hitTime>
+		<isMagic>2</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40204</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="RestorationRandom">
 				<items>
@@ -855,7 +849,7 @@
 						<item id="18081" count="1" /> <!-- Blessed Helios Dual Dagger -->
 					</item>
 					<item chance="0.36764706">
-						<item id="18080" count="1" /> <!-- Blessed Helios Dualsword -->
+						<item id="18080" count="1" /> <!-- Blessed Helios Dual Sword -->
 					</item>
 					<item chance="0.55147059">
 						<item id="18097" count="1" /> <!-- Blessed Eternal Gloves - Robe -->
@@ -972,7 +966,7 @@
 						<item id="17428" count="1" /> <!-- Helios Dual Dagger -->
 					</item>
 					<item chance="1.10294118">
-						<item id="17427" count="1" /> <!-- Helios Dualsword -->
+						<item id="17427" count="1" /> <!-- Helios Dual Sword -->
 					</item>
 					<item chance="3.41911763">
 						<item id="17444" count="1" /> <!-- Eternal Gloves - Robe -->
@@ -1024,15 +1018,15 @@
 	</skill>
 	<skill id="18124" toLevel="1" name="Scroll of Escape: Pagan Temple">
 		<icon>icon.skill0000</icon>
-		<itemConsumeCount>1</itemConsumeCount>
-		<itemConsumeId>47061</itemConsumeId> <!-- Scroll of Escape: Pagan Temple -->
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
 		<hitTime>1000</hitTime>
 		<isMagic>2</isMagic>
-		<magicLevel>1</magicLevel>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>47061</itemConsumeId> <!-- Scroll of Escape: Pagan Temple -->
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="OpAlignment">
 				<affectType>CASTER</affectType>
@@ -1054,20 +1048,21 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18126" toLevel="2" name="Freya's Frozen Scroll">
-		<!-- Vitality Consumption +100% and XP/SP acquisition +100% while hunting. Remains after death. Duration 10 min. Cooldown 9 min. Only usable when 1 or more Vitality slots are full. -->
+		<!-- Level 1: Vitality Consumption +100% and XP/ SP acquisition +100% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. -->
+		<!-- Level 2: Vitality Consumption +100% and XP/ SP acquisition +130% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. -->
 		<icon>icon.freya_scroll</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
+		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
 		<itemConsumeId>
 			<value level="1">40227</value>
 			<value level="2">47428</value>
 		</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
 		<reuseDelay>540000</reuseDelay>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="VitalityPointsRate">
 				<amount>
@@ -1100,22 +1095,22 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18129" toLevel="1" name="Snowman's Wish Box">
-		<!-- Double-click for a random chance to obtain a Lucky Enchant Stone, or Dark/Blood Enhancement Stone. -->
+		<!-- Double-click for a random chance to obtain a Lucky Enchant Stone, or Dark/ Blood Enhancement Stone. -->
 		<icon>icon.freya_box_i03</icon>
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18130" toLevel="1" name="Freya's Frozen Scroll">
-		<!-- Vitality Consumption +100% and XP/SP acquisition +100% while hunting. Remains after death. Duration 10 min. Cooldown 9 min. Only usable when 1 or more Vitality slots are full. -->
+		<!-- Vitality Consumption +100% and XP/ SP acquisition +100% while hunting. Remains after death. Duration is 10 min. Cooldown is 9 min. Only usable when 1 or more Vitality slot is full. -->
 		<icon>icon.freya_scroll</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>600</abnormalTime>
-		<itemConsumeId>40231</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<reuseDelay>540000</reuseDelay>
-		<isMagic>4</isMagic>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<isMagic>4</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40231</itemConsumeId>
+		<reuseDelay>540000</reuseDelay>
 		<effects>
 			<effect name="VitalityPointsRate">
 				<amount>2</amount>
@@ -1132,12 +1127,12 @@
 		<!-- When using the Blessed Scroll: Enchant Weapon to enchant R-grade weapons, the success rate is increased by 20%. Can be used only on 3-15 enchanted items. When enchantment fails, the enchant level is decreased by 1. -->
 		<icon>icon.freya_stone_i01</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -1161,12 +1156,12 @@
 		<!-- When enchanting armor (R-grade) with a blessed enchant scroll, success rate +30%. Only for items enchanted between +3 and +15. Failure drops the enchant level by 1. -->
 		<icon>icon.freya_stone_i02</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -1186,10 +1181,10 @@
 		<!-- Releases Agathion's seal. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
 		<targetScope>SINGLE</targetScope>
 		<effects>
 			<effect name="SummonAgathion">
@@ -1213,12 +1208,12 @@
 		<!-- Teleports you to the Town of Rune. Agathion's Seal must be released. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>2</isMagic>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 			<condition name="OpAlignment">
@@ -1238,12 +1233,12 @@
 		<!-- Teleports you to the Town of Aden. Agathion's Seal must be released. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>2</isMagic>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 			<condition name="OpAlignment">
@@ -1263,12 +1258,12 @@
 		<!-- Teleports you to Talking Island Village. Agathion's Seal must be released. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<reuseDelay>1800000</reuseDelay>
-		<isMagic>2</isMagic>
-		<magicLevel>85</magicLevel>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>85</magicLevel>
+		<reuseDelay>1800000</reuseDelay>
 		<conditions>
 			<condition name="OpCanEscape" />
 			<condition name="OpAlignment">
@@ -1297,7 +1292,7 @@
 		</effects>
 	</skill>
 	<skill id="18140" toLevel="1" name="Freya's Strength">
-		<!-- STR/INT/CON/DEX/WIT/MEN +1. -->
+		<!-- STR/ INT/ CON/ DEX/ WIT/ MEN +1. -->
 		<icon>icon.freya_power_i01</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1328,7 +1323,7 @@
 		</effects>
 	</skill>
 	<skill id="18141" toLevel="1" name="Freya's Magic">
-		<!-- P./M. Skill MP Consumption - 3%. -->
+		<!-- P./ M. Skill MP Consumption -3%. -->
 		<icon>icon.freya_power_i01</icon>
 		<operateType>P</operateType>
 		<effects>
@@ -1360,23 +1355,23 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18143" toLevel="1" name="Freya's Heart">
-		<!-- For 60 min., P. Atk. +5%, M. Atk. +20%, P./M. Def. +5%, Atk./Casting Spd. +5%, Max HP/MP +5%, and XP/SP gained through hunt +50%. Does not stack with Letter Collector's Gift or Art of Seduction buffs. -->
+		<!-- For 60 min., P. Atk. +5%, M. Atk. +20%, P./ M. Def. +5%, Atk./ Casting Spd. +5%, Max HP/ MP +5%, and XP/ SP gained through hunt +50%. Does not stack with Letter Collector's Gift or Art of Seduction buffs. -->
 		<icon>icon.etc_jewel_gold_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1800000</reuseDelay>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>1800000</reuseDelay>
 	</skill>
 	<skill id="18144" toLevel="1" name="Appearance Stone: Dark Assassin Suit">
 		<!-- Changes the appearance of your armor into that of a Dark Assassin Suit. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 	</skill>
 	<skill id="18145" toLevel="1" name="Orc's Normal Old Box">
 		<!-- Free Reward -->
@@ -1389,14 +1384,14 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="18147" toLevel="1" name="Ertheia's Boost Scroll">
-		<!-- For 30 min., P./M. Atk. +30%, P. Critical Damage +15%, P./M. Skill Critical Damage +15%, and Speed +20. MP Consumption - 15%. -->
+		<!-- For 30 min., P./ M. Atk. +30%, P. Critical Damage +15%, P./ M. Skill Critical Damage +15%, and Speed +20. MP Consumption -15%. -->
 		<icon>icon.etc_scroll_of_transformation_traikan_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>10000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="18148" toLevel="1" name="Song of Sayha">
-		<!-- The warmth of Sayha's winds. For 2 hr., obtained XP/SP +100%. -->
+		<!-- The warmth of Sayha's winds. For 2 hr., obtained XP/ SP +100%. -->
 		<icon>BranchSys2.icon.the_fall_of_dragon</icon>
 		<operateType>A2</operateType>
 		<castRange>1200</castRange>
@@ -1431,15 +1426,15 @@
 	<skill id="18155" toLevel="1" name="Freya's Recovery Potion">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<itemConsumeId>40300</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
-		<effectPoint>867</effectPoint>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>1</hitCancelTime>
-		<magicLevel>85</magicLevel>
-		<isMagic>1</isMagic>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>1</hitCancelTime>
+		<isMagic>1</isMagic>
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40300</itemConsumeId>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="HpCpHeal">
 				<power>3500</power>
@@ -1450,18 +1445,18 @@
 		<!-- Use this to increase the defense rate against Stun by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i01</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40253</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40253</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>5</SHOCK>
@@ -1484,18 +1479,18 @@
 		<!-- Use this to increase the defense rate against Hold by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i06</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40254</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40254</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<HOLD>5</HOLD>
@@ -1518,18 +1513,18 @@
 		<!-- Use this to increase the defense rate against Bleed by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i00</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40255</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40255</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>5</BLEED>
@@ -1552,18 +1547,18 @@
 		<!-- Use this to increase the defense rate against Paralyze by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i07</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40256</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40256</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<PARALYZE>5</PARALYZE>
@@ -1586,18 +1581,18 @@
 		<!-- Use this to increase the defense rate against Mental by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i04</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40257</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40257</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<DERANGEMENT>5</DERANGEMENT>
@@ -1620,18 +1615,18 @@
 		<!-- Use this to increase the defense rate against Sleep by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i05</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40258</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40258</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>5</SLEEP>
@@ -1654,18 +1649,18 @@
 		<!-- Use this to increase the defense rate against Poison by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i02</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40259</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40259</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>5</POISON>
@@ -1685,21 +1680,21 @@
 		</effects>
 	</skill>
 	<skill id="18163" toLevel="1" name="Potion of Protection: Knock Back/ Knock Down">
-		<!-- Use this to increase the defense rate against Knock Back/Knock Down by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
+		<!-- Use this to increase the defense rate against Knock Back/ Knock Down by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i10</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40260</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40260</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<KNOCKBACK>5</KNOCKBACK>
@@ -1723,18 +1718,18 @@
 		<!-- Use this to increase the defense rate against Aerial Yoke by 5%. It also decreases damage received by 3% during PvP. Unavailable to use in Olympiad. -->
 		<icon>icon.etc_fruit_juice_glass_bottle_i11</icon>
 		<operateType>A2</operateType>
-		<itemConsumeId>40261</itemConsumeId>
-		<itemConsumeCount>1</itemConsumeCount>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>POTION_OF_PROTECTION</abnormalType>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>40261</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<AIRBIND>5</AIRBIND>
@@ -1766,20 +1761,20 @@
 		<operateType>A1</operateType>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<magicCriticalRate>5</magicCriticalRate>
-		<magicLevel>1</magicLevel>
 		<hitTime>20000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<itemConsumeId>40309</itemConsumeId>
 		<itemConsumeCount>1</itemConsumeCount>
-		<cond msgId="113" addName="1">
+		<itemConsumeId>40309</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<conditions msgId="113" addName="1">
 			<and>
 				<player canEscape="true" />
 				<not>
 					<player insideZoneId="10501, 10502, 10503, 10504, 10505, 10506, 10507, 10508" />
 				</not>
 			</and>
-		</cond>
+		</conditions>
 		<effects>
 			<effect name="Teleport">
 				<x>115504</x>
@@ -1793,9 +1788,9 @@
 		<icon>icon.ev_carrot</icon>
 		<operateType>A1</operateType>
 		<castRange>150</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="18170" toLevel="1" name="Galup's Special Luck Pouch">
@@ -1806,23 +1801,23 @@
 		<!-- For 5 min., Speed +100. -->
 		<icon>BranchSys.icon.br_lucky_bag_i00</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>15000</reuseDelay>
 		<effectPoint>1</effectPoint>
 		<isMagic>4</isMagic>
+		<reuseDelay>15000</reuseDelay>
 	</skill>
 	<skill id="18172" toLevel="1" name="Joon's Magic">
-		<!-- For 30 min., XP/SP Gain +10%, Attack Attribute +100, P. Atk. +20%, M. Atk. +30%, Atk./Casting Spd. +10%, P./M. Accuracy +4, Max HP/MP/CP +10%, P./M. Def. +10%, and Skill MP Consumption - 10%. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Buff remains after death. -->
+		<!-- For 30 min., XP/ SP Gain +10%, Attack Attribute +100, P. Atk. +20%, M. Atk. +30%, Speed +10, Atk./ Casting Spd. +10%, P./ M. Accuracy +4, Max HP/ MP/ CP +10%, P./ M. Def. +10%, and Skill MP Consumption -10%. Cannot be stacked with Art of Seduction or Mysterious Wind Scroll. Buff remains after death. -->
 		<icon>icon.buff_joon_power_skill</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<reuseDelay>15000</reuseDelay>
 		<effectPoint>1</effectPoint>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>15000</reuseDelay>
 		<stayAfterDeath>true</stayAfterDeath>
 		<effects>
 			<effect name="ExpModify">
@@ -1851,11 +1846,11 @@
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
@@ -1912,17 +1907,17 @@
 	<skill id="18173" toLevel="1" name="Joon's Resurrection">
 		<!-- Can use Blessed Resurrection. -->
 		<icon>icon.skill_agathion_special</icon>
+		<operateType>A1</operateType>
+		<targetType>PC_BODY</targetType>
+		<affectScope>SINGLE</affectScope>
 		<castRange>400</castRange>
 		<effectPoint>1</effectPoint>
 		<effectRange>600</effectRange>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>1</magicLevel>
-		<operateType>A1</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<reuseDelay>10800000</reuseDelay>
-		<targetType>PC_BODY</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpResurrection" />
 		</conditions>
@@ -1933,16 +1928,16 @@
 		</effects>
 	</skill>
 	<skill id="18174" toLevel="1" name="Agathion - Joon">
-		<!-- Releases Agathion's seal. -->
+		<!-- Summons Agathion. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<hitTime>3000</hitTime>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>13447</npcId> <!-- Joon -->
@@ -1952,14 +1947,14 @@
 	<skill id="18175" toLevel="1" name="Joon's Cute Trick">
 		<!-- See Agathion's cute trick. -->
 		<icon>icon.skill_agathion_cute</icon>
-		<isMagic>2</isMagic> <!-- Static Skill -->
-		<magicLevel>85</magicLevel>
 		<operateType>A1</operateType>
-		<magicCriticalRate>-5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<hitTime>3000</hitTime>
 		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>3000</hitTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>85</magicLevel>
 		<conditions>
 			<condition name="OpNeedAgathion" />
 		</conditions>
@@ -1985,8 +1980,8 @@
 		<icon>Icon.ev_invasion_gun_shoot</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>500</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>500</hitTime>
 		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="18181" toLevel="1" name="Alien's Ta-da Debuff">
@@ -1994,73 +1989,73 @@
 		<icon>Icon.ev_invasion_debuff</icon>
 		<operateType>A2</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<effectPoint>-1</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
 	</skill>
 	<skill id="18182" toLevel="1" name="Battle Rations">
 		<!-- Randomly increases one of STR, DEX, CON, INT, WIT, MEN, LUC, or CHA by 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A1</operateType>
-		<hitTime>100</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
 		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18183" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., STR + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18183" toLevel="1" name="Battle Rations: STR">
+		<!-- For 30 min., STR +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18184" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., DEX + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18184" toLevel="1" name="Battle Rations: DEX">
+		<!-- For 30 min., DEX +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18185" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., CON + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18185" toLevel="1" name="Battle Rations: CON">
+		<!-- For 30 min., CON +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18186" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., INT + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18186" toLevel="1" name="Battle Rations: INT">
+		<!-- For 30 min., INT +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18187" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., WIT + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18187" toLevel="1" name="Battle Rations: WIT">
+		<!-- For 30 min., WIT +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18188" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., MEN + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18188" toLevel="1" name="Battle Rations: MEN">
+		<!-- For 30 min., MEN +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18189" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., LUC + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18189" toLevel="1" name="Battle Rations: LUC">
+		<!-- For 30 min., LUC +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
-	<skill id="18190" toLevel="1" name="Battle Rations">
-		<!-- For 30 min., CHA + 6. Cannot be stacked with other Battle Rations or Fish Stew. -->
+	<skill id="18190" toLevel="1" name="Battle Rations: CHA">
+		<!-- For 30 min., CHA +6. Cannot be stacked with other Battle Rations or Fish Stew. -->
 		<icon>icon.ev_invasion_buff_box</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>1000</reuseDelay>
 		<isMagic>4</isMagic>
+		<reuseDelay>1000</reuseDelay>
 	</skill>
 	<skill id="18191" toLevel="1" name="Reward Capsule">
 		<icon>icon.skill0000</icon>
@@ -2070,15 +2065,15 @@
 		<!-- Party members around the user recover 10000 Vitality when this herb is obtained. -->
 		<icon>Icon.ev_invasion_vp_hub</icon>
 		<operateType>A1</operateType>
-		<hitTime>100</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
 		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="18193" toLevel="1" name="Vitality Recovery - Party">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<hitTime>100</hitTime>
 		<effectPoint>100</effectPoint>
+		<hitTime>100</hitTime>
 		<reuseDelay>2000</reuseDelay>
 	</skill>
 	<skill id="18194" toLevel="1" name="L2B2's Gift Box">
@@ -2089,22 +2084,22 @@
 		<!-- Knocks back the target. -->
 		<icon>icon.invasion_gun</icon>
 		<operateType>A2</operateType>
-		<mpConsume>10</mpConsume>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>1000</coolTime>
-		<reuseDelay>30000</reuseDelay>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>1000</hitTime>
 		<isDebuff>true</isDebuff>
+		<mpConsume>10</mpConsume>
+		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18196" toLevel="1" name="Spirit Hit">
 		<!-- Interrupts target's skill casting. In PvP, ignores CP and inflicts a fixed damage of 6903. -->
 		<icon>icon.invasion_gun</icon>
 		<operateType>A1</operateType>
 		<castRange>600</castRange>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
 		<effectPoint>-1000</effectPoint>
+		<hitTime>1000</hitTime>
 		<reuseDelay>30000</reuseDelay>
 	</skill>
 	<skill id="18197" toLevel="1" name="Blue Save Card (R-grade)">

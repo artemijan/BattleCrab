@@ -26,6 +26,26 @@
 	<item id="5235" price="0" /> <!-- Facelifting Potion - A -->
 	<item id="5236" price="0" /> <!-- Facelifting Potion - B -->
 	<item id="5237" price="0" /> <!-- Facelifting Potion - C -->
+	<item id="10152" price="0" /> <!-- Battle Health Recovery Potion -->
+	<item id="10153" price="0" /> <!-- Battle Mana Recovery Potion -->
+	<item id="10154" price="0" /> <!-- Battle CP Recovery Potion -->
+	<item id="733" price="0" /> <!-- Endeavor Potion -->
+	<item id="9997" price="0" /> <!-- Fire Potion -->
+	<item id="9998" price="0" /> <!-- Water Potion -->
+	<item id="9999" price="0" /> <!-- Earth Potion -->
+	<item id="10000" price="0" /> <!-- Wind Potion -->
+	<item id="10001" price="0" /> <!-- Dark Potion -->
+	<item id="10002" price="0" /> <!-- Holy Potion -->
+	<item id="13059" price="0" /> <!-- Long-Range Defense Increasing Potion -->
+	<item id="10155" price="0" /> <!-- Mental Strengthening Potion -->
+	<item id="10156" price="0" /> <!-- Medusa's Potion -->
+	<item id="10157" price="0" /> <!-- Instant Haste Potion -->
 	<item id="5234" price="0" /> <!-- Mystery Potion -->
+	<item id="13151" price="0" /> <!-- Pailaka Vitality Replenishing Potion (100%) -->
+	<item id="13152" price="0" /> <!-- Pailaka Vitality Replenishing Potion (50%) -->
+	<item id="8786" price="0" /> <!-- Primeval Potion -->
 	<item id="1540" price="0" /> <!-- Quick Healing Potion -->
+	<item id="10166" price="0" /> <!-- Hot Springs CP Potion -->
+	<item id="20393" price="0" /> <!-- Sweet Fruit Cocktail -->
+	<item id="20394" price="0" /> <!-- Fresh Fruit Cocktail -->
 </list>

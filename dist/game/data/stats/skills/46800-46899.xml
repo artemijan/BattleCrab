@@ -1,8 +1,15 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="46800" toLevel="6" name="Sayha's Ring">
-		<!-- Gives Movement Speed + -10%, Atk./Casting Spd. + -10%. -->
+		<!-- Level 1: Gives Speed +-10%, Attack/ Casting Speed +-10%. -->
+		<!-- Level 2: Gives Speed +-10%, Attack/ Casting Speed +-10%. -->
+		<!-- Level 3: Gives Speed +-15%, Attack/ Casting Speed +-15%. -->
+		<!-- Level 4: Gives Speed +-20%, Attack/ Casting Speed +-20%. -->
+		<!-- Level 5: Gives Speed +-25%, Attack/ Casting Speed +-25%. -->
+		<!-- Level 6: Gives Speed +-35%, Attack/ Casting Speed +-35%. -->
 		<icon>BranchIcon.Icon.ring_of_sayhas_i00</icon>
+		<operateType>A5</operateType>
+		<targetType>ENEMY</targetType>
 		<abnormalLevel>
 			<value level="1">1</value>
 			<value level="2">2</value>
@@ -14,20 +21,18 @@
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>SAYHA_AURA</abnormalType>
 		<abnormalVisualEffect>AURA_DEBUFF</abnormalVisualEffect>
-		<affectRange>1000</affectRange>
 		<activateRate>100</activateRate>
-		<operateType>A5</operateType>
-		<targetType>ENEMY</targetType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1000</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>0</effectPoint>
 		<hitTime>500</hitTime>
-		<reuseDelay>1000</reuseDelay>
 		<isDebuff>true</isDebuff>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>120</magicLevel>
-		<effectPoint>-2</effectPoint>
-		<basicProperty>NONE</basicProperty>
+		<reuseDelay>1000</reuseDelay>
 		<staticReuse>true</staticReuse>
-		<affectScope>RANGE</affectScope>
-		<affectObject>NOT_FRIEND</affectObject>
 		<effects>
 			<effect name="Speed">
 				<amount>
@@ -65,12 +70,17 @@
 		</effects>
 	</skill>
 	<skill id="46801" toLevel="6" name="Maphr's Ring">
-		<!-- PvP P. Def + +3%, Physical and Magic Critical Damage Received + -4%, Fixed Damage Resistance + +20%, Shield Def. + +900, Shield Def. Success Rate + +20%, and Movement Speed + -30%. -->
+		<!-- Level 1: PvP P. Def ++3%, Physical and Magic Critical Damage Received +-4%, Fixed Damage Resistance ++20%, Shield Def. ++900, Shield Def. Success Rate ++20%, and Speed +-30%. -->
+		<!-- Level 2: PvP P. Def ++4%, Physical and Magic Critical Damage Received +-6%, Fixed Damage Resistance ++22%, Shield Def. ++930, Shield Def. Success Rate ++22%, and Speed +-28%. -->
+		<!-- Level 3: PvP P. Def ++5%, Physical and Magic Critical Damage Received +-12%, Fixed Damage Resistance ++24%, Shield Def. ++1000, Shield Def. Success Rate ++24%, and Speed +-26%. -->
+		<!-- Level 4: PvP P. Def ++9%, Physical and Magic Critical Damage Received +-14%, Fixed Damage Resistance ++28%, Shield Def. ++1300, Shield Def. Success Rate ++30%, and Speed +-23%. -->
+		<!-- Level 5: PvP P. Def ++12%, Physical and Magic Critical Damage Received +-18%, Fixed Damage Resistance ++34%, Shield Def. ++1800, Shield Def. Success Rate ++36%, and Speed +-17%. -->
+		<!-- Level 6: PvP P. Def ++15%, Physical and Magic Critical Damage Received +-25%, Fixed Damage Resistance ++40%, Shield Def. ++2500, Shield Def. Success Rate ++45%, and Speed +-10%. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>AU</operateType>
 		<abnormalVisualEffect>AURA_BUFF_SELF</abnormalVisualEffect>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<operateType>AU</operateType>
 		<reuseDelay>1000</reuseDelay>
 		<toggleGroupId>6</toggleGroupId>
 		<effects>
@@ -87,23 +97,23 @@
 			</effect>
 			<effect name="DefenceCriticalDamage">
 				<amount>
-					<value level="1">-4</value>
-					<value level="2">-6</value>
-					<value level="3">-12</value>
-					<value level="4">-14</value>
-					<value level="5">-18</value>
-					<value level="6">-25</value>
+					<value level="1">4</value>
+					<value level="2">6</value>
+					<value level="3">12</value>
+					<value level="4">14</value>
+					<value level="5">18</value>
+					<value level="6">25</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
 			<effect name="DefenceMagicCriticalDamage">
 				<amount>
-					<value level="1">-4</value>
-					<value level="2">-6</value>
-					<value level="3">-12</value>
-					<value level="4">-14</value>
-					<value level="5">-18</value>
-					<value level="6">-25</value>
+					<value level="1">4</value>
+					<value level="2">6</value>
+					<value level="3">12</value>
+					<value level="4">14</value>
+					<value level="5">18</value>
+					<value level="6">25</value>
 				</amount>
 				<mode>PER</mode>
 			</effect>
@@ -155,24 +165,29 @@
 		</effects>
 	</skill>
 	<skill id="46802" toLevel="6" name="Maphr's Ring">
-		<!-- Gives PvP P. Def + +2%, Fixed Damage Resistance + +15%, and received Heal + +10%. -->
+		<!-- Level 1: Gives PvP P. Def ++2%, Fixed Damage Resistance ++15%, and received Heal ++10%. -->
+		<!-- Level 2: Gives PvP P. Def ++3%, Fixed Damage Resistance ++17%, and received Heal ++12%. -->
+		<!-- Level 3: Gives PvP P. Def ++4%, Fixed Damage Resistance ++19%, and received Heal ++14%. -->
+		<!-- Level 4: Gives PvP P. Def ++6%, Fixed Damage Resistance ++21%, and received Heal ++16%. -->
+		<!-- Level 5: Gives PvP P. Def ++8%, Fixed Damage Resistance ++23%, and received Heal ++18%. -->
+		<!-- Level 6: Gives PvP P. Def ++10%, Fixed Damage Resistance ++25%, and received Heal ++20%. -->
 		<icon>BranchIcon.Icon.ring_of_maphr_i00</icon>
+		<operateType>A5</operateType>
+		<targetType>MY_PARTY</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>15</abnormalTime>
 		<abnormalType>MAPHR_AURA</abnormalType>
 		<abnormalVisualEffect>AURA_BUFF</abnormalVisualEffect>
+		<affectObject>FRIEND</affectObject>
 		<affectRange>1000</affectRange>
+		<affectScope>PARTY</affectScope>
+		<basicProperty>NONE</basicProperty>
 		<canBeDispelled>false</canBeDispelled>
+		<effectPoint>2</effectPoint>
+		<hitTime>500</hitTime>
 		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>85</magicLevel>
-		<operateType>A5</operateType>
-		<hitTime>500</hitTime>
-		<effectPoint>2</effectPoint>
-		<basicProperty>NONE</basicProperty>
 		<reuseDelay>1000</reuseDelay>
-		<targetType>MY_PARTY</targetType>
-		<affectScope>PARTY</affectScope>
-		<affectObject>FRIEND</affectObject>
 		<effects>
 			<effect name="DamageByAttack">
 				<amount>
@@ -195,6 +210,71 @@
 					<value level="6">20</value>
 				</amount>
 				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="46803" toLevel="1" name="Krishna Weapon Pack Pack">
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic> <!-- Static Skill -->
+		<itemConsumeCount>1</itemConsumeCount>
+		<itemConsumeId>81903</itemConsumeId>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
+		<conditions>
+			<condition name="OpEncumbered">
+				<weightPercent>10</weightPercent>
+				<slotsPercent>10</slotsPercent>
+			</condition>
+		</conditions>
+		<effects>
+			<effect name="RestorationRandom">
+				<items>
+					<item chance="7.14285">
+						<item id="80090" count="1" /> <!-- Krishna Shaper -->
+					</item>
+					<item chance="7.14285">
+						<item id="80091" count="1" /> <!-- Krishna Cutter -->
+					</item>
+					<item chance="7.14285">
+						<item id="80092" count="1" /> <!-- Krishna Slasher -->
+					</item>
+					<item chance="7.14285">
+						<item id="80093" count="1" /> <!-- Krishna Avenger -->
+					</item>
+					<item chance="7.14285">
+						<item id="80094" count="1" /> <!-- Krishna Fighter -->
+					</item>
+					<item chance="7.14285">
+						<item id="80095" count="1" /> <!-- Krishna Stormer -->
+					</item>
+					<item chance="7.14285">
+						<item id="80096" count="1" /> <!-- Krishna Thrower -->
+					</item>
+					<item chance="7.14285">
+						<item id="80097" count="1" /> <!-- Krishna Guardian -->
+					</item>
+					<item chance="7.14285">
+						<item id="80098" count="1" /> <!-- Krishna Buster -->
+					</item>
+					<item chance="7.14285">
+						<item id="80099" count="1" /> <!-- Krishna Caster -->
+					</item>
+					<item chance="7.14285">
+						<item id="80100" count="1" /> <!-- Krishna Retributer -->
+					</item>
+					<item chance="7.14285">
+						<item id="80101" count="1" /> <!-- Krishna Dual Swords -->
+					</item>
+					<item chance="7.14285">
+						<item id="80102" count="1" /> <!-- Krishna Dual Daggers -->
+					</item>
+					<item chance="7.14285">
+						<item id="80103" count="1" /> <!-- Krishna Dual Blunt Weapons -->
+					</item>
+				</items>
 			</effect>
 		</effects>
 	</skill>

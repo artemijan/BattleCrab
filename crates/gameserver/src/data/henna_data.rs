@@ -2,11 +2,11 @@
 //! `dist/game/data/stats/hennaList.xml`. The runtime flow (draw/remove windows,
 //! stat application) lives in `game_loop/character/henna.rs`.
 //!
-//! Interlude hennas carry six base-stat bonuses (STR/CON/DEX/INT/MEN/WIT); the
-//! `luc`/`cha` stats present in the Classic XML are ignored by the Java `Henna`
-//! constructor and dropped here too. `duration` is -1 (permanent) for every dye
-//! on this dist, so the timed-henna scheduler is out of scope. `<skill>`
-//! entries (none on Interlude dyes) are likewise skipped.
+//! The eight base-stat bonuses are read (STR/CON/DEX/INT/MEN/WIT/LUC/CHA), and
+//! the `<duration time>` the draw windows show. Salvation's `Henna` also reads
+//! `isPremium` (21 dyes) and `<skill>` (141); neither has a consumer here yet
+//! (the premium slot, timed-henna expiry and henna skills are later gameplay
+//! work), so they are not parsed.
 
 use std::collections::HashMap;
 
@@ -24,13 +24,15 @@ const HENNA_FILE: &str = "data/stats/hennaList.xml";
 pub struct Henna {
     pub dye_id: i32,
     pub dye_item_id: i32,
-    /// STR/CON/DEX/INT/MEN/WIT bonus (may be negative).
+    /// STR/CON/DEX/INT/MEN/WIT/LUC/CHA bonus (may be negative).
     pub str_: i32,
     pub con: i32,
     pub dex: i32,
     pub int_: i32,
     pub men: i32,
     pub wit: i32,
+    pub luc: i32,
+    pub cha: i32,
     /// Dyes + adena consumed to draw the symbol.
     pub wear_count: i64,
     pub wear_fee: i64,
@@ -39,10 +41,12 @@ pub struct Henna {
     pub cancel_fee: i64,
     /// Class ids allowed to wear this dye (`<classId>` entries).
     pub wear_classes: Vec<i32>,
+    /// `<duration time>` in minutes; -1 (Java's default) for a permanent dye.
+    pub duration: i32,
 }
 
 impl Henna {
-    /// `Henna.getBaseStats(stat)` for the six Interlude stats (0 otherwise).
+    /// `Henna.getBaseStats(stat)`.
     pub fn base_stat(&self, stat: BaseStat) -> i32 {
         match stat {
             BaseStat::Str => self.str_,
@@ -51,6 +55,8 @@ impl Henna {
             BaseStat::Int => self.int_,
             BaseStat::Men => self.men,
             BaseStat::Wit => self.wit,
+            BaseStat::Luc => self.luc,
+            BaseStat::Cha => self.cha,
         }
     }
 
@@ -69,6 +75,24 @@ pub struct HennaStatSums {
     pub int_: i32,
     pub men: i32,
     pub wit: i32,
+    pub luc: i32,
+    pub cha: i32,
+}
+
+impl HennaStatSums {
+    /// Java `Player.getHennaValue(stat)`.
+    pub fn get(&self, stat: BaseStat) -> i32 {
+        match stat {
+            BaseStat::Str => self.str_,
+            BaseStat::Con => self.con,
+            BaseStat::Dex => self.dex,
+            BaseStat::Int => self.int_,
+            BaseStat::Men => self.men,
+            BaseStat::Wit => self.wit,
+            BaseStat::Luc => self.luc,
+            BaseStat::Cha => self.cha,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -115,7 +139,7 @@ impl HennaData {
         list
     }
 
-    /// Sum the six base-stat bonuses of the worn dyes (Java `_hennaBaseStats`,
+    /// Sum the eight base-stat bonuses of the worn dyes (Java `_hennaBaseStats`,
     /// rebuilt by `recalcHennaStats`). Unknown dye ids contribute nothing.
     pub fn stat_sums(&self, slots: &[Option<i32>; 3]) -> HennaStatSums {
         let mut s = HennaStatSums::default();
@@ -127,6 +151,8 @@ impl HennaData {
                 s.int_ += h.int_;
                 s.men += h.men;
                 s.wit += h.wit;
+                s.luc += h.luc;
+                s.cha += h.cha;
             }
         }
         s
@@ -163,12 +189,15 @@ impl HennaData {
                                 dex: 0,
                                 int_: 0,
                                 men: 0,
+                                luc: 0,
+                                cha: 0,
                                 wit: 0,
                                 wear_count: 0,
                                 wear_fee: 0,
                                 cancel_count: 0,
                                 cancel_fee: 0,
                                 wear_classes: Vec::new(),
+                                duration: -1,
                             });
                         }
                         "stats" => {
@@ -179,6 +208,8 @@ impl HennaData {
                                 h.int_ = num("int").unwrap_or(0) as i32;
                                 h.men = num("men").unwrap_or(0) as i32;
                                 h.wit = num("wit").unwrap_or(0) as i32;
+                                h.luc = num("luc").unwrap_or(0) as i32;
+                                h.cha = num("cha").unwrap_or(0) as i32;
                             }
                         }
                         "wear" => {
@@ -193,7 +224,12 @@ impl HennaData {
                                 h.cancel_fee = num("fee").unwrap_or(0);
                             }
                         }
-                        // <duration>/<skill> are absent on Interlude dyes; ignored.
+                        "duration" => {
+                            if let Some(h) = cur.as_mut() {
+                                h.duration = num("time").unwrap_or(-1) as i32;
+                            }
+                        }
+                        // <skill> has no consumer yet (see the header).
                         _ => {}
                     }
                 }
@@ -228,7 +264,9 @@ mod tests {
     #[test]
     fn loads_real_dist_hennas() {
         let data = load();
-        assert_eq!(data.len(), 372);
+        // 462 `<henna>` elements, 461 distinct dye ids (a later duplicate
+        // replaces the earlier one, as Java's map put does).
+        assert_eq!(data.len(), 461);
 
         // dye 1 (dye_s1c3_d): STR +1, CON -3, item 4445, wear 10/37000, cancel 5/7400.
         let h = data.get(1).expect("henna 1");
@@ -245,6 +283,11 @@ mod tests {
             !h.is_allowed_class(0),
             "Human Fighter not in this dye's list"
         );
+
+        // dye 366 (dye_luc1_w): LUC +1 and nothing else.
+        let luc = data.get(366).expect("henna 366");
+        assert_eq!((luc.luc, luc.cha, luc.str_), (1, 0, 0));
+        assert_eq!(luc.base_stat(BaseStat::Luc), 1);
 
         // The class filter returns only allowed dyes.
         assert!(data.list_for_class(11).iter().any(|h| h.dye_id == 1));

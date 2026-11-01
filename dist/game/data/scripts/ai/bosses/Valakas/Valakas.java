@@ -1,92 +1,121 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.bosses.Valakas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-import org.l2jmobius.Config;
-import org.l2jmobius.gameserver.ai.CtrlIntention;
+import org.l2jmobius.commons.time.TimeUtil;
+import org.l2jmobius.gameserver.ai.Intention;
+import org.l2jmobius.gameserver.config.GrandBossConfig;
 import org.l2jmobius.gameserver.data.xml.SkillData;
-import org.l2jmobius.gameserver.enums.MountType;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
-import org.l2jmobius.gameserver.instancemanager.GrandBossManager;
-import org.l2jmobius.gameserver.instancemanager.ZoneManager;
+import org.l2jmobius.gameserver.managers.GrandBossManager;
+import org.l2jmobius.gameserver.managers.ZoneManager;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.StatSet;
 import org.l2jmobius.gameserver.model.World;
-import org.l2jmobius.gameserver.model.actor.Attackable;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Playable;
 import org.l2jmobius.gameserver.model.actor.Player;
+import org.l2jmobius.gameserver.model.actor.enums.player.MountType;
 import org.l2jmobius.gameserver.model.actor.instance.GrandBoss;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.skill.BuffInfo;
 import org.l2jmobius.gameserver.model.skill.Skill;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 import org.l2jmobius.gameserver.model.zone.ZoneType;
 import org.l2jmobius.gameserver.model.zone.type.NoRestartZone;
+import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.PlaySound;
 import org.l2jmobius.gameserver.network.serverpackets.SocialAction;
 import org.l2jmobius.gameserver.network.serverpackets.SpecialCamera;
-import org.l2jmobius.gameserver.util.Util;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.util.LocationUtil;
 
 /**
- * Valakas' AI.
- * @author Tryskell
+ * Valakas grand boss AI handler.<br>
+ * Controls Fire Dragon spawn, lair access, cinematics and combat AI.
+ * <ul>
+ * <li>Restores persisted Valakas state and schedules respawn.</li>
+ * <li>Manages lair zone, entry window, inactivity reset and player ejection.</li>
+ * <li>Implements HP-based regeneration, Lava Skin and skill rotation logic.</li>
+ * </ul>
+ * @author BazookaRpm
  */
-public class Valakas extends AbstractNpcAI
+public class Valakas extends Script
 {
-	// NPC
+	// Logger.
+	private static final Logger LOGGER = Logger.getLogger(Valakas.class.getName());
+	
+	// NPCs.
 	private static final int VALAKAS = 29028;
-	// Skills
-	private static final int VALAKAS_REGENERATION = 4691;
-	private static final SkillHolder VALAKAS_LAVA_SKIN = new SkillHolder(4680, 1);
+	private static final int TELEPORT_CUBE = 31759;
 	
-	private static final SkillHolder[] VALAKAS_REGULAR_SKILLS =
+	// Skills.
+	private static final int SKILL_REGEN_ID = 4691;
+	private static final SkillHolder SKILL_LAVA_SKIN = new SkillHolder(4680, 1);
+	private static final SkillHolder SKILL_ANTI_STRIDER = new SkillHolder(4258, 1);
+	
+	private static final SkillHolder[] SKILL_TABLE_REGULAR =
 	{
-		new SkillHolder(4681, 1), // Valakas Trample
-		new SkillHolder(4682, 1), // Valakas Trample
-		new SkillHolder(4683, 1), // Valakas Dragon Breath
-		new SkillHolder(4689, 1), // Valakas Fear TODO: has two levels only level one is used.
+		new SkillHolder(4681, 1), // Valakas Trample.
+		new SkillHolder(4682, 1), // Valakas Trample.
+		new SkillHolder(4683, 1), // Valakas Dragon Breath.
+		new SkillHolder(4689, 1), // Valakas Fear (level 1 used only).
 	};
 	
-	private static final SkillHolder[] VALAKAS_LOWHP_SKILLS =
+	private static final SkillHolder[] SKILL_TABLE_LOW_HP =
 	{
-		new SkillHolder(4681, 1), // Valakas Trample
-		new SkillHolder(4682, 1), // Valakas Trample
-		new SkillHolder(4683, 1), // Valakas Dragon Breath
-		new SkillHolder(4689, 1), // Valakas Fear TODO: has two levels only level one is used.
-		new SkillHolder(4690, 1), // Valakas Meteor Storm
+		new SkillHolder(4681, 1), // Valakas Trample.
+		new SkillHolder(4682, 1), // Valakas Trample.
+		new SkillHolder(4683, 1), // Valakas Dragon Breath.
+		new SkillHolder(4689, 1), // Valakas Fear (level 1 used only).
+		new SkillHolder(4690, 1), // Valakas Meteor Storm.
 	};
 	
-	private static final SkillHolder[] VALAKAS_AOE_SKILLS =
+	private static final SkillHolder[] SKILL_TABLE_AOE =
 	{
-		new SkillHolder(4683, 1), // Valakas Dragon Breath
-		new SkillHolder(4684, 1), // Valakas Dragon Breath
-		new SkillHolder(4685, 1), // Valakas Tail Stomp
-		new SkillHolder(4686, 1), // Valakas Tail Stomp
-		new SkillHolder(4688, 1), // Valakas Stun
-		new SkillHolder(4689, 1), // Valakas Fear TODO: has two levels only level one is used.
-		new SkillHolder(4690, 1), // Valakas Meteor Storm
+		new SkillHolder(4683, 1), // Valakas Dragon Breath.
+		new SkillHolder(4684, 1), // Valakas Dragon Breath.
+		new SkillHolder(4685, 1), // Valakas Tail Stomp.
+		new SkillHolder(4686, 1), // Valakas Tail Stomp.
+		new SkillHolder(4688, 1), // Valakas Stun.
+		new SkillHolder(4689, 1), // Valakas Fear (level 1 used only).
+		new SkillHolder(4690, 1), // Valakas Meteor Storm.
 	};
 	
-	// Locations
+	// Status.
+	private static final byte STATUS_DORMANT = 0; // Spawned, no one inside, entry open.
+	private static final byte STATUS_WAITING = 1; // Player entered, entry open, cinematic pending.
+	private static final byte STATUS_FIGHTING = 2; // In combat, entry locked.
+	private static final byte STATUS_DEAD = 3; // Dead, entry locked.
+	
+	// Zones.
+	private static final int ZONE_ID_LAIR = 12010;
+	private static final int ZONE_ID_GROUND = 13010;
+	private static final ZoneType ZONE_LAIR = ZoneManager.getInstance().getZoneById(ZONE_ID_LAIR);
+	private static final NoRestartZone ZONE_GROUND = ZoneManager.getInstance().getZoneById(ZONE_ID_GROUND, NoRestartZone.class);
+	
+	// Locations.
 	private static final Location[] TELEPORT_CUBE_LOCATIONS =
 	{
 		new Location(214880, -116144, -1644),
@@ -105,86 +134,123 @@ public class Valakas extends AbstractNpcAI
 		new Location(215456, -117328, -1392),
 		new Location(213200, -118160, -1424)
 	};
-	private static final Location VALAKAS_HIDDEN_LOC = new Location(220963, -104895, -1620);
-	private static final Location ATTACKER_REMOVE = new Location(150037, -57255, -2976);
-	private static final Location VALAKAS_LAIR = new Location(212852, -114842, -1632);
-	private static final Location VALAKAS_REGENERATION_LOC = new Location(-105200, -253104, -15264);
-	// Valakas status.
-	private static final byte DORMANT = 0; // Valakas is spawned and no one has entered yet. Entry is unlocked.
-	private static final byte WAITING = 1; // Valakas is spawned and someone has entered, triggering a 30 minute window for additional people to enter. Entry is unlocked.
-	private static final byte FIGHTING = 2; // Valakas is engaged in battle, annihilating his foes. Entry is locked.
-	private static final byte DEAD = 3; // Valakas has been killed. Entry is locked.
-	// Misc
-	private static final ZoneType BOSS_ZONE = ZoneManager.getInstance().getZoneById(12010);
-	private static final NoRestartZone GROUND_ZONE = ZoneManager.getInstance().getZoneById(13010, NoRestartZone.class);
-	private GrandBoss _valakas = null;
-	private Playable _actualVictim; // Actual target of Valakas.
-	private long _timeTracker = 0; // Time tracker for last attack on Valakas.
+	
+	private static final Location LOC_VALAKAS_HIDE = new Location(220963, -104895, -1620);
+	private static final Location LOC_EJECT_ATTACKER = new Location(150037, -57255, -2976);
+	private static final Location LOC_VALAKAS_LAIR = new Location(212852, -114842, -1632);
+	private static final Location LOC_VALAKAS_REGEN = new Location(-105200, -253104, -15264);
+	
+	// Events.
+	private static final String EVT_START = "VALAKAS_START_ENCOUNTER";
+	private static final String EVT_REGEN_TICK = "VALAKAS_REGEN_TICK";
+	private static final String EVT_SKILL_TICK = "VALAKAS_SKILL_TICK";
+	private static final String EVT_BROADCAST_SPAWN = "VALAKAS_BROADCAST_SPAWN";
+	private static final String EVT_UNLOCK = "VALAKAS_UNLOCK";
+	private static final String EVT_REMOVE_PLAYERS = "VALAKAS_REMOVE_PLAYERS";
+	private static final String EVT_SPAWN_STEP_1 = "VALAKAS_SPAWN_1";
+	private static final String EVT_SPAWN_STEP_2 = "VALAKAS_SPAWN_2";
+	private static final String EVT_SPAWN_STEP_3 = "VALAKAS_SPAWN_3";
+	private static final String EVT_SPAWN_STEP_4 = "VALAKAS_SPAWN_4";
+	private static final String EVT_SPAWN_STEP_5 = "VALAKAS_SPAWN_5";
+	private static final String EVT_SPAWN_STEP_6 = "VALAKAS_SPAWN_6";
+	private static final String EVT_SPAWN_STEP_7 = "VALAKAS_SPAWN_7";
+	private static final String EVT_SPAWN_STEP_8 = "VALAKAS_SPAWN_8";
+	private static final String EVT_SPAWN_STEP_9 = "VALAKAS_SPAWN_9";
+	private static final String EVT_SPAWN_STEP_10 = "VALAKAS_SPAWN_10";
+	private static final String EVT_DIE_STEP_1 = "VALAKAS_DIE_1";
+	private static final String EVT_DIE_STEP_2 = "VALAKAS_DIE_2";
+	private static final String EVT_DIE_STEP_3 = "VALAKAS_DIE_3";
+	private static final String EVT_DIE_STEP_4 = "VALAKAS_DIE_4";
+	private static final String EVT_DIE_STEP_5 = "VALAKAS_DIE_5";
+	private static final String EVT_DIE_STEP_6 = "VALAKAS_DIE_6";
+	private static final String EVT_DIE_STEP_7 = "VALAKAS_DIE_7";
+	private static final String EVT_DIE_STEP_8 = "VALAKAS_DIE_8";
+	
+	// Timings.
+	private static final long MILLIS_PER_HOUR = 3600000L;
+	private static final long INACTIVITY_TIMEOUT = 900000L; // 15 minutes.
+	private static final long REGEN_TICK_DELAY = 60000L;
+	private static final long SKILL_TICK_DELAY = 2000L;
+	private static final long TELEPORT_CUBE_LIFETIME = 900000L;
+	private static final long BROADCAST_SPAWN_DELAY = 100L;
+	private static final long SPAWN_STEP_1_DELAY = 1700L;
+	private static final long SPAWN_STEP_2_DELAY = 3200L;
+	private static final long SPAWN_STEP_3_DELAY = 6500L;
+	private static final long SPAWN_STEP_4_DELAY = 9400L;
+	private static final long SPAWN_STEP_5_DELAY = 12100L;
+	private static final long SPAWN_STEP_6_DELAY = 12430L;
+	private static final long SPAWN_STEP_7_DELAY = 15430L;
+	private static final long SPAWN_STEP_8_DELAY = 16830L;
+	private static final long SPAWN_STEP_9_DELAY = 23530L;
+	private static final long SPAWN_STEP_10_DELAY = 26000L;
+	private static final long DIE_STEP_1_DELAY = 300L;
+	private static final long DIE_STEP_2_DELAY = 600L;
+	private static final long DIE_STEP_3_DELAY = 3800L;
+	private static final long DIE_STEP_4_DELAY = 8200L;
+	private static final long DIE_STEP_5_DELAY = 8700L;
+	private static final long DIE_STEP_6_DELAY = 13300L;
+	private static final long DIE_STEP_7_DELAY = 14000L;
+	private static final long DIE_STEP_8_DELAY = 16500L;
+	
+	// Runtime state.
+	private GrandBoss _valakas;
+	private Playable _currentTarget;
+	private long _lastAttackTime;
 	
 	private Valakas()
 	{
-		registerMobs(VALAKAS);
+		addAttackId(VALAKAS);
+		addKillId(VALAKAS);
+		addSpawnId(VALAKAS);
+		addSpellFinishedId(VALAKAS);
 		
-		final StatSet info = GrandBossManager.getInstance().getStatSet(VALAKAS);
-		final int status = GrandBossManager.getInstance().getStatus(VALAKAS);
+		final GrandBossManager bossManager = GrandBossManager.getInstance();
+		final StatSet info = bossManager.getStatSet(VALAKAS);
+		final int status = bossManager.getStatus(VALAKAS);
 		
-		if (status == DEAD)
+		if (status == STATUS_DEAD)
 		{
-			// load the unlock date and time for valakas from DB
-			final long temp = info.getLong("respawn_time") - System.currentTimeMillis();
-			if (temp > 0)
+			final long respawnTime = info.getLong("respawn_time");
+			final long remaining = respawnTime - System.currentTimeMillis();
+			if (remaining > 0)
 			{
-				// The time has not yet expired. Mark Valakas as currently locked (dead).
-				startQuestTimer("valakas_unlock", temp, null, null);
+				startQuestTimer(EVT_UNLOCK, remaining, null, null);
 			}
 			else
 			{
-				// The time has expired while the server was offline. Spawn valakas in his cave as DORMANT.
-				_valakas = (GrandBoss) addSpawn(VALAKAS, VALAKAS_REGENERATION_LOC, false, 0);
-				_valakas.teleToLocation(VALAKAS_HIDDEN_LOC);
-				GrandBossManager.getInstance().setStatus(VALAKAS, DORMANT);
-				GrandBossManager.getInstance().addBoss(_valakas);
-				
-				_valakas.setInvul(true);
-				_valakas.setRunning();
-				
-				_valakas.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
+				spawnDormantValakas();
 			}
 		}
 		else
 		{
-			final int loc_x = info.getInt("loc_x");
-			final int loc_y = info.getInt("loc_y");
-			final int loc_z = info.getInt("loc_z");
+			final int locX = info.getInt("loc_x");
+			final int locY = info.getInt("loc_y");
+			final int locZ = info.getInt("loc_z");
 			final int heading = info.getInt("heading");
-			final double hp = info.getDouble("currentHP");
-			final double mp = info.getDouble("currentMP");
+			final double currentHp = info.getDouble("currentHP");
+			final double currentMp = info.getDouble("currentMP");
 			
-			_valakas = (GrandBoss) addSpawn(VALAKAS, loc_x, loc_y, loc_z, heading, false, 0);
-			GrandBossManager.getInstance().addBoss(_valakas);
-			
-			_valakas.setCurrentHpMp(hp, mp);
+			_valakas = (GrandBoss) addSpawn(VALAKAS, locX, locY, locZ, heading, false, 0);
+			bossManager.addBoss(_valakas);
+			_valakas.setCurrentHpMp(currentHp, currentMp);
 			_valakas.setRunning();
 			
-			// Start timers.
-			if (status == FIGHTING)
+			if (status == STATUS_FIGHTING)
 			{
-				// stores current time for inactivity task.
-				_timeTracker = System.currentTimeMillis();
-				
-				startQuestTimer("regen_task", 60000, _valakas, null, true);
-				startQuestTimer("skill_task", 2000, _valakas, null, true);
+				_lastAttackTime = System.currentTimeMillis();
+				startQuestTimer(EVT_REGEN_TICK, REGEN_TICK_DELAY, _valakas, null, true);
+				startQuestTimer(EVT_SKILL_TICK, SKILL_TICK_DELAY, _valakas, null, true);
 			}
 			else
 			{
-				_valakas.teleToLocation(VALAKAS_HIDDEN_LOC);
+				_valakas.teleToLocation(LOC_VALAKAS_HIDE);
 				_valakas.setInvul(true);
-				_valakas.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
+				_valakas.getAI().setIntention(Intention.IDLE);
 				
-				// Start timer to lock entry after 30 minutes
-				if (status == WAITING)
+				if (status == STATUS_WAITING)
 				{
-					startQuestTimer("beginning", Config.VALAKAS_WAIT_TIME * 60000L, _valakas, null);
+					final long waitMillis = GrandBossConfig.VALAKAS_WAIT_TIME * 60000L;
+					startQuestTimer(EVT_START, waitMillis, _valakas, null);
 				}
 			}
 		}
@@ -193,385 +259,633 @@ public class Valakas extends AbstractNpcAI
 	@Override
 	public String onEvent(String event, Npc npc, Player player)
 	{
+		if (event == null)
+		{
+			return super.onEvent(null, npc, player);
+		}
+		
 		if (npc != null)
 		{
-			if (event.equalsIgnoreCase("beginning"))
+			switch (event)
 			{
-				// Stores current time
-				_timeTracker = System.currentTimeMillis();
-				
-				// Teleport Valakas to his lair.
-				npc.teleToLocation(VALAKAS_LAIR);
-				
-				// Sound + socialAction.
-				startQuestTimer("broadcast_spawn", 100, npc, null);
-				
-				// Launch the cinematic, and tasks (regen + skill).
-				startQuestTimer("spawn_1", 1700, npc, null); // 1700
-				startQuestTimer("spawn_2", 3200, npc, null); // 1500
-				startQuestTimer("spawn_3", 6500, npc, null); // 3300
-				startQuestTimer("spawn_4", 9400, npc, null); // 2900
-				startQuestTimer("spawn_5", 12100, npc, null); // 2700
-				startQuestTimer("spawn_6", 12430, npc, null); // 330
-				startQuestTimer("spawn_7", 15430, npc, null); // 3000
-				startQuestTimer("spawn_8", 16830, npc, null); // 1400
-				startQuestTimer("spawn_9", 23530, npc, null); // 6700 - end of cinematic
-				startQuestTimer("spawn_10", 26000, npc, null); // 2500 - AI + unlock
-			}
-			// Regeneration && inactivity task
-			else if (event.equalsIgnoreCase("regen_task"))
-			{
-				// Inactivity task - 15min
-				if ((GrandBossManager.getInstance().getStatus(VALAKAS) == FIGHTING) && ((_timeTracker + 900000) < System.currentTimeMillis()))
+				case EVT_START:
 				{
-					npc.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
-					npc.teleToLocation(VALAKAS_REGENERATION_LOC);
-					
-					GrandBossManager.getInstance().setStatus(VALAKAS, DORMANT);
-					npc.setCurrentHpMp(npc.getMaxHp(), npc.getMaxMp());
-					
-					// Drop all players from the zone.
-					BOSS_ZONE.oustAllPlayers();
-					
-					// Cancel skill_task and regen_task.
-					cancelQuestTimer("regen_task", npc, null);
-					cancelQuestTimer("skill_task", npc, null);
-					return null;
+					handleEncounterStart(npc);
+					break;
 				}
-				
-				// Verify if "Valakas Regeneration" skill is active.
-				final BuffInfo info = npc.getEffectList().getBuffInfoBySkillId(VALAKAS_REGENERATION);
-				final int level = info != null ? info.getSkill().getLevel() : 0;
-				
-				// Current HPs are inferior to 25% ; apply level 4 of regen skill.
-				if ((npc.getCurrentHp() < (npc.getMaxHp() / 4)) && (level != 4))
+				case EVT_REGEN_TICK:
 				{
-					npc.setTarget(npc);
-					npc.doCast(SkillData.getInstance().getSkill(VALAKAS_REGENERATION, 4));
+					handleRegenTick(npc);
+					break;
 				}
-				// Current HPs are inferior to 50% ; apply level 3 of regen skill.
-				else if ((npc.getCurrentHp() < ((npc.getMaxHp() * 2) / 4.0)) && (level != 3))
+				case EVT_SKILL_TICK:
 				{
-					npc.setTarget(npc);
-					npc.doCast(SkillData.getInstance().getSkill(VALAKAS_REGENERATION, 3));
+					handleSkillTick(npc);
+					break;
 				}
-				// Current HPs are inferior to 75% ; apply level 2 of regen skill.
-				else if ((npc.getCurrentHp() < ((npc.getMaxHp() * 3) / 4.0)) && (level != 2))
+				case EVT_BROADCAST_SPAWN:
 				{
-					npc.setTarget(npc);
-					npc.doCast(SkillData.getInstance().getSkill(VALAKAS_REGENERATION, 2));
+					broadcastSpawnIntro(npc);
+					break;
 				}
-				// Apply level 1.
-				else if (level != 1)
+				case EVT_SPAWN_STEP_1:
 				{
-					npc.setTarget(npc);
-					npc.doCast(SkillData.getInstance().getSkill(VALAKAS_REGENERATION, 1));
+					handleSpawnStep1(npc);
+					break;
 				}
-			}
-			else if (event.equalsIgnoreCase("broadcast_spawn"))
-			{
-				for (Player plyr : BOSS_ZONE.getPlayersInside())
+				case EVT_SPAWN_STEP_2:
 				{
-					plyr.sendPacket(new PlaySound(1, "BS03_A", 0, 0, 0, 0, 0));
-					plyr.sendPacket(new SocialAction(npc.getObjectId(), 3));
+					handleSpawnStep2(npc);
+					break;
 				}
-			}
-			// Spawn cinematic, regen_task and choose of skill.
-			else if (event.equalsIgnoreCase("spawn_1"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1800, 180, -1, 1500, 15000, 10000, 0, 0, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_2"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1300, 180, -5, 3000, 15000, 10000, 0, -5, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_3"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 500, 180, -8, 600, 15000, 10000, 0, 60, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_4"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 800, 180, -8, 2700, 15000, 10000, 0, 30, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_5"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 200, 250, 70, 0, 15000, 10000, 30, 80, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_6"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1100, 250, 70, 2500, 15000, 10000, 30, 80, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_7"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 700, 150, 30, 0, 15000, 10000, -10, 60, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_8"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1200, 150, 20, 2900, 15000, 10000, -10, 30, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_9"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 750, 170, -10, 3400, 15000, 4000, 10, -15, 1, 0, 0));
-			}
-			else if (event.equalsIgnoreCase("spawn_10"))
-			{
-				GrandBossManager.getInstance().setStatus(VALAKAS, FIGHTING);
-				npc.setInvul(false);
-				
-				startQuestTimer("regen_task", 60000, npc, null, true);
-				startQuestTimer("skill_task", 2000, npc, null, true);
-			}
-			// Death cinematic, spawn of Teleport Cubes.
-			else if (event.equalsIgnoreCase("die_1"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 2000, 130, -1, 0, 15000, 10000, 0, 0, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_2"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1100, 210, -5, 3000, 15000, 10000, -13, 0, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_3"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1300, 200, -8, 3000, 15000, 10000, 0, 15, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_4"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1000, 190, 0, 500, 15000, 10000, 0, 10, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_5"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1700, 120, 0, 2500, 15000, 10000, 12, 40, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_6"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1700, 20, 0, 700, 15000, 10000, 10, 10, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_7"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1700, 10, 0, 1000, 15000, 10000, 20, 70, 1, 1, 0));
-			}
-			else if (event.equalsIgnoreCase("die_8"))
-			{
-				BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1700, 10, 0, 300, 15000, 250, 20, -20, 1, 1, 0));
-				
-				for (Location loc : TELEPORT_CUBE_LOCATIONS)
+				case EVT_SPAWN_STEP_3:
 				{
-					addSpawn(31759, loc, false, 900000);
+					handleSpawnStep3(npc);
+					break;
 				}
-				
-				startQuestTimer("remove_players", 900000, null, null);
-			}
-			else if (event.equalsIgnoreCase("skill_task"))
-			{
-				callSkillAI(npc);
+				case EVT_SPAWN_STEP_4:
+				{
+					handleSpawnStep4(npc);
+					break;
+				}
+				case EVT_SPAWN_STEP_5:
+				{
+					handleSpawnStep5(npc);
+					break;
+				}
+				case EVT_SPAWN_STEP_6:
+				{
+					handleSpawnStep6(npc);
+					break;
+				}
+				case EVT_SPAWN_STEP_7:
+				{
+					handleSpawnStep7(npc);
+					break;
+				}
+				case EVT_SPAWN_STEP_8:
+				{
+					handleSpawnStep8(npc);
+					break;
+				}
+				case EVT_SPAWN_STEP_9:
+				{
+					handleSpawnStep9(npc);
+					break;
+				}
+				case EVT_SPAWN_STEP_10:
+				{
+					handleSpawnStep10(npc);
+					break;
+				}
+				case EVT_DIE_STEP_1:
+				{
+					handleDieStep1(npc);
+					break;
+				}
+				case EVT_DIE_STEP_2:
+				{
+					handleDieStep2(npc);
+					break;
+				}
+				case EVT_DIE_STEP_3:
+				{
+					handleDieStep3(npc);
+					break;
+				}
+				case EVT_DIE_STEP_4:
+				{
+					handleDieStep4(npc);
+					break;
+				}
+				case EVT_DIE_STEP_5:
+				{
+					handleDieStep5(npc);
+					break;
+				}
+				case EVT_DIE_STEP_6:
+				{
+					handleDieStep6(npc);
+					break;
+				}
+				case EVT_DIE_STEP_7:
+				{
+					handleDieStep7(npc);
+					break;
+				}
+				case EVT_DIE_STEP_8:
+				{
+					handleDieStep8(npc);
+					break;
+				}
+				default:
+				{
+					break;
+				}
 			}
 		}
-		else if (event.equalsIgnoreCase("valakas_unlock"))
+		else
 		{
-			_valakas = (GrandBoss) addSpawn(VALAKAS, VALAKAS_REGENERATION_LOC, false, 0);
-			_valakas.teleToLocation(VALAKAS_HIDDEN_LOC);
-			_valakas.setInvul(true);
-			_valakas.setRunning();
-			_valakas.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
-			GrandBossManager.getInstance().addBoss(_valakas);
-			GrandBossManager.getInstance().setStatus(VALAKAS, DORMANT);
+			switch (event)
+			{
+				case EVT_UNLOCK:
+				{
+					spawnDormantValakas();
+					break;
+				}
+				case EVT_REMOVE_PLAYERS:
+				{
+					oustPlayersFromLair();
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
 		}
-		else if (event.equalsIgnoreCase("remove_players"))
-		{
-			BOSS_ZONE.oustAllPlayers();
-		}
+		
 		return super.onEvent(event, npc, player);
 	}
 	
 	@Override
-	public String onSpawn(Npc npc)
+	public void onSpawn(Npc npc)
 	{
-		((Attackable) npc).setCanReturnToSpawnPoint(false);
-		npc.setRandomWalking(false);
-		// npc.disableCoreAI(true);
-		return super.onSpawn(npc);
-	}
-	
-	@Override
-	public String onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
-	{
-		if (!BOSS_ZONE.isInsideZone(attacker))
-		{
-			attacker.doDie(attacker);
-			return null;
-		}
-		
-		if (npc.isHpBlocked())
-		{
-			return null;
-		}
-		
-		if (GrandBossManager.getInstance().getStatus(VALAKAS) != FIGHTING)
-		{
-			attacker.teleToLocation(ATTACKER_REMOVE);
-			return null;
-		}
-		
-		// Debuff strider-mounted players.
-		if ((attacker.getMountType() == MountType.STRIDER) && !attacker.isAffectedBySkill(4258))
-		{
-			npc.setTarget(attacker);
-			npc.doCast(SkillData.getInstance().getSkill(4258, 1));
-		}
-		_timeTracker = System.currentTimeMillis();
-		
-		return super.onAttack(npc, attacker, damage, isSummon);
-	}
-	
-	@Override
-	public String onKill(Npc npc, Player killer, boolean isSummon)
-	{
-		// Cancel skill_task and regen_task.
-		cancelQuestTimer("regen_task", npc, null);
-		cancelQuestTimer("skill_task", npc, null);
-		
-		// Launch death animation.
-		BOSS_ZONE.broadcastPacket(new PlaySound(1, "B03_D", 0, 0, 0, 0, 0));
-		BOSS_ZONE.broadcastPacket(new SpecialCamera(npc, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0));
-		
-		startQuestTimer("die_1", 300, npc, null); // 300
-		startQuestTimer("die_2", 600, npc, null); // 300
-		startQuestTimer("die_3", 3800, npc, null); // 3200
-		startQuestTimer("die_4", 8200, npc, null); // 4400
-		startQuestTimer("die_5", 8700, npc, null); // 500
-		startQuestTimer("die_6", 13300, npc, null); // 4600
-		startQuestTimer("die_7", 14000, npc, null); // 700
-		startQuestTimer("die_8", 16500, npc, null); // 2500
-		
-		GrandBossManager.getInstance().setStatus(VALAKAS, DEAD);
-		// Calculate Min and Max respawn times randomly.
-		final long respawnTime = (Config.VALAKAS_SPAWN_INTERVAL + getRandom(-Config.VALAKAS_SPAWN_RANDOM, Config.VALAKAS_SPAWN_RANDOM)) * 3600000L;
-		startQuestTimer("valakas_unlock", respawnTime, null, null);
-		// also save the respawn time so that the info is maintained past reboots
-		final StatSet info = GrandBossManager.getInstance().getStatSet(VALAKAS);
-		info.set("respawn_time", System.currentTimeMillis() + respawnTime);
-		GrandBossManager.getInstance().setStatSet(VALAKAS, info);
-		
-		return super.onKill(npc, killer, isSummon);
-	}
-	
-	@Override
-	public String onAggroRangeEnter(Npc npc, Player player, boolean isSummon)
-	{
-		return null;
-	}
-	
-	@Override
-	public String onSpellFinished(Npc npc, Player player, Skill skill)
-	{
-		startQuestTimer("skill_task", 1000, npc, null);
-		if (!GROUND_ZONE.isCharacterInZone(npc) && (_valakas != null))
-		{
-			_valakas.teleToLocation(VALAKAS_LAIR);
-		}
-		return super.onSpellFinished(npc, player, skill);
-	}
-	
-	private void callSkillAI(Npc npc)
-	{
-		if (npc.isInvul() || npc.isCastingNow())
+		if (npc == null)
 		{
 			return;
 		}
 		
-		// Pickup a target if no or dead victim. 10% luck he decides to reconsiders his target.
-		if ((_actualVictim == null) || _actualVictim.isDead() || !(npc.isInSurroundingRegion(_actualVictim)) || (getRandom(10) == 0))
+		npc.asAttackable().setCanReturnToSpawnPoint(false);
+		npc.setRandomWalking(false);
+	}
+	
+	@Override
+	public void onAttack(Npc npc, Player attacker, int damage, boolean isSummon)
+	{
+		if ((npc == null) || (attacker == null))
 		{
-			_actualVictim = getRandomTarget(npc);
+			return;
 		}
 		
-		// If result is still null, Valakas will roam. Don't go deeper in skill AI.
-		if (_actualVictim == null)
+		if ((ZONE_LAIR != null) && !ZONE_LAIR.isInsideZone(attacker))
+		{
+			attacker.doDie(attacker);
+			return;
+		}
+		
+		if (npc.isHpBlocked())
+		{
+			return;
+		}
+		
+		if (GrandBossManager.getInstance().getStatus(VALAKAS) != STATUS_FIGHTING)
+		{
+			attacker.teleToLocation(LOC_EJECT_ATTACKER);
+			return;
+		}
+		
+		if ((attacker.getMountType() == MountType.STRIDER) && !attacker.isAffectedBySkill(SKILL_ANTI_STRIDER.getSkillId()))
+		{
+			npc.setTarget(attacker);
+			npc.doCast(SKILL_ANTI_STRIDER.getSkill());
+		}
+		
+		_lastAttackTime = System.currentTimeMillis();
+	}
+	
+	@Override
+	public void onKill(Npc npc, Player killer, boolean isSummon)
+	{
+		if (npc == null)
+		{
+			return;
+		}
+		
+		cancelQuestTimer(EVT_REGEN_TICK, npc, null);
+		cancelQuestTimer(EVT_SKILL_TICK, npc, null);
+		
+		if (ZONE_LAIR != null)
+		{
+			ZONE_LAIR.broadcastPacket(new PlaySound(1, "B03_D", 0, 0, 0, 0, 0));
+			ZONE_LAIR.broadcastPacket(new SpecialCamera(npc, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0));
+		}
+		
+		startQuestTimer(EVT_DIE_STEP_1, DIE_STEP_1_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_2, DIE_STEP_2_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_3, DIE_STEP_3_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_4, DIE_STEP_4_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_5, DIE_STEP_5_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_6, DIE_STEP_6_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_7, DIE_STEP_7_DELAY, npc, null);
+		startQuestTimer(EVT_DIE_STEP_8, DIE_STEP_8_DELAY, npc, null);
+		
+		GrandBossManager.getInstance().setStatus(VALAKAS, STATUS_DEAD);
+		
+		final long baseIntervalMillis = GrandBossConfig.VALAKAS_SPAWN_INTERVAL * MILLIS_PER_HOUR;
+		final long randomRangeMillis = GrandBossConfig.VALAKAS_SPAWN_RANDOM * MILLIS_PER_HOUR;
+		final long respawnDelay = baseIntervalMillis + getRandom(-randomRangeMillis, randomRangeMillis);
+		final long nextRespawnTime = System.currentTimeMillis() + respawnDelay;
+		
+		LOGGER.info("Valakas will respawn at: " + TimeUtil.getDateTimeString(nextRespawnTime));
+		
+		startQuestTimer(EVT_UNLOCK, respawnDelay, null, null);
+		
+		final StatSet info = GrandBossManager.getInstance().getStatSet(VALAKAS);
+		info.set("respawn_time", nextRespawnTime);
+		GrandBossManager.getInstance().setStatSet(VALAKAS, info);
+	}
+	
+	@Override
+	public void onSpellFinished(Npc npc, Player player, Skill skill)
+	{
+		if (npc == null)
+		{
+			return;
+		}
+		
+		startQuestTimer(EVT_SKILL_TICK, 1000L, npc, null);
+		
+		if ((ZONE_GROUND != null) && !ZONE_GROUND.isCharacterInZone(npc) && (_valakas != null))
+		{
+			_valakas.teleToLocation(LOC_VALAKAS_LAIR);
+		}
+	}
+	
+	/**
+	 * Spawns dormant Valakas and initializes boss status to DORMANT.
+	 */
+	private void spawnDormantValakas()
+	{
+		_valakas = (GrandBoss) addSpawn(VALAKAS, LOC_VALAKAS_REGEN, false, 0);
+		_valakas.teleToLocation(LOC_VALAKAS_HIDE);
+		_valakas.setInvul(true);
+		_valakas.setRunning();
+		_valakas.getAI().setIntention(Intention.IDLE);
+		
+		final GrandBossManager bossManager = GrandBossManager.getInstance();
+		bossManager.addBoss(_valakas);
+		bossManager.setStatus(VALAKAS, STATUS_DORMANT);
+	}
+	
+	/**
+	 * Starts encounter: moves Valakas into lair, runs intro cinematic and schedules AI tasks.
+	 * @param npc Valakas instance.
+	 */
+	private void handleEncounterStart(Npc npc)
+	{
+		_lastAttackTime = System.currentTimeMillis();
+		npc.teleToLocation(LOC_VALAKAS_LAIR);
+		
+		startQuestTimer(EVT_BROADCAST_SPAWN, BROADCAST_SPAWN_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_1, SPAWN_STEP_1_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_2, SPAWN_STEP_2_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_3, SPAWN_STEP_3_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_4, SPAWN_STEP_4_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_5, SPAWN_STEP_5_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_6, SPAWN_STEP_6_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_7, SPAWN_STEP_7_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_8, SPAWN_STEP_8_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_9, SPAWN_STEP_9_DELAY, npc, null);
+		startQuestTimer(EVT_SPAWN_STEP_10, SPAWN_STEP_10_DELAY, npc, null);
+	}
+	
+	/**
+	 * Regeneration task and inactivity handling.
+	 * @param npc Valakas instance.
+	 */
+	private void handleRegenTick(Npc npc)
+	{
+		final GrandBossManager bossManager = GrandBossManager.getInstance();
+		if ((bossManager.getStatus(VALAKAS) == STATUS_FIGHTING) && ((_lastAttackTime + INACTIVITY_TIMEOUT) < System.currentTimeMillis()))
+		{
+			npc.getAI().setIntention(Intention.IDLE);
+			npc.teleToLocation(LOC_VALAKAS_REGEN);
+			bossManager.setStatus(VALAKAS, STATUS_DORMANT);
+			npc.setCurrentHpMp(npc.getMaxHp(), npc.getMaxMp());
+			
+			if (ZONE_LAIR != null)
+			{
+				ZONE_LAIR.oustAllPlayers();
+			}
+			
+			cancelQuestTimer(EVT_REGEN_TICK, npc, null);
+			cancelQuestTimer(EVT_SKILL_TICK, npc, null);
+			return;
+		}
+		
+		final BuffInfo effectInfo = npc.getEffectList().getBuffInfoBySkillId(SKILL_REGEN_ID);
+		final int currentRegenLevel = (effectInfo != null) ? effectInfo.getSkill().getLevel() : 0;
+		
+		final double maxHp = npc.getMaxHp();
+		final double currentHp = npc.getCurrentHp();
+		
+		if ((currentHp < (maxHp / 4.0)) && (currentRegenLevel != 4))
+		{
+			npc.setTarget(npc);
+			npc.doCast(SkillData.getInstance().getSkill(SKILL_REGEN_ID, 4));
+		}
+		else if ((currentHp < ((maxHp * 2.0) / 4.0)) && (currentRegenLevel != 3))
+		{
+			npc.setTarget(npc);
+			npc.doCast(SkillData.getInstance().getSkill(SKILL_REGEN_ID, 3));
+		}
+		else if ((currentHp < ((maxHp * 3.0) / 4.0)) && (currentRegenLevel != 2))
+		{
+			npc.setTarget(npc);
+			npc.doCast(SkillData.getInstance().getSkill(SKILL_REGEN_ID, 2));
+		}
+		else if (currentRegenLevel != 1)
+		{
+			npc.setTarget(npc);
+			npc.doCast(SkillData.getInstance().getSkill(SKILL_REGEN_ID, 1));
+		}
+	}
+	
+	/**
+	 * Schedules skill AI evaluation.
+	 * @param npc Valakas instance.
+	 */
+	private void handleSkillTick(Npc npc)
+	{
+		callSkillAI(npc);
+	}
+	
+	/**
+	 * Plays spawn sound and social action for all players inside the lair.
+	 * @param npc Valakas instance.
+	 */
+	private void broadcastSpawnIntro(Npc npc)
+	{
+		if (ZONE_LAIR == null)
+		{
+			return;
+		}
+		
+		for (Player player : ZONE_LAIR.getPlayersInside())
+		{
+			player.sendPacket(new PlaySound(1, "BS03_A", 0, 0, 0, 0, 0));
+			player.sendPacket(new SocialAction(npc.getObjectId(), 3));
+		}
+	}
+	
+	private void handleSpawnStep1(Npc npc)
+	{
+		broadcastCamera(npc, 1800, 180, -1, 1500, 15000, 10000, 0, 0, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep2(Npc npc)
+	{
+		broadcastCamera(npc, 1300, 180, -5, 3000, 15000, 10000, 0, -5, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep3(Npc npc)
+	{
+		broadcastCamera(npc, 500, 180, -8, 600, 15000, 10000, 0, 60, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep4(Npc npc)
+	{
+		broadcastCamera(npc, 800, 180, -8, 2700, 15000, 10000, 0, 30, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep5(Npc npc)
+	{
+		broadcastCamera(npc, 200, 250, 70, 0, 15000, 10000, 30, 80, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep6(Npc npc)
+	{
+		broadcastCamera(npc, 1100, 250, 70, 2500, 15000, 10000, 30, 80, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep7(Npc npc)
+	{
+		broadcastCamera(npc, 700, 150, 30, 0, 15000, 10000, -10, 60, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep8(Npc npc)
+	{
+		broadcastCamera(npc, 1200, 150, 20, 2900, 15000, 10000, -10, 30, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep9(Npc npc)
+	{
+		broadcastCamera(npc, 750, 170, -10, 3400, 15000, 4000, 10, -15, 1, 0, 0);
+	}
+	
+	private void handleSpawnStep10(Npc npc)
+	{
+		GrandBossManager.getInstance().setStatus(VALAKAS, STATUS_FIGHTING);
+		npc.setInvul(false);
+		
+		startQuestTimer(EVT_REGEN_TICK, REGEN_TICK_DELAY, npc, null, true);
+		startQuestTimer(EVT_SKILL_TICK, SKILL_TICK_DELAY, npc, null, true);
+		
+		if ((ZONE_LAIR != null) && GrandBossConfig.VALAKAS_RECOGNIZE_HERO)
+		{
+			for (Player player : ZONE_LAIR.getPlayersInside())
+			{
+				if (player.isHero())
+				{
+					ZONE_LAIR.broadcastPacket(new ExShowScreenMessage(player.getName() + "!!!! You cannot hope to defeat me with your meager strength.", 2, 4000));
+					break;
+				}
+			}
+		}
+	}
+	
+	private void handleDieStep1(Npc npc)
+	{
+		broadcastCamera(npc, 2000, 130, -1, 0, 15000, 10000, 0, 0, 1, 1, 0);
+	}
+	
+	private void handleDieStep2(Npc npc)
+	{
+		broadcastCamera(npc, 1100, 210, -5, 3000, 15000, 10000, -13, 0, 1, 1, 0);
+	}
+	
+	private void handleDieStep3(Npc npc)
+	{
+		broadcastCamera(npc, 1300, 200, -8, 3000, 15000, 10000, 0, 15, 1, 1, 0);
+	}
+	
+	private void handleDieStep4(Npc npc)
+	{
+		broadcastCamera(npc, 1000, 190, 0, 500, 15000, 10000, 0, 10, 1, 1, 0);
+	}
+	
+	private void handleDieStep5(Npc npc)
+	{
+		broadcastCamera(npc, 1700, 120, 0, 2500, 15000, 10000, 12, 40, 1, 1, 0);
+	}
+	
+	private void handleDieStep6(Npc npc)
+	{
+		broadcastCamera(npc, 1700, 20, 0, 700, 15000, 10000, 10, 10, 1, 1, 0);
+	}
+	
+	private void handleDieStep7(Npc npc)
+	{
+		broadcastCamera(npc, 1700, 10, 0, 1000, 15000, 10000, 20, 70, 1, 1, 0);
+	}
+	
+	private void handleDieStep8(Npc npc)
+	{
+		broadcastCamera(npc, 1700, 10, 0, 300, 15000, 250, 20, -20, 1, 1, 0);
+		
+		for (Location location : TELEPORT_CUBE_LOCATIONS)
+		{
+			addSpawn(TELEPORT_CUBE, location, false, TELEPORT_CUBE_LIFETIME);
+		}
+		
+		startQuestTimer(EVT_REMOVE_PLAYERS, TELEPORT_CUBE_LIFETIME, null, null);
+	}
+	
+	private void broadcastCamera(Npc npc, int distance, int yaw, int pitch, int time, int duration, int unk, int relYaw, int relPitch, int isWide, int unk2, int unk3)
+	{
+		if (ZONE_LAIR == null)
+		{
+			return;
+		}
+		
+		ZONE_LAIR.broadcastPacket(new SpecialCamera(npc, distance, yaw, pitch, time, duration, unk, relYaw, relPitch, isWide, unk2, unk3));
+	}
+	
+	/**
+	 * Ejects all players from lair and returns them to town.
+	 */
+	private void oustPlayersFromLair()
+	{
+		if (ZONE_LAIR != null)
+		{
+			ZONE_LAIR.oustAllPlayers();
+		}
+	}
+	
+	/**
+	 * Core AI: selects targets, chooses skill and handles movement / casting decisions.
+	 * @param npc Valakas instance.
+	 */
+	private void callSkillAI(Npc npc)
+	{
+		if ((npc == null) || npc.isInvul() || npc.isCastingNow())
+		{
+			return;
+		}
+		
+		if ((_currentTarget == null) || _currentTarget.isDead() || !npc.isInSurroundingRegion(_currentTarget) || (getRandom(10) == 0))
+		{
+			_currentTarget = getRandomTarget(npc);
+		}
+		
+		if (_currentTarget == null)
 		{
 			if (getRandom(10) == 0)
 			{
-				final int x = npc.getX();
-				final int y = npc.getY();
-				final int z = npc.getZ();
+				final int currentX = npc.getX();
+				final int currentY = npc.getY();
+				final int currentZ = npc.getZ();
+				final int nextX = currentX + getRandom(-1400, 1400);
+				final int nextY = currentY + getRandom(-1400, 1400);
 				
-				final int posX = x + getRandom(-1400, 1400);
-				final int posY = y + getRandom(-1400, 1400);
-				
-				if (GeoEngine.getInstance().canMoveToTarget(x, y, z, posX, posY, z, npc.getInstanceWorld()))
+				if (GeoEngine.getInstance().canMoveToTarget(currentX, currentY, currentZ, nextX, nextY, currentZ, npc.getInstanceWorld()))
 				{
-					npc.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new Location(posX, posY, z, 0));
+					npc.getAI().setIntention(Intention.MOVE_TO, new Location(nextX, nextY, currentZ, 0));
 				}
 			}
 			return;
 		}
 		
-		final Skill skill = getRandomSkill(npc).getSkill();
-		
-		// Cast the skill or follow the target.
-		if (Util.checkIfInRange((skill.getCastRange() < 600) ? 600 : skill.getCastRange(), npc, _actualVictim, true))
+		final SkillHolder chosenHolder = getRandomSkill(npc);
+		final Skill chosenSkill = (chosenHolder != null) ? chosenHolder.getSkill() : null;
+		if (chosenSkill == null)
 		{
-			npc.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
-			npc.setTarget(_actualVictim);
-			npc.doCast(skill);
+			return;
+		}
+		
+		final int baseRange = chosenSkill.getCastRange();
+		final int effectiveRange = (baseRange < 600) ? 600 : baseRange;
+		if (LocationUtil.checkIfInRange(effectiveRange, npc, _currentTarget, true))
+		{
+			npc.getAI().setIntention(Intention.IDLE);
+			npc.setTarget(_currentTarget);
+			npc.doCast(chosenSkill);
 		}
 		else
 		{
-			npc.getAI().setIntention(CtrlIntention.AI_INTENTION_FOLLOW, _actualVictim, null);
+			npc.getAI().setIntention(Intention.FOLLOW, _currentTarget, null);
 		}
 	}
 	
 	/**
-	 * Pick a random skill.<br>
-	 * Valakas will mostly use utility skills. If Valakas feels surrounded, he will use AoE skills.<br>
-	 * Lower than 50% HPs, he will begin to use Meteor skill.
-	 * @param npc valakas
-	 * @return a skill holder
+	 * Selects a random skill based on HP and nearby players.
+	 * @param npc Valakas instance.
+	 * @return skill holder or {@code null}.
 	 */
 	private SkillHolder getRandomSkill(Npc npc)
 	{
-		final int hpRatio = (int) ((npc.getCurrentHp() / npc.getMaxHp()) * 100);
-		
-		// Valakas Lava Skin has priority.
-		if ((hpRatio < 75) && (getRandom(150) == 0) && !npc.isAffectedBySkill(VALAKAS_LAVA_SKIN.getSkillId()))
+		if (npc == null)
 		{
-			return VALAKAS_LAVA_SKIN;
+			return null;
 		}
 		
-		// Valakas will use mass spells if he feels surrounded.
-		if (World.getInstance().getVisibleObjectsInRange(npc, Player.class, 1200).size() >= 20)
+		final double hpRatio = npc.getCurrentHp() / npc.getMaxHp();
+		final int hpPercent = (int) (hpRatio * 100);
+		
+		if ((hpPercent < 75) && (getRandom(150) == 0) && !npc.isAffectedBySkill(SKILL_LAVA_SKIN.getSkillId()))
 		{
-			return VALAKAS_AOE_SKILLS[getRandom(VALAKAS_AOE_SKILLS.length)];
+			return SKILL_LAVA_SKIN;
 		}
 		
-		if (hpRatio > 50)
+		final int nearbyPlayers = World.getInstance().getVisibleObjectsInRange(npc, Player.class, 1200).size();
+		if (nearbyPlayers >= 20)
 		{
-			return VALAKAS_REGULAR_SKILLS[getRandom(VALAKAS_REGULAR_SKILLS.length)];
+			return getRandomEntry(SKILL_TABLE_AOE);
 		}
 		
-		return VALAKAS_LOWHP_SKILLS[getRandom(VALAKAS_LOWHP_SKILLS.length)];
+		if (hpPercent > 50)
+		{
+			return getRandomEntry(SKILL_TABLE_REGULAR);
+		}
+		
+		return getRandomEntry(SKILL_TABLE_LOW_HP);
 	}
 	
 	/**
-	 * Pickup a random Playable from the zone, deads targets aren't included.
-	 * @param npc
-	 * @return a random Playable.
+	 * Selects a random valid playable target in Valakas surroundings.
+	 * @param npc Valakas instance.
+	 * @return target or {@code null}.
 	 */
 	private Playable getRandomTarget(Npc npc)
 	{
-		final List<Playable> result = new ArrayList<>();
-		
-		World.getInstance().forEachVisibleObject(npc, Playable.class, obj ->
+		if (npc == null)
 		{
-			if ((obj == null) || obj.isPet())
+			return null;
+		}
+		
+		final List<Playable> candidates = new ArrayList<>();
+		World.getInstance().forEachVisibleObject(npc, Playable.class, playable ->
+		{
+			if ((playable != null) && !playable.isDead() && !playable.isInvisible() && !playable.isPet() && playable.isPlayable())
 			{
-            }
-			else if (!obj.isDead() && obj.isPlayable())
-			{
-				result.add(obj);
+				candidates.add(playable);
 			}
 		});
 		
-		return result.isEmpty() ? null : result.get(getRandom(result.size()));
+		return getRandomEntry(candidates);
+	}
+	
+	@Override
+	public void unload(boolean removeFromList)
+	{
+		if (_valakas != null)
+		{
+			_valakas.deleteMe();
+			_valakas = null;
+		}
+		
+		super.unload(removeFromList);
 	}
 	
 	public static void main(String[] args)

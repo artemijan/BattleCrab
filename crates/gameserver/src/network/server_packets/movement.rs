@@ -25,7 +25,7 @@ pub fn validate_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -
     w.write_i32(y);
     w.write_i32(z);
     w.write_i32(heading);
-    w.write_u8(0xff); // Java writes this trailing byte and labels it "Find me!" — unknown upstream
+    w.write_u8(1); // Java's unlabelled trailing byte (0xFF in Interlude)
     w.into_bytes()
 }
 
@@ -164,6 +164,73 @@ pub fn ex_teleport_to_location_activate(
     w.write_i32(0); // unknown (not instance id)
     w.write_i32(heading);
     w.write_i32(0); // unknown
+    w.into_bytes()
+}
+
+/// Java `SayuneType.START_LOC` — the first hop, onto a junction.
+pub const SAYUNE_START_LOC: i32 = 0;
+/// Java `SayuneType.MULTI_WAY_LOC` — a junction offering its choices.
+pub const SAYUNE_MULTI_WAY_LOC: i32 = 1;
+/// Java `SayuneType.ONE_WAY_LOC` — a single hop to one point.
+pub const SAYUNE_ONE_WAY_LOC: i32 = 2;
+
+/// Port of `serverpackets/sayune/ExNotifyFlyMoveStart` — no body; tells the
+/// client a Sayune jump can start here.
+pub fn ex_notify_fly_move_start() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_NOTIFY_FLY_MOVE_START);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/sayune/ExFlyMove` — the jumper's own Sayune flight
+/// through `locations`, each `(entry id, x, y, z)`.
+pub fn ex_fly_move(
+    object_id: i32,
+    sayune_type: i32,
+    map_id: i32,
+    locations: &[(i32, i32, i32, i32)],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_FLY_MOVE);
+    w.write_i32(object_id);
+    w.write_i32(sayune_type);
+    w.write_i32(0); // ??
+    w.write_i32(map_id);
+    w.write_i32(locations.len() as i32);
+    for &(id, x, y, z) in locations {
+        w.write_i32(id);
+        w.write_i32(0); // ??
+        w.write_i32(x);
+        w.write_i32(y);
+        w.write_i32(z);
+    }
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/sayune/ExFlyMoveBroadcast` — another player's Sayune
+/// jump from `current` to `target`.
+pub fn ex_fly_move_broadcast(
+    object_id: i32,
+    sayune_type: i32,
+    map_id: i32,
+    target: (i32, i32, i32),
+    current: (i32, i32, i32),
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_FLY_MOVE_BROADCAST);
+    w.write_i32(object_id);
+    w.write_i32(sayune_type);
+    w.write_i32(map_id);
+    w.write_i32(target.0);
+    w.write_i32(target.1);
+    w.write_i32(target.2);
+    w.write_i32(0); // ?
+    w.write_i32(current.0);
+    w.write_i32(current.1);
+    w.write_i32(current.2);
     w.into_bytes()
 }
 

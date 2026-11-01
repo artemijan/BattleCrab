@@ -74,7 +74,7 @@ pub(super) fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64
 /// `ActiveBuff` (Java's `Player.addSkill` passive effects, re-evaluated at pump
 /// time). Skills whose effects are all gated out contribute nothing. Shared by
 /// `from_char` (enter-world) and `game_loop::stats::passive_skills` (equip changes).
-/// `BaseStats` = the class template's six values **plus every flat bonus that
+/// `BaseStats` = the class template's eight values **plus every flat bonus that
 /// stacks onto them**: worn hennas (Java `recalcHennaStats`) and complete armor
 /// sets (`BaseStatFinalizer`'s `getBaseStatValue`).
 ///
@@ -123,6 +123,8 @@ pub(crate) fn compose_base_stats_from(
         int_: t.base_int + hs.int_ + sets.int_ as i32,
         wit: t.base_wit + hs.wit + sets.wit as i32,
         men: t.base_men + hs.men + sets.men as i32,
+        luc: t.base_luc + hs.luc + sets.luc as i32,
+        cha: t.base_cha + hs.cha + sets.cha as i32,
     }
 }
 

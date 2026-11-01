@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/spawns.xsd">
+	<spawn name="giran31_2523_01m1" spawnByDefault="true">
+		<territories>
+			<territory name="giran31_2523_01" minZ="-11069" maxZ="-11269">
+				<node x="190477" y="167950" />
+				<node x="190677" y="167950" />
+				<node x="190677" y="168150" />
+				<node x="190477" y="168150" />
+			</territory>
+		</territories>
+		<npc id="34359" count="1" respawnTime="1min" x="190569" y="168057" z="-11228" heading="-29292" /> <!-- Tarti -->
+	</spawn>
+</list>

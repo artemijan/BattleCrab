@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="3800" toLevel="1" name="Dynasty Stockings">
 		<!-- Increases Max MP, M. Atk., and Dark Resistance. -->
 		<icon>icon.armor_t93_l_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>2.08</amount>
 				<mode>PER</mode>
 			</effect>
@@ -24,11 +24,11 @@
 	<skill id="3801" toLevel="1" name="Dynasty Gloves">
 		<!-- Increases Max MP, M. Atk., and Dark Resistance. -->
 		<icon>icon.armor_t93_g_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>0.83</amount>
 				<mode>PER</mode>
 			</effect>
@@ -45,11 +45,11 @@
 	<skill id="3802" toLevel="1" name="Dynasty Shoes">
 		<!-- Increases Max MP, M. Atk., and Dark Resistance. -->
 		<icon>icon.armor_t93_b_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>0.83</amount>
 				<mode>PER</mode>
 			</effect>
@@ -66,11 +66,11 @@
 	<skill id="3803" toLevel="1" name="Dynasty Circlet">
 		<!-- Increases Max MP, M. Atk., and Dark Resistance. -->
 		<icon>icon.armor_circlet_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>1.25</amount>
 				<mode>PER</mode>
 			</effect>
@@ -87,9 +87,9 @@
 	<skill id="3804" toLevel="1" name="Dynasty Silver Satin Tunic">
 		<!-- Increases Casting Spd. -->
 		<icon>icon.armor_t93_uw_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="MagicalAttackSpeed">
 				<amount>15</amount>
@@ -98,11 +98,11 @@
 		</effects>
 	</skill>
 	<skill id="3805" toLevel="1" name="Dynasty Jewel Leather Armor">
-		<!-- Increases Accuracy/Evasion/Max MP/Atk. Spd./Dark Resistance. -->
+		<!-- Increases Accuracy/ Evasion/ Max MP/ Atk. Spd./ Dark Resistance. -->
 		<icon>icon.armor_t92_ud_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>3.4</amount>
@@ -127,11 +127,11 @@
 		</effects>
 	</skill>
 	<skill id="3806" toLevel="1" name="Dynasty Platinum Plate">
-		<!-- Increases P. Def./Max HP/Dark Resistance and decreases MP Consumption. -->
+		<!-- Increases P. Def./ Max HP/ Dark Resistance and decreases MP Consumption. -->
 		<icon>icon.armor_t91_uf_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="PhysicalDefence">
 				<amount>7.24</amount>
@@ -155,9 +155,9 @@
 	<skill id="3807" toLevel="1" name="Adamantite Earring">
 		<!-- Increases Max MP. -->
 		<icon>icon.accessary_adamantite_earing_i00</icon>
-		<magicLevel>58</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>58</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>17</amount>
@@ -168,9 +168,9 @@
 	<skill id="3808" toLevel="1" name="Adamantite Necklace">
 		<!-- Increases Stun Resistance. -->
 		<icon>icon.accessary_adamantite_necklace_i00</icon>
-		<magicLevel>58</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>58</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>3.57</SHOCK>
@@ -180,9 +180,9 @@
 	<skill id="3809" toLevel="1" name="Adamantite Ring">
 		<!-- Increases MP Recovery Bonus. -->
 		<icon>icon.accessary_adamantite_ring_i00</icon>
-		<magicLevel>58</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>58</magicLevel>
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.71000000000001</amount>
@@ -193,9 +193,9 @@
 	<skill id="3810" toLevel="1" name="Black Ore Earring">
 		<!-- Increases Dark Resistance. -->
 		<icon>icon.accessary_earing_of_black_ore_i00</icon>
-		<magicLevel>61</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>61</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>1.71</amount>
@@ -206,9 +206,9 @@
 	<skill id="3811" toLevel="1" name="Black Ore Necklace">
 		<!-- Increases Stun Resistance. -->
 		<icon>icon.accessary_necklace_of_black_ore_i00</icon>
-		<magicLevel>61</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>61</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SHOCK>4.76</SHOCK>
@@ -218,9 +218,9 @@
 	<skill id="3812" toLevel="1" name="Black Ore Ring">
 		<!-- Increases Max MP. -->
 		<icon>icon.accessary_ring_of_black_ore_i00</icon>
-		<magicLevel>61</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>61</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>9</amount>
@@ -231,9 +231,9 @@
 	<skill id="3813" toLevel="1" name="Phoenix Necklace">
 		<!-- Increases Max MP. -->
 		<icon>icon.accessary_phoenixs_necklace_i00</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>21</amount>
@@ -244,9 +244,9 @@
 	<skill id="3814" toLevel="1" name="Phoenix Ring">
 		<!-- Increases MP Recovery Bonus. -->
 		<icon>icon.accessary_phoenixs_ring_i00</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
 			<effect name="MpRegen">
 				<amount>0.71000000000001</amount>
@@ -257,11 +257,11 @@
 	<skill id="3815" toLevel="1" name="Phoenix Earring">
 		<!-- Increases M. Def. -->
 		<icon>icon.accessary_phoenixs_earing_i00</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
-			<effect name="ResistDDMagic">
+			<effect name="MagicalSuccessResistance">
 				<amount>1</amount>
 				<mode>PER</mode>
 			</effect>
@@ -270,11 +270,11 @@
 	<skill id="3816" toLevel="1" name="Majestic Necklace">
 		<!-- Increases M. Def. -->
 		<icon>icon.accessary_inferno_necklace_i00</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
-			<effect name="ResistDDMagic">
+			<effect name="MagicalSuccessResistance">
 				<amount>1</amount>
 				<mode>PER</mode>
 			</effect>
@@ -283,9 +283,9 @@
 	<skill id="3817" toLevel="1" name="Majestic Ring">
 		<!-- Increases Max MP. -->
 		<icon>icon.accessary_inferno_ring_i00</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>11</amount>
@@ -296,9 +296,9 @@
 	<skill id="3818" toLevel="1" name="Majestic Earring">
 		<!-- Increases Poison Resistance. -->
 		<icon>icon.accessary_inferno_earing_i00</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<POISON>5.71</POISON>
@@ -308,9 +308,9 @@
 	<skill id="3819" toLevel="1" name="Tateossian Necklace">
 		<!-- Increases Bleed Resistance. -->
 		<icon>icon.accessory_tateossian_necklace_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<BLEED>7.61</BLEED>
@@ -320,9 +320,9 @@
 	<skill id="3820" toLevel="1" name="Tateossian Ring">
 		<!-- Increases Earth Resistance. -->
 		<icon>icon.accessory_tateossian_ring_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>1.14</amount>
@@ -333,9 +333,9 @@
 	<skill id="3821" toLevel="1" name="Tateossian Earring">
 		<!-- Increases Max MP. -->
 		<icon>icon.accessory_tateossian_earring_i00</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>20</amount>
@@ -346,9 +346,9 @@
 	<skill id="3822" toLevel="1" name="Dynasty Necklace">
 		<!-- Increases Max MP. -->
 		<icon>icon.accessary_dynasty_necklace_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="MaxMp">
 				<amount>30</amount>
@@ -359,9 +359,9 @@
 	<skill id="3823" toLevel="1" name="Dynasty Ring">
 		<!-- Increases Dark Resistance. -->
 		<icon>icon.accessary_dynasty_ring_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="DefenceAttribute">
 				<amount>1.14</amount>
@@ -372,9 +372,9 @@
 	<skill id="3824" toLevel="1" name="Dynasty Earring">
 		<!-- Increases Sleep Resistance. -->
 		<icon>icon.accessary_dynasty_earing_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="DefenceTrait">
 				<SLEEP>5</SLEEP>
@@ -384,15 +384,15 @@
 	<skill id="3825" toLevel="3" name="Sword of Might">
 		<!-- When equipped with a sword, increases P. Atk. -->
 		<icon>icon.skill1068</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">17.42</value>
 					<value level="2">22.1</value>
@@ -405,12 +405,12 @@
 	<skill id="3826" toLevel="2" name="Sword of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
@@ -424,9 +424,9 @@
 	<skill id="3827" toLevel="1" name="Sword of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>220</amount>
@@ -437,9 +437,9 @@
 	<skill id="3828" toLevel="1" name="Sword of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>54.4</amount>
@@ -448,13 +448,13 @@
 		</effects>
 	</skill>
 	<skill id="3829" toLevel="1" name="Sword of Stun">
-		<!-- Inflicts Stun on the enemy at a certain probability for successful general attack. -->
+		<!-- Inflicts Stun on the enemy at a certain probability for successful standard attack. -->
 		<icon>icon.skill0100</icon>
-		<magicLevel>70</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Stun -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -470,15 +470,15 @@
 	<skill id="3830" toLevel="3" name="Rapier of Might">
 		<!-- Increases P. Atk. when equipped with a short sword. -->
 		<icon>icon.skill1068</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
 					<value level="1">16.25</value>
 					<value level="2">20.62</value>
@@ -491,12 +491,12 @@
 	<skill id="3831" toLevel="2" name="Rapier of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
@@ -510,9 +510,9 @@
 	<skill id="3832" toLevel="1" name="Rapier of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>169</amount>
@@ -523,9 +523,9 @@
 	<skill id="3833" toLevel="1" name="Rapier of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>54.4</amount>
@@ -534,13 +534,13 @@
 		</effects>
 	</skill>
 	<skill id="3834" toLevel="1" name="Rapier of Stun">
-		<!-- Inflicts Stun on the enemy at a certain probability for successful general attack. -->
+		<!-- Inflicts Stun on the enemy at a certain probability for successful standard attack. -->
 		<icon>icon.skill0100</icon>
-		<magicLevel>70</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Stun -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -556,62 +556,62 @@
 	<skill id="3835" toLevel="3" name="Dual-blade Weapon of Might">
 		<!-- Increases P. Atk. when equipped with a dual-blade weapon. -->
 		<icon>icon.skill1068</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
-					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
+					<value level="1">21.2</value>
+					<value level="2">26.9</value>
+					<value level="3">51.26</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3836" toLevel="2" name="Dual-blade Weapon of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
-					<value level="1">3</value>
-					<value level="2">6</value>
+					<value level="1">319</value>
+					<value level="2">444</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3837" toLevel="1" name="Dual-blade Weapon of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="CriticalDamage">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>268</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3838" toLevel="1" name="Dual-blade Weapon of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>54.4</amount>
@@ -620,13 +620,13 @@
 		</effects>
 	</skill>
 	<skill id="3839" toLevel="1" name="Dual-blade Weapon of Stun">
-		<!-- Inflicts Stun on the enemy at a certain probability for successful general attack. -->
+		<!-- Inflicts Stun on the enemy at a certain probability for successful standard attack. -->
 		<icon>icon.skill0100</icon>
-		<magicLevel>70</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Stun -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -642,12 +642,12 @@
 	<skill id="3840" toLevel="2" name="Two-handed Sword of Haste">
 		<!-- Increases Atk. Spd. when equipped with a tow-handed sword. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="TwoHandedSwordBonus">
 				<pAtkSpeedAmount>5</pAtkSpeedAmount>
@@ -658,12 +658,12 @@
 	<skill id="3841" toLevel="1" name="Two-handed Sword of Guidance">
 		<!-- Increases Accuracy when a two-handed sword is equipped. -->
 		<icon>icon.skill1240</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
 			<effect name="TwoHandedSwordBonus">
-				<pAccuracyAmount>5</pAccuracyAmount>
+				<pAccuracyAmount>3.9</pAccuracyAmount>
 				<pAccuracyMode>DIFF</pAccuracyMode>
 			</effect>
 		</effects>
@@ -671,9 +671,9 @@
 	<skill id="3842" toLevel="1" name="Two-handed Sword of Vampiric Rage">
 		<!-- Restores HP by using some of the damage inflicted upon the enemy with a certain probability when a two-handed sword is equipped. -->
 		<icon>icon.skill1268</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>3</amount>
@@ -684,38 +684,38 @@
 	<skill id="3843" toLevel="1" name="Two-handed Sword of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
-		<magicLevel>70</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
 			<effect name="MaxHp">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>398</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3844" toLevel="1" name="Two-handed Sword of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="TwoHandedSwordBonus">
-				<pCritDamageAmount>5</pCritDamageAmount>
-				<pCritDamageMode>PER</pCritDamageMode>
+				<pCritDamageAmount>340</pCritDamageAmount>
+				<pCritDamageMode>DIFF</pCritDamageMode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3845" toLevel="2" name="Two-handed Sword of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="TwoHandedSwordBonus">
 				<pCritRateAmount>54.4</pCritRateAmount>
@@ -726,12 +726,12 @@
 	<skill id="3846" toLevel="2" name="Ancient Sword of Haste">
 		<!-- Increases Atk. Spd. when equipped with an ancient sword. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -742,9 +742,9 @@
 	<skill id="3847" toLevel="1" name="Ancient Sword of Guidance">
 		<!-- Increases Accuracy when equipped with an ancient sword. -->
 		<icon>icon.skill1240</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3.9</amount>
@@ -755,9 +755,9 @@
 	<skill id="3848" toLevel="1" name="Ancient Sword of Vampiric Rage">
 		<!-- Restores HP by using some of the damage inflicted upon the enemy with a certain probability when equipped with an ancient sword. -->
 		<icon>icon.skill1268</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="VampiricAttack">
 				<amount>3</amount>
@@ -768,9 +768,9 @@
 	<skill id="3849" toLevel="1" name="Ancient Sword of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
-		<magicLevel>70</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>398</amount>
@@ -781,9 +781,9 @@
 	<skill id="3850" toLevel="1" name="Ancient Sword of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>303</amount>
@@ -794,12 +794,12 @@
 	<skill id="3851" toLevel="2" name="Ancient Sword of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>54.4</amount>
@@ -810,33 +810,33 @@
 	<skill id="3852" toLevel="3" name="Sword of Mana Boost">
 		<!-- Increases Max MP. -->
 		<icon>icon.skill0213</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">75</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxMp">
 				<amount>
-					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
+					<value level="1">187</value>
+					<value level="2">289</value>
+					<value level="3">334</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3853" toLevel="2" name="Sword of Mana Regeneration">
 		<!-- Increases Max MP. -->
 		<icon>icon.skill1047</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">70</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MpRegen">
 				<amount>5</amount>
@@ -847,41 +847,41 @@
 	<skill id="3854" toLevel="1" name="Sword of Empower">
 		<!-- Increases M. Atk. -->
 		<icon>icon.skill1059</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
-			<effect name="MAtk">
-				<amount>5</amount>
-				<mode>PER</mode>
+			<effect name="MagicalAttack">
+				<amount>21.77</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3855" toLevel="1" name="not_used">
 		<icon>icon.skill0000</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 	</skill>
 	<skill id="3856" toLevel="1" name="Sword of Divine Power">
 		<!-- Increases the power of one's own recovery magic. -->
 		<icon>icon.skill1459</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="HealEffect">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>37</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3857" toLevel="1" name="Sword of Clarity">
 		<!-- Decreases MP Consumption. -->
 		<icon>icon.skill1397</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="MagicMpCost">
 				<amount>-5</amount>
@@ -903,16 +903,16 @@
 	<skill id="3858" toLevel="3" name="Dagger of Avoid">
 		<!-- Increases Evasion when equipped with a dagger. -->
 		<icon>icon.skill1087</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalEvasion">
-				<amount>5</amount>
+				<amount>3.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
@@ -920,12 +920,12 @@
 	<skill id="3859" toLevel="2" name="Dagger of Haste">
 		<!-- Increases Atk. Spd. when equipped with a dagger. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -936,9 +936,9 @@
 	<skill id="3860" toLevel="1" name="Dagger of Regeneration">
 		<!-- Increases HP Recovery Bonus. -->
 		<icon>icon.skill1044</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="HpRegen">
 				<amount>5</amount>
@@ -947,13 +947,13 @@
 		</effects>
 	</skill>
 	<skill id="3861" toLevel="1" name="Dagger of Poison">
-		<!-- Has a chance to poison the enemy during a regular attack. -->
+		<!-- Has a chance to poison the enemy during a standard attack. -->
 		<icon>icon.skill0129</icon>
-		<magicLevel>70</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Poison -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -969,12 +969,12 @@
 	<skill id="3862" toLevel="1" name="Dagger of Guidance">
 		<!-- Increases Accuracy. -->
 		<icon>icon.skill1240</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="Accuracy">
-				<amount>5</amount>
+				<amount>3.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
@@ -982,17 +982,17 @@
 	<skill id="3863" toLevel="4" name="Bow of Guidance">
 		<!-- Increases Accuracy. -->
 		<icon>icon.skill1240</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">70</value>
 			<value level="4">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="Accuracy">
-				<amount>5</amount>
+				<amount>3.3</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
@@ -1000,12 +1000,12 @@
 	<skill id="3864" toLevel="2" name="Bow of Haste">
 		<!-- Increases Atk. Spd. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -1016,9 +1016,9 @@
 	<skill id="3865" toLevel="1" name="Bow of Long Shot">
 		<!-- Increases the range of the bow. -->
 		<icon>icon.skill0113</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="PhysicalAttackRange">
 				<amount>100</amount>
@@ -1030,11 +1030,11 @@
 		</effects>
 	</skill>
 	<skill id="3866" toLevel="1" name="Dynasty Leather Gloves">
-		<!-- Increases Accuracy/Evasion/Max HP/Atk. Spd./Dark Resistance. -->
+		<!-- Increases Accuracy/ Evasion/ Max HP/ Atk. Spd./ Dark Resistance. -->
 		<icon>icon.armor_t92_g_i00</icon>
-		<magicLevel>80</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>80</magicLevel>
 		<effects>
 			<effect name="PhysicalEvasion">
 				<amount>0.31</amount>
@@ -1061,9 +1061,9 @@
 	<skill id="3867" toLevel="1" name="Bow of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>444</amount>
@@ -1074,14 +1074,14 @@
 	<skill id="3868" toLevel="4" name="Crossbow of Guidance">
 		<!-- Increases Accuracy. -->
 		<icon>icon.skill1240</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">70</value>
 			<value level="4">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="Accuracy">
 				<amount>3.7</amount>
@@ -1092,12 +1092,12 @@
 	<skill id="3869" toLevel="2" name="Crossbow of Haste">
 		<!-- Increases Atk. Spd. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -1108,31 +1108,32 @@
 	<skill id="3870" toLevel="1" name="Crossbow of Long Shot">
 		<!-- Increases the crossbow's range. -->
 		<icon>icon.skill0486</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="PhysicalAttackRange">
 				<amount>100</amount>
 				<mode>DIFF</mode>
 				<weaponType>
 					<item>CROSSBOW</item>
+					<item>TWOHANDCROSSBOW</item>
 				</weaponType>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3871" toLevel="1" name="not_used">
 		<icon>icon.skill0000</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 	</skill>
 	<skill id="3872" toLevel="1" name="Crossbow of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="MaxHp">
 				<amount>444</amount>
@@ -1143,28 +1144,28 @@
 	<skill id="3873" toLevel="2" name="Polearm of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="CriticalDamage">
 				<amount>
-					<value level="1">2</value>
-					<value level="2">5</value>
+					<value level="1">156</value>
+					<value level="2">377</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3874" toLevel="1" name="Polearm of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
-		<magicLevel>64</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>64</magicLevel>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>54.4</amount>
@@ -1175,9 +1176,9 @@
 	<skill id="3875" toLevel="1" name="Polearm of Regeneration">
 		<!-- Increases HP Recovery Bonus. -->
 		<icon>icon.skill1044</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="HpRegen">
 				<amount>5</amount>
@@ -1186,13 +1187,13 @@
 		</effects>
 	</skill>
 	<skill id="3876" toLevel="1" name="Polearm of Stun">
-		<!-- Inflicts Stun on the enemy at a certain probability for successful general attack. -->
+		<!-- Inflicts Stun on the enemy at a certain probability for successful standard attack. -->
 		<icon>icon.skill0100</icon>
-		<magicLevel>70</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Stun -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1208,65 +1209,65 @@
 	<skill id="3877" toLevel="2" name="Polearm of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
-					<value level="1">3</value>
-					<value level="2">6</value>
+					<value level="1">319</value>
+					<value level="2">492</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3878" toLevel="1" name="Polearm of Might">
 		<!-- Increases P. Atk. -->
 		<icon>icon.skill1068</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
-			<effect name="PAtk">
-				<amount>5</amount>
-				<mode>PER</mode>
+			<effect name="PhysicalAttack">
+				<amount>31.25</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3879" toLevel="3" name="Fist Weapon of Might">
 		<!-- Increases P. Atk. -->
 		<icon>icon.skill1068</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>
-					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
+					<value level="1">21.2</value>
+					<value level="2">26.9</value>
+					<value level="3">51.26</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3880" toLevel="2" name="Fist Weapon of Haste">
 		<!-- Increases Atk. Spd. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -1277,24 +1278,24 @@
 	<skill id="3881" toLevel="1" name="Fist Weapon of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="MaxHp">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>372</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3882" toLevel="1" name="Fist Weapon of Stun">
-		<!-- Inflicts Stun on the enemy at a certain probability for successful general attack. -->
+		<!-- Inflicts Stun on the enemy at a certain probability for successful standard attack. -->
 		<icon>icon.skill0100</icon>
-		<magicLevel>70</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Stun -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1310,45 +1311,45 @@
 	<skill id="3883" toLevel="1" name="Fist Weapon of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="CriticalDamage">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>528</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3884" toLevel="3" name="Blunt Weapon of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
-					<value level="1">3</value>
-					<value level="2">6</value>
-					<value level="3">9</value>
+					<value level="1">294</value>
+					<value level="2">345</value>
+					<value level="3">511</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3885" toLevel="2" name="Blunt Weapon of Stun">
-		<!-- Inflicts Stun on the enemy at a certain probability for successful general attack. -->
+		<!-- Inflicts Stun on the enemy at a certain probability for successful standard attack. -->
 		<icon>icon.skill0100</icon>
-		<magicLevel>61</magicLevel>
-		<magicCriticalRate>5</magicCriticalRate>
 		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>61</magicLevel>
 		<effects>
-			<effect name="TriggerSkillByAttack">
+			<effect name="TriggerSkillByDamageDealt">
 				<!-- Stun -->
 				<attackerType>Creature</attackerType>
 				<minDamage>1</minDamage>
@@ -1370,9 +1371,9 @@
 	<skill id="3886" toLevel="1" name="Blunt Weapon of Haste">
 		<!-- Increases Atk. Spd. -->
 		<icon>icon.skill1086</icon>
-		<magicLevel>61</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>61</magicLevel>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -1383,9 +1384,9 @@
 	<skill id="3887" toLevel="1" name="Blunt Weapon of Regeneration">
 		<!-- Increases HP Recovery Bonus. -->
 		<icon>icon.skill1044</icon>
-		<magicLevel>70</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
 			<effect name="HpRegen">
 				<amount>5</amount>
@@ -1396,12 +1397,12 @@
 	<skill id="3888" toLevel="1" name="Blunt Weapon of Guidance">
 		<!-- Increases Accuracy. -->
 		<icon>icon.skill1240</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="Accuracy">
-				<amount>7</amount>
+				<amount>4.2</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
@@ -1409,62 +1410,62 @@
 	<skill id="3889" toLevel="3" name="Blunt Weapon of Empower">
 		<!-- Increases M. Atk. -->
 		<icon>icon.skill1059</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
-					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
+					<value level="1">21.77</value>
+					<value level="2">27.63</value>
+					<value level="3">45.81</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3890" toLevel="1" name="Blunt Weapon of Mana Boost">
 		<!-- Increases Max MP. -->
 		<icon>icon.skill0213</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="MaxMp">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>289</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3891" toLevel="2" name="Blunt Weapon of Boost HP">
 		<!-- Increases Max HP. -->
 		<icon>icon.skill0211</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="MaxHp">
 				<amount>
-					<value level="1">3</value>
-					<value level="2">6</value>
+					<value level="1">319</value>
+					<value level="2">492</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3892" toLevel="1" name="Blunt Weapon of Clarity">
 		<!-- Decreases MP Consumption. -->
 		<icon>icon.skill1397</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="MagicMpCost">
 				<amount>-5</amount>
@@ -1476,9 +1477,9 @@
 	<skill id="3893" toLevel="1" name="Blunt Weapon of Mana Regeneration">
 		<!-- Increases MP Recovery Bonus. -->
 		<icon>icon.skill1047</icon>
-		<magicLevel>70</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>70</magicLevel>
 		<effects>
 			<effect name="MpRegen">
 				<amount>5</amount>
@@ -1489,26 +1490,26 @@
 	<skill id="3894" toLevel="1" name="Two-handed Blunt Weapon of Critical Damage">
 		<!-- Increases Critical Damage. -->
 		<icon>icon.skill0193</icon>
-		<magicLevel>67</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>67</magicLevel>
 		<effects>
 			<effect name="CriticalDamage">
-				<amount>5</amount>
-				<mode>PER</mode>
+				<amount>415</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3895" toLevel="3" name="Two-handed Blunt Weapon of Critical Chance">
 		<!-- Increases Critical Rate. -->
 		<icon>icon.skill1077</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="CriticalRate">
 				<amount>52.2</amount>
@@ -1519,12 +1520,12 @@
 	<skill id="3896" toLevel="2" name="Two-handed Blunt Weapon of Haste">
 		<!-- Increases Atk. Spd. -->
 		<icon>icon.skill1086</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">61</value>
 			<value level="2">80</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
 			<effect name="PhysicalAttackSpeed">
 				<amount>5</amount>
@@ -1535,25 +1536,25 @@
 	<skill id="3897" toLevel="1" name="Two-handed Blunt Weapon of Might">
 		<!-- Increases P. Atk. -->
 		<icon>icon.skill1068</icon>
-		<magicLevel>58</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>58</magicLevel>
 		<effects>
-			<effect name="PAtk">
-				<amount>5</amount>
-				<mode>PER</mode>
+			<effect name="PhysicalAttack">
+				<amount>32.97</amount>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>
 	<skill id="3898" toLevel="1" name="Two-handed Blunt Weapon of Guidance">
 		<!-- Increases Accuracy. -->
 		<icon>icon.skill1240</icon>
-		<magicLevel>75</magicLevel>
 		<operateType>P</operateType>
 		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>75</magicLevel>
 		<effects>
 			<effect name="Accuracy">
-				<amount>7</amount>
+				<amount>4.2</amount>
 				<mode>DIFF</mode>
 			</effect>
 		</effects>
@@ -1561,21 +1562,21 @@
 	<skill id="3899" toLevel="3" name="Staff of Empower">
 		<!-- Increases M. Atk. -->
 		<icon>icon.skill1059</icon>
+		<operateType>P</operateType>
+		<magicCriticalRate>5</magicCriticalRate>
 		<magicLevel>
 			<value level="1">58</value>
 			<value level="2">64</value>
 			<value level="3">82</value>
 		</magicLevel>
-		<operateType>P</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
 		<effects>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>
-					<value level="1">2</value>
-					<value level="2">3</value>
-					<value level="3">5</value>
+					<value level="1">21.77</value>
+					<value level="2">27.63</value>
+					<value level="3">45.81</value>
 				</amount>
-				<mode>PER</mode>
+				<mode>DIFF</mode>
 			</effect>
 		</effects>
 	</skill>

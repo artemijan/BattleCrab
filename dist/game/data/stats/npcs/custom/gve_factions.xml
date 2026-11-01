@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/npcs.xsd">
-	<npc id="500" displayId="9000" name="Faction Manager" usingServerSideName="true" title=" " usingServerSideTitle="true" type="Folk">
+	<npc id="500" displayId="34209" name="Faction Manager" usingServerSideName="true" title=" " usingServerSideTitle="true" type="Folk">
 		<race>ELF</race>
 		<sex>FEMALE</sex>
 		<stats>

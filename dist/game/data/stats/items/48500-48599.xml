@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
+	<item id="48500" name="Dragon's Relic Chest" type="EtcItem">
+		<!-- Double-click to randomly obtain one of various items. Will be deleted on Wednesday, December 27, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.bm_dragon_present_3" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="2" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="48502" min="5" max="5" chance="100" /> <!-- Mysterious Weapon Enchant Scroll -->
+			<item id="29379" min="1" max="1" chance="3.03" /> <!-- Peeves' Purple Potion -->
+			<item id="29677" min="1" max="1" chance="3.03" /> <!-- Glittering Freya's Ice Rose -->
+			<item id="29916" min="1" max="1" chance="3.03" /> <!-- +20 Supreme Krishna Weapon Pack -->
+			<item id="36414" min="1" max="1" chance="3.03" /> <!-- Dragon Claw -->
+			<item id="36515" min="6" max="6" chance="3.03" /> <!-- Elcyum -->
+			<item id="37560" min="5" max="5" chance="3.03" /> <!-- Emperor's Vitality Tonic -->
+			<item id="39738" min="10" max="10" chance="3.03" /> <!-- Rune Stone -->
+			<item id="47494" min="5" max="5" chance="3.03" /> <!-- Silenite -->
+			<item id="48831" min="1" max="1" chance="3.03" /> <!-- Jewel Energy -->
+			<item id="48840" min="1" max="1" chance="3.03" /> <!-- Ultimate Luxurious Jewelry Box Lv. 1 -->
+			<item id="48876" min="1" max="1" chance="3.03" /> <!-- Forgotten Spellbook Chapter 1 -->
+			<item id="48912" min="1" max="1" chance="3.03" /> <!-- Gran Kain's Scroll: Enchant R-grade Weapon -->
+			<item id="80000" min="1" max="1" chance="3.03" /> <!-- Artifact Fragment -->
+			<item id="80449" min="1" max="1" chance="3.03" /> <!-- Royal Black Save Ticket -->
+			<item id="80501" min="1" max="1" chance="3.03" /> <!-- Royal Gold Save Ticket -->
+			<item id="80502" min="1" max="1" chance="3.03" /> <!-- Gran Kain's Scroll: Enchant R-grade Armor -->
+			<item id="80636" min="1" max="1" chance="3.03" /> <!-- Artifact Crystal -->
+			<item id="80817" min="2" max="2" chance="3.03" /> <!-- Emperor's Special Cocktail -->
+			<item id="80932" min="1" max="1" chance="3.03" /> <!-- Greater Zodiac Agathion's Book of Growth -->
+			<item id="80958" min="1" max="1" chance="3.03" /> <!-- Sealed Heavenly Talisman -->
+			<item id="80964" min="1" max="1" chance="3.03" /> <!-- Energy of Protection -->
+			<item id="81059" min="1" max="1" chance="3.03" /> <!-- Legendary Dye Lv. 5 (P. Atk.) -->
+			<item id="81069" min="1" max="1" chance="3.03" /> <!-- Legendary Dye Lv. 5 (Standard Attack Critical Damage) -->
+			<item id="81079" min="1" max="1" chance="3.03" /> <!-- Legendary Dye Lv. 5 (P. Skill Critical Damage) -->
+			<item id="81099" min="1" max="1" chance="3.03" /> <!-- Legendary Dye Lv. 5 (M. Atk.) -->
+			<item id="81109" min="1" max="1" chance="3.03" /> <!-- Legendary Dye Lv. 5 (M. Critical Damage) -->
+			<item id="81119" min="1" max="1" chance="3.03" /> <!-- Legendary Dye Lv. 5 (M. Skill Power) -->
+			<item id="81134" min="2" max="2" chance="3.03" /> <!-- Crystal of Dyes -->
+			<item id="81453" min="1" max="1" chance="3.03" /> <!-- Enhanced Rune Stone -->
+			<item id="81706" min="1" max="1" chance="3.03" /> <!-- Scroll: Enchant Superior Seed Bracelet -->
+			<item id="81729" min="1" max="1" chance="3.03" /> <!-- Accessory Augmenting Stone -->
+			<item id="81747" min="2" max="2" chance="3.03" /> <!-- Royal Honey Dark Beer -->
+			<item id="81759" min="2" max="2" chance="3.03" /> <!-- Glowing Royal Dragon's Attribute Potion (EXP) -->
+		</capsuled_items>
+	</item>
+	<item id="48501" name="Shining Dragon's Relic Chest" type="EtcItem">
+		<!-- Double-click to randomly obtain one of very rare items. There is also chance to obtain a Mysterious and Special Weapon Enchant Scroll. Shining Dragon's Relic Chests can be obtained until the regular maintenance on Wednesday, July 12, 2017. Will be deleted on Wednesday, December 27, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.bm_dragon_present_4" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="LEATHER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48502" name="Mysterious Weapon Enchant Scroll" type="EtcItem">
+		<!-- Weapon enchant scroll that can only be used on a Mysterious Dragon Slayer. The ‘Mysterious Dragon Slayer' weapon can be purchased from Dragon Slayer Luna on the event platform in the each town. Cannot use enchant success rate boosting items. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.yogi_scroll_of_enchant_weapon_grade_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="etcitem_type" val="ENCHT_WP" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="EnchantScrolls" />
+		<set name="immediate_effect" val="true" />
+		<skills>
+			<skill id="39204" level="1" /> <!-- Mysterious Weapon Enchant Scroll -->
+		</skills>
+	</item>
+	<item id="48503" name="Mysterious and Special Weapon Enchant Scroll" type="EtcItem">
+		<!-- Weapon enchant scroll that can only be used on a Mysterious Dragon Slayer. The ‘Mysterious Dragon Slayer' weapon can be purchased from Dragon Slayer Luna on the event platform in the each town. Enchants the weapon randomly from +1 to +3. Can enchant up to +14, and the weapon is destroyed when enchanting fails. Cannot use enchant success rate boosting items. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.yogi_scroll_of_enchant_weapon_grade_i00" />
+		<set name="default_action" val="SKILL_REDUCE" />
+		<set name="etcitem_type" val="ENCHT_WP" />
+		<set name="material" val="PAPER" />
+		<set name="weight" val="10" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="EnchantScrolls" />
+		<set name="immediate_effect" val="true" />
+		<skills>
+			<skill id="39204" level="2" /> <!-- Mysterious and Special Weapon Enchant Scroll -->
+		</skills>
+	</item>
+	<item id="48504" name="+10 Bloody Armor set Pack" type="EtcItem">
+		<!-- Use to obtain one of +10 Bloody Eternal Light Armor/ Heavy Armor/ Robe sets. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.etc_treasure_box_i03" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<capsuled_items>
+			<item id="48505" min="1" max="1" chance="30.33" /> <!-- +10 Bloody Armor Heavy Armor Capsule -->
+			<item id="48506" min="1" max="1" chance="30.33" /> <!-- +10 Bloody Armor Light Armor Capsule -->
+			<item id="48507" min="1" max="1" chance="30.33" /> <!-- +10 Bloody Armor Robe Capsule -->
+		</capsuled_items>
+	</item>
+	<item id="48505" name="+10 Bloody Armor Heavy Armor Capsule" type="EtcItem">
+		<!-- Use to obtain a Bloody Eternal Heavy Armor set, enchanted to +10. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.etc_equip_item_box_i00" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="6" />
+		<set name="extractableCountMax" val="6" />
+		<capsuled_items>
+			<item id="17435" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Eternal Shield - Heavy Armor -->
+			<item id="35079" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Helmet - Heavy Armor -->
+			<item id="35080" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Breastplate - Heavy Armor -->
+			<item id="35081" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Gaiters - Heavy Armor -->
+			<item id="35082" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Gauntlets - Heavy Armor -->
+			<item id="35083" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Boots - Heavy Armor -->
+		</capsuled_items>
+	</item>
+	<item id="48506" name="+10 Bloody Armor Light Armor Capsule" type="EtcItem">
+		<!-- Use to obtain a Bloody Eternal Light Armor set, enchanted to +10. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.etc_equip_item_box_i00" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="5" />
+		<set name="extractableCountMax" val="5" />
+		<capsuled_items>
+			<item id="35085" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Leather Helmet - Light Armor -->
+			<item id="35086" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Leather Armor - Light Armor -->
+			<item id="35087" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Leather Leggings - Light Armor -->
+			<item id="35088" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Leather Gloves - Light Armor -->
+			<item id="35089" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Leather Boots - Light Armor -->
+		</capsuled_items>
+	</item>
+	<item id="48507" name="+10 Bloody Armor Robe Capsule" type="EtcItem">
+		<!-- Use to obtain a Bloody Eternal Robe set, enchanted to +10. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.etc_equip_item_box_i00" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
+		<set name="extractableCountMin" val="6" />
+		<set name="extractableCountMax" val="6" />
+		<capsuled_items>
+			<item id="35090" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Circlet - Robe -->
+			<item id="35091" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Tunic - Robe -->
+			<item id="35092" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Stockings - Robe -->
+			<item id="35093" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Gloves - Robe -->
+			<item id="35094" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Bloody Eternal Shoes - Robe -->
+			<item id="17446" min="1" max="1" minEnchant="10" maxEnchant="10" chance="100" /> <!-- Eternal Sigil - Robe -->
+		</capsuled_items>
+	</item>
+	<item id="48508" name="+5 Zodiac Agathion Box" type="EtcItem">
+		<!-- Use to obtain a +5 Zodiac Agathion. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.star_agathion_cube" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
+		<skills>
+			<skill id="35147" level="2" /> <!-- +5 Zodiac Agathion Cube -->
+		</skills>
+	</item>
+	<item id="48509" name="+6 Zodiac Agathion Box" type="EtcItem">
+		<!-- Use to obtain a +6 Zodiac Agathion. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.star_agathion_cube" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
+		<skills>
+			<skill id="35147" level="3" /> <!-- +6 Zodiac Agathion Cube -->
+		</skills>
+	</item>
+	<item id="48510" name="+7 Zodiac Agathion Box" type="EtcItem">
+		<!-- Use to obtain a +7 Zodiac Agathion. Will be deleted on Wednesday, July 12, 2017, after regular maintenance. -->
+		<set name="icon" val="icon.star_agathion_cube" />
+		<set name="default_action" val="CAPSULE" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FISH" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="handler" val="ItemSkills" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
+		<skills>
+			<skill id="35147" level="4" /> <!-- +7 Zodiac Agathion Cube -->
+		</skills>
+	</item>
+	<item id="48511" name="Royal Red Save Ticket Treasure Chest" type="EtcItem">
+		<!-- Use to obtain one of R/ R95/ R99 Royal Red Save Tickets. -->
+		<set name="icon" val="icon.etc_pi_gift_box_i03" />
+		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
+		<set name="material" val="PAPER" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+	</item>
+	<item id="48512" name="NPC Only_Lionel Hunter" type="Weapon">
+		<!-- NPC only weapon -->
+		<set name="icon" val="icon.weapon_mon_gracia_soldier_sword_i00" />
+		<set name="default_action" val="EQUIP" />
+		<set name="weapon_type" val="SWORD" />
+		<set name="immediate_effect" val="true" />
+		<set name="material" val="FINE_STEEL" />
+		<set name="weight" val="1500" />
+		<set name="soulshots" val="2" />
+		<set name="spiritshots" val="2" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="bodypart" val="rhand" />
+		<stats>
+			<stat type="pAtk">24</stat>
+			<stat type="mAtk">17</stat>
+			<stat type="critRate">8</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
+	</item>
+</list>

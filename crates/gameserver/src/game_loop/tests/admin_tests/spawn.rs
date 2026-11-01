@@ -1,4 +1,4 @@
-//! `admin/spawn.rs`, `admin/mobgroup.rs`, `admin/npc_info.rs` — spawning,
+//! `admin/spawn.rs`, `admin/npc_info.rs` — spawning,
 //! despawning and listing NPCs, and the scan/show-quests panels.
 
 use super::*;
@@ -149,10 +149,12 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
             ai: None,
             parameters: Default::default(),
             territories: Vec::new(),
+            banned_territories: Vec::new(),
             groups: vec![crate::data::spawn_data::SpawnGroup {
                 name: None,
                 spawn_by_default: true,
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
                 npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                     npc_id,
                     count: 1,
@@ -166,6 +168,8 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
                     respawn_random_secs: 0,
                     chase_range: 0,
                     db_save: false,
+                    locations: Vec::new(),
+                    minions: Vec::new(),
                 }],
             }],
         });
@@ -176,6 +180,16 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
         [
             vec![cop::SEND_BYPASS_BUILD_CMD],
             build_cmd_body("respawnall"),
+        ]
+        .concat(),
+    );
+    // `respawnall` is `confirmDlg="true"` — answer "yes".
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
         ]
         .concat(),
     );
@@ -301,81 +315,6 @@ fn admin_spawnat_creates_npc_at_coords() {
         (pos.x, pos.y, pos.z),
         (-84000, 244000, -3700),
         "spawned at the coords"
-    );
-}
-
-/// `//mobgroup` lifecycle: create → spawn (members tagged Controllable) →
-/// set a state → invul → kill → remove.
-#[test]
-fn admin_mobgroup_lifecycle() {
-    let (mut world, ..) = admin_world();
-    world.data.npc_data = dist::npcs_owned();
-    let mut gm_rx = ingame_player_access(&mut world, 1, 8940, 100);
-    drain(&mut gm_rx);
-
-    // create (no spawn yet)
-    on_packet(&mut world, 1, build_admin("mobgroup_create 1 20001 3"));
-    assert_eq!(
-        world.mob_groups.get(&1).map(|g| g.max_count),
-        Some(3),
-        "group registered"
-    );
-    assert!(
-        world.mob_groups.get(&1).unwrap().members.is_empty(),
-        "not spawned yet"
-    );
-
-    // spawn at the GM → 3 Controllable NPCs
-    on_packet(&mut world, 1, build_admin("mobgroup_spawn 1"));
-    let members: Vec<i32> = world.mob_groups.get(&1).unwrap().members.clone();
-    assert_eq!(members.len(), 3, "three mobs spawned");
-    for &m in &members {
-        assert_eq!(
-            world
-                .objects
-                .get_component::<model::mob_group::Controllable>(&m)
-                .map(|c| c.group_id),
-            Some(1),
-            "member tagged Controllable"
-        );
-    }
-
-    // state: follow the GM
-    on_packet(&mut world, 1, build_admin("mobgroup_follow 1"));
-    assert!(matches!(
-        world.mob_groups.get(&1).unwrap().state,
-        model::mob_group::MobGroupState::Follow(8940)
-    ));
-
-    // invul on → each member gets the invul flag
-    on_packet(&mut world, 1, build_admin("mobgroup_invul 1 on"));
-    assert!(world.mob_groups.get(&1).unwrap().invul, "group invul set");
-    assert!(
-        world
-            .objects
-            .get_component::<AdminFlags>(&members[0])
-            .is_some_and(|f| f.invul),
-        "member invul"
-    );
-
-    // kill → members become corpses (dead)
-    on_packet(&mut world, 1, build_admin("mobgroup_kill 1"));
-    assert!(
-        members.iter().all(|m| world
-            .objects
-            .get_component::<Vitals>(m)
-            .is_some_and(|v| v.dead)),
-        "all members killed"
-    );
-
-    // remove → group gone, members despawned
-    on_packet(&mut world, 1, build_admin("mobgroup_remove 1"));
-    assert!(!world.mob_groups.contains_key(&1), "group removed");
-    assert!(
-        members
-            .iter()
-            .all(|m| !world.objects.has_component::<model::npc::Npc>(m)),
-        "members despawned"
     );
 }
 
@@ -542,7 +481,17 @@ fn unspawnall_and_respawnall() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 100, 0, 0);
     drain(&mut gm_rx);
 
+    // Both commands are `confirmDlg="true"` — each is answered "yes".
     on_packet(&mut world, 1, build_admin("unspawnall"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
     assert!(
         !world.objects.has_component::<model::npc::Npc>(&NPC_OID),
         "all NPCs despawned"
@@ -550,6 +499,15 @@ fn unspawnall_and_respawnall() {
 
     // The synthetic test world has an empty spawn table — respawnall reports 0.
     on_packet(&mut world, 1, build_admin("respawnall"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
     let msgs = drain(&mut gm_rx);
     assert!(!msgs.is_empty(), "respawnall answers");
 }

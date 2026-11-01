@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="22300" name="Miraculous Valentine Cake: Special Ingredient" additionalName="15-day (Event)" type="EtcItem">
 		<!-- Take this along with a Decadent Valentine Cake to the Valentine Messenger Queen of Hearts to complete a Miraculous Valentine Cake. -->
@@ -19,18 +19,18 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="106" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
 			<skill id="22397" level="1" /> <!-- Sweet Chocolate Cookie -->
 		</skills>
 	</item>
 	<item id="22302" name="Antharas' Earring" additionalName="3-day (Event)" type="Armor">
-		<!-- MP +37, Bleed Resistance +40%, Bleed Attack Rate +40%, increases Heal Amount, Vampiric Rage Effect, Stun/Mental Attack Resistance +30%, Stun/Mental attack rate +30%, decreases MP consumption, and increases Heal Amount and Earth Resistance. Only one effect is applied when two of the same earrings are equipped. -->
+		<!-- MP +37, Bleed Resistance +40%, Bleed Attack Rate +40%, increases Heal Amount, Vampiric Rage Effect, Stun/ Mental Attack Resistance +30%, Stun/ Mental attack rate +30%, decreases MP consumption, and increases Heal Amount and Earth Resistance. Only one effect is applied when two of the same earrings are equipped. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -43,16 +43,16 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="4320" />
-		<skills>
-			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
+		</skills>
 	</item>
 	<item id="22303" name="Antharas' Earring" additionalName="7-day (Event)" type="Armor">
-		<!-- MP +37, Bleed Resistance +40%, Bleed Attack Rate +40%, increases Heal Amount, Vampiric Rage Effect, Stun/Mental Attack Resistance +30%, Stun/Mental attack rate +30%, decreases MP consumption, and increases Heal Amount and Earth Resistance. Only one effect is applied when two of the same earrings are equipped. -->
+		<!-- MP +37, Bleed Resistance +40%, Bleed Attack Rate +40%, increases Heal Amount, Vampiric Rage Effect, Stun/ Mental Attack Resistance +30%, Stun/ Mental attack rate +30%, decreases MP consumption, and increases Heal Amount and Earth Resistance. Only one effect is applied when two of the same earrings are equipped. -->
 		<set name="icon" val="icon.accessory_earring_of_antaras_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -65,13 +65,13 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3558" level="1" /> <!-- Antharas' Earring -->
+		</skills>
 	</item>
 	<item id="22304" name="Baium's Ring" additionalName="3-day (Event)" type="Armor">
 		<!-- MP +21, Poison Resistance +40%, Poison Attack Rate +40%, Hold Resistance +30%, Hold attack rate +30%, and increases Accuracy, Critical Damage, P. Atk., and Casting Spd. Only one effect is applied when two of the same ring are equipped. -->
@@ -87,13 +87,13 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="4320" />
-		<skills>
-			<skill id="3561" level="1" /> <!-- Baium's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3561" level="1" /> <!-- Baium's Ring -->
+		</skills>
 	</item>
 	<item id="22305" name="Baium's Ring" additionalName="7-day (Event)" type="Armor">
 		<!-- MP +21, Poison Resistance +40%, Poison Attack Rate +40%, Hold Resistance +30%, Hold attack rate +30%, and increases Accuracy, Critical Damage, P. Atk., and Casting Spd. Only one effect is applied when two of the same ring are equipped. -->
@@ -109,16 +109,16 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
-		<skills>
-			<skill id="3561" level="1" /> <!-- Baium's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3561" level="1" /> <!-- Baium's Ring -->
+		</skills>
 	</item>
 	<item id="22306" name="Scroll: Enchant Weapon (S-grade)" additionalName="Event" type="EtcItem">
-		<!-- P. Atk. +5 for S-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +6 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 10 for bow weapons. M. Atk. 4 for all weapons. P. Atk./M. Atk. doubles starting at +4. -->
+		<!-- P. Atk. +5 for S-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +6 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 10 for bow weapons. M. Atk. 4 for all weapons. P. Atk./ M. Atk. doubles starting at +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i05" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -133,7 +133,7 @@
 		</skills>
 	</item>
 	<item id="22307" name="Scroll: Enchant Weapon (A-grade)" additionalName="Event" type="EtcItem">
-		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 8 for bow weapons. M. Atk. 3 for all weapons. P. Atk./M. Atk. doubles starting at +4. -->
+		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 8 for bow weapons. M. Atk. 3 for all weapons. P. Atk./ M. Atk. doubles starting at +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i04" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -182,10 +182,10 @@
 		<set name="icon" val="Branchsys2.icon2.g_alegra_box" />
 		<set name="material" val="STEEL" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="22398" level="1" /> <!-- Allegra Box -->
@@ -196,10 +196,10 @@
 		<set name="icon" val="Branchsys2.icon2.g-latus_box" />
 		<set name="material" val="STEEL" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
 			<skill id="22399" level="1" /> <!-- Latus Box -->
@@ -220,12 +220,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="8291" level="6" /> <!-- Add Belt Weight Gauge -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8291" level="6" /> <!-- Add Belt Weight Gauge -->
+		</skills>
 	</item>
 	<item id="22313" name="Top-grade Magic Pouch Cloth Belt" type="Armor">
 		<!-- Inventory Slots +18 -->
@@ -243,15 +243,15 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="8290" level="6" /> <!-- Add Belt Inventory Slot -->
-		</skills>
 		<stats>
 			<stat type="pDef">10</stat>
 		</stats>
+		<skills>
+			<skill id="8290" level="6" /> <!-- Add Belt Inventory Slot -->
+		</skills>
 	</item>
 	<item id="22314" name="Blessed Scroll: Enchant Weapon (S-grade)" type="EtcItem">
-		<!-- P. Atk. +5 for S-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +6 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 10 for bow weapons. M. Atk. 4 for all weapons. Starting at +4, P. Atk./M. Atk. + double. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- P. Atk. +5 for S-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +6 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 10 for bow weapons. M. Atk. 4 for all weapons. Starting at +4, P. Atk./ M. Atk. + double. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_s_i05" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -259,11 +259,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2026" level="1" /> <!-- Blessed Scroll: Enchant Weapon (S-grade) -->
 		</skills>
@@ -277,17 +277,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2208" level="1" /> <!-- Blessed Scroll: Enchant Armor (S-grade) -->
 		</skills>
 	</item>
 	<item id="22316" name="Blessed Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 8 for bow weapons. M. Atk. 3 for all weapons. P. Atk./M. Atk. doubles starting at +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 8 for bow weapons. M. Atk. 3 for all weapons. P. Atk./ M. Atk. doubles starting at +4. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_a_i04" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -295,17 +295,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2027" level="1" /> <!-- Blessed Scroll: Enchant Weapon (A-grade) -->
 		</skills>
 	</item>
 	<item id="22317" name="Blessed Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- P. Atk. +3 for B-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. Starting at +4, P. Atk./M. Atk. + double. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- P. Atk. +3 for B-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. Starting at +4, P. Atk./ M. Atk. + double. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_b_i03" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -313,11 +313,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2028" level="1" /> <!-- Blessed Scroll: Enchant Weapon (B-grade) -->
 		</skills>
@@ -331,11 +331,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2209" level="1" /> <!-- Blessed Scroll: Enchant Armor (A-grade) -->
 		</skills>
@@ -349,17 +349,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2210" level="1" /> <!-- Blessed Scroll: Enchant Armor (B-grade) -->
 		</skills>
 	</item>
 	<item id="22320" name="Scroll: Enchant Weapon (A-grade)" type="EtcItem">
-		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 8 for bow weapons. M. Atk. 3 for all weapons. P. Atk./M. Atk. doubles starting at +4. -->
+		<!-- P. Atk. +4 for A-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +5 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 8 for bow weapons. M. Atk. 3 for all weapons. P. Atk./ M. Atk. doubles starting at +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i04" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -367,17 +367,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2006" level="1" /> <!-- Scroll: Enchant Weapon (A-grade) -->
 		</skills>
 	</item>
 	<item id="22321" name="Scroll: Enchant Weapon (B-grade)" type="EtcItem">
-		<!-- P. Atk. +3 for B-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. P. Atk./M. Atk. doubles starting at +4. -->
+		<!-- P. Atk. +3 for B-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. P. Atk./ M. Atk. doubles starting at +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i03" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -385,11 +385,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2015" level="1" /> <!-- Scroll: Enchant Weapon (B-grade) -->
 		</skills>
@@ -403,11 +403,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2007" level="1" /> <!-- Scroll: Enchant Armor (A-grade) -->
 		</skills>
@@ -421,11 +421,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2016" level="1" /> <!-- Scroll: Enchant Armor (B-grade) -->
 		</skills>
@@ -440,10 +440,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22401" level="1" /> <!-- Transformation Scroll: Ranku -->
 		</skills>
@@ -458,10 +458,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22400" level="1" /> <!-- Transformation Scroll: Zaken -->
 		</skills>
@@ -511,6 +511,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="A" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="reuse_delay" val="300000" />
@@ -519,7 +520,6 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2907" level="5" /> <!-- Elixir of Life (Battleground) -->
 		</skills>
@@ -533,6 +533,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="A" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="reuse_delay" val="300000" />
@@ -541,7 +542,6 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2908" level="5" /> <!-- Elixir of Mind (Battleground) -->
 		</skills>
@@ -555,6 +555,7 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="crystal_type" val="A" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="reuse_delay" val="300000" />
@@ -563,7 +564,6 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2909" level="5" /> <!-- Elixir of CP (Battleground) -->
 		</skills>
@@ -649,8 +649,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 	</item>
 	<item id="22336" name="Pathfinder's Reward - Relief" type="EtcItem">
 		<!-- Gift for adventurers with an especially high contribution level in discovering the cause of the plague. -->
@@ -660,9 +660,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22404" level="1" /> <!-- Pathfinder's Reward -->
 		</skills>
@@ -676,9 +676,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="86400000" />
 		<skills>
 			<skill id="22403" level="1" /> <!-- Extra Pass: Kamaloka (Hall of Nightmares) -->
@@ -724,7 +724,7 @@
 		</skills>
 	</item>
 	<item id="22341" name="Blessed Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- P. Atk. +3 for C-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. Starting at +4, P. Atk./M. Atk. + double. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- P. Atk. +3 for C-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. Starting at +4, P. Atk./ M. Atk. + double. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.etc_blessed_scrl_of_ench_wp_c_i02" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -732,17 +732,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2029" level="1" /> <!-- Blessed Scroll: Enchant Weapon (C-grade) -->
 		</skills>
 	</item>
 	<item id="22342" name="Scroll: Enchant Weapon (C-grade)" type="EtcItem">
-		<!-- P. Atk. +3 for C-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dualsword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. P. Atk./M. Atk. doubles starting at +4. -->
+		<!-- P. Atk. +3 for C-grade one-handed sword, one-handed blunt, dagger, spear, and other weapons when enchanted. P. Atk. +4 for two-handed sword, two-handed blunt, dual sword, and two-handed fist weapon. P. Atk. 6 for bow weapons. M. Atk. 3 for all weapons. P. Atk./ M. Atk. doubles starting at +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i02" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -750,11 +750,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2017" level="1" /> <!-- Scroll: Enchant Weapon (C-grade) -->
 		</skills>
@@ -768,17 +768,17 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2018" level="1" /> <!-- Scroll: Enchant Armor (C-grade) -->
 		</skills>
 	</item>
 	<item id="22344" name="Scroll: Enchant Weapon (D-grade)" type="EtcItem">
-		<!-- When enchanted, P. Atk. +2 for all D-grade weapons with the exception of bows. P. Atk. +4 for bow weapons. M. Atk. +2 for all weapons. P. Atk./M. Atk. doubles starting at +4. -->
+		<!-- When enchanted, P. Atk. +2 for all D-grade weapons with the exception of bows. P. Atk. +4 for bow weapons. M. Atk. +2 for all weapons. P. Atk./ M. Atk. doubles starting at +4. -->
 		<set name="icon" val="icon.etc_scroll_of_enchant_weapon_i01" />
 		<set name="material" val="PAPER" />
 		<set name="weight" val="10" />
@@ -786,11 +786,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2019" level="1" /> <!-- Scroll: Enchant Weapon (D-grade) -->
 		</skills>
@@ -804,11 +804,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="ENCHT_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="2020" level="1" /> <!-- Scroll: Enchant Armor (D-grade) -->
 		</skills>
@@ -821,9 +821,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22408" level="1" /> <!-- Enchanting Tool Box -->
 		</skills>
@@ -855,11 +855,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="107" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22410" level="1" /> <!-- Adventurer's Song - Eva's Protection -->
@@ -874,11 +874,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="shared_reuse_group" val="107" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22411" level="1" /> <!-- Adventurer's Song - Eva's Protection -->
@@ -972,9 +972,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -989,9 +989,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1006,30 +1006,30 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
 			<skill id="22412" level="1" /> <!-- Weapon Conversion - One-handed Emerald Weapon -->
 		</skills>
 	</item>
-	<item id="22360" name="Weapon Conversion Scroll: Emerald Dualsword" type="EtcItem">
-		<!-- When used, the equipped weapon changes into an emerald dualsword for 2 hours. Cooldown is 60 min. Only applies when a dualsword is equipped. -->
+	<item id="22360" name="Weapon Conversion Scroll: Emerald Dual Sword" type="EtcItem">
+		<!-- When used, the equipped weapon changes into an emerald dual sword for 2 hours. Cooldown is 60 min. Only applies when a dual sword is equipped. -->
 		<set name="icon" val="BranchSys3.Icon.g_scroll_beam_1h_sword" />
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -1055,13 +1055,13 @@
 		<set name="material" val="STEEL" />
 		<stats>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="22362" name="Emerald Dualsword" type="Weapon">
-		<!-- Emerald Dualsword. -->
+	<item id="22362" name="Emerald Dual Sword" type="Weapon">
+		<!-- Emerald dual sword. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -1079,7 +1079,7 @@
 		<set name="material" val="STEEL" />
 		<stats>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1140,7 +1140,7 @@
 		<stats>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">4.75</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1166,7 +1166,7 @@
 		<stats>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">4.75</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1209,9 +1209,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1226,9 +1226,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1243,9 +1243,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1260,9 +1260,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1277,9 +1277,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1294,9 +1294,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1371,9 +1371,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1388,9 +1388,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1405,9 +1405,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1422,9 +1422,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1488,7 +1488,7 @@
 		</skills>
 	</item>
 	<item id="22386" name="Halloween Special Cookie" additionalName="Event" type="EtcItem">
-		<!-- Special cookie that can be obtained on Halloween. Powerful spirit acts to increases the character's Max MP by 20%, HP Recovery Bonus by 20%, M. Critical Rate by 2, P. Critical Rate during a standard attack by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, Debuff Resistance by 10%, and P. Def. upon evading a Critical Attack. Decreases Speed by 15%, and for party members equipped with melee and long-range weapons who receive more than ordinary damage attacks, Critical power increases during an standard attack. -->
+		<!-- Special cookie that can be obtained on Halloween. Increases the character's Max MP by 20%, HP Recovery Bonus by 20%, M. Critical Rate by 2, P. Critical Rate during a standard attack by 20%, P. Atk. by 10%, P. Def. by 20%, Atk. Spd. by 20%, M. Atk. by 20%, M. Def. by 20%, Casting Spd. by 20%, Debuff Resistance by 10%, and decreases Received Critical Damage by 30%. Decreases Speed by 15% and Critical power increases during an attack that deals above a certain amount of damage. -->
 		<set name="icon" val="BranchSys3.Icon.ev_halloween_cookie" />
 		<set name="weight" val="120" />
 		<set name="is_tradable" val="false" />
@@ -1496,10 +1496,10 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22416" level="1" /> <!-- Halloween Special Cookie -->
@@ -1522,16 +1522,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="10080" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="22388" name="Halloween Scythe" additionalName="Event" type="Weapon">
 		<!-- Scythe that gives off the shadow of death. It is a Halloween event reward item. -->
@@ -1551,16 +1551,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="2040" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="22389" name="Halloween Cloak" additionalName="7-day (Event)" type="Armor">
 		<!-- Cloak that gives off charisma. It is a Halloween event reward item that 7-day. -->
@@ -1633,10 +1633,10 @@
 		<set name="icon" val="icon.etc_box_of_adventure_1_i00" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>

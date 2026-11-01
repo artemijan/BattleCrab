@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="36700" name="Ragna Orc's Amulet" type="EtcItem">
 		<!-- Doll used in shamanism to control the evil creatures by the Ragna Orcs. Collect and bring it to Beacon Town Manager Chairen at the Den of Evil. -->
@@ -178,58 +178,6 @@
 	</item>
 	<item id="36717" name="Augmentation Practice Weapon" type="Weapon">
 		<!-- Temporary practice weapon for learning about augmentation. Very inefficient as a weapon. -->
-		<set name="icon" val="icon.weapon_long_sword_i00" />
-		<set name="default_action" val="EQUIP" />
-		<set name="bodypart" val="rhand" />
-		<set name="weapon_type" val="SWORD" />
-		<set name="crystal_type" val="C" />
-		<set name="is_tradable" val="false" />
-		<set name="is_dropable" val="false" />
-		<set name="is_destroyable" val="false" />
-		<set name="is_sellable" val="false" />
-		<set name="soulshots" val="2" />
-		<set name="spiritshots" val="2" />
-		<set name="weight" val="1420" />
-		<set name="is_depositable" val="false" />
-		<set name="material" val="FINE_STEEL" />
-		<stats>
-			<stat type="pAtk">107</stat>
-			<stat type="mAtk">68</stat>
-			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
-			<stat type="randomDamage">10</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
-	</item>
-	<item id="36718" name="Augmentation Practice Spirit Stone (46)" type="EtcItem">
-		<!-- Temporary Spirit Stone for learning about augmentation. -->
-		<set name="icon" val="icon.etc_mineral_general_i00" />
-		<set name="weight" val="2" />
-		<set name="is_tradable" val="false" />
-		<set name="is_dropable" val="false" />
-		<set name="is_destroyable" val="false" />
-		<set name="is_sellable" val="false" />
-		<set name="is_questitem" val="true" />
-		<set name="is_stackable" val="true" />
-		<set name="is_depositable" val="false" />
-		<set name="material" val="LIQUID" />
-	</item>
-	<item id="36719" name="Augmentation Practice Gemstone (D-grade)" type="EtcItem">
-		<!-- Temporary practice gemstone for learning about augmentation. -->
-		<set name="icon" val="icon.etc_crystal_ball_silver_i00" />
-		<set name="weight" val="2" />
-		<set name="is_tradable" val="false" />
-		<set name="is_dropable" val="false" />
-		<set name="is_destroyable" val="false" />
-		<set name="is_sellable" val="false" />
-		<set name="is_questitem" val="true" />
-		<set name="etcitem_type" val="MATERIAL" />
-		<set name="is_stackable" val="true" />
-		<set name="is_depositable" val="false" />
-		<set name="material" val="LIQUID" />
-	</item>
-	<item id="36720" name="Practice Stormbringer" type="Weapon">
-		<!-- Temporary practice weapon for learning about soul crystal enhancement. Very inefficient as a weapon. -->
 		<set name="icon" val="icon.weapon_stormbringer_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
@@ -248,14 +196,64 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="36721" name="Practice Green Soul Crystal - Stage 5" type="EtcItem">
+	<item id="36718" name="Augmentation Practice Spirit Stone (46)" type="EtcItem">
+		<!-- Temporary Spirit Stone for learning about augmentation. -->
+		<set name="icon" val="icon.renewal_mineral_46" />
+		<set name="weight" val="2" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="is_depositable" val="false" />
+		<set name="material" val="LIQUID" />
+	</item>
+	<item id="36719" name="Augmentation Practice Gemstone (D-grade)" type="EtcItem">
+		<!-- Temporary practice gemstone for learning about augmentation. -->
+		<set name="icon" val="icon.etc_bead_gold_i00" />
+		<set name="weight" val="2" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
+		<set name="is_depositable" val="false" />
+		<set name="material" val="LIQUID" />
+	</item>
+	<item id="36720" name="Soul Crystal Practice Stormbringer" type="Weapon">
+		<!-- Temporary practice weapon for learning about soul crystal enhancement. Very inefficient as a weapon. -->
+		<set name="icon" val="icon.weapon_stormbringer_i00" />
+		<set name="default_action" val="EQUIP" />
+		<set name="bodypart" val="rhand" />
+		<set name="weapon_type" val="SWORD" />
+		<set name="crystal_type" val="R" />
+		<set name="is_tradable" val="false" />
+		<set name="is_dropable" val="false" />
+		<set name="is_destroyable" val="false" />
+		<set name="is_sellable" val="false" />
+		<set name="soulshots" val="2" />
+		<set name="spiritshots" val="2" />
+		<set name="weight" val="1420" />
+		<set name="is_depositable" val="false" />
+		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">107</stat>
+			<stat type="mAtk">68</stat>
+			<stat type="pAtkSpd">379</stat>
+			<stat type="critRate">8</stat>
+			<stat type="randomDamage">10</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
+	</item>
+	<item id="36721" name="Practice Green Soul Crystal- Stage 5" type="EtcItem">
 		<!-- Green crystal for practice containing the light of absorbed souls. Stage 5. Once saturated, it bestows special abilities on a weapon. -->
-		<set name="icon" val="icon.etc_soul_stone_i02" />
+		<set name="icon" val="icon.ensoul_big_p" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
@@ -266,23 +264,23 @@
 		<set name="is_depositable" val="false" />
 		<set name="material" val="CRYSTAL" />
 	</item>
-	<item id="36722" name="Enhancement Practice Gemstone (C-grade)" type="EtcItem">
+	<item id="36722" name="Soul Crystal Practice Gemstone" type="EtcItem">
 		<!-- Temporary practice gemstone for learning about soul crystal enhancement. -->
-		<set name="icon" val="icon.etc_crystal_ball_green_i00" />
+		<set name="icon" val="icon.etc_bead_gold_i00" />
 		<set name="weight" val="2" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_questitem" val="true" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_depositable" val="false" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="36723" name="Practice Stormbringer" additionalName="Focus" type="Weapon">
+	<item id="36723" name="Soul Crystal Option Stormbringer" additionalName="Focus" type="Weapon">
 		<!-- <Soul Crystal Enhancement>. Increases Critical by 86. -->
-		<set name="icon" val="icon.weapon_stormbringer_i00" />
+		<set name="icon" val="icon.weapon_stormbringer_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rhand" />
 		<set name="weapon_type" val="SWORD" />
@@ -299,7 +297,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">68</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -387,16 +385,16 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="36731" name="Life Stone Instilled with Giants' Power" type="EtcItem">
-		<!-- Mineral with mysterious power. Can be augmented to high-grade and used by characters of level 85 or higher. -->
+		<!-- Mineral with mysterious power. Can get an advanced augmentation effect. Can be used by characters of level 85 or above. -->
 		<set name="icon" val="icon.etc_small_bubble_i00" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="weight" val="2" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="85" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="36732" name="Recipe: Requiem Shaper (60%)" type="EtcItem">
 		<!-- For Dwarves only. Recipe for making a Requiem Shaper. Requires Create Item (Lv. 11). Success rate is 60%. Has a very low chance of obtaining a Blessed item upon success. -->

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="15100" name="Avadon Boots of Fortune - Robe" additionalName="10-day" type="Armor">
 		<!-- A Set with Avadon Robe of Fortune. -->
@@ -798,17 +798,17 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">186</stat>
 			<stat type="mAtk">152</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="2" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="15147" name="Wizard's Tear of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Casting Spd. by 15%. -->
@@ -829,17 +829,17 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">155</stat>
 			<stat type="mAtk">132</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="15148" name="Homunkulus' Sword of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Casting Spd. by 15%. -->
@@ -860,17 +860,17 @@
 		<set name="is_magic_weapon" val="true" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">111</stat>
 			<stat type="mAtk">101</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="1" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="15149" name="Staff of Life of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_life_stick_i00" />
@@ -893,7 +893,7 @@
 		<stats>
 			<stat type="pAtk">74</stat>
 			<stat type="mAtk">72</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -918,18 +918,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3051" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">220</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3051" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15151" name="Kris of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Critical by 71. -->
@@ -949,18 +949,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3011" level="5" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">153</stat>
 			<stat type="mAtk">91</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3011" level="5" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15152" name="Dark Screamer of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Critical by 81. -->
@@ -980,18 +980,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3011" level="3" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">122</stat>
 			<stat type="mAtk">76</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3011" level="3" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15153" name="Mithril Dagger of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_mithril_dagger_i00" />
@@ -1013,7 +1013,7 @@
 		<stats>
 			<stat type="pAtk">80</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -1040,18 +1040,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">570</stat>
 			<stat type="mAtk">133</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">227</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15155" name="Bow of Peril of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Has a 42% chance of decreasing MP consumption to 2 during a standard attack. -->
@@ -1077,7 +1077,7 @@
 		<stats>
 			<stat type="pAtk">400</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -1108,7 +1108,7 @@
 		<stats>
 			<stat type="pAtk">323</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -1137,7 +1137,7 @@
 		<stats>
 			<stat type="pAtk">191</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -1162,18 +1162,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15159" name="Art of Battle Axe of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Max HP increases by 25%. -->
@@ -1193,18 +1193,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="15160" name="Yaksa Mace of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Max HP increases by 25%. -->
@@ -1224,18 +1224,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="15161" name="Bonebreaker of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_bonebreaker_i00" />
@@ -1257,7 +1257,7 @@
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -1282,17 +1282,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="5" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="15163" name="Damascus Sword of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Critical by 64. -->
@@ -1312,17 +1312,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="6" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15164" name="Samurai Long Sword of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Critical by 73. -->
@@ -1342,17 +1342,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15165" name="Elven Long Sword of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_elven_long_sword_i00" />
@@ -1374,7 +1374,7 @@
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1398,17 +1398,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15167" name="Guardian's Sword of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Max HP increases by 25%. -->
@@ -1428,17 +1428,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="15168" name="Berserker Blade of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Critical by 73. -->
@@ -1458,17 +1458,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15169" name="Claymore of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_claymore_i00" />
@@ -1490,7 +1490,7 @@
 		<stats>
 			<stat type="pAtk">112</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1514,18 +1514,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="15171" name="Bellion Cestus of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Atk. Spd. by 9% when HP drops to 60% or below. -->
@@ -1545,18 +1545,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3034" level="6" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3034" level="6" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="15172" name="Great Pata of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Atk. Spd. by 11% when HP drops to 60% or below. -->
@@ -1576,18 +1576,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3034" level="4" /> <!-- Special Ability: Rsk. Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3034" level="4" /> <!-- Special Ability: Rsk. Haste -->
+		</skills>
 	</item>
 	<item id="15173" name="Scallop Jamadhr of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_scallop_jamadhr_i00" />
@@ -1609,7 +1609,7 @@
 		<stats>
 			<stat type="pAtk">112</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -1634,17 +1634,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3045" level="17" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">305</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3045" level="17" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="15175" name="Samurai Long Sword*Samurai Long Sword of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Atk. Spd. by 4%. -->
@@ -1664,17 +1664,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3045" level="14" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">236</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3045" level="14" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="15176" name="Spirit Sword*Raid Sword of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Increases Critical by 40. -->
@@ -1694,17 +1694,17 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3044" level="8" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">190</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3044" level="8" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15177" name="Bastard Sword*Elven Sword of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
@@ -1726,7 +1726,7 @@
 		<stats>
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">51</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -1750,18 +1750,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">251</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="2" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
 	<item id="15179" name="Lance of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Range increases. -->
@@ -1781,18 +1781,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">194</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="15180" name="Orcish Poleaxe of Fortune" additionalName="10-day" type="Weapon">
 		<!-- angle of attack widens. -->
@@ -1812,18 +1812,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">156</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="15181" name="Glaive of Fortune" additionalName="10-day" type="Weapon">
 		<set name="icon" val="icon.weapon_glaive_i00" />
@@ -1842,18 +1842,18 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="15182" name="Durendal of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -1873,21 +1873,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">272</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15183" name="Dismantler of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Increases Max HP by 25%. -->
@@ -1907,21 +1907,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">210</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3013" level="1" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="15184" name="Saber Tooth of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Increases Critical by 73. -->
@@ -1941,21 +1941,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">169</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3010" level="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15185" name="General's Katzbalger of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. -->
@@ -1975,13 +1975,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">100</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">2</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="randomDamage">15</stat>
@@ -2006,22 +2006,22 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">228</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3068" level="3" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="15187" name="Colichemarde of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Increases Atk. Spd. by about 6%, and improves the chance that party members including yourself will get increased P. Atk., M. Atk. and the amount of received heal, and decreased MP consumption per skill during a Critical Attack. -->
@@ -2041,22 +2041,22 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">176</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="6" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="15188" name="Admiral's Estoc of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Increases Atk. Spd. by about 7%, and improves the chance that party members including yourself will get increased P. Atk., M. Atk. and the amount of received heal, and decreased MP consumption per skill during a Critical Attack. -->
@@ -2076,22 +2076,22 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3036" level="4" /> <!-- Special Ability: Haste -->
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">141</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3036" level="4" /> <!-- Special Ability: Haste -->
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="15189" name="Grand Épée of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Has a chance that party members including yourself will get increased P. Atk., M. Atk. and the amount of received heal, and decreased MP consumption per skill during a Critical Attack. -->
@@ -2111,21 +2111,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">83</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">406</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="15190" name="Screaming Vengeance of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. Increases Critical by 61. Increases damage inflicted during PvP. -->
@@ -2146,21 +2146,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">318</stat>
 			<stat type="mAtk">121</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3050" level="2" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="15191" name="Hell Hound of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. MP consumption decreases by about 12% during skill use. -->
@@ -2181,21 +2181,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">245</stat>
 			<stat type="mAtk">99</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
+		</skills>
 	</item>
 	<item id="15192" name="Sharpshooter of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. MP consumption decreases by about 12% during skill use. -->
@@ -2216,21 +2216,21 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
-		<skills>
-			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pAtk">198</stat>
 			<stat type="mAtk">83</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3360" level="1" /> <!-- Special Ability: Cheap Shot -->
+		</skills>
 	</item>
 	<item id="15193" name="Cranequin of Fortune" additionalName="10-day" type="Weapon">
 		<!-- Kamael-exclusive Weapon. -->
@@ -2251,13 +2251,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="time" val="14400" />
 		<set name="enchanted" val="4" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player races="KAMAEL" />
-		</cond>
+		</conditions>
 		<stats>
 			<stat type="pAtk">117</stat>
 			<stat type="mAtk">54</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkSpd">303</stat>
 			<stat type="randomDamage">10</stat>
@@ -2282,7 +2282,7 @@
 			<item id="15225" min="1" max="1" chance="100" /> <!-- Brigandine of Fortune Set Pack - 10-day -->
 			<item id="15237" min="1" max="1" chance="100" /> <!-- Blunt Weapon of Fortune Set - 10-day -->
 			<item id="15238" min="1" max="1" chance="100" /> <!-- One-handed Sword of Fortune Set - 10-day -->
-			<item id="15241" min="1" max="1" chance="100" /> <!-- Dualsword of Fortune Set - 10-day -->
+			<item id="15241" min="1" max="1" chance="100" /> <!-- Dual Sword of Fortune Set - 10-day -->
 			<item id="15270" min="1" max="1" chance="100" /> <!-- Jewelry Pack (A-grade) - 10-day -->
 			<item id="15271" min="1" max="1" chance="100" /> <!-- Jewelry Pack (B-grade) - 10-day -->
 			<item id="15272" min="1" max="1" chance="100" /> <!-- Jewelry Pack (C-grade) - 10-day -->
@@ -2329,7 +2329,7 @@
 			<item id="15224" min="1" max="1" chance="100" /> <!-- Full Plate of Fortune Set Pack - 10-day -->
 			<item id="15225" min="1" max="1" chance="100" /> <!-- Brigandine of Fortune Set Pack - 10-day -->
 			<item id="15237" min="1" max="1" chance="100" /> <!-- Blunt Weapon of Fortune Set - 10-day -->
-			<item id="15241" min="1" max="1" chance="100" /> <!-- Dualsword of Fortune Set - 10-day -->
+			<item id="15241" min="1" max="1" chance="100" /> <!-- Dual Sword of Fortune Set - 10-day -->
 			<item id="15242" min="1" max="1" chance="100" /> <!-- Spear of Fortune Set - 10-day -->
 			<item id="15270" min="1" max="1" chance="100" /> <!-- Jewelry Pack (A-grade) - 10-day -->
 			<item id="15271" min="1" max="1" chance="100" /> <!-- Jewelry Pack (B-grade) - 10-day -->

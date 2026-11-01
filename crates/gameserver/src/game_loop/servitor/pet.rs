@@ -285,7 +285,11 @@ pub(crate) fn equip_pet_item(world: &mut World, owner_oid: i32, pet_oid: i32, ob
     if worn {
         pi.0.unequip_item(object_id);
     } else {
-        pi.0.equip_item(&data.item_data, object_id);
+        pi.0.equip_item(
+            &data.item_data,
+            object_id,
+            crate::model::inventory::OpenSlots::NONE,
+        );
     }
     // Gear changes the pet's defences, so its stats and the client's view of
     // them both have to be rebuilt.

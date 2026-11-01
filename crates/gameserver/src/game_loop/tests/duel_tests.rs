@@ -238,7 +238,7 @@ fn losing_blow_does_not_kill() {
 
     // A blow far exceeding B's remaining HP.
     let huge = world.objects.get_component::<Vitals>(&B).unwrap().max_hp as f64 * 10.0;
-    combat::apply_physical_damage(&mut world, A, B, huge, false, false);
+    combat::apply_physical_damage(&mut world, A, B, huge, combat::DamageHit::default());
 
     let v = world.objects.get_component::<Vitals>(&B).unwrap();
     assert!(!v.dead, "the duel loser is not killed");

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="26900" toLevel="1" name="Visual Enchant Stone">
 		<icon>icon.skill0000</icon>
@@ -25,22 +25,34 @@
 		<operateType>A1</operateType>
 	</skill>
 	<skill id="26906" toLevel="4" name="Sayha's Rune: Growth Pack Lv. 1">
-		<!-- Master Alchemy. Transmutes Sayha's Rune: Growth Pack Lv. 1. -->
+		<!-- Level 1: Master Alchemy. Transmutes Sayha's Rune: Growth Pack Lv. 1. -->
+		<!-- Level 2: Master Alchemy. Transmutes Sayha's Rune: Growth Pack Lv. 2. -->
+		<!-- Level 3: Master Alchemy. Transmutes Sayha's Rune: Growth Pack Lv. 3. -->
+		<!-- Level 4: Master Alchemy. Transmutes Sayha's Rune: Growth Pack Lv. 4. -->
 		<icon>icon.etc_small_bubble_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="26907" toLevel="4" name="Sayha's Rune: Skill Pack Lv. 1">
-		<!-- Master Alchemy. Transmutes Sayha's Rune: Skill Pack Lv. 1. -->
+		<!-- Level 1: Master Alchemy. Transmutes Sayha's Rune: Skill Pack Lv. 1. -->
+		<!-- Level 2: Master Alchemy. Transmutes Sayha's Rune: Skill Pack Lv. 2. -->
+		<!-- Level 3: Master Alchemy. Transmutes Sayha's Rune: Skill Pack Lv. 3. -->
+		<!-- Level 4: Master Alchemy. Transmutes Sayha's Rune: Skill Pack Lv. 4. -->
 		<icon>icon.etc_small_bubble_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="26908" toLevel="4" name="Sayha's Rune: Luck Pack Lv. 1">
-		<!-- Master Alchemy. Transmutes Sayha's Rune: Luck Pack Lv. 1. -->
+		<!-- Level 1: Master Alchemy. Transmutes Sayha's Rune: Luck Pack Lv. 1. -->
+		<!-- Level 2: Master Alchemy. Transmutes Sayha's Rune: Luck Pack Lv. 2. -->
+		<!-- Level 3: Master Alchemy. Transmutes Sayha's Rune: Luck Pack Lv. 3. -->
+		<!-- Level 4: Master Alchemy. Transmutes Sayha's Rune: Luck Pack Lv. 4. -->
 		<icon>icon.etc_small_bubble_i00</icon>
 		<operateType>P</operateType>
 	</skill>
 	<skill id="26909" toLevel="4" name="Sayha's Rune Pack Lv. 1">
-		<!-- Master Alchemy. Transmutes Sayha's Rune Pack Lv. 1. -->
+		<!-- Level 1: Master Alchemy. Transmutes Sayha's Rune Pack Lv. 1. -->
+		<!-- Level 2: Master Alchemy. Transmutes Sayha's Rune Pack Lv. 2. -->
+		<!-- Level 3: Master Alchemy. Transmutes Sayha's Rune Pack Lv. 3. -->
+		<!-- Level 4: Master Alchemy. Transmutes Sayha's Rune Pack Lv. 4. -->
 		<icon>icon.etc_small_bubble_i00</icon>
 		<operateType>P</operateType>
 	</skill>
@@ -67,12 +79,12 @@
 	<skill id="26915" toLevel="1" name="Scroll: Enchant Elemental Shirt">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -86,12 +98,12 @@
 	<skill id="26916" toLevel="1" name="Blessed Scroll: Enchant Elemental Shirt">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -106,19 +118,19 @@
 		<!-- Transform into Priestess Tsubaki temporarily. -->
 		<icon>icon.skilltransform3</icon>
 		<operateType>A2</operateType>
-		<reuseDelay>60000</reuseDelay>
-		<effectPoint>1</effectPoint>
-		<abnormalType>TRANSFORM</abnormalType>
-		<basicProperty>NONE</basicProperty>
-		<magicCriticalRate>5</magicCriticalRate>
-		<specialLevel>-1</specialLevel>
-		<hitCancelTime>0</hitCancelTime>
+		<targetType>SELF</targetType>
 		<abnormalLevel>1</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
-		<irreplacableBuff>true</irreplacableBuff>
-		<isMagic>2</isMagic>
-		<targetType>SELF</targetType>
+		<abnormalType>TRANSFORM</abnormalType>
 		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>1</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<irreplaceableBuff>true</irreplaceableBuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>60000</reuseDelay>
+		<specialLevel>-1</specialLevel>
 		<conditions>
 			<condition name="CanTransform">
 				<transformId>20020</transformId>
@@ -130,20 +142,20 @@
 			</effect>
 		</effects>
 	</skill>
-	<skill id="26918" toLevel="1" name="Premium Account: Enhanced Rose Spirit">
-		<!-- For 30 min., Max HP/MP/CP +30%, P./M. Def. +30%, P. Atk. +10%, and M. Atk. +20%. Cooldown is 5 min. -->
+	<skill id="26918" toLevel="1" name="PA: Enhanced Rose Spirit">
+		<!-- For 30 min., Max HP/ MP/ CP +30%, P./ M. Def. +30%, P. Atk. +10%, and M. Atk. +20%. Cooldown is 5 min. -->
 		<icon>BranchSys2.icon.br_rosalia_rose_blue_i00</icon>
 		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
 		<abnormalLevel>2</abnormalLevel>
 		<abnormalTime>1800</abnormalTime>
 		<abnormalType>BR_EVENT_BUF1</abnormalType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<targetType>SELF</targetType>
 		<affectScope>SINGLE</affectScope>
-		<hitTime>3000</hitTime>
-		<reuseDelay>300000</reuseDelay>
 		<effectPoint>1</effectPoint>
+		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<reuseDelay>300000</reuseDelay>
 		<effects>
 			<effect name="MaxHp">
 				<amount>30</amount>
@@ -165,11 +177,11 @@
 				<amount>30</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="PAtk">
+			<effect name="PhysicalAttack">
 				<amount>10</amount>
 				<mode>PER</mode>
 			</effect>
-			<effect name="MAtk">
+			<effect name="MagicalAttack">
 				<amount>20</amount>
 				<mode>PER</mode>
 			</effect>

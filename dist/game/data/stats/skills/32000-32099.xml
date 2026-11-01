@@ -1,0 +1,1731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
+	<skill id="32001" toLevel="1" name="Apocalypse Fire">
+		<!-- Inflicts great magic damage on the enemies near the target and decreases their P. Def and M. Def for 5 seconds. -->
+		<icon>icon.skill1487</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>5</abnormalTime>
+		<abnormalType>BODY_DESTRUCTION</abnormalType>
+		<activateRate>80</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1600</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>109</magicLevel>
+		<trait>DEATH</trait>
+		<effects>
+			<effect name="MagicalDamage">
+				<power>30000</power>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32002" toLevel="1" name="Demolish Ground">
+		<!-- Inflicts great physical damage on the enemies near the target and stuns them for 5 seconds. -->
+		<icon>icon.skill0100</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>9</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>1000</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1600</effectRange>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>1</lvlBonusRate>
+		<magicLevel>109</magicLevel>
+		<trait>SHOCK</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32003" toLevel="1" name="Wall of Void">
+		<!-- For 15 seconds, reduces all damage received by 30% and applies the Blood Siphon effect to you. -->
+		<icon>icon.skill1310</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>15</abnormalTime>
+		<abnormalType>VAMPIRIC_ATTACK</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="VampiricAttack">
+				<amount>40</amount>
+				<chance>100</chance>
+			</effect>
+			<effect name="DamageByAttack">
+				<amount>-30</amount>
+				<type>PK</type>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32004" toLevel="12" name="Call of Seven Signs">
+		<!-- Level 1: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Gnosis. -->
+		<!-- Level 2: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Strife. -->
+		<!-- Level 3: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Avarice. -->
+		<!-- Level 4: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Punishment. -->
+		<!-- Level 5: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Awakening. -->
+		<!-- Level 6: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Calamity. -->
+		<!-- Level 7: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Destruction. -->
+		<!-- Level 8: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 9: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 10: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 11: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 12: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<icon>
+			<value level="1">icon.skill32015</value>
+			<value level="2">icon.skill32018</value>
+			<value level="3">icon.skill32021</value>
+			<value level="4">icon.skill32024</value>
+			<value level="5">icon.skill32027</value>
+			<value level="6">icon.skill32028</value>
+			<value level="7">icon.skill32030</value>
+			<value level="8">icon.skill0000</value>
+			<value level="9">icon.skill0000</value>
+			<value level="10">icon.skill0000</value>
+			<value level="11">icon.skill0000</value>
+			<value level="12">icon.skill0000</value>
+		</icon>
+		<operateType>A1</operateType>
+		<hitTime>
+			<value level="1">10000</value>
+			<value level="2">10000</value>
+			<value level="3">10000</value>
+			<value level="4">10000</value>
+			<value level="5">10000</value>
+			<value level="6">10000</value>
+			<value level="7">10000</value>
+			<value level="8">0</value>
+			<value level="9">0</value>
+			<value level="10">0</value>
+			<value level="11">0</value>
+			<value level="12">0</value>
+		</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32005" toLevel="1" name="Cyclone Blade">
+		<!-- Inflicts great physical damage on the enemies near the target and decreases their P. Def and M. Def for 7 seconds. -->
+		<icon>icon.skill10318new</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>7</abnormalTime>
+		<abnormalType>ULTIMATE_DEBUFF</abnormalType>
+		<activateRate>80</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>650</castRange>
+		<effectPoint>0</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>109</magicLevel>
+		<trait>DEATH</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>410000</power>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32006" toLevel="1" name="Wing of Screaming">
+		<!-- Deals great physical damage in the front and decreases P. Atk., M. Atk. and Speed for 10 seconds. -->
+		<icon>icon.skill0492</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>7</abnormalTime>
+		<activateRate>80</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>FAN</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<effectPoint>-100</effectPoint>
+		<fanRange>0;0;150;180</fanRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>2500</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicLevel>109</magicLevel>
+		<trait>DEATH</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="PhysicalAttack">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttack">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="Speed">
+				<amount>-50</amount>
+				<mode>DIFF</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32007" toLevel="1" name="Flash of Darkness">
+		<!-- Deals great physical damage in the front and knocks down enemies. -->
+		<icon>icon.skill10267</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>FAN</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>650</castRange>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1000</effectRange>
+		<fanRange>0;0;150;180</fanRange>
+		<hitTime>800</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<trait>DERANGEMENT</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+			<effect name="KnockBack">
+				<speed>700</speed>
+				<distance>50</distance>
+				<knockDown>true</knockDown>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32008" toLevel="1" name="Soul Execution">
+		<!-- Inflicts great physical damage on all nearby enemies and decreases their MP. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<effectPoint>0</effectPoint>
+		<hitTime>3000</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>109</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="MagicalDamageMp">
+				<power>500</power>
+				<critical>true</critical>
+				<criticalLimit>40000</criticalLimit>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32009" toLevel="12" name="Call of Seven Signs">
+		<!-- Level 1: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Gnosis. -->
+		<!-- Level 2: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Strife. -->
+		<!-- Level 3: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Avarice. -->
+		<!-- Level 4: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Punishment. -->
+		<!-- Level 5: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Awakening. -->
+		<!-- Level 6: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Calamity. -->
+		<!-- Level 7: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Destruction. -->
+		<!-- Level 8: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 9: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 10: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 11: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 12: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<icon>
+			<value level="1">icon.skill32015</value>
+			<value level="2">icon.skill32018</value>
+			<value level="3">icon.skill32021</value>
+			<value level="4">icon.skill32024</value>
+			<value level="5">icon.skill32027</value>
+			<value level="6">icon.skill32028</value>
+			<value level="7">icon.skill32030</value>
+			<value level="8">icon.skill0000</value>
+			<value level="9">icon.skill0000</value>
+			<value level="10">icon.skill0000</value>
+			<value level="11">icon.skill0000</value>
+			<value level="12">icon.skill0000</value>
+		</icon>
+		<operateType>A1</operateType>
+		<hitTime>
+			<value level="1">10000</value>
+			<value level="2">10000</value>
+			<value level="3">10000</value>
+			<value level="4">10000</value>
+			<value level="5">10000</value>
+			<value level="6">10000</value>
+			<value level="7">10000</value>
+			<value level="8">0</value>
+			<value level="9">0</value>
+			<value level="10">0</value>
+			<value level="11">0</value>
+			<value level="12">0</value>
+		</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32010" toLevel="1" name="Bane Blade">
+		<!-- Inflicts great physical damage on the enemies near the target and decreases their P. Def and M. Def for 5 seconds. -->
+		<icon>icon.skill11513</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>5</abnormalTime>
+		<abnormalType>ULTIMATE_DEBUFF</abnormalType>
+		<activateRate>80</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>RANGE</affectScope>
+		<castRange>650</castRange>
+		<effectPoint>-100</effectPoint>
+		<effectRange>1000</effectRange>
+		<hitCancelTime>1</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>109</magicLevel>
+		<trait>DEATH</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32011" toLevel="1" name="Spinning Shadow">
+		<!-- Inflicts great physical damage on all nearby enemies and bleeds them for 15 seconds. -->
+		<icon>icon.skill6816</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>15</abnormalTime>
+		<abnormalType>BLEEDING</abnormalType>
+		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<effectPoint>0</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<magicLevel>109</magicLevel>
+		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
+		<trait>BLEED</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="DamOverTime">
+				<power>3000</power>
+				<ticks>1</ticks>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32012" toLevel="1" name="Destruction of Fate">
+		<!-- Inflicts great physical damage on all nearby enemies and decreases their P. Def and M. Def for 15 seconds. -->
+		<icon>icon.skill0190</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>7</abnormalTime>
+		<abnormalType>ULTIMATE_DEBUFF</abnormalType>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<effectPoint>0</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>109</magicLevel>
+		<trait>DEATH</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>400000</power>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32013" toLevel="12" name="Call of Seven Signs">
+		<!-- Level 1: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Gnosis. -->
+		<!-- Level 2: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Strife. -->
+		<!-- Level 3: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Avarice. -->
+		<!-- Level 4: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Punishment. -->
+		<!-- Level 5: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Awakening. -->
+		<!-- Level 6: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Calamity. -->
+		<!-- Level 7: Inflicts AoE damage over time on all nearby enemies for 10 seconds and activates the Seal of Destruction. -->
+		<!-- Level 8: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 9: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 10: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 11: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<!-- Level 12: Inflicts AoE damage over time on all nearby enemies for and activates the Seal of Destruction. -->
+		<icon>
+			<value level="1">icon.skill32015</value>
+			<value level="2">icon.skill32018</value>
+			<value level="3">icon.skill32021</value>
+			<value level="4">icon.skill32024</value>
+			<value level="5">icon.skill32027</value>
+			<value level="6">icon.skill32028</value>
+			<value level="7">icon.skill32030</value>
+			<value level="8">icon.skill0000</value>
+			<value level="9">icon.skill0000</value>
+			<value level="10">icon.skill0000</value>
+			<value level="11">icon.skill0000</value>
+			<value level="12">icon.skill0000</value>
+		</icon>
+		<operateType>A1</operateType>
+		<hitTime>
+			<value level="1">10000</value>
+			<value level="2">10000</value>
+			<value level="3">10000</value>
+			<value level="4">10000</value>
+			<value level="5">10000</value>
+			<value level="6">10000</value>
+			<value level="7">10000</value>
+			<value level="8">0</value>
+			<value level="9">0</value>
+			<value level="10">0</value>
+			<value level="11">0</value>
+			<value level="12">0</value>
+		</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32014" toLevel="2" name="Etina's Revelation">
+		<!-- For 1 minute, reduces all damage received by 30% and increases Atk. Spd, Casting Spd, and Speed. -->
+		<icon>icon.skill11506</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>ATTACK_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<hitTime>
+			<value level="1">5000</value>
+			<value level="2">0</value>
+		</hitTime>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalAttackSpeed">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="Speed">
+				<amount>30</amount>
+				<mode>DIFF</mode>
+			</effect>
+			<effect name="DamageByAttack">
+				<amount>-30</amount>
+				<type>PK</type>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32015" toLevel="1" name="Stigma of Revelation">
+		<!-- Makes the caster the primary attack target of all monsters in the Etina Great Temple for 30 seconds. This stigma cannot be removed. -->
+		<icon>icon.skill32015</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<activateRate>100</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<canBeDispelled>false</canBeDispelled>
+		<castRange>3000</castRange>
+		<effectRange>4000</effectRange>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>5000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isHate>true</isHate>
+		<magicLevel>109</magicLevel>
+		<staticReuse>true</staticReuse>
+		<effects>
+			<effect name="AddHate">
+				<power>99999</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32016" toLevel="1" name="Rupture of Chaos">
+		<!-- Inflicts great AoE magical damage on all nearby enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>3000</castRange>
+		<hitTime>5000</hitTime>
+	</skill>
+	<skill id="32017" toLevel="2" name="Cry of Holy War">
+		<!-- Increases P. Atk. and M. Atk. for 1 minute. -->
+		<icon>icon.skill10325</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>PA_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalAttack">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttack">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32018" toLevel="2" name="Stigma of Martyr">
+		<!-- Deals great bleeding damage for 30 seconds. -->
+		<icon>icon.skill32018</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>10</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>BLEEDING</abnormalType>
+		<abnormalVisualEffect>DOT_BLEEDING</abnormalVisualEffect>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>1500</castRange>
+		<effectPoint>-500</effectPoint>
+		<effectRange>2000</effectRange>
+		<isDebuff>true</isDebuff>
+		<subordinationAbnormalType>BLEEDING</subordinationAbnormalType>
+		<trait>BLEED</trait>
+		<effects>
+			<effect name="DamOverTime">
+				<power>5000</power>
+				<ticks>2</ticks>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32019" toLevel="5" name="Stigma Explosion - Stage 1">
+		<!-- Inflicts great physical damage on the target and nearby enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>3000</castRange>
+		<hitTime>5000</hitTime>
+	</skill>
+	<skill id="32020" toLevel="2" name="Undead Creature">
+		<!-- Recovers your HP repeatedly for 1 minute. -->
+		<icon>icon.skill1310</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>HP_REGEN_UP</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="HpRegen">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32021" toLevel="2" name="Distorted Avarice">
+		<!-- Increases P. Atk./ M. Atk./ Atk. Spd./ Casting Spd. significantly for 30 seconds. -->
+		<icon>icon.skill32021</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>CASTING_TIME_DOWN</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalAttack">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttack">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="PhysicalAttackSpeed">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>30</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32022" toLevel="2" name="Judgment of Destiny">
+		<!-- Inflicts serious damage on the target to kill it instantly. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>3000</castRange>
+		<hitTime>
+			<value level="1">5000</value>
+			<value level="2">0</value>
+		</hitTime>
+	</skill>
+	<skill id="32023" toLevel="2" name="Etina's Divine Punishment">
+		<!-- For 1 minute reflects all damage received by 20%. -->
+		<icon>icon.skill0086</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>DMG_SHIELD</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="DamageShield">
+				<amount>30</amount>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32024" toLevel="2" name="Etina's Observation">
+		<!-- Decreases MP over 30 seconds and significantly slows Casting Spd. -->
+		<icon>icon.skill32024</icon>
+		<operateType>A2</operateType>
+		<targetType>ENEMY_ONLY</targetType>
+		<abnormalLevel>3</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>CASTING_TIME_UP</abnormalType>
+		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>30</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="MaxMp">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+			<effect name="MagicalAttackSpeed">
+				<amount>-30</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32025" toLevel="1" name="Etina's Revenge">
+		<!-- Inflicts great physical damage on the target. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>3000</castRange>
+	</skill>
+	<skill id="32026" toLevel="2" name="Rage of the Open Eye">
+		<!-- Prevents death for 1 minute even if HP drops to 0. -->
+		<icon>icon.skill10022</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>60</abnormalTime>
+		<abnormalType>STEEL_MIND</abnormalType>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<magicCriticalRate>5</magicCriticalRate>
+		<effects>
+			<effect name="IgnoreDeath" />
+		</effects>
+	</skill>
+	<skill id="32027" toLevel="1" name="Mental Overload">
+		<!-- For 30 seconds, Skill MP Consumption +100%. -->
+		<icon>icon.skill32027</icon>
+		<operateType>A1</operateType>
+		<castRange>3000</castRange>
+		<hitTime>5000</hitTime>
+	</skill>
+	<skill id="32028" toLevel="1" name="Cyclone of Chaos">
+		<!-- Caught in a cyclone, swirling helplessly and receiving damage. -->
+		<icon>icon.skill32028</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32029" toLevel="1" name="Explosion of Calamity">
+		<!-- Inflicts great magic damage on the target and nearby enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32030" toLevel="1" name="End of Darkness">
+		<!-- Inflicts great DoT on enemies within the range for 1 minute min and decreases their Speed by 1 minute. -->
+		<icon>icon.skill32030</icon>
+		<operateType>A1</operateType>
+		<castRange>3000</castRange>
+	</skill>
+	<skill id="32031" toLevel="2" name="Destruction's Shadow">
+		<!-- Level 1: Throws the Destruction's Shadow, leading to death. Cannot be removed. -->
+		<!-- Level 2: Inflicts magic damage on the enemies suffering the Destruction's Shadow effect to kill them instantly. -->
+		<icon>
+			<value level="1">icon.karma</value>
+			<value level="2">icon.skill0000</value>
+		</icon>
+		<operateType>A1</operateType>
+		<canBeDispelled>false</canBeDispelled>
+		<castRange>3000</castRange>
+		<effectPoint>
+			<value level="1">-100</value>
+			<value level="2">0</value>
+		</effectPoint>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32032" toLevel="1" name="Soul Slash">
+		<!-- Inflicts great physical damage on the enemies near the target and decreases their P. Def for 10 seconds. -->
+		<icon>icon.dual_t_atkup</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="32033" toLevel="1" name="Shadow Sprint">
+		<!-- Dashes to the front, inflicting great damage on nearby enemies and knocking them down. -->
+		<icon>icon.skill10267</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>-1</effectPoint>
+		<hitTime>800</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32034" toLevel="1" name="Crimson Glory">
+		<!-- Inflicts bleeding damage on all nearby enemies for 15 seconds. -->
+		<icon>icon.skill32018</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<hitTime>3000</hitTime>
+	</skill>
+	<skill id="32035" toLevel="1" name="Fade to Black">
+		<!-- Inflicts great magic damage on the enemies near the target. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32036" toLevel="1" name="Angel of Death">
+		<!-- Inflicts great magic damage on all nearby enemies and poisons them for 15 seconds. -->
+		<icon>icon.skill6815</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32037" toLevel="1" name="Oracle of Sign">
+		<!-- Significantly increases M. Atk., M. Def, and Casting Spd. for 30 seconds. -->
+		<icon>icon.skill0763</icon>
+		<operateType>A1</operateType>
+		<hitTime>3000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32038" toLevel="1" name="Power Wave">
+		<!-- Raises the sword and brings it down hard on the ground to release 3 Power Waves. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>2000</hitTime>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32039" toLevel="1" name="War Cry">
+		<!-- Raises the sword and brings it down hard on the ground to release its energy. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32040" toLevel="1" name="Shock Wave">
+		<!-- Hits the ground hard with the shield to inflict physical damage on the enemies around you. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>9</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>2</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<trait>SHOCK</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32041" toLevel="1" name="Shield Slam">
+		<!-- Attacks enemies in the front with the shield to inflict great damage on them. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>2000</hitTime>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32042" toLevel="1" name="Release Binders">
+		<!-- Breaks the seals binding your ability and doubles your P. Atk./ M. Atk./ P. Def/ M. Def/ HP Recovery Bonus. -->
+		<icon>icon.skill32042</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32043" toLevel="1" name="Thunder Break">
+		<!-- Hits the ground hard with the hammer to attack enemies and inflict additional damage on them. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>0</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>1500</hitTime>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32044" toLevel="1" name="Roar">
+		<!-- Makes a loud shout, which inflicts physical damage on all nearby enemies and stuns them into Stun. -->
+		<icon>icon.skill0116</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>9</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<effectPoint>0</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<lvlBonusRate>2</lvlBonusRate>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<trait>SHOCK</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32045" toLevel="1" name="Shield Slam">
+		<!-- Swings the shield to inflict physical damage on all nearby enemies and stun them into Stun. -->
+		<icon>icon.skill0092</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32046" toLevel="1" name="Enemy Targeting">
+		<!-- Set as Gold Bug's primary attack target, losing P. Def, M. Def, and Speed significantly. -->
+		<icon>icon.skill10801</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32047" toLevel="1" name="Liberation">
+		<!-- Breaks the seals binding your ability and triples your P. Atk./ M. Atk./ P. Def/ M. Def/ HP Recovery Bonus. -->
+		<icon>icon.skill32047</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32048" toLevel="1" name="Fire at Will">
+		<!-- Fires a cannon at the enemy to knock it down. -->
+		<icon>icon.skill32048</icon>
+		<operateType>A1</operateType>
+		<castRange>600</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32049" toLevel="1" name="Signal Flare">
+		<!-- Fires a signal flare, which significantly increases nearby allies' Atk. Spd. -->
+		<icon>icon.skill11361</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32050" toLevel="1" name="Fire All">
+		<!-- Loads everything available in the cannon and fire them in a wide area as if a shotgun does. -->
+		<icon>icon.skill32050</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32051" toLevel="1" name="Anchor Slash">
+		<!-- Uses an anchor to inflict physical damage on nearby enemies and stun them. -->
+		<icon>icon.skill32051</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32052" toLevel="1" name="Anchor Smash">
+		<!-- Swings an anchor to inflict physical damage on nearby enemies and knock them away. -->
+		<icon>icon.skill0100</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32053" toLevel="1" name="Anchor Drop">
+		<!-- Binds nearby enemies with the power of an anchor. -->
+		<icon>icon.skill0402</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32054" toLevel="1" name="Heavy Slash">
+		<!-- Wields a sword to inflict physical damage on the enemy and cause bleeding damage. -->
+		<icon>icon.skill6816</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32055" toLevel="1" name="Attack Order">
+		<!-- Blows a horn to increase allies' P. Atk. significantly. -->
+		<icon>icon.skill1388</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32056" toLevel="1" name="Fear Curse">
+		<!-- Blows a horn to put all nearby enemies into fear. -->
+		<icon>icon.skill1169</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32057" toLevel="1" name="Defense Order">
+		<!-- Blows a horn to increase allies' P. Def significantly. -->
+		<icon>icon.skill1389</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32058" toLevel="1" name="Power Slash">
+		<!-- Holds two axes together and smashes them down vertically. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32059" toLevel="1" name="Power Lariat">
+		<!-- Inflicts physical damage on all nearby enemies and paralyzes them. -->
+		<icon>icon.skill1170</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32060" toLevel="1" name="Ancestral Call">
+		<!-- Becomes possessed by an ancestor's soul to significantly increase P. Atk. -->
+		<icon>icon.skill0106</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32061" toLevel="1" name="Tauti Push">
+		<!-- Tauti knocks down all nearby enemies and decreases their P. Def. -->
+		<icon>icon.skill3080</icon>
+		<operateType>A2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>KNOCKDOWN</abnormalType>
+		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>100</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<trait>KNOCKDOWN</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="KnockBack">
+				<distance>100</distance>
+				<speed>400</speed>
+				<knockDown>true</knockDown>
+			</effect>
+			<effect name="DefenceTrait">
+				<KNOCKBACK>100</KNOCKBACK>
+				<AIRBIND>100</AIRBIND>
+				<HOLD>100</HOLD>
+				<SLEEP>100</SLEEP>
+				<SHOCK>100</SHOCK>
+			</effect>
+			<effect name="BlockActions" />
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32062" toLevel="1" name="Tauti Whirlwind">
+		<!-- Tauti inflicts physical damage on all nearby enemies and knocks them away. -->
+		<icon>icon.skill4107</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>FLY_AWAY</abnormalType>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="FlyAway">
+				<radius>300</radius>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32063" toLevel="1" name="Tauti Typhoon">
+		<!-- Tauti inflicts physical damage on ranged enemies and knocks them away. -->
+		<icon>icon.skill3080</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>FLY_AWAY</abnormalType>
+		<activateRate>80</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>RING_RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;600;0</fanRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="FlyAway">
+				<radius>300</radius>
+			</effect>
+			<effect name="BlockActions" />
+			<effect name="DefenceTrait">
+				<KNOCKBACK>100</KNOCKBACK>
+				<SLEEP>100</SLEEP>
+				<HOLD>100</HOLD>
+				<SHOCK>100</SHOCK>
+				<AIRBIND>100</AIRBIND>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32064" toLevel="1" name="Tauti Shock Wave">
+		<!-- Tauti smashes an axe to inflict physical damage and stun enemies. -->
+		<icon>icon.skill0100</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>2</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>50</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectScope>SQUARE_PB</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;300;300</fanRange>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<trait>SHOCK</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32065" toLevel="1" name="Tauti Rush">
+		<!-- Tauti lunges at a target, inflicting physical damage and knocking them down. -->
+		<icon>icon.skill0100</icon>
+		<operateType>DA2</operateType>
+		<targetType>TARGET</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>KNOCKDOWN</abnormalType>
+		<abnormalVisualEffect>STUN</abnormalVisualEffect>
+		<activateRate>80</activateRate>
+		<affectScope>SINGLE</affectScope>
+		<basicProperty>PHYSICAL</basicProperty>
+		<castRange>900</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<effectRange>1100</effectRange>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<trait>KNOCKDOWN</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="KnockBack">
+				<distance>100</distance>
+				<speed>400</speed>
+				<knockDown>true</knockDown>
+			</effect>
+			<effect name="DefenceTrait">
+				<KNOCKBACK>100</KNOCKBACK>
+				<AIRBIND>100</AIRBIND>
+				<HOLD>100</HOLD>
+				<SLEEP>100</SLEEP>
+				<SHOCK>100</SHOCK>
+			</effect>
+			<effect name="BlockActions" />
+		</effects>
+	</skill>
+	<skill id="32066" toLevel="1" name="Tauti Ultimate Chain Strike">
+		<!-- Tauti draws scattered enemies to himself. -->
+		<icon>icon.skill10016</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>1</abnormalTime>
+		<abnormalType>STUN</abnormalType>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>1000</coolTime>
+		<effectPoint>-2093</effectPoint>
+		<hitCancelTime>0</hitCancelTime>
+		<hitTime>500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<mpConsume>123</mpConsume>
+		<trait>PULL</trait>
+		<effects>
+			<effect name="PullBack">
+				<speed>600</speed>
+				<delay>650</delay>
+			</effect>
+			<effect name="BlockActions" />
+			<effect name="GetAgro" />
+		</effects>
+	</skill>
+	<skill id="32067" toLevel="1" name="Tauti Ultra Whirlwind">
+		<!-- Tauti inflicts fixed damage on nearby enemies and knocks them away. -->
+		<icon>icon.skill3080</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>FLY_AWAY</abnormalType>
+		<activateRate>80</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>400</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<hitTime>7000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="FlyAway">
+				<radius>300</radius>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32068" toLevel="1" name="Tauti Ultra Typhoon">
+		<!-- Tauti inflicts fixed damage on ranged enemies and knocks them away. -->
+		<icon>icon.skill3080</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>3</abnormalTime>
+		<abnormalType>FLY_AWAY</abnormalType>
+		<activateRate>80</activateRate>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>1500</affectRange>
+		<affectScope>RING_RANGE</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-1</effectPoint>
+		<fanRange>0;0;600;0</fanRange>
+		<hitTime>7000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>-5</magicCriticalRate>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="FlyAway">
+				<radius>300</radius>
+			</effect>
+			<effect name="BlockActions" />
+			<effect name="DefenceTrait">
+				<KNOCKBACK>100</KNOCKBACK>
+				<SLEEP>100</SLEEP>
+				<HOLD>100</HOLD>
+				<SHOCK>100</SHOCK>
+				<AIRBIND>100</AIRBIND>
+			</effect>
+			<effect name="PhysicalDefence">
+				<amount>-20</amount>
+				<mode>PER</mode>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32069" toLevel="1" name="Liberation">
+		<!-- Breaks the seals binding your ability to increase P. Atk./ M. Atk./ P. Def/ M. Def 4 times and HP Recovery Bonus 10 times. -->
+		<icon>icon.skill32069</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32070" toLevel="1" name="Heal">
+		<!-- Recovers nearby ally monster's HP by 2%. -->
+		<icon>icon.skill1229</icon>
+		<operateType>A1</operateType>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32071" toLevel="1" name="Speed Down">
+		<!-- Significantly decreases all nearby enemies' P. Atk. and Casting Spd. -->
+		<icon>icon.skill0516</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-1</effectPoint>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32072" toLevel="1" name="Crescent Slash">
+		<!-- Wields two swords to cause physical damage and put into Bleed. -->
+		<icon>icon.skill6816</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>1500</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32073" toLevel="1" name="Ghost Gunslinger">
+		<!-- Uses the sword like a gun to fire ghost-shaped bullets forward in a rectangular and damage enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>2000</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32074" toLevel="1" name="Hundred Slash">
+		<!-- Slashes one enemy continuously to deal physical damage and cause bleed. -->
+		<icon>icon.skill6816</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>1500</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32075" toLevel="1" name="Blood to Flash">
+		<!-- Sucks in great amounts of the Energy of Blood and Energy of Mind in the area. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>10000</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32076" toLevel="1" name="Typhoon Slash">
+		<!-- Cuts down enemies with the swords floating around you to deal physical damage and bleed them. -->
+		<icon>icon.skill6816</icon>
+		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectLimit>6-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>400</effectRange>
+		<hitTime>10000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32077" toLevel="1" name="Rage of Pirate King">
+		<!-- Expresses the king's rage, which knocks down all nearby enemies. -->
+		<icon>icon.skill10262</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>1</abnormalLevel>
+		<abnormalTime>5</abnormalTime>
+		<abnormalType>KNOCKDOWN</abnormalType>
+		<abnormalVisualEffect>KNOCKDOWN</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>200</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-100</effectPoint>
+		<hitTime>3000</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<lvlBonusRate>30</lvlBonusRate>
+		<trait>KNOCKDOWN</trait>
+		<effects>
+			<effect name="KnockBack">
+				<speed>400</speed>
+				<distance>50</distance>
+				<knockDown>true</knockDown>
+			</effect>
+			<effect name="DefenceTrait">
+				<HOLD>100</HOLD>
+				<KNOCKDOWN>100</KNOCKDOWN>
+				<SHOCK>100</SHOCK>
+				<AIRBIND>100</AIRBIND>
+				<SLEEP>100</SLEEP>
+				<KNOCKBACK>100</KNOCKBACK>
+				<CHANGEBODY>100</CHANGEBODY>
+			</effect>
+			<effect name="BlockActions" />
+		</effects>
+	</skill>
+	<skill id="32078" toLevel="1" name="Liberation">
+		<!-- Breaks the seals binding your ability to increase P. Atk./ M. Atk./ P. Def/ M. Def 4 times and HP Recovery Bonus 10 times. -->
+		<icon>icon.skill32078</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32079" toLevel="1" name="Power Strike">
+		<!-- Gathers your energy and hits enemies hard. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32080" toLevel="1" name="Paralysis Attack">
+		<!-- Throws a spear to cause physical damage and paralyze. -->
+		<icon>icon.skill1170</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32081" toLevel="1" name="Hold Strike">
+		<!-- Deals physical damage and prohibits any action. -->
+		<icon>icon.skill0402</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32082" toLevel="1" name="Spinning Slasher">
+		<!-- Raises a weapon and attacks multiple enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<targetType>ENEMY</targetType>
+		<affectLimit>5-12</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>900</affectRange>
+		<affectScope>FAN</affectScope>
+		<castRange>40</castRange>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<effectRange>900</effectRange>
+		<fanRange>0;0;900;90</fanRange>
+		<hitTime>1500</hitTime>
+		<isMagic>2</isMagic>
+		<magicLevel>-1</magicLevel>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32083" toLevel="1" name="Fire Breath">
+		<!-- Spouts Breath burning enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>300</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32084" toLevel="2" name="Mass Fear">
+		<!-- Puts all enemies in a wide area into Fear. -->
+		<icon>icon.skill1169</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>5</abnormalLevel>
+		<abnormalTime>10</abnormalTime>
+		<abnormalType>TURN_FLEE</abnormalType>
+		<abnormalVisualEffect>TURN_FLEE</abnormalVisualEffect>
+		<activateRate>90</activateRate>
+		<affectLimit>10-10</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>150</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>NONE</basicProperty>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<magicLevel>-1</magicLevel>
+		<trait>DERANGEMENT</trait>
+		<effects>
+			<effect name="BlockControl" />
+			<effect name="Fear" />
+		</effects>
+	</skill>
+	<skill id="32085" toLevel="1" name="Thunder Storm">
+		<!-- Makes lightning strike enemies in a wide area, dealing great damage. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A2</operateType>
+		<targetType>SELF</targetType>
+		<abnormalLevel>10</abnormalLevel>
+		<abnormalTime>2</abnormalTime>
+		<abnormalType>PARALYZE</abnormalType>
+		<abnormalVisualEffect>PARALYZE</abnormalVisualEffect>
+		<activateRate>500</activateRate>
+		<affectLimit>40-40</affectLimit>
+		<affectObject>NOT_FRIEND</affectObject>
+		<affectRange>300</affectRange>
+		<affectScope>POINT_BLANK</affectScope>
+		<basicProperty>MAGIC</basicProperty>
+		<coolTime>500</coolTime>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+		<isMagic>2</isMagic>
+		<lvlBonusRate>20</lvlBonusRate>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>-1</magicLevel>
+		<reuseDelay>10000</reuseDelay>
+		<trait>PARALYZE</trait>
+		<effects>
+			<effect name="PhysicalDamage">
+				<power>500000</power>
+			</effect>
+			<effect name="BlockActions">
+				<allowedSkills>10279;10517;10025;10776;11770;1904;11264;11093;13314;1912</allowedSkills>
+			</effect>
+		</effects>
+	</skill>
+	<skill id="32086" toLevel="1" name="Liberation">
+		<!-- Breaks the seals binding your ability to increase P. Atk./ M. Atk./ P. Def/ M. Def 4 times and HP Recovery Bonus 10 times. -->
+		<icon>icon.skill32086</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32087" toLevel="1" name="Fire Strike">
+		<!-- Attacks enemies with fire magic. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32088" toLevel="1" name="Fire Flare">
+		<!-- Inflicts damage on the target and enemies near it. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<isMagic>1</isMagic> <!-- Magic Skill -->
+	</skill>
+	<skill id="32089" toLevel="1" name="Breath">
+		<!-- Lets its breath out, which burns enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32090" toLevel="1" name="Mass Slow">
+		<!-- Significantly decreases all nearby enemies' Atk. Spd. and Speed. -->
+		<icon>icon.skill0516</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>2000</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32091" toLevel="1" name="Breath">
+		<!-- Lets its breath out, which burns enemies. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>400</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32092" toLevel="1" name="Power Slash">
+		<!-- Inflicts physical damage on the target. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32093" toLevel="1" name="Thunder Storm">
+		<!-- Inflicts physical damage on all nearby enemies and put them into Stun. -->
+		<icon>icon.skill0036</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32094" toLevel="1" name="Javelin Throw">
+		<!-- Throws a javelin with both hands, dealing great damage. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>900</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32095" toLevel="1" name="Go Berserk">
+		<!-- Goes berserk to increase P. Atk. in the expense of P. Def. -->
+		<icon>icon.skill0176</icon>
+		<operateType>A1</operateType>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32096" toLevel="1" name="Bash">
+		<!-- Bashes the target with both hands, dealing great damage. -->
+		<icon>icon.skill0000</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+	</skill>
+	<skill id="32097" toLevel="1" name="Mass Hold">
+		<!-- Holds all nearby enemies in place. -->
+		<icon>icon.skill0402</icon>
+		<operateType>A1</operateType>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32098" toLevel="1" name="Bang Bang">
+		<!-- Fires deadly penetration bullets at enemies, inflicting physical damage and decreasing P. Def/ M. Def significantly. -->
+		<icon>icon.skill32098</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+	<skill id="32099" toLevel="1" name="Hundred Slash">
+		<!-- Wields a sword to inflict physical damage on enemies and disable their skills. -->
+		<icon>icon.skill1336</icon>
+		<operateType>A1</operateType>
+		<castRange>40</castRange>
+		<effectPoint>-100</effectPoint>
+		<hitTime>1500</hitTime>
+		<isDebuff>true</isDebuff>
+	</skill>
+</list>

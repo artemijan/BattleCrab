@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="28300" name="Transcendent Eternal Tunic" additionalName="Recovery Type / Robe / Lv. 6" type="Armor">
-		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to + 4, increases M. Evasion and Mentall Attack Resistance, and decreases P. Critical Damage and the chance of receiving P. Critical Hit. Aeore Healers only. -->
+		<!-- Ultimate enchant item. Decreases Damage Received by 8%. Increases P. Atk. by 1.5% and M. Atk. by 3%. When enchanted to +4, increases M. Evasion and M. Debuff Resistance, decreases received P. Critical Damage and the chance of receiving P. Critical Attack. Aeore Healers only. -->
 		<set name="icon" val="BranchIcon.icon.armor_t803_u_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="MAGIC" />
@@ -17,17 +17,17 @@
 		<set name="commissionItemType" val="ARMOR_TOP" />
 		<set name="crystal_count" val="9008" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27698" level="6" /> <!-- Inherent Abilities - Attack -->
-			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
-			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
-		</skills>
 		<stats>
 			<stat type="mDef">56</stat>
 			<stat type="pDef">274</stat>
 			<stat type="maxMp">649</stat>
 		</stats>
+		<skills>
+			<skill id="27693" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27698" level="6" /> <!-- Inherent Abilities - Top Attack -->
+			<skill id="13063" level="1" /> <!-- Cloak Slot Activation (R-grade) -->
+			<skill id="13312" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Robe Upper Special Ability -->
+		</skills>
 	</item>
 	<item id="28301" name="Transcendent Eternal Stockings" additionalName="Recovery Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 5%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers only. -->
@@ -46,15 +46,15 @@
 		<set name="commissionItemType" val="ARMOR_PANTS" />
 		<set name="crystal_count" val="5630" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27699" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="mDef">37</stat>
 			<stat type="pDef">171</stat>
 			<stat type="maxMp">427</stat>
 		</stats>
+		<skills>
+			<skill id="27694" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27699" level="6" /> <!-- Inherent Abilities - Pants Attack -->
+		</skills>
 	</item>
 	<item id="28302" name="Transcendent Eternal Gloves" additionalName="Recovery Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers only. -->
@@ -72,13 +72,13 @@
 		<set name="commissionItemType" val="GLOVES" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27700" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27695" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27700" level="6" /> <!-- Inherent Abilities - Gloves Attack -->
+		</skills>
 	</item>
 	<item id="28303" name="Transcendent Eternal Shoes" additionalName="Recovery Type / Robe / Lv. 6" type="Armor">
 		<!-- Ultimate enchant item. Decreases Damage Received by 2%. Increases P. Atk. by 1.5% and M. Atk. by 3%. Aeore Healers only. -->
@@ -96,13 +96,13 @@
 		<set name="commissionItemType" val="FEET" />
 		<set name="crystal_count" val="2252" />
 		<set name="blessed" val="true" />
-		<skills>
-			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
-			<skill id="27701" level="6" /> <!-- Inherent Abilities - Attack -->
-		</skills>
 		<stats>
 			<stat type="pDef">125</stat>
 		</stats>
+		<skills>
+			<skill id="27696" level="1" /> <!-- Inherent Abilities - Damage Reduction -->
+			<skill id="27701" level="6" /> <!-- Inherent Abilities - Shoes Attack -->
+		</skills>
 	</item>
 	<item id="28304" name="Shilen's Ring" type="Armor">
 		<!-- A ring containing Shilen's strength. -->
@@ -116,7 +116,7 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_sellable" val="false" />
 	</item>
-	<item id="28305" name="Shilen's Ring" type="Armor">
+	<item id="28305" name="Shilen's Ring - Not Used" type="Armor">
 		<set name="icon" val="BranchIcon.Icon.ring_of_shilen_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -145,7 +145,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="LIQUID" />
 	</item>
-	<item id="28308" name="Shilen's Necklace" type="Armor">
+	<item id="28308" name="Shilen's Necklace - Not Used" type="Armor">
 		<!-- A necklace containing Shilen's strength. -->
 		<set name="icon" val="BranchIcon.Icon.necklace_of_shilen_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -157,7 +157,7 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_sellable" val="false" />
 	</item>
-	<item id="28309" name="Shilen's Necklace" type="Armor">
+	<item id="28309" name="Shilen's Necklace - Not Used" type="Armor">
 		<set name="icon" val="BranchIcon.Icon.necklace_of_shilen_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="neck" />
@@ -168,7 +168,7 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_sellable" val="false" />
 	</item>
-	<item id="28310" name="Shilen's Necklace" type="Armor">
+	<item id="28310" name="Shilen's Necklace - Not Used" type="Armor">
 		<set name="icon" val="BranchIcon.Icon.necklace_of_shilen_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="neck" />
@@ -198,7 +198,7 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_sellable" val="false" />
 	</item>
-	<item id="28313" name="Shilen's Earring" type="Armor">
+	<item id="28313" name="Shilen's Earring - Not Used" type="Armor">
 		<set name="icon" val="BranchIcon.Icon.earring_of_shilen_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -209,7 +209,7 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_sellable" val="false" />
 	</item>
-	<item id="28314" name="Shilen's Earring" type="Armor">
+	<item id="28314" name="Shilen's Earring - Not Used" type="Armor">
 		<set name="icon" val="BranchIcon.Icon.earring_of_shilen_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -228,7 +228,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="28316" name="Scroll: Shilen's Ring" type="EtcItem">
-		<!-- Enchant scroll exclusive to Shilen's Ring. Unlike regular items, there's a chance of failing from +1 enchant level, and it can be enchanted up to +5. If it succeeds, M. Def., Dark Resistance, STR/INT and other various stats will increase gradually. Staring from +3, there's a special effect, and from +4, you can obtain a special skill for each accessory. If it fails, the item will disappear. -->
+		<!-- Enchant scroll exclusive to Shilen's Ring. Unlike regular items, there's a chance of failing from +1 enchant level, and it can be enchanted up to +5. If it succeeds, M. Def., Dark Resistance, STR/ INT and other various stats will increase gradually. Staring from +3, there's a special effect, and from +4, you can obtain a special skill for each accessory. If it fails, the item will disappear. -->
 		<set name="icon" val="icon.g_scrl_of_ench_wolf_shirt" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="weight" val="10" />
@@ -237,7 +237,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="28317" name="Scroll: Shilen's Necklace" type="EtcItem">
-		<!-- Enchant scroll exclusive to Shilen's Necklace. Unlike regular items, there's a chance of failing from +1 enchant level, and it can be enchanted up to +5. If it succeeds, M. Def., Dark Resistance, STR/INT and other various stats will increase gradually. Staring from +3, there's a special effect, and from +4, you can obtain a special skill for each accessory. If it fails, the item will disappear. -->
+		<!-- Enchant scroll exclusive to Shilen's Necklace. Unlike regular items, there's a chance of failing from +1 enchant level, and it can be enchanted up to +5. If it succeeds, M. Def., Dark Resistance, STR/ INT and other various stats will increase gradually. Staring from +3, there's a special effect, and from +4, you can obtain a special skill for each accessory. If it fails, the item will disappear. -->
 		<set name="icon" val="icon.g_scrl_of_ench_wolf_shirt" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="weight" val="10" />
@@ -246,7 +246,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="28318" name="Scroll: Shilen's Earring" type="EtcItem">
-		<!-- Enchant scroll exclusive to Shilen's Earring. Unlike regular items, there's a chance of failing from +1 enchant level, and it can be enchanted up to +5. If it succeeds, M. Def., Dark Resistance, STR/INT and other various stats will increase gradually. Staring from +3, there's a special effect, and from +4, you can obtain a special skill for each accessory. If it fails, the item will disappear. -->
+		<!-- Enchant scroll exclusive to Shilen's Earring. Unlike regular items, there's a chance of failing from +1 enchant level, and it can be enchanted up to +5. If it succeeds, M. Def., Dark Resistance, STR/ INT and other various stats will increase gradually. Staring from +3, there's a special effect, and from +4, you can obtain a special skill for each accessory. If it fails, the item will disappear. -->
 		<set name="icon" val="icon.g_scrl_of_ench_wolf_shirt" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="weight" val="10" />
@@ -687,7 +687,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28355" name="Prestige Cube" additionalName="7-day" type="EtcItem">
-		<!-- Double-click to obtain either Dark/Bloody Eternal Enhancement Stone, various Weapon Enchant Scrolls, Giant's Energy, or Gemstone (R-grade). Once a day. Cannot be used in the Olympiad. -->
+		<!-- Double-click to obtain either Dark/ Bloody Eternal Enhancement Stone, various Weapon Enchant Scrolls, Giant's Energy, or Gemstone (R-grade). Once a day. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_dkbrown_crystal_cube_pc_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -706,7 +706,7 @@
 		<set name="time" val="10080" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="28357" name="Special Treasure Chest" type="EtcItem">
+	<item id="28357" name="Exclusive Treasure Chest" type="EtcItem">
 		<!-- Exclusive treasure chest. Double-click to receive a random item. -->
 		<set name="icon" val="icon.etc_treasure_box_i02" />
 		<set name="default_action" val="SKILL_REDUCE_ON_SKILL_SUCCESS" />
@@ -715,7 +715,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="28358" name="La Vie En Rose's Elegant Brooch" type="Armor">
-		<!-- Activates 6 jewel slots when equipped. Inventory Slot +12. -->
+		<!-- Activates 6 jewel slots when equipped. Inventory Slots +12. -->
 		<set name="icon" val="BranchIcon.icon.etc_g_bm_brooch_lavianrose" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch" />
@@ -723,13 +723,13 @@
 		<set name="material" val="SILVER" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="27718" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
-			<skill id="27719" level="1" /> <!-- La Vie En Rose's Radiant Brooch -->
-		</skills>
 		<stats>
 			<stat type="mDef">101</stat>
 		</stats>
+		<skills>
+			<skill id="27718" level="1" /> <!-- La Vie En Rose's Elegant Brooch -->
+			<skill id="27719" level="1" /> <!-- La Vie En Rose's Elegant Brooch -->
+		</skills>
 	</item>
 	<item id="28359" name="La Vie En Rose's Jewel Powder" type="EtcItem">
 		<!-- La Vie En Rose's refined jewel powder. Go find Shadai to use it when exchanging for various jewels. -->
@@ -763,7 +763,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28362" name="Amethyst Lv. 3 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Amethyst Lv. 3. -->
+		<!-- Double-click to obtain an Amethyst Lv. 3. -->
 		<set name="icon" val="BranchIcon.Icon.etc_bm_jewelbox_amethyst_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="is_sellable" val="false" />
@@ -775,7 +775,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28363" name="Amethyst Lv. 4 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Amethyst Lv. 4. -->
+		<!-- Double-click to obtain an Amethyst Lv. 4. -->
 		<set name="icon" val="BranchIcon.Icon.etc_bm_jewelbox_amethyst_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -859,7 +859,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28370" name="Garnet Lv. 3 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Tanzanite Lv. 3. -->
+		<!-- Double-click to obtain a Garnet Lv. 3. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_garnet" />
 		<set name="default_action" val="PEEL" />
 		<set name="is_sellable" val="false" />
@@ -871,7 +871,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28371" name="Garnet Lv. 4 Jewelry Box" type="EtcItem">
-		<!-- Double-click to obtain a Vital Stone Lv. 4. -->
+		<!-- Double-click to obtain a Garnet Lv. 4. -->
 		<set name="icon" val="icon.etc_bm_jewelbox_garnet" />
 		<set name="default_action" val="PEEL" />
 		<set name="is_sellable" val="false" />
@@ -928,12 +928,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="27440" level="6" /> <!-- Cat's Eye -->
+			<skill id="27440" level="6" /> <!-- Greater Cat's Eye -->
 			<skill id="27441" level="1" /> <!-- Cat's Eye - Invincibility -->
 		</skills>
 	</item>
 	<item id="28377" name="Greater Amethyst" type="Armor">
-		<!-- PvP Damage + 15%, chance of receiving a critical attack - 25%. Can remove invincibility and debuff invincibility. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
+		<!-- PvP Damage +15%, chance of receiving a critical attack -25%. Can remove invincibility and debuff invincibility. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
 		<set name="icon" val="BranchIcon.Icon.etc_bm_jewel_amethyst_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch_jewel" />
@@ -942,8 +942,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="27442" level="6" /> <!-- Amethyst -->
-			<skill id="27443" level="1" /> <!-- Amethyst - Remove Invincibility/Immunity -->
+			<skill id="27442" level="6" /> <!-- Greater Amethyst -->
+			<skill id="27443" level="1" /> <!-- Amethyst - Remove Invincibility -->
 		</skills>
 	</item>
 	<item id="28378" name="Greater Vital Stone" type="Armor">
@@ -956,12 +956,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18568" level="6" /> <!-- Vital Stone -->
-			<skill id="27439" level="3" /> <!-- Vital Wind -->
+			<skill id="18568" level="6" /> <!-- Greater Vital Stone -->
+			<skill id="27439" level="3" /> <!-- Vital Stone - Vital Wind -->
 		</skills>
 	</item>
 	<item id="28379" name="Greater Garnet" type="Armor">
-		<!-- Resistance to Debuffs +30%, and when receiving damage to a PC, Stun/Silence are canceled. Cancels debuff and you become immune to debuffs for 7 seconds. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
+		<!-- Resistance to Debuffs +30%, and when receiving damage to a PC, Stun/ Silence are canceled. Cancels debuff and you become immune to debuffs for 7 seconds. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
 		<set name="icon" val="icon.bm_jewel_garnet_high_lv1_lavianrose" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch_jewel" />
@@ -970,8 +970,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18566" level="6" /> <!-- Garnet -->
-			<skill id="18567" level="2" /> <!-- Garnet - Purge -->
+			<skill id="18566" level="6" /> <!-- Greater Garnet -->
+			<skill id="18567" level="2" /> <!-- Greater Garnet - Cancel Debuffs -->
 		</skills>
 	</item>
 	<item id="28380" name="Greater Tanzanite" type="Armor">
@@ -984,11 +984,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="27549" level="6" /> <!-- Tanzanite - Barrier -->
+			<skill id="27549" level="6" /> <!-- Greater Tanzanite - Barrier -->
 		</skills>
 	</item>
 	<item id="28381" name="Abundance Box" additionalName="Infinite" type="EtcItem">
-		<!-- Get 1 of the following: 1 type of Talisman - Abundance, Lindvior's Earring, Earth Wyrm Heart Ring, Seven Signs' Energy, Talisman - Lilith, Talisman - Anakim, Talisman - Insanity, Talisman - Longing, Antharas' Earring, Bottle of Antharas' Soul, Valakas' Necklace, Bottle of Valakas' Soul, Baium's Ring, Baium's Soul Ring, Octavis' Ring, Octavis' Earring, Octavis' Necklace, Istina's Necklace, Istina's Ring, Queen Ant's Ring, Superior Giant's Codex Chapter 1, Superior Giant's Codex - Mastery Chapter 1, Superior Giant's Codex - Discipline Chapter 1, Lv. 5 Legendary Dye Pack, Elcyum Regular/Crystal, Giant's Energy, Orfen's Earring, Tempest Stone, Gemstone, Fortune Pocket - Stage 5, Blessed Zaken, Venir's Talisman Stage 8/10/14. -->
+		<!-- Get 1 of the following: 1 type of Talisman - Abundance, Lindvior's Earring, Earth Wyrm Heart Ring, Seven Signs' Energy, Talisman - Lilith, Talisman - Anakim, Talisman - Insanity, Talisman - Longing, Antharas' Earring, Bottle of Antharas' Soul, Valakas' Necklace, Bottle of Valakas' Soul, Baium's Ring, Baium's Soul Ring, Octavis' Ring, Octavis' Earring, Octavis' Necklace, Istina's Necklace, Istina's Ring, Queen Ant's Ring, Superior Giant's Codex Chapter 1, Superior Giant's Codex - Mastery Chapter 1, Superior Giant's Codex - Discipline Chapter 1, Lv. 5 Legendary Dye Pack, Elcyum Regular/ Crystal, Giant's Energy, Orfen's Earring, Tempest Stone, Gemstone, Fortune Pocket - Stage 5, Blessed Zaken, Venir's Talisman Stage 8/ 10/ 14. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i03" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
@@ -1010,7 +1010,7 @@
 		</skills>
 	</item>
 	<item id="28383" name="Greater Garnet" type="Armor">
-		<!-- Increases Resistance to all Debuffs by 30%, and when receiving damage to a PC, Stun/Silence are canceled. When used, all debuffs are canceled and you become immune to debuffs for 7 seconds. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
+		<!-- Increases Resistance to all Debuffs by 30%, and when receiving damage to a PC, Stun/ Silence are canceled. When used, all debuffs are canceled and you become immune to debuffs for 7 seconds. Effect does not stack with additional jewels of the same type. Equipping various Greater Jewels will grant additional effects. -->
 		<set name="icon" val="icon.bm_jewel_garnet_high_lv1_lavianrose" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="brooch_jewel" />
@@ -1019,12 +1019,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="material" val="FISH" />
 		<skills>
-			<skill id="18566" level="6" /> <!-- Garnet -->
-			<skill id="18567" level="2" /> <!-- Garnet - Purge -->
+			<skill id="18566" level="6" /> <!-- Greater Garnet -->
+			<skill id="18567" level="2" /> <!-- Greater Garnet - Cancel Debuffs -->
 		</skills>
 	</item>
 	<item id="28384" name="Chef Monkey's Belt" type="Armor">
-		<!-- A belt from Chef Monkey. When equipped, Max HP/MP/CP +300, Weight +12800, Damage +7%, Received Damage - 5%, Inventory Slots +18, Attribute Resistance +5. -->
+		<!-- A belt from Chef Monkey. When equipped, Max HP/ MP/ CP +300, Weight +12800, Damage +7%, Received Damage -5%, Inventory Slots +18, Attribute Resistance +5. -->
 		<set name="icon" val="BranchIcon.icon.g_monkey_belt" />
 		<set name="default_action" val="EQUIP" />
 		<set name="armor_type" val="LIGHT" />
@@ -1035,12 +1035,12 @@
 		<set name="weight" val="440" />
 		<set name="enchant_enabled" val="true" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="27745" level="1" /> <!-- Chef Monkey's Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">35</stat>
 		</stats>
+		<skills>
+			<skill id="27745" level="1" /> <!-- Chef Monkey's Belt -->
+		</skills>
 	</item>
 	<item id="28385" name="Race Change Ticket Pack" type="EtcItem">
 		<!-- Double-click to obtain a Race Change Ticket. -->
@@ -1060,7 +1060,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28386" name="Race Change Ticket" type="EtcItem">
-		<!-- After purchasing a Race Change ticket, you can contact support at, support.lineage2.com, with the subject title of "Character Race Change". \Only characters that have reached at least level 85 and who have completed the 4th Class transfer can request a race change. Note that the following race and class restrictions apply to the race change service. 1.) Ertheia and Kamael classes cannot change to a different race. 2.) Human/Elf/Dark Elf/Orc/Dwarf races cannot change to the Ertheia or Kamael race. 3.) Orc Overlord/Dominator/Iss Dominator as a Mainclass/Dualclass/Sublcass cannot change to a different race. 4.) Dwarven Warsmith/Maestro/Tyrr Maestro as a Mainclass/Dualclass/Sublcass cannot change to a different race. 5.) If switching from a Dwarven race to Human/Elf/Dark Elf/Orc, the character will lose the Dwarven inventory/warehouse/private shop bonus slots. -->
+		<!-- After purchasing a Race Change ticket, you can contact support at, support.lineage2.com, with the subject title of "Character Race Change". \Only characters that have reached at least level 85 and who have completed the 4th Class transfer can request a race change. Note that the following race and class restrictions apply to the race change service. 1.) Ertheia and Kamael classes cannot change to a different race. 2.) Human/ Elf/ Dark Elf/ Orc/ Dwarf races cannot change to the Ertheia or Kamael race. 3.) Orc Overlord/ Dominator/ Iss Dominator as a Mainclass/ Dualclass/ Sublcass cannot change to a different race. 4.) Dwarven Warsmith/ Maestro/ Tyrr Maestro as a Mainclass/ Dualclass/ Sublcass cannot change to a different race. 5.) If switching from a Dwarven race to Human/ Elf/ Dark Elf/ Orc, the character will lose the Dwarven inventory/ warehouse/ private shop bonus slots. -->
 		<set name="icon" val="icon.etc_exchange_ticket_i00" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
@@ -1098,7 +1098,7 @@
 		<set name="is_freightable" val="true" />
 	</item>
 	<item id="28389" name="Heine Exclusive Bait (85-89)" type="EtcItem">
-		<!-- Bait for fishing. Double-click to get a Heine Exclusive Reward Chest. Can be used by characters Lv. 85 - 89. -->
+		<!-- Bait is used to obtain Heine Exclusive Reward Chest with a certain chance. Can be used by characters Lv. 85-89. -->
 		<set name="icon" val="icon.etc_bait_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -1110,7 +1110,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="28390" name="Heine Exclusive Bait (90-94)" type="EtcItem">
-		<!-- Bait for fishing. Double-click to get a Heine Exclusive Reward Chest. Can be used by characters Lv. 90 - 94. -->
+		<!-- Bait is used to obtain Heine Exclusive Reward Chest with a certain chance. Can be used by characters Lv. 90-94. -->
 		<set name="icon" val="icon.etc_bait_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -1122,7 +1122,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="28391" name="Heine Exclusive Bait (95-98)" type="EtcItem">
-		<!-- Bait for fishing. Double-click to get a Heine Exclusive Reward Chest. Can be used by characters Lv. 95 - 98. -->
+		<!-- Bait is used to obtain Heine Exclusive Reward Chest with a certain chance. Can be used by characters Lv. 95-98. -->
 		<set name="icon" val="icon.etc_bait_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -1134,7 +1134,7 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="28392" name="Heine Exclusive Bait (99+)" type="EtcItem">
-		<!-- Bait for fishing. Double-click to get a Heine Exclusive Reward Chest. Lv. 99 or above. -->
+		<!-- Bait is used to obtain Heine Exclusive Reward Chest with a certain chance. Can be used by characters Lv. 99 or above. -->
 		<set name="icon" val="icon.etc_bait_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="immediate_effect" val="true" />
@@ -1153,7 +1153,7 @@
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="28394" name="Heine Exclusive Reward Chest" type="EtcItem">
-		<!-- Double-click to get Heine Fishing Coin. Has a chance of obtaining an Exclusive Treasure Chest. -->
+		<!-- Double-click to get a Heine Fishing Coin. Has a chance of obtaining an Exclusive Treasure Chest. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1196,7 +1196,7 @@
 		</capsuled_items>
 	</item>
 	<item id="28397" name="2016 World Olympiad Hero XXX's Accessory" type="Armor">
-		<!-- Special hair accessory crafted for the winner of the 2016 World Olympiad, XXX. STR/INT/DEX/WIT/CON/MEN +5 when equipped. -->
+		<!-- Special hair accessory crafted for the winner of the 2016 World Olympiad, XXX. STR/ INT/ DEX/ WIT/ CON/ MEN +5 when equipped. -->
 		<set name="icon" val="icon.accessory_ornithomimus_cap_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="hairall" />

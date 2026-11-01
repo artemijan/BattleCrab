@@ -269,7 +269,7 @@ impl DashboardConfig {
 
             game_data_dir: p.get_string("GameDataDir", "dist/game"),
 
-            // Key names match `LoginServer.ini` (`URL`,
+            // Key names match `Database.ini` (`URL`,
             // `MaximumDatabaseConnections`) so both servers are configured the
             // same way and the value can be copied across verbatim.
             database_url: p.get_string(

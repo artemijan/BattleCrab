@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="14000" name="Dion Supply Box - Hair Accessory" type="EtcItem">
 		<!-- Pouch bearing the unique pattern of Dion. Can be attached additionally to the hair accessory. -->
@@ -89,9 +89,9 @@
 		<set name="price" val="41400" />
 		<set name="commissionItemType" val="LIFE_STONE" />
 		<set name="is_stackable" val="true" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="84" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="14009" name="Extracted Red Star Stone" type="EtcItem">
 		<!-- Fragment extracted from a Red Star Stone. Can be used in crafting useful items. -->
@@ -498,9 +498,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2792" level="1" /> <!-- Stone of Stamina -->
 		</skills>
@@ -519,9 +519,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2792" level="2" /> <!-- Greater Stone of Stamina -->
 		</skills>
@@ -540,9 +540,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2793" level="1" /> <!-- Stone of Mana -->
 		</skills>
@@ -561,9 +561,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2793" level="2" /> <!-- Greater Stone of Mana -->
 		</skills>
@@ -582,9 +582,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2794" level="1" /> <!-- Stone of Recovery -->
 		</skills>
@@ -603,9 +603,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2794" level="2" /> <!-- Greater Stone of Recovery -->
 		</skills>
@@ -624,9 +624,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2795" level="1" /> <!-- Stone of Destruction -->
 		</skills>
@@ -645,9 +645,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2796" level="1" /> <!-- Stone of Invincibility -->
 		</skills>
@@ -666,9 +666,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2797" level="1" /> <!-- Stone of Great Speed -->
 		</skills>
@@ -687,9 +687,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2798" level="1" /> <!-- Stone of Speed -->
 		</skills>
@@ -708,9 +708,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2799" level="1" /> <!-- Stone of Concentration -->
 		</skills>
@@ -729,9 +729,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2800" level="1" /> <!-- Stone of Ease -->
 		</skills>
@@ -750,9 +750,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2801" level="1" /> <!-- Stone of Abundance -->
 		</skills>
@@ -770,9 +770,9 @@
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="for_npc" val="true" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="true" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2802" level="1" /> <!-- Recovery Stone -->
 		</skills>
@@ -860,18 +860,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
+		</skills>
 	</item>
 	<item id="14057" name="Scarecrow Jack Transformation Stick" additionalName="30-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Scarecrow Jack. 30-day. -->
@@ -888,18 +888,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
+		</skills>
 	</item>
 	<item id="14058" name="Tin Golem Transformation Stick" additionalName="30-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Tin Golem. 30-day. -->
@@ -916,18 +916,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
+		</skills>
 	</item>
 	<item id="14059" name="Agathion - Teddy Boy" additionalName="30-day" type="Armor">
 		<!-- Can summon an Agathion - Teddy Boy when equipped. 30-day. -->
@@ -944,7 +944,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -964,7 +964,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8260" level="1" /> <!-- Release Agathion's Seal - Teddy Girl -->
+			<skill id="8260" level="1" /> <!-- Agathion Summon - Teddy Girl -->
 			<skill id="5959" level="1" /> <!-- Agathion Cute Trick - Teddy Girl -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -983,9 +983,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1004,9 +1004,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1025,9 +1025,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1046,9 +1046,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="SummonItems" />
 		<set name="use_condition" val="{{uc_transmode_exclude;{tt_pure_stat}}}" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="2046" level="1" /> <!-- Summon Pet -->
 		</skills>
@@ -1136,18 +1136,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
+		</skills>
 	</item>
 	<item id="14070" name="Scarecrow Jack Transformation Stick (Event)" additionalName="30-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Scarecrow Jack. 30-day. -->
@@ -1164,18 +1164,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
+		</skills>
 	</item>
 	<item id="14071" name="Tin Golem Transformation Stick (Event)" additionalName="30-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Tin Golem. 30-day. -->
@@ -1192,18 +1192,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
+		</skills>
 	</item>
 	<item id="14072" name="Agathion - Teddy Boy (Event)" additionalName="30-day" type="Armor">
 		<!-- Can summon an Agathion - Teddy Boy when equipped. 30-day. -->
@@ -1220,7 +1220,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1240,7 +1240,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8260" level="1" /> <!-- Release Agathion's Seal - Teddy Girl -->
+			<skill id="8260" level="1" /> <!-- Agathion Summon - Teddy Girl -->
 			<skill id="5959" level="1" /> <!-- Agathion Cute Trick - Teddy Girl -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1272,7 +1272,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8257" level="1" /> <!-- Release Agathion's Seal - Angry Devil -->
+			<skill id="8257" level="1" /> <!-- Agathion Summon - Angry Devil -->
 			<skill id="5956" level="1" /> <!-- Agathion Cute Trick - Angry Devil -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1292,7 +1292,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8256" level="1" /> <!-- Release Agathion's Seal - Joy -->
+			<skill id="8256" level="1" /> <!-- Agathion Summon - Joy -->
 			<skill id="5955" level="1" /> <!-- Agathion Cute Trick - Joy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1312,7 +1312,7 @@
 		<set name="time" val="43200" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8258" level="1" /> <!-- Release Agathion's Seal - Sorrow -->
+			<skill id="8258" level="1" /> <!-- Agathion Summon - Sorrow -->
 			<skill id="5957" level="1" /> <!-- Agathion Cute Trick - Sorrow -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1502,18 +1502,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
+		</skills>
 	</item>
 	<item id="14089" name="Scarecrow Jack Transformation Stick" additionalName="7-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Scarecrow Jack. 7-day. -->
@@ -1530,18 +1530,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
+		</skills>
 	</item>
 	<item id="14090" name="Tin Golem Transformation Stick" additionalName="7-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Tin Golem. 7-day. -->
@@ -1558,18 +1558,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
+		</skills>
 	</item>
 	<item id="14091" name="Agathion - Teddy Boy" additionalName="7-day" type="Armor">
 		<!-- Can summon an Agathion - Teddy Boy when equipped. 7-day. -->
@@ -1586,7 +1586,7 @@
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1606,7 +1606,7 @@
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8260" level="1" /> <!-- Release Agathion's Seal - Teddy Girl -->
+			<skill id="8260" level="1" /> <!-- Agathion Summon - Teddy Girl -->
 			<skill id="5959" level="1" /> <!-- Agathion Cute Trick - Teddy Girl -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1626,7 +1626,7 @@
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8257" level="1" /> <!-- Release Agathion's Seal - Angry Devil -->
+			<skill id="8257" level="1" /> <!-- Agathion Summon - Angry Devil -->
 			<skill id="5956" level="1" /> <!-- Agathion Cute Trick - Angry Devil -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1646,7 +1646,7 @@
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8256" level="1" /> <!-- Release Agathion's Seal - Joy -->
+			<skill id="8256" level="1" /> <!-- Agathion Summon - Joy -->
 			<skill id="5955" level="1" /> <!-- Agathion Cute Trick - Joy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1666,7 +1666,7 @@
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8258" level="1" /> <!-- Release Agathion's Seal - Sorrow -->
+			<skill id="8258" level="1" /> <!-- Agathion Summon - Sorrow -->
 			<skill id="5957" level="1" /> <!-- Agathion Cute Trick - Sorrow -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
@@ -1686,18 +1686,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8263" level="1" /> <!-- Transform Snow Kung -->
+		</skills>
 	</item>
 	<item id="14097" name="Scarecrow Jack Transformation Stick (Event)" additionalName="7-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Scarecrow Jack. 7-day. -->
@@ -1714,18 +1714,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8264" level="1" /> <!-- Transform Scarecrow Jack -->
+		</skills>
 	</item>
 	<item id="14098" name="Tin Golem Transformation Stick (Event)" additionalName="7-day" type="Weapon">
 		<!-- Transformation stick that turns you into a Tin Golem. 7-day. -->
@@ -1742,18 +1742,18 @@
 		<set name="is_premium" val="true" />
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
-		<skills>
-			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
-			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1</stat>
 			<stat type="mAtk">1</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="839" level="1" type="ON_UNEQUIP" /> <!-- Dismount -->
+			<skill id="8265" level="1" /> <!-- Transform Tin Golem -->
+		</skills>
 	</item>
 	<item id="14099" name="Agathion - Teddy Boy (Event)" additionalName="7-day" type="Armor">
 		<!-- Can summon an Agathion - Teddy Boy when equipped. 7-day. -->
@@ -1770,7 +1770,7 @@
 		<set name="time" val="10080" />
 		<set name="is_destroyable" val="false" />
 		<skills>
-			<skill id="8259" level="1" /> <!-- Release Agathion's Seal - Teddy Boy -->
+			<skill id="8259" level="1" /> <!-- Agathion Summon - Teddy Boy -->
 			<skill id="5958" level="1" /> <!-- Agathion Cute Trick - Teddy Boy -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>

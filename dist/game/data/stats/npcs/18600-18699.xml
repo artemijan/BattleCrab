@@ -1,6 +1,6 @@
-﻿<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/npcs.xsd">
 	<npc id="18600" level="86" type="Monster" name="Kratei's Steward">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -23,13 +23,13 @@
 		</parameters>
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
-			<vitals hp="4439" hpRegen="8.5" mp="1881" mpRegen="3" />
-			<attack physical="1233.98508337826" magical="842.651845283929" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="365.6202" magical="267.545" />
+		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
+			<vitals hp="4439.1167192429" hpRegen="8.5" mp="1881.5896188159" mpRegen="3" />
+			<attack physical="1703.33333333333" magical="781.472668360897" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="366.045548654244" magical="267.700882376257" />
 			<attribute>
 				<attack type="DARK" value="180" />
-				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" default="70" />
+				<defence fire="100" water="100" wind="100" earth="100" holy="50" dark="100" />
 			</attribute>
 			<speed>
 				<walk ground="55" />
@@ -40,16 +40,11 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="7" /> <!-- Weak P. Def. -->
 			<skill id="4413" level="8" /> <!-- Weak M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="5467" level="1" /> <!-- Dark Attacks -->
+			<skill id="5467" level="1" /> <!-- Dark Attack -->
 			<skill id="5736" level="5" /> <!-- Katar Trusting -->
 			<skill id="5737" level="5" /> <!-- Power Stamp -->
 			<skill id="5738" level="5" /> <!-- Power Roar -->
@@ -57,19 +52,31 @@
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="300" isAggressive="true" />
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="18" />
 			<height normal="31" />
 		</collision>
 	</npc>
-	<npc id="18601" level="70" type="Folk" name="Kratei's Watchman">
-		<!-- Confirmed CT2.5 -->
+	<npc id="18601" level="70" type="Monster" name="Kratei's Watchman">
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" />
+			<vitals hp="1.26182965299685" hpRegen="7.5" mp="1345.49878345499" mpRegen="2.7" />
+			<attack physical="950.733752620545" magical="445.095379897059" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="296.323173681664" magical="216.561030522666" />
 			<speed>
 				<walk ground="1" />
 				<run ground="1" />
@@ -78,13 +85,8 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="4" /> <!-- Extremely Weak P. Def. -->
 			<skill id="4413" level="5" /> <!-- Very Weak M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
@@ -95,14 +97,13 @@
 			<height normal="32" />
 		</collision>
 	</npc>
-	<npc id="18602" level="70" type="Folk" name="Kratei's Watchman">
-		<!-- Confirmed CT2.5 -->
+	<npc id="18602" level="70" type="Monster" name="Kratei's Watchman">
 		<race>CONSTRUCT</race>
 		<sex>MALE</sex>
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1" hpRegen="7.5" mp="1345" mpRegen="2.7" />
-			<attack physical="688.86373" magical="470.40463" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="295.91597" magical="216.53847" />
+			<vitals hp="1.26182965299685" hpRegen="7.5" mp="1345.49878345499" mpRegen="2.7" />
+			<attack physical="950.733752620545" magical="445.095379897059" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="296.323173681664" magical="216.561030522666" />
 			<speed>
 				<walk ground="1" />
 				<run ground="1" />
@@ -111,13 +112,8 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
 			<skill id="4412" level="4" /> <!-- Extremely Weak P. Def. -->
 			<skill id="4413" level="5" /> <!-- Very Weak M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="2" /> <!-- Magic Creatures -->
 		</skillList>
@@ -304,6 +300,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="12" />
 			<height normal="40" />
@@ -352,6 +361,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="20" />
 			<height normal="41" />
@@ -402,6 +424,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="20" />
 			<height normal="41" />
@@ -454,6 +489,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="20" />
 			<height normal="70" />
@@ -509,6 +557,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="12" />
 			<height normal="27" />
@@ -564,6 +625,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="11" />
 			<height normal="35" />
@@ -619,6 +693,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="12" />
 			<height normal="39.7" />
@@ -675,6 +762,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="10" />
 			<height normal="25" />
@@ -730,6 +830,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="14" />
 			<height normal="36" />
@@ -780,6 +893,19 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="11" />
 			<height normal="20" />
@@ -999,7 +1125,6 @@
 		</collision>
 	</npc>
 	<npc id="18623" level="61" type="Monster" name="Begrudged Archer">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="157" />
 			<param name="MoveAroundSocial1" value="157" />
@@ -1014,9 +1139,9 @@
 		<equipment rhand="279" /> <!-- Reinforced Longbow -->
 		<acquire exp="4815" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1985" hpRegen="7.5" mp="1066" mpRegen="2.7" />
-			<attack physical="501.08068" magical="342.17315" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="252.49346" magical="184.76376" />
+			<vitals hp="1986.11987381703" hpRegen="7.5" mp="1066.50446066504" mpRegen="2.7" />
+			<attack physical="564.314314314314" magical="327.641209306521" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="202" magical="217.546872763704" />
 			<speed>
 				<walk ground="40" />
 				<run ground="140" />
@@ -1028,13 +1153,8 @@
 		<skillList>
 			<skill id="4120" level="6" /> <!-- Stun -->
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="4415" level="9" /> <!-- Bow -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
@@ -1044,13 +1164,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="13" />
 			<height normal="32.5" />
 		</collision>
 	</npc>
 	<npc id="18624" level="58" type="Monster" name="Deadman's Grudge">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
 			<param name="MoveAroundSocial1" value="100" />
@@ -1066,9 +1198,9 @@
 		<sex>MALE</sex>
 		<acquire exp="2827" sp="151" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1828" hpRegen="6.5" mp="977" mpRegen="2.4" />
-			<attack physical="442.8992" magical="302.44274" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
-			<defence physical="237.99429" magical="174.1539" />
+			<vitals hp="1828.39116719243" hpRegen="6.5" mp="977.291159772912" mpRegen="2.4" />
+			<attack physical="616.415148434853" magical="290.834288475725" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
+			<defence physical="285.714285714286" magical="151.60336146871" />
 			<speed>
 				<walk ground="21" />
 				<run ground="143" />
@@ -1079,15 +1211,10 @@
 		<status undying="false" canBeSown="true" />
 		<skillList>
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
 			<skill id="4414" level="1" /> <!-- Heavy Armor Type -->
-			<skill id="4415" level="7" /> <!-- Daggers -->
+			<skill id="4415" level="7" /> <!-- Dagger -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="4664" level="6" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="6" /> <!-- Drain Energy -->
 			<skill id="5706" level="1" /> <!-- Poison -->
 			<skill id="5707" level="1" /> <!-- Paralysis -->
 		</skillList>
@@ -1098,13 +1225,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="12" />
 			<height normal="26" />
 		</collision>
 	</npc>
 	<npc id="18625" level="61" type="Monster" name="Deadman's Grudge">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="215" />
 			<param name="MoveAroundSocial1" value="215" />
@@ -1121,9 +1260,9 @@
 		<equipment rhand="78" /> <!-- Great Sword -->
 		<acquire exp="3126" sp="174" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1985" hpRegen="7.5" mp="1066" mpRegen="2.7" />
-			<attack physical="501.08068" magical="342.17315" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="252.49346" magical="184.76376" />
+			<vitals hp="1986.11987381703" hpRegen="7.5" mp="1066.50446066504" mpRegen="2.7" />
+			<attack physical="691.666666666667" magical="327.641209306521" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="252.666666666667" magical="184.914841849148" />
 			<speed>
 				<walk ground="40" />
 				<run ground="160" />
@@ -1134,15 +1273,9 @@
 		<status undying="false" canBeSown="true" />
 		<skillList>
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 			<skill id="5706" level="1" /> <!-- Poison -->
 			<skill id="5707" level="1" /> <!-- Paralysis -->
 		</skillList>
@@ -1153,13 +1286,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="10" />
 			<height normal="25" />
 		</collision>
 	</npc>
 	<npc id="18626" level="64" type="Monster" name="Deadman's Grudge">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -1176,9 +1321,9 @@
 		<equipment rhand="225" lhand="945" /> <!-- Mithril Dagger / Skeleton Buckler -->
 		<acquire exp="3443" sp="199" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
-			<attack physical="562.02275" magical="383.78868" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
-			<defence physical="267.04468" magical="195.41171" />
+			<vitals hp="2141.32492113565" hpRegen="7.5" mp="1158.15085158151" mpRegen="2.7" />
+			<attack physical="781.934740690657" magical="365.800561056902" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
+			<defence physical="267.320261437908" magical="195.60135489719" />
 			<speed>
 				<walk ground="80" />
 				<run ground="120" />
@@ -1189,15 +1334,9 @@
 		<status undying="false" canBeSown="true" />
 		<skillList>
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="7" /> <!-- Daggers -->
+			<skill id="4415" level="7" /> <!-- Dagger -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 			<skill id="5706" level="1" /> <!-- Poison -->
 			<skill id="5707" level="1" /> <!-- Paralysis -->
 		</skillList>
@@ -1208,13 +1347,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="11" />
 			<height normal="28.5" />
 		</collision>
 	</npc>
 	<npc id="18627" level="64" type="Monster" name="Deadman's Grudge">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -1231,9 +1382,9 @@
 		<equipment rhand="225" lhand="945" /> <!-- Mithril Dagger / Skeleton Buckler -->
 		<acquire exp="3443" sp="199" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
-			<attack physical="562.02275" magical="383.78868" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="267.04468" magical="195.41171" />
+			<vitals hp="2141.32492113565" hpRegen="7.5" mp="1158.15085158151" mpRegen="2.7" />
+			<attack physical="775.599128540305" magical="365.800561056902" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="267.320261437908" magical="195.60135489719" />
 			<speed>
 				<walk ground="80" />
 				<run ground="120" />
@@ -1244,15 +1395,9 @@
 		<status undying="false" canBeSown="true" />
 		<skillList>
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 			<skill id="5706" level="1" /> <!-- Poison -->
 			<skill id="5707" level="1" /> <!-- Paralysis -->
 		</skillList>
@@ -1263,13 +1408,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="11" />
 			<height normal="28.5" />
 		</collision>
 	</npc>
 	<npc id="18628" level="61" type="Monster" name="Atan" title="Lookout">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="100" />
 			<param name="MoveAroundSocial1" value="100" />
@@ -1283,9 +1440,9 @@
 		<equipment rhand="232" /> <!-- Dark Elven Dagger -->
 		<acquire exp="4399" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1985" hpRegen="7.5" mp="1066" mpRegen="2.7" />
-			<attack physical="501.08068" magical="342.17315" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
-			<defence physical="252.49346" magical="184.76376" />
+			<vitals hp="1986.11987381703" hpRegen="7.5" mp="1066.50446066504" mpRegen="2.7" />
+			<attack physical="697.318007662835" magical="327.641209306521" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
+			<defence physical="252.666666666667" magical="184.914841849148" />
 			<speed>
 				<walk ground="11" />
 				<run ground="145" />
@@ -1295,19 +1452,13 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4287" level="3" /> <!-- Resist Hold Attacks -->
+			<skill id="4067" level="1" /> <!-- Blow -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
 			<skill id="4408" level="9" /> <!-- HP Increase (1/2x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="7" /> <!-- Daggers -->
+			<skill id="4415" level="7" /> <!-- Dagger -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4582" level="7" /> <!-- Poison -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
-			<skill id="4067" level="1" /> <!-- Blow -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<sNpcPropHpRate>0.5</sNpcPropHpRate>
@@ -1316,13 +1467,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="10" />
 			<height normal="23" />
 		</collision>
 	</npc>
 	<npc id="18629" level="61" type="Monster" name="Kams" title="Panuka">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="215" />
 			<param name="MoveAroundSocial1" value="215" />
@@ -1337,9 +1500,9 @@
 		<equipment rhand="150" lhand="103" /> <!-- Elemental Sword / Tower Shield -->
 		<acquire exp="94773" sp="22" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="22092" hpRegen="15" mp="1066" mpRegen="2.7" />
-			<attack physical="501.08068" magical="342.17315" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="252.49346" magical="184.76376" />
+			<vitals hp="22092.1135646688" hpRegen="15" mp="1066.50446066504" mpRegen="2.7" />
+			<attack physical="691.666666666667" magical="327.641209306521" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="252.666666666667" magical="184.914841849148" />
 			<speed>
 				<walk ground="40" />
 				<run ground="160" />
@@ -1349,19 +1512,12 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4032" level="7" /> <!-- NPC Strike -->
-			<skill id="4287" level="3" /> <!-- Resist Hold Attacks -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4032" level="7" /> <!-- Power Strike -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4582" level="7" /> <!-- Poison -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="300">
@@ -1369,13 +1525,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="15" />
 			<height normal="39" />
 		</collision>
 	</npc>
 	<npc id="18630" level="61" type="Monster" name="Hikoro" title="Panuka">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="0" />
 			<param name="MoveAroundSocial1" value="0" />
@@ -1390,9 +1558,9 @@
 		<equipment rhand="3" /> <!-- Broadsword -->
 		<acquire exp="94773" sp="22" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="22092" hpRegen="15" mp="1066" mpRegen="2.7" />
-			<attack physical="501.08068" magical="342.17315" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="252.49346" magical="184.76376" />
+			<vitals hp="22092.1135646688" hpRegen="15" mp="1066.50446066504" mpRegen="2.7" />
+			<attack physical="691.666666666667" magical="327.641209306521" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="202" magical="217.546872763704" />
 			<speed>
 				<walk ground="60" />
 				<run ground="150" />
@@ -1402,19 +1570,13 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4032" level="7" /> <!-- NPC Strike -->
-			<skill id="4287" level="3" /> <!-- Resist Hold Attacks -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4032" level="7" /> <!-- Power Strike -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4579" level="7" /> <!-- Bleed -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="300">
@@ -1422,13 +1584,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="30" />
 			<height normal="39" />
 		</collision>
 	</npc>
 	<npc id="18631" level="64" type="Monster" name="Alkaso" title="Panuka">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="70" />
 			<param name="MoveAroundSocial1" value="70" />
@@ -1443,9 +1617,9 @@
 		<equipment rhand="232" /> <!-- Dark Elven Dagger -->
 		<acquire exp="97320" sp="23" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="22860" hpRegen="15" mp="1158" mpRegen="2.7" />
-			<attack physical="562.02275" magical="383.78868" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
-			<defence physical="267.04468" magical="195.41171" />
+			<vitals hp="22860.5678233438" hpRegen="15" mp="1158.15085158151" mpRegen="2.7" />
+			<attack physical="781.934740690657" magical="365.800561056902" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
+			<defence physical="267.320261437908" magical="195.60135489719" />
 			<speed>
 				<walk ground="14" />
 				<run ground="155" />
@@ -1455,19 +1629,12 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4032" level="7" /> <!-- NPC Strike -->
-			<skill id="4287" level="3" /> <!-- Resist Hold Attacks -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="7" /> <!-- Daggers -->
+			<skill id="4032" level="7" /> <!-- Power Strike -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
+			<skill id="4415" level="7" /> <!-- Dagger -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4582" level="7" /> <!-- Poison -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="300">
@@ -1475,13 +1642,25 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="20" />
 			<height normal="33.6" />
 		</collision>
 	</npc>
 	<npc id="18632" level="64" type="Monster" name="Gerbera" title="Panuka">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -1496,9 +1675,9 @@
 		<equipment rhand="134" lhand="6721" /> <!-- Sword of Nightmare / Monster Only (Shield of Imperial Warlord Zombie) -->
 		<acquire exp="97320" sp="23" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="24719" hpRegen="15" mp="1158" mpRegen="2.7" />
-			<attack physical="562.02275" magical="383.78868" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="267.04468" magical="195.41171" />
+			<vitals hp="24719.2429022082" hpRegen="15" mp="1158.15085158151" mpRegen="2.7" />
+			<attack physical="775.599128540305" magical="365.800561056902" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="213.725490196078" magical="230.119241055518" />
 			<speed>
 				<walk ground="39" />
 				<run ground="150" />
@@ -1508,19 +1687,13 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4032" level="7" /> <!-- NPC Strike -->
-			<skill id="4287" level="3" /> <!-- Resist Hold Attacks -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4032" level="7" /> <!-- Power Strike -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="1" /> <!-- Undead -->
 			<skill id="4579" level="7" /> <!-- Bleed -->
-			<skill id="4664" level="7" /> <!-- NPC 100% HP Drain -->
+			<skill id="4664" level="7" /> <!-- Drain Energy -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="300">
@@ -1528,20 +1701,32 @@
 				<clan>BOOSTUP</clan>
 			</clanList>
 		</ai>
+		<dropLists>
+			<drop>
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 		<collision>
 			<radius normal="9" />
 			<height normal="36" />
 		</collision>
 	</npc>
 	<npc id="18633" level="67" type="Monster" name="Lematan">
-		<!-- Confirmed CT2.5 -->
 		<race>DRAGON</race>
 		<sex>MALE</sex>
 		<acquire exp="476731" sp="114" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="49438" hpRegen="15" mp="1251" mpRegen="2.7" />
-			<attack physical="624.93199" magical="426.74754" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="281.55251" magical="206.02791" />
+			<vitals hp="49438.4858044164" hpRegen="15" mp="1251.41930251419" mpRegen="2.7" />
+			<attack physical="862.713675213675" magical="405.60709752719" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="282.051282051282" magical="206.396739243455" />
 			<speed>
 				<walk ground="25" />
 				<run ground="120" />
@@ -1550,17 +1735,9 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4287" level="3" /> <!-- Resist Hold Attacks -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4287" level="3" /> <!-- Hold Resistance -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="10" /> <!-- Dragons -->
-			<skill id="5708" level="1" /> <!-- Water Cannon -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" clanHelpRange="300" aggroRange="300" />
@@ -1570,15 +1747,14 @@
 		</collision>
 	</npc>
 	<npc id="18634" level="64" type="Monster" name="Lematan's Subordinate">
-		<!-- Confirmed CT2.5 -->
 		<race>UNDEAD</race>
 		<sex>MALE</sex>
 		<equipment rhand="232" /> <!-- Dark Elven Dagger -->
 		<acquire exp="3443" sp="199" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2141" hpRegen="7.5" mp="1158" mpRegen="2.7" />
-			<attack physical="562.02275" magical="383.78868" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
-			<defence physical="267.04468" magical="195.41171" />
+			<vitals hp="2141.32492113565" hpRegen="7.5" mp="1158.15085158151" mpRegen="2.7" />
+			<attack physical="781.934740690657" magical="365.800561056902" random="5" critical="8" accuracy="0" attackSpeed="253" type="DAGGER" range="40" distance="80" width="120" />
+			<defence physical="267.320261437908" magical="195.60135489719" />
 			<speed>
 				<walk ground="11" />
 				<run ground="145" />
@@ -1588,16 +1764,8 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="7" /> <!-- Daggers -->
+			<skill id="4415" level="7" /> <!-- Dagger -->
 			<skill id="4416" level="1" /> <!-- Undead -->
-			<skill id="5712" level="1" /> <!-- Energy Ditch -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="HEALER" clanHelpRange="300" aggroRange="300" />
@@ -1607,7 +1775,6 @@
 		</collision>
 	</npc>
 	<npc id="18635" level="77" type="Monster" name="Varka Silenos Recruit">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="65" />
 			<param name="MoveAroundSocial1" value="65" />
@@ -1622,9 +1789,9 @@
 		<equipment rhand="2504" lhand="6918" /> <!-- Meteor Shower / Monster Only (Shield of Silenos) -->
 		<acquire exp="90202" sp="21" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="7483" hpRegen="17" mp="1410" mpRegen="3" />
-			<attack physical="365.712" magical="124.8841975" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="8115.67068023282" hpRegen="17" mp="1529.56832642244" mpRegen="3" />
+			<attack physical="554.134794398575" magical="128.446035031602" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="331.452464788732" magical="242.430862547548" />
 			<speed>
 				<walk ground="44" />
 				<run ground="175" />
@@ -1634,18 +1801,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4032" level="1" /> <!-- Power Strike -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4560" level="7" /> <!-- NPC Fire Burn -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
-			<skill id="4032" level="1" /> <!-- Power Strike -->
+			<skill id="4560" level="7" /> <!-- Fire Burn -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -1655,9 +1815,21 @@
 		</ai>
 		<dropLists>
 			<drop>
+				<item id="9529" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Shield -->
+				<item id="10120" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Sigil -->
 				<item id="6366" min="1" max="1" chance="0.0009" /> <!-- Imperial Staff -->
 				<item id="57" min="93" max="218" chance="70" /> <!-- Adena -->
 				<item id="36543" min="1" max="1" chance="0.075" /> <!-- Adamantite Wire -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36533" min="1" max="1" chance="0.3" /> <!-- Synthetic Braid -->
@@ -1665,6 +1837,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -1672,7 +1847,6 @@
 		</collision>
 	</npc>
 	<npc id="18636" level="77" type="Monster" name="Varka Silenos Footman">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -1686,9 +1860,9 @@
 		<equipment rhand="2504" lhand="6918" /> <!-- Meteor Shower / Monster Only (Shield of Silenos) -->
 		<acquire exp="75070" sp="18" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="7483" hpRegen="17" mp="1410" mpRegen="3" />
-			<attack physical="365.712" magical="124.8841975" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="8115.67068023282" hpRegen="17" mp="1529.56832642244" mpRegen="3" />
+			<attack physical="554.134794398575" magical="128.446035031602" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="331.452464788732" magical="242.430862547548" />
 			<speed>
 				<walk ground="34" />
 				<run ground="175" />
@@ -1698,16 +1872,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -1720,9 +1887,20 @@
 			<drop>
 				<item id="6683" min="1" max="1" chance="0.003" /> <!-- Sealed Draconic Leather Helmet -->
 				<item id="6724" min="1" max="1" chance="0.003" /> <!-- Sealed Tateossian Earring -->
+				<item id="9452" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Earring -->
 				<item id="57" min="77" max="181" chance="70" /> <!-- Adena -->
 				<item id="36558" min="1" max="1" chance="0.03" /> <!-- Accessory Gem (Mid-grade) -->
 				<item id="36549" min="1" max="1" chance="0.0009" /> <!-- Weapon Fragment (High-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36533" min="1" max="1" chance="0.3" /> <!-- Synthetic Braid -->
@@ -1730,6 +1908,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -1737,7 +1918,6 @@
 		</collision>
 	</npc>
 	<npc id="18637" level="77" type="Monster" name="Grazing Antelope">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -1749,9 +1929,9 @@
 		<sex>MALE</sex>
 		<acquire exp="93567" sp="22" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2540" hpRegen="8.5" mp="1410" mpRegen="3" />
-			<attack physical="731.52506" magical="499.53679" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="2716.4563617245" hpRegen="8.5" mp="1508.3243218888" mpRegen="3" />
+			<attack physical="1079.96175523349" magical="504.313141976882" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="326.811594202899" magical="239.195082102096" />
 			<speed>
 				<walk ground="45" />
 				<run ground="185" />
@@ -1761,14 +1941,7 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4067" level="7" /> <!-- NPC Mortal Blow -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4067" level="7" /> <!-- Blow -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
@@ -1783,6 +1956,16 @@
 				<item id="57" min="48" max="111" chance="70" /> <!-- Adena -->
 				<item id="960" min="1" max="1" chance="0.03" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="36548" min="1" max="1" chance="0.03" /> <!-- Weapon Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36533" min="1" max="1" chance="0.075" /> <!-- Synthetic Braid -->
@@ -1790,6 +1973,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="17" />
@@ -1797,7 +1983,6 @@
 		</collision>
 	</npc>
 	<npc id="18638" level="78" type="Monster" name="Varka Silenos Scout">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="65" />
 			<param name="MoveAroundSocial1" value="65" />
@@ -1811,9 +1996,9 @@
 		<equipment rhand="2504" lhand="6918" /> <!-- Meteor Shower / Monster Only (Shield of Silenos) -->
 		<acquire exp="82322" sp="19" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="7577" hpRegen="8.5" mp="1410" mpRegen="3" />
-			<attack physical="365.712" magical="124.8841975" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="80" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="8208.7276550999" hpRegen="8.5" mp="1527.9129494458" mpRegen="3" />
+			<attack physical="553.480700126128" magical="127.715665825314" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="80" distance="80" width="120" />
+			<defence physical="331.055900621118" magical="242.301511739785" />
 			<speed>
 				<walk ground="44" />
 				<run ground="175" />
@@ -1823,16 +2008,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
@@ -1845,15 +2023,29 @@
 			<drop>
 				<item id="6683" min="1" max="1" chance="0.003" /> <!-- Sealed Draconic Leather Helmet -->
 				<item id="6724" min="1" max="1" chance="0.003" /> <!-- Sealed Tateossian Earring -->
+				<item id="9452" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Earring -->
 				<item id="57" min="86" max="199" chance="70" /> <!-- Adena -->
 				<item id="36558" min="1" max="1" chance="0.03" /> <!-- Accessory Gem (Mid-grade) -->
 				<item id="36548" min="1" max="1" chance="0.0075" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36553" min="1" max="1" chance="0.0075" /> <!-- Armor Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36562" min="1" max="1" chance="0.3" /> <!-- Greater Cokes -->
 				<item id="36563" min="1" max="1" chance="0.03" /> <!-- Synthetic Cokes -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -1861,7 +2053,6 @@
 		</collision>
 	</npc>
 	<npc id="18639" level="78" type="Monster" name="Varka Silenos Hunter">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="75" />
 			<param name="MoveAroundSocial1" value="75" />
@@ -1876,9 +2067,9 @@
 		<equipment rhand="6917" /> <!-- Monster Only (Poison Sting) -->
 		<acquire exp="85799" sp="20" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2540" hpRegen="8.5" mp="1410" mpRegen="3" />
-			<attack physical="731.52506" magical="499.53679" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="2751.73501577287" hpRegen="8.5" mp="1527.9129494458" mpRegen="3" />
+			<attack physical="892.623990450077" magical="510.862663301258" random="5" critical="8" accuracy="0" attackSpeed="253" reuseDelay="1500" type="BOW" range="1100" distance="10" width="0" />
+			<defence physical="331.055900621118" magical="242.301511739785" />
 			<speed>
 				<walk ground="30" />
 				<run ground="175" />
@@ -1888,16 +2079,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="9" /> <!-- Bows -->
+			<skill id="4415" level="9" /> <!-- Bow -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -1908,9 +2092,21 @@
 		<dropLists>
 			<drop>
 				<item id="6685" min="1" max="1" chance="0.003" /> <!-- Sealed Major Arcana Gloves -->
+				<item id="9527" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Gloves -->
 				<item id="6371" min="1" max="1" chance="0.0009" /> <!-- Demon Splinter -->
+				<item id="9450" min="1" max="1" chance="0.0009" /> <!-- Dynasty Bagh-Nakh -->
 				<item id="57" min="89" max="208" chance="70" /> <!-- Adena -->
 				<item id="36553" min="1" max="1" chance="0.03" /> <!-- Armor Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36533" min="1" max="1" chance="0.3" /> <!-- Synthetic Braid -->
@@ -1918,6 +2114,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="8" />
@@ -1925,7 +2124,6 @@
 		</collision>
 	</npc>
 	<npc id="18640" level="78" type="Monster" name="Varka Silenos Shaman">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />
 			<param name="MoveAroundSocial1" value="123" />
@@ -1941,9 +2139,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="83438" sp="20" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2540" hpRegen="8.5" mp="1410" mpRegen="3" />
-			<attack physical="731.52506" magical="499.53679" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="2751.73501577287" hpRegen="8.5" mp="1527.9129494458" mpRegen="3" />
+			<attack physical="499.782458667147" magical="510.862663301258" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="265.113871635611" magical="285.060602046806" />
 			<speed>
 				<walk ground="36" />
 				<run ground="150" />
@@ -1953,17 +2151,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4160" level="8" /> <!-- NPC Aura Burn - Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4160" level="8" /> <!-- Aura Burn -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="6" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -1974,16 +2166,31 @@
 		<dropLists>
 			<drop>
 				<item id="6687" min="1" max="1" chance="0.003" /> <!-- Sealed Major Arcana Circlet -->
+				<item id="9526" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Circlet -->
+				<item id="10252" min="1" max="1" chance="0.0009" /> <!-- Dynasty Staff -->
 				<item id="57" min="87" max="202" chance="70" /> <!-- Adena -->
 				<item id="36558" min="1" max="1" chance="0.03" /> <!-- Accessory Gem (Mid-grade) -->
 				<item id="36548" min="1" max="1" chance="0.0075" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36553" min="1" max="1" chance="0.003" /> <!-- Armor Fragment (Mid-grade) -->
 				<item id="36563" min="1" max="1" chance="0.003" /> <!-- Synthetic Cokes -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36517" min="1" max="1" chance="5.454" /> <!-- Leather -->
 				<item id="36518" min="1" max="1" chance="1.094" /> <!-- Durable Leather -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="14" />
@@ -1991,7 +2198,6 @@
 		</collision>
 	</npc>
 	<npc id="18641" level="79" type="Monster" name="Varka Silenos Priest">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="70" />
 			<param name="MoveAroundSocial1" value="70" />
@@ -2007,9 +2213,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="175270" sp="42" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2540" hpRegen="8.5" mp="1410" mpRegen="3" />
-			<attack physical="731.52506" magical="499.53679" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="2787.01366982124" hpRegen="8.5" mp="1547.50157700279" mpRegen="3" />
+			<attack physical="1108.01270991488" magical="517.412184625633" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="335.300207039337" magical="245.407941377475" />
 			<speed>
 				<walk ground="36" />
 				<run ground="180" />
@@ -2019,17 +2225,10 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4560" level="7" /> <!-- NPC Fire Burn -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4560" level="7" /> <!-- Fire Burn -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2050,6 +2249,16 @@
 				<item id="36558" min="1" max="1" chance="0.0075" /> <!-- Accessory Gem (Mid-grade) -->
 				<item id="960" min="1" max="1" chance="0.003" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="36553" min="1" max="1" chance="0.003" /> <!-- Armor Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2057,6 +2266,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="9" />
@@ -2064,7 +2276,6 @@
 		</collision>
 	</npc>
 	<npc id="18642" level="78" type="Monster" name="Varka Silenos Warrior">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -2078,9 +2289,9 @@
 		<equipment rhand="142" lhand="6918" /> <!-- Keshanberk / Monster Only (Shield of Silenos) -->
 		<acquire exp="89275" sp="21" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="7577" hpRegen="17" mp="1475" mpRegen="3" />
-			<attack physical="386.5" magical="132.104" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="8208.7276550999" hpRegen="17" mp="1598.20221681536" mpRegen="3" />
+			<attack physical="584.901001880012" magical="135.262500624083" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="341.149068322981" magical="249.941649497346" />
 			<speed>
 				<walk ground="34" />
 				<run ground="175" />
@@ -2090,16 +2301,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4572" level="1" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
@@ -2110,13 +2314,28 @@
 		</ai>
 		<dropLists>
 			<drop>
+				<item id="9517" min="1" max="1" chance="0.003" /> <!-- Sealed Dynasty Gauntlets -->
+				<item id="9442" min="1" max="1" chance="0.0009" /> <!-- Dynasty Sword -->
 				<item id="57" min="93" max="216" chance="70" /> <!-- Adena -->
 				<item id="36563" min="1" max="1" chance="0.03" /> <!-- Synthetic Cokes -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36522" min="1" max="1" chance="2.306" /> <!-- Silver -->
 				<item id="36523" min="1" max="1" chance="0.3" /> <!-- Adamantite -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -2124,7 +2343,6 @@
 		</collision>
 	</npc>
 	<npc id="18643" level="77" type="Monster" name="Grazing Antelope">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -2136,9 +2354,9 @@
 		<sex>MALE</sex>
 		<acquire exp="93567" sp="22" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2586" hpRegen="8.5" mp="1442" mpRegen="3" />
-			<attack physical="752.73928" magical="514.02335" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="310.02959" magical="226.8662" />
+			<vitals hp="2727.82507238235" hpRegen="8.5" mp="1521.02567521026" mpRegen="3" />
+			<attack physical="1096.03134336772" magical="510.725164477424" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="327.50718755285" magical="239.742829557922" />
 			<speed>
 				<walk ground="45" />
 				<run ground="185" />
@@ -2148,14 +2366,7 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4067" level="7" /> <!-- NPC Mortal Blow -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4067" level="7" /> <!-- Blow -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="4" /> <!-- Animals -->
 		</skillList>
@@ -2170,6 +2381,16 @@
 				<item id="57" min="48" max="111" chance="70" /> <!-- Adena -->
 				<item id="960" min="1" max="1" chance="0.03" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="36548" min="1" max="1" chance="0.03" /> <!-- Weapon Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36533" min="1" max="1" chance="0.075" /> <!-- Synthetic Braid -->
@@ -2177,6 +2398,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="17" />
@@ -2184,7 +2408,6 @@
 		</collision>
 	</npc>
 	<npc id="18644" level="78" type="Monster" name="Varka Silenos Medium">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />
 			<param name="MoveAroundSocial1" value="123" />
@@ -2200,9 +2423,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="122882" sp="29" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2540" hpRegen="8.5" mp="1410" mpRegen="3" />
-			<attack physical="731.52506" magical="499.53679" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="305.35947" magical="223.44881" />
+			<vitals hp="2751.73501577287" hpRegen="8.5" mp="1527.9129494458" mpRegen="3" />
+			<attack physical="499.782458667147" magical="510.862663301258" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="265.113871635611" magical="285.060602046806" />
 			<speed>
 				<walk ground="36" />
 				<run ground="150" />
@@ -2212,17 +2435,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4160" level="7" /> <!-- NPC Aura Burn - Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4160" level="7" /> <!-- Aura Burn -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="6" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2232,15 +2449,29 @@
 		</ai>
 		<dropLists>
 			<drop>
+				<item id="9453" min="1" max="1" chance="0.03" /> <!-- Sealed Dynasty Necklace -->
 				<item id="57" min="128" max="298" chance="70" /> <!-- Adena -->
 				<item id="36548" min="1" max="1" chance="0.03" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36558" min="1" max="1" chance="0.03" /> <!-- Accessory Gem (Mid-grade) -->
 				<item id="36553" min="1" max="1" chance="0.0075" /> <!-- Armor Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36557" min="1" max="1" chance="1.189" /> <!-- Accessory Gem -->
 				<item id="36558" min="1" max="1" chance="0.3" /> <!-- Accessory Gem (Mid-grade) -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="14" />
@@ -2248,7 +2479,6 @@
 		</collision>
 	</npc>
 	<npc id="18645" level="78" type="Monster" name="Varka Silenos Magus">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="70" />
 			<param name="MoveAroundSocial1" value="70" />
@@ -2264,9 +2494,9 @@
 		<equipment rhand="6716" lhand="6918" /> <!-- Monster Only (Silenos Shaman) / Monster Only (Shield of Silenos) -->
 		<acquire exp="78287" sp="18" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2586" hpRegen="8.5" mp="1442" mpRegen="3" />
-			<attack physical="752.73928" magical="514.02335" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="310.02959" magical="226.8662" />
+			<vitals hp="2763.25137202368" hpRegen="8.5" mp="1540.77925540779" mpRegen="3" />
+			<attack physical="1110.26551665821" magical="517.357958821287" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="331.760527650939" magical="242.856372798934" />
 			<speed>
 				<walk ground="36" />
 				<run ground="175" />
@@ -2276,17 +2506,10 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4160" level="7" /> <!-- NPC Aura Burn - Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4160" level="7" /> <!-- Aura Burn -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2305,6 +2528,16 @@
 				<item id="36548" min="1" max="1" chance="0.003" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36553" min="1" max="1" chance="0.003" /> <!-- Armor Fragment (Mid-grade) -->
 				<item id="959" min="1" max="1" chance="0.0009" /> <!-- Scroll: Enchant Weapon (S-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2312,6 +2545,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="11" />
@@ -2319,7 +2555,6 @@
 		</collision>
 	</npc>
 	<npc id="18646" level="78" type="Monster" name="Varka Silenos Sergeant">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -2333,9 +2568,9 @@
 		<equipment rhand="2504" lhand="6918" /> <!-- Meteor Shower / Monster Only (Shield of Silenos) -->
 		<acquire exp="89275" sp="21" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="6660" hpRegen="17" mp="1540" mpRegen="3" />
-			<attack physical="412.21" magical="140.74335" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="323.78455" magical="236.93149" />
+			<vitals hp="7116.77109891535" hpRegen="17" mp="1645.63543645635" mpRegen="3" />
+			<attack physical="615.4979968159" magical="141.765117537274" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="346.270928462709" magical="253.554891424438" />
 			<speed>
 				<walk ground="25" />
 				<run ground="175" />
@@ -2345,16 +2580,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4572" level="1" /> <!-- Triple Sonic Slash -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2373,6 +2601,16 @@
 				<item id="960" min="1" max="1" chance="0.0075" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="36548" min="1" max="1" chance="0.0075" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36553" min="1" max="1" chance="0.0075" /> <!-- Armor Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2380,6 +2618,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="18" />
@@ -2387,7 +2628,6 @@
 		</collision>
 	</npc>
 	<npc id="18647" level="78" type="Monster" name="Grazing Flava">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="120" />
 			<param name="MoveAroundSocial1" value="120" />
@@ -2399,9 +2639,9 @@
 		<sex>MALE</sex>
 		<acquire exp="82751" sp="19" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2632" hpRegen="8.5" mp="1475" mpRegen="3" />
-			<attack physical="773.81598" magical="528.41601" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="2774.45647540285" hpRegen="8.5" mp="1555.00756230683" mpRegen="3" />
+			<attack physical="1125.7254186702" magical="524.368066317887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="331.736030509037" magical="242.824885698022" />
 			<speed>
 				<walk ground="30" />
 				<run ground="165" />
@@ -2411,14 +2651,7 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4032" level="7" /> <!-- NPC Strike -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4032" level="7" /> <!-- Power Strike -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="5" /> <!-- Plants -->
 		</skillList>
@@ -2444,6 +2677,16 @@
 				<item id="36548" min="1" max="1" chance="0.003" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36563" min="1" max="1" chance="0.003" /> <!-- Synthetic Cokes -->
 				<item id="959" min="1" max="1" chance="0.0009" /> <!-- Scroll: Enchant Weapon (S-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2451,6 +2694,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="18" />
@@ -2458,7 +2704,6 @@
 		</collision>
 	</npc>
 	<npc id="18648" level="79" type="Monster" name="Varka Silenos Chief Priest">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />
 			<param name="MoveAroundSocial1" value="123" />
@@ -2474,9 +2719,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="175270" sp="42" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2586" hpRegen="8.5" mp="1442" mpRegen="3" />
-			<attack physical="752.73928" magical="514.02335" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="310.02959" magical="226.8662" />
+			<vitals hp="2798.67767166501" hpRegen="8.5" mp="1560.53283560533" mpRegen="3" />
+			<attack physical="513.923304991622" magical="523.99075316515" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="268.543886352105" magical="289.376371811701" />
 			<speed>
 				<walk ground="36" />
 				<run ground="150" />
@@ -2486,17 +2731,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4160" level="9" /> <!-- NPC Aura Burn - Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4160" level="9" /> <!-- Aura Burn -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="6" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2517,6 +2756,16 @@
 				<item id="36558" min="1" max="1" chance="0.0075" /> <!-- Accessory Gem (Mid-grade) -->
 				<item id="960" min="1" max="1" chance="0.003" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="36553" min="1" max="1" chance="0.003" /> <!-- Armor Fragment (Mid-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2524,6 +2773,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="14" />
@@ -2531,7 +2783,6 @@
 		</collision>
 	</npc>
 	<npc id="18649" level="79" type="Monster" name="Varka Silenos Great Magus">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -2545,9 +2796,9 @@
 		<equipment rhand="2500" lhand="6918" /> <!-- Dark Legion's Edge / Monster Only (Shield of Silenos) -->
 		<acquire exp="175270" sp="42" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="9374" hpRegen="17" mp="1574" mpRegen="3" />
-			<attack physical="438.22" magical="146.209" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+			<vitals hp="10144.609135301" hpRegen="17" mp="1703.59630703596" mpRegen="3" />
+			<attack physical="662.740727133474" magical="149.303042113651" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="355.386436664975" magical="260.056298896859" />
 			<speed>
 				<walk ground="34" />
 				<run ground="175" />
@@ -2557,16 +2808,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2586,6 +2830,16 @@
 				<item id="36548" min="1" max="1" chance="0.0075" /> <!-- Weapon Fragment (Mid-grade) -->
 				<item id="36553" min="1" max="1" chance="0.003" /> <!-- Armor Fragment (Mid-grade) -->
 				<item id="959" min="1" max="1" chance="0.0009" /> <!-- Scroll: Enchant Weapon (S-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2593,6 +2847,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="20" />
@@ -2600,7 +2857,6 @@
 		</collision>
 	</npc>
 	<npc id="18650" level="79" type="Monster" name="Varka Silenos Officer">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -2615,9 +2871,9 @@
 		<equipment rhand="2500" lhand="6918" /> <!-- Dark Legion's Edge / Monster Only (Shield of Silenos) -->
 		<acquire exp="175270" sp="42" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="9374" hpRegen="17" mp="1574" mpRegen="3" />
-			<attack physical="438.22" magical="146.209" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+			<vitals hp="10144.609135301" hpRegen="17" mp="1703.59630703596" mpRegen="3" />
+			<attack physical="662.740727133474" magical="149.303042113651" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="355.386436664975" magical="260.056298896859" />
 			<speed>
 				<walk ground="25" />
 				<run ground="175" />
@@ -2627,18 +2883,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4072" level="1" /> <!-- Stun -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4560" level="7" /> <!-- NPC Fire Burn -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
-			<skill id="4072" level="1" /> <!-- Stun -->
+			<skill id="4560" level="7" /> <!-- Fire Burn -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2657,6 +2906,16 @@
 				<item id="6699" min="1" max="1" chance="0.3" /> <!-- Sealed Tateossian Ring Gem -->
 				<item id="6700" min="1" max="1" chance="0.3" /> <!-- Sealed Tateossian Necklace Chain -->
 				<item id="960" min="1" max="1" chance="0.03" /> <!-- Scroll: Enchant Armor (S-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="1.108" /> <!-- Thin Braid -->
@@ -2664,6 +2923,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="18" />
@@ -2671,7 +2933,6 @@
 		</collision>
 	</npc>
 	<npc id="18651" level="78" type="Monster" name="Grazing Elder Antelope">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="80" />
 			<param name="MoveAroundSocial1" value="80" />
@@ -2683,9 +2944,9 @@
 		<sex>MALE</sex>
 		<acquire exp="95010" sp="22" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2632" hpRegen="8.5" mp="1475" mpRegen="3" />
-			<attack physical="773.81598" magical="528.41601" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="2774.45647540285" hpRegen="8.5" mp="1555.00756230683" mpRegen="3" />
+			<attack physical="1125.7254186702" magical="524.368066317887" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="331.736030509037" magical="242.824885698022" />
 			<speed>
 				<walk ground="45" />
 				<run ground="185" />
@@ -2695,14 +2956,7 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
-			<skill id="4415" level="5" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="5" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="4" /> <!-- Animals -->
 			<skill id="4580" level="7" /> <!-- Decrease P. Atk. -->
 		</skillList>
@@ -2721,6 +2975,16 @@
 				<item id="960" min="1" max="1" chance="0.03" /> <!-- Scroll: Enchant Armor (S-grade) -->
 				<item id="5534" min="1" max="1" chance="0.03" /> <!-- Soul Bow Shaft -->
 				<item id="6711" min="1" max="1" chance="0.03" /> <!-- Sealed Major Arcana Robe Part -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="0.75" /> <!-- Thin Braid -->
@@ -2728,6 +2992,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="17" />
@@ -2735,7 +3002,6 @@
 		</collision>
 	</npc>
 	<npc id="18652" level="79" type="Monster" name="Varka Silenos Grand Priest">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />
 			<param name="MoveAroundSocial1" value="123" />
@@ -2751,9 +3017,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="175270" sp="42" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2632" hpRegen="8.5" mp="1475" mpRegen="3" />
-			<attack physical="773.81598" magical="528.41601" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="2810.0264302157" hpRegen="8.5" mp="1574.94355669538" mpRegen="3" />
+			<attack physical="520.874635638573" magical="531.090733834783" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="269.184214889736" magical="289.338853245003" />
 			<speed>
 				<walk ground="36" />
 				<run ground="150" />
@@ -2763,17 +3029,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4160" level="7" /> <!-- NPC Aura Burn - Magic -->
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
+			<skill id="4160" level="7" /> <!-- Aura Burn -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
-			<skill id="4415" level="6" /> <!-- Blunt Weapons -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2792,6 +3052,16 @@
 				<item id="36553" min="1" max="1" chance="0.003" /> <!-- Armor Fragment (Mid-grade) -->
 				<item id="36563" min="1" max="1" chance="0.003" /> <!-- Synthetic Cokes -->
 				<item id="959" min="1" max="1" chance="0.0009" /> <!-- Scroll: Enchant Weapon (S-grade) -->
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
 			</drop>
 			<spoil>
 				<item id="36532" min="1" max="1" chance="1.254" /> <!-- Thin Braid -->
@@ -2799,6 +3069,9 @@
 				<item id="36882" min="1" max="1" chance="0.0075" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="14" />
@@ -2806,7 +3079,6 @@
 		</collision>
 	</npc>
 	<npc id="18653" level="74" type="Monster" name="Varka's Elite Escort">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -2820,9 +3092,9 @@
 		<equipment rhand="2504" lhand="6918" /> <!-- Meteor Shower / Monster Only (Shield of Silenos) -->
 		<acquire exp="58812" sp="14" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="4229.65416" hpRegen="8.5" mp="1196.225" mpRegen="3" />
-			<attack physical="386.51" magical="528.41601" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="6703.47003154574" hpRegen="8.5" mp="1475.26358475264" mpRegen="3" />
+			<attack physical="539.894929835696" magical="497.477396250303" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="314.723926380368" magical="230.372327457097" />
 			<speed>
 				<walk ground="34" />
 				<run ground="175" />
@@ -2832,8 +3104,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2845,9 +3118,22 @@
 			<radius normal="16" />
 			<height normal="41" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18654" level="72" type="Monster" name="Varka's Commander">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="90" />
 			<param name="MoveAroundSocial1" value="90" />
@@ -2861,9 +3147,9 @@
 		<equipment rhand="2500" lhand="6918" /> <!-- Dark Legion's Edge / Monster Only (Shield of Silenos) -->
 		<acquire exp="54887" sp="13" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="4200.001155" hpRegen="8.5" mp="1222.177" mpRegen="3" />
-			<attack physical="397.12" magical="542.68324" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+			<vitals hp="6656.15141955836" hpRegen="8.5" mp="1507.70478507705" mpRegen="3" />
+			<attack physical="554.633397586921" magical="512.29164977203" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="319.254658385093" magical="233.737840846695" />
 			<speed>
 				<walk ground="25" />
 				<run ground="175" />
@@ -2873,9 +3159,10 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
-			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
+			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
+			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -2887,9 +3174,22 @@
 			<radius normal="22" />
 			<height normal="51" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18655" level="79" type="Monster" name="Varka's Chief Escort">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -2903,9 +3203,9 @@
 		<equipment rhand="142" lhand="6918" /> <!-- Keshanberk / Monster Only (Shield of Silenos) -->
 		<acquire exp="175270" sp="42" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="8619" hpRegen="17" mp="1574" mpRegen="3" />
-			<attack physical="428.243" magical="146.209" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="328.27073" magical="240.21427" />
+			<vitals hp="9201.96095148777" hpRegen="17" mp="1680.57473531926" mpRegen="3" />
+			<attack physical="638.48159032737" magical="146.968504960569" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="351.052893384182" magical="256.561698055585" />
 			<speed>
 				<walk ground="34" />
 				<run ground="175" />
@@ -2915,16 +3215,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -2953,6 +3246,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -2960,7 +3256,6 @@
 		</collision>
 	</npc>
 	<npc id="18656" level="74" type="Monster" name="Varka's Chief Magus">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />
 			<param name="MoveAroundSocial1" value="123" />
@@ -2975,9 +3270,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="4327" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1661.199195" hpRegen="8.5" mp="1196.225" mpRegen="3" />
-			<attack physical="773.81598" magical="528.41601" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="2632.17665615142" hpRegen="8.5" mp="1475.26358475264" mpRegen="3" />
+			<attack physical="487.907886547524" magical="497.477396250303" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="252.147239263804" magical="271.026267596585" />
 			<speed>
 				<walk ground="36" />
 				<run ground="150" />
@@ -2987,10 +3282,11 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
-			<skill id="4562" level="1" /> <!-- Solar Flare -->
-			<skill id="4416" level="6" /> <!-- Humanoids -->
 			<skill id="4414" level="3" /> <!-- Light Armor Type -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
+			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4562" level="1" /> <!-- Solar Flare -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -3002,9 +3298,22 @@
 			<radius normal="14" />
 			<height normal="39.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18657" level="78" type="Monster" name="Prophet's Royal Guard">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="85" />
 			<param name="MoveAroundSocial1" value="85" />
@@ -3018,9 +3327,9 @@
 		<equipment rhand="2504" lhand="6918" /> <!-- Meteor Shower / Monster Only (Shield of Silenos) -->
 		<acquire exp="85784" sp="20" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="8619" hpRegen="17" mp="1607" mpRegen="3" />
-			<attack physical="445.25" magical="152.024" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="332.70061" magical="243.45587" />
+			<vitals hp="9085.4804331145" hpRegen="17" mp="1694.35128559216" mpRegen="3" />
+			<attack physical="655.485451603497" magical="151.154316810712" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="351.135798375062" magical="256.98530019877" />
 			<speed>
 				<walk ground="34" />
 				<run ground="175" />
@@ -3030,16 +3339,9 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="13" /> <!-- Two-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 			<skill id="4573" level="1" /> <!-- Sonic Blaster -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
@@ -3066,6 +3368,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="16" />
@@ -3073,7 +3378,6 @@
 		</collision>
 	</npc>
 	<npc id="18658" level="78" type="Monster" name="Prophet's Disciple">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="70" />
 			<param name="MoveAroundSocial1" value="70" />
@@ -3088,9 +3392,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="79574" sp="19" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="2632" hpRegen="8.5" mp="1475" mpRegen="3" />
-			<attack physical="773.81598" magical="528.41601" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="2774.45647540285" hpRegen="8.5" mp="1555.00756230683" mpRegen="3" />
+			<attack physical="1125.7254186702" magical="524.368066317887" random="10" critical="4" accuracy="5" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="331.736030509037" magical="242.824885698022" />
 			<speed>
 				<walk ground="36" />
 				<run ground="180" />
@@ -3100,17 +3404,10 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
+			<skill id="4066" level="1" /> <!-- Twister -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
-			<skill id="4066" level="1" /> <!-- Twister -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -3136,6 +3433,9 @@
 				<item id="36882" min="1" max="1" chance="0.003" /> <!-- Recipe: Thin Braid - Upgrade -->
 				<item id="36881" min="1" max="1" chance="9" /> <!-- Recipe: Thin Braid - Downgrade -->
 			</spoil>
+			<lucky>
+				<item id="39629" min="1" max="1" chance="100" /> <!-- Fortune Pocket - Stage 1 -->
+			</lucky>
 		</dropLists>
 		<collision>
 			<radius normal="9" />
@@ -3143,7 +3443,6 @@
 		</collision>
 	</npc>
 	<npc id="18659" level="74" type="Monster" name="Varka's Prophet">
-		<!-- Confirmed CT2.5 -->
 		<parameters>
 			<param name="MoveAroundSocial" value="123" />
 			<param name="MoveAroundSocial1" value="123" />
@@ -3159,9 +3458,9 @@
 		<equipment rhand="6716" /> <!-- Monster Only (Silenos Shaman) -->
 		<acquire exp="4327" sp="1" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="1661.199195" hpRegen="8.5" mp="1196.225" mpRegen="3" />
-			<attack physical="773.81598" magical="528.41601" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
-			<defence physical="314.65987" magical="230.25444" />
+			<vitals hp="2632.17665615142" hpRegen="8.5" mp="1475.26358475264" mpRegen="3" />
+			<attack physical="487.907886547524" magical="497.477396250303" random="20" critical="1" accuracy="9" attackSpeed="253" type="BLUNT" range="40" distance="80" width="120" />
+			<defence physical="314.723926380368" magical="230.372327457097" />
 			<speed>
 				<walk ground="36" />
 				<run ground="150" />
@@ -3171,9 +3470,10 @@
 		</stats>
 		<status undying="false" canMove="false" canBeSown="true" />
 		<skillList>
-			<skill id="4160" level="9" /> <!-- NPC Aura Burn - Magic -->
-			<skill id="4563" level="7" /> <!-- NPC Solar Flare - Magic -->
+			<skill id="4160" level="9" /> <!-- Aura Burn -->
+			<skill id="4415" level="6" /> <!-- Blunt Weapon -->
 			<skill id="4416" level="6" /> <!-- Humanoids -->
+			<skill id="4563" level="7" /> <!-- Solar Flare -->
 		</skillList>
 		<exCrtEffect>false</exCrtEffect>
 		<ai type="BALANCED" aggroRange="300" clanHelpRange="600" isAggressive="true">
@@ -3185,16 +3485,29 @@
 			<radius normal="17" />
 			<height normal="47.5" />
 		</collision>
+		<dropLists>
+			<drop>
+				<!-- Also drops herbs. -->
+				<item id="8600" min="1" max="1" chance="10" /> <!-- Herb of Life -->
+				<item id="8601" min="1" max="1" chance="8" /> <!-- Major Herb of Life -->
+				<item id="8602" min="1" max="1" chance="2" /> <!-- Superior Herb of Life -->
+				<item id="8603" min="1" max="1" chance="19.8" /> <!-- Herb of Mana -->
+				<item id="8604" min="1" max="1" chance="9.9" /> <!-- Major Herb of Mana -->
+				<item id="8605" min="1" max="1" chance="3.3" /> <!-- Superior Herb of Mana -->
+				<item id="34849" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Power -->
+				<item id="34850" min="1" max="1" chance="0.7" /> <!-- Mysterious Herb of Magic -->
+				<item id="13028" min="1" max="1" chance="0.1" /> <!-- Vitality Replenishing Herb -->
+			</drop>
+		</dropLists>
 	</npc>
 	<npc id="18660" level="75" type="Monster" name="Latana">
-		<!-- Confirmed CT2.5 -->
 		<race>DRAGON</race>
 		<sex>FEMALE</sex>
 		<acquire exp="680736" sp="163" />
 		<stats str="79" int="34" dex="42" wit="66" con="75" men="12">
-			<vitals hp="60325" hpRegen="17" mp="1251" mpRegen="2.7" />
-			<attack physical="4768.26" magical="542.68324" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
-			<defence physical="319.24623" magical="233.61053" />
+			<vitals hp="60325.5520504732" hpRegen="17" mp="1251.41930251419" mpRegen="2.7" />
+			<attack physical="6580.28455284553" magical="510.356662972985" random="10" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
+			<defence physical="319.512195121951" magical="233.912923070837" />
 			<speed>
 				<walk ground="1" />
 				<run ground="80" />
@@ -3203,18 +3516,8 @@
 		</stats>
 		<status undying="false" canBeSown="true" />
 		<skillList>
-			<skill id="4408" level="1" /> <!-- HP Increase (1x) -->
-			<skill id="4409" level="1" /> <!-- MP Increase (1x) -->
-			<skill id="4410" level="11" /> <!-- Average P. Atk. -->
-			<skill id="4411" level="11" /> <!-- Average M. Atk. -->
-			<skill id="4412" level="11" /> <!-- Average P. Def. -->
-			<skill id="4413" level="11" /> <!-- Average M. Def. -->
-			<skill id="4414" level="2" /> <!-- Standard Type -->
 			<skill id="4415" level="3" /> <!-- One-handed Sword -->
 			<skill id="4416" level="10" /> <!-- Dragons -->
-			<skill id="5715" level="1" /> <!-- Electric Flame -->
-			<skill id="5716" level="1" /> <!-- Stun -->
-			<skill id="5717" level="1" /> <!-- Fire Breath -->
 		</skillList>
 		<exCrtEffect>true</exCrtEffect>
 		<ai aggroRange="300" clanHelpRange="300" isAggressive="true" />
@@ -4346,7 +4649,7 @@
 		<!-- Confirmed CT2.5 -->
 		<race>CONSTRUCT</race>
 		<sex>FEMALE</sex>
-		<stats str="40" int="21" dex="30" wit="20" con="43" men="25">
+		<stats str="88" int="79" dex="55" wit="78" con="82" men="78">
 			<vitals hp="13505" hpRegen="95.72635" mp="1846" mpRegen="3" />
 			<attack physical="1224.04634040392" magical="860.594706323714" random="30" critical="4" accuracy="4.75" attackSpeed="253" type="SWORD" range="40" distance="80" width="120" />
 			<defence physical="1944.40778698225" magical="272.573429822485" />

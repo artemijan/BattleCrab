@@ -178,14 +178,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 world.roll(100),
                 world.roll(100),
             );
-            let crit_roll = world.roll(100);
+            let crit_roll = world.roll(1000);
             // `DEFENCE_CRITICAL_RATE`/`_ADD` are read off the **defender** — Light
             // Armor Mastery 233 makes its wearer harder to crit, it does not make
             // its wearer crit less.
-            let (def_crit_mul, def_crit_add) = defence_crit_rate(world, target_oid);
+            let (def_crit_rate, def_crit_add) = defence_crit_rate(world, target_oid);
             let crit = formulas::physical::calc_auto_attack_crit(
                 attacker.crit_stat,
-                def_crit_mul,
+                def_crit_rate,
                 def_crit_add,
                 position,
                 crit_rate_position_mul(world, attacker_oid, position),
@@ -194,6 +194,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 // `calcCrit`'s level term fires when either side is 78+.
                 crate::game_loop::skills::effects::creature_level(world, attacker_oid),
                 crate::game_loop::skills::effects::creature_level(world, target_oid),
+                world.data.combat_caps.max_p_crit_rate,
                 crit_roll,
             );
             let r = attacker.random_dmg;
@@ -544,7 +545,16 @@ pub(crate) fn handle_attack_hit(
         .has_component::<crate::model::door::Door>(&target)
     {
         if crate::game_loop::siege::attackable_door(world, target) {
-            apply_door_damage(world, target, damage);
+            apply_door_damage(
+                world,
+                attacker,
+                target,
+                damage,
+                super::DamageHit {
+                    critical: crit,
+                    ..Default::default()
+                },
+            );
         }
         return;
     }
@@ -555,108 +565,18 @@ pub(crate) fn handle_attack_hit(
     }
 
     if miss {
-        // `sendDamageMessage(miss)` + `notifyAttackAvoid`.
-        if let Some(client_id) = helpers::client_for_player(world, attacker) {
-            let name = world
-                .objects
-                .get_component::<crate::model::Player>(&attacker)
-                .expect("player")
-                .name
-                .clone();
-            helpers::send_to_client(
-                world,
-                client_id,
-                server_packets::system_message_with(
-                    sm_ids::C1_S_ATTACK_WENT_ASTRAY,
-                    &[SmParam::PlayerName(name)],
-                ),
-            );
-        }
-        if let Some(client_id) = helpers::client_for_player(world, target) {
-            let attacker_name = attacker_display_name(world, attacker);
-            helpers::send_to_client(
-                world,
-                client_id,
-                server_packets::system_message_with(
-                    sm_ids::C1_HAS_EVADED_C2_S_ATTACK,
-                    &[
-                        SmParam::PlayerName(
-                            world
-                                .objects
-                                .get_component::<crate::model::Player>(&target)
-                                .expect("player")
-                                .name
-                                .clone(),
-                        ),
-                        attacker_name,
-                    ],
-                ),
-            );
+        // `notifyAttackAvoid` — no message: Salvation's callers never pass
+        // `sendDamageMessage` a miss.
+        if helpers::client_for_player(world, target).is_some() {
             refresh_attack_stance(world, target);
         }
         return;
     }
 
-    // Crit + damage messages (`Player.sendDamageMessage`).
-    if let Some(client_id) = helpers::client_for_player(world, attacker) {
-        let attacker_name = world
-            .objects
-            .get_component::<crate::model::Player>(&attacker)
-            .expect("player")
-            .name
-            .clone();
-        // How the *target* shows up in the attacker's damage messages ($c2)
-        // — the same name rule the attacker gets in the target's messages.
-        let target_name = attacker_display_name(world, target);
-        // `Player.sendDamageMessage`: an invul / HP-blocked target silently
-        // absorbs the hit — the attacker is told "The attack has been blocked",
-        // NOT the damage line (which would falsely claim damage that never
-        // lands). Matches Java's `target.isInvul()` branch ahead of the
-        // `C1_HAS_INFLICTED` line.
-        let target_blocked = world
-            .objects
-            .get_component::<crate::model::components::player::AdminFlags>(&target)
-            .is_some_and(|f| f.invul);
-        if crit {
-            helpers::send_sm_to_client(
-                world,
-                client_id,
-                sm_ids::C1_LANDED_A_CRITICAL_HIT,
-                &[SmParam::PlayerName(attacker_name.clone())],
-            );
-        }
-        if target_blocked {
-            helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
-        } else {
-            helpers::send_sm_to_client(
-                world,
-                client_id,
-                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[
-                    SmParam::PlayerName(attacker_name),
-                    target_name,
-                    SmParam::Int(damage),
-                    // `sendDamageMessage`'s `addPopup(target, attacker,
-                    // -damage)` — the on-screen floating damage number.
-                    SmParam::Popup {
-                        target,
-                        attacker,
-                        damage: -damage,
-                    },
-                ],
-            );
-        }
-    }
-
     // The auto-attack path is `doAttack` proper: vampiric absorb + reflect ride
     // along (`skill_magic = None` — there is no skill).
-    apply_attack_damage(world, attacker, target, damage as f64, false, None);
+    apply_attack_damage(world, attacker, target, damage as f64, false, crit, None, 0);
 
-    // Java `OnCreatureDamageDealt` — the event `TriggerSkillByAttack` listens
-    // on. Fired after the damage lands, and only for a *normal* attack (this
-    // is the autoattack path; `allowSkillAttack` defaults to false, so skill
-    // hits would be rejected anyway).
-    crate::game_loop::skills::effects::fire_attack_triggers(world, attacker, target, damage, crit);
     // The augment-option procs ride the same event (Java runs both loops in
     // `onHitTarget`): `ATTACK` on a normal hit, `CRITICAL` on a crit.
     crate::game_loop::skills::effects::fire_option_attack_triggers(world, attacker, target, crit);

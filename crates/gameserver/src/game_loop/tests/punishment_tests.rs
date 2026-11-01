@@ -53,6 +53,7 @@ fn add_jail_zone(world: &mut World) {
         swamp: None,
         condition: None,
         mother_tree: None,
+        sayune_map_id: -1,
     });
 }
 

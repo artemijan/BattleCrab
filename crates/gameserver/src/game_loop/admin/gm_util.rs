@@ -540,61 +540,9 @@ pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object
 }
 
 // ---------------------------------------------------------------------------
-// Tail polish: tradeoff, cond overrides, quest_info, clanhall, reload,
+// Tail polish: tradeoff, quest_info, clanhall, reload,
 // switch_gm_buffs
 // ---------------------------------------------------------------------------
-
-/// Java `PlayerCondOverride.ITEM_CONDITIONS` — ordinal 1. Read by
-/// `ItemTemplate.checkCondition` (unported — see `GMItemRestriction`) and by
-/// `TradeStart`'s available-item list.
-pub(crate) const ITEM_CONDITIONS_ORDINAL: u8 = 1;
-
-/// Java `PlayerCondOverride.ZONE_CONDITIONS` — ordinal 3, read by the fishing
-/// gate (and by `FishingZone`'s enter check in Java).
-pub(crate) const ZONE_CONDITIONS_ORDINAL: u8 = 3;
-
-/// Java `PlayerCondOverride.SKILL_CONDITIONS` — ordinal 2, read by
-/// `Skill.checkCondition` and the `restoreSkills` skill check.
-pub(crate) const SKILL_CONDITIONS_ORDINAL: u8 = 2;
-
-/// Java `PlayerCondOverride.DESTROY_ALL_ITEMS` — ordinal 12, read by
-/// `RequestDestroyItem`. Distinct again from both the drop and item ordinals.
-pub(crate) const DESTROY_ALL_ITEMS_ORDINAL: u8 = 12;
-
-/// Java `PlayerCondOverride.DROP_ALL_ITEMS` — ordinal 15, read by
-/// `RequestDropItem`. Deliberately *not* `ITEM_CONDITIONS`: Java uses a
-/// different override for dropping than for the trade window, on the same
-/// config key.
-pub(crate) const DROP_ALL_ITEMS_ORDINAL: u8 = 15;
-
-/// Java `PlayerCondOverride.getAllExceptionsMask()` — every ordinal set.
-///
-/// Load-bearing at login: `Player.restore` gives a **GM** this mask as the
-/// *default* value of the `cond_override` character variable, so a GM who has
-/// never touched `//set_exception` still overrides everything.
-pub(crate) fn all_exceptions_mask() -> u64 {
-    COND_OVERRIDES.iter().map(|&(o, _)| 1u64 << o).sum()
-}
-
-/// Java `PlayerCondOverride` ordinals + panel descriptions (bit = ordinal).
-pub(crate) const COND_OVERRIDES: &[(u8, &str)] = &[
-    (0, "Overrides maximum states conditions"),
-    (1, "Overrides item usage conditions"),
-    (2, "Overrides skill usage conditions"),
-    (3, "Overrides zone conditions"),
-    (4, "Overrides castle conditions"),
-    (5, "Overrides fortress conditions"),
-    (6, "Overrides clan hall conditions"),
-    (7, "Overrides floods conditions"),
-    (8, "Overrides chat conditions"),
-    (9, "Overrides instance conditions"),
-    (10, "Overrides quest conditions"),
-    (11, "Overrides death penalty conditions"),
-    (12, "Overrides item destroy conditions"),
-    (13, "Overrides the conditions to see hidden players"),
-    (14, "Overrides target conditions"),
-    (15, "Overrides item drop conditions"),
-];
 
 /// `//tradeoff on|off|status` (Java `AdminAdmin`).
 pub(super) fn admin_tradeoff(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
@@ -629,100 +577,6 @@ pub(super) fn admin_tradeoff(world: &mut World, client_id: u32, object_id: i32, 
             );
         }
     }
-}
-
-/// `//exceptions` — the `cond_override.htm` panel with per-override toggles
-/// (Java `AdminPcCondOverride`).
-pub(super) fn admin_exceptions(world: &mut World, client_id: u32, object_id: i32) {
-    let mask = world
-        .objects
-        .get_component::<Player>(&object_id)
-        .map_or(0, |p| p.cond_overrides);
-    let mut rows = String::new();
-    for &(ord, descr) in COND_OVERRIDES {
-        let on = mask & (1u64 << ord) != 0;
-        rows.push_str(&format!(
-            "<tr><td fixwidth=\"180\">{descr}:</td><td><a action=\"bypass -h \
-             admin_set_exception {ord}\">{}</a></td></tr>",
-            if on { "Disable" } else { "Enable" }
-        ));
-    }
-    super::menu::show_admin_html_replace(
-        world,
-        client_id,
-        "cond_override.htm",
-        &[("cond_table", rows)],
-    );
-}
-
-/// `//set_exception <ordinal|enable_all|disable_all>`.
-pub(super) fn admin_set_exception(
-    world: &mut World,
-    client_id: u32,
-    object_id: i32,
-    args: &[&str],
-) {
-    let Some(&token) = args.first() else {
-        send_message(
-            world,
-            client_id,
-            "Usage: //set_exception <id|enable_all|disable_all>",
-        );
-        return;
-    };
-    let all_mask: u64 = all_exceptions_mask();
-    match token {
-        "enable_all" => {
-            if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
-                p.cond_overrides = all_mask;
-            }
-            send_message(
-                world,
-                client_id,
-                "All condition exceptions have been enabled.",
-            );
-        }
-        "disable_all" => {
-            if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
-                p.cond_overrides = 0;
-            }
-            send_message(
-                world,
-                client_id,
-                "All condition exceptions have been disabled.",
-            );
-        }
-        t => {
-            let Some(&(ord, descr)) = t
-                .parse::<u8>()
-                .ok()
-                .and_then(|n| COND_OVERRIDES.iter().find(|&&(o, _)| o == n))
-            else {
-                send_message(
-                    world,
-                    client_id,
-                    "Usage: //set_exception <id|enable_all|disable_all>",
-                );
-                return;
-            };
-            let now = {
-                let Some(p) = world.objects.get_component_mut::<Player>(&object_id) else {
-                    return;
-                };
-                p.cond_overrides ^= 1u64 << ord;
-                p.cond_overrides & (1u64 << ord) != 0
-            };
-            send_message(
-                world,
-                client_id,
-                &format!(
-                    "You've {} {descr}",
-                    if now { "enabled" } else { "disabled" }
-                ),
-            );
-        }
-    }
-    admin_exceptions(world, client_id, object_id);
 }
 
 /// `AdminQuest`'s `//show_quests` — the quest scripts registered on the
@@ -918,14 +772,9 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
             "Multisell lists reloaded."
         }
         "buylist" => {
-            // `//reload buylist` re-applies the *live* `MaxEquipableItemGrade`,
-            // so editing Character.ini and reloading is enough to change the
-            // catalogue without a restart.
-            let max_grade = world.cfg.character.max_equipable_item_grade;
             world.data.buy_lists = crate::data::BuyListData::load_from(
                 &root,
                 &world.data.item_data,
-                max_grade,
                 world.cfg.general.custom_buylist_load,
                 world.cfg.general.correct_prices,
             );

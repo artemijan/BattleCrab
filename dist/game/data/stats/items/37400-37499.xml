@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="37400" name="Emerald Weapon Appearance Stone: Sword" additionalName="15-day" type="EtcItem">
 		<!-- Changes the appearance of a one-handed sword to that of an Emerald one-handed sword. 15-day. -->
@@ -154,8 +154,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37411" name="Emerald Weapon Appearance Stone: Dualsword" additionalName="15-day" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of an Emerald dualsword. 15-day. -->
+	<item id="37411" name="Emerald Weapon Appearance Stone: Dual Sword" additionalName="15-day" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of an Emerald dual sword. 15-day. -->
 		<set name="icon" val="icon.shape_shifting_dual_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -345,8 +345,8 @@
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 	</item>
-	<item id="37427" name="Emerald Weapon Appearance Stone: Dualsword" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of an Emerald dualsword. -->
+	<item id="37427" name="Emerald Weapon Appearance Stone: Dual Sword" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of an Emerald dual sword. -->
 		<set name="icon" val="icon.shape_shifting_dual_i00" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -974,17 +974,17 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37477" name="Awakened Warrior's Cleaver" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This two-handed sword increases your attack speed. Cannot be used in the Olympiad. Kamaels can transform it into a rapier through the 'Change Weapon' skill. -->
@@ -999,17 +999,17 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37478" name="Awakened Warrior's Axe" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This one-handed blunt increases your attack speed. Cannot be used in the Olympiad. -->
@@ -1024,18 +1024,18 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37479" name="Awakened Warrior's Rod" additionalName="Acumen" type="Weapon">
 		<!-- An awakened warrior's weapon. This one-handed magic blunt increases your casting speed. Cannot be used in the Olympiad. -->
@@ -1051,18 +1051,18 @@
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">348</stat>
 			<stat type="mAtk">252</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="37480" name="Awakened Warrior's Crusher" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This two-handed blunt increases your attack speed. Cannot be used in the Olympiad. -->
@@ -1077,18 +1077,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">643</stat>
 			<stat type="mAtk">230</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37481" name="Awakened Warrior's Scepter" additionalName="Acumen" type="Weapon">
 		<!-- An awakened warrior's weapon. This two-handed magic blunt increases your casting speed. Cannot be used in the Olympiad. -->
@@ -1104,18 +1104,18 @@
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
-		</skills>
 		<stats>
 			<stat type="pAtk">423</stat>
 			<stat type="mAtk">278</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3047" level="3" /> <!-- Special Ability: Acumen -->
+		</skills>
 	</item>
 	<item id="37482" name="Awakened Warrior's Stinger" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This one-handed dagger increases your attack speed. Cannot be used in the Olympiad. -->
@@ -1130,18 +1130,18 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">380</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37483" name="Awakened Warrior's Fang" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This fist weapon increases your attack speed. Cannot be used in the Olympiad. -->
@@ -1156,18 +1156,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37484" name="Awakened Warrior's Bow" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This bow increases your attack speed. Cannot be used in the Olympiad. -->
@@ -1184,21 +1184,21 @@
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
 		<set name="mp_consume" val="6" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">856</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37485" name="Awakened Warrior's Wing" additionalName="Haste" type="Weapon">
-		<!-- An awakened warrior's weapon. This dualsword increases your attack speed. Cannot be used in the Olympiad. -->
+		<!-- An awakened warrior's weapon. This dual sword increases your attack speed. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.weapon_dual_sword_i00" />
 		<set name="weapon_type" val="DUAL" />
 		<set name="default_action" val="EQUIP" />
@@ -1210,17 +1210,17 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">529</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37486" name="Awakened Warrior's Spear" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This spear increases your attack speed. Cannot be used in the Olympiad. -->
@@ -1235,19 +1235,19 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">435</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37487" name="Awakened Warrior's Rapier" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This rapier increases your attack speed. Cannot be used in the Olympiad. Kamaels can transform it into a one-handed sword through the 'Change Weapon' skill. -->
@@ -1262,18 +1262,18 @@
 		<set name="bodypart" val="rhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">479</stat>
 			<stat type="mAtk">230</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37488" name="Awakened Warrior's Sword" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This ancient sword increases your attack speed. Cannot be used in the Olympiad. Kamaels can transform it into a two-handed sword through the 'Change Weapon' skill. -->
@@ -1288,18 +1288,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">572</stat>
 			<stat type="mAtk">230</stat>
 			<stat type="pAtkSpd">350</stat>
 			<stat type="accCombat">2</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">15</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37489" name="Awakened Warrior's Shooter" additionalName="Haste" type="Weapon">
 		<!-- An awakened warrior's weapon. This crossbow increases your attack speed. Cannot be used in the Olympiad. Kamaels can transform it into a bow through the 'Change Weapon' skill. -->
@@ -1315,18 +1315,18 @@
 		<set name="bodypart" val="lrhand" />
 		<set name="weight" val="1300" />
 		<set name="material" val="ADAMANTAITE" />
-		<skills>
-			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
-		</skills>
 		<stats>
 			<stat type="pAtk">771</stat>
 			<stat type="mAtk">189</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">400</stat>
 		</stats>
+		<skills>
+			<skill id="3564" level="4" /> <!-- Special Ability: Haste -->
+		</skills>
 	</item>
 	<item id="37490" name="Awakened Warrior's Weapon Ticket" type="EtcItem">
 		<!-- Dimensional Item Pack. Talk to a Dimensional Merchant to exchange this for an awakened warrior's weapon. Note: Cannot be shared once open. -->
@@ -1339,7 +1339,7 @@
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="37491" name="Awakened Warrior's Attribute Stone Pack" type="EtcItem">
-		<!-- Double-click to receive 50 Fire/Water/Earth/Wind/Darkness/Holy Attribute Stones. Cannot be used in the Olympiad. -->
+		<!-- Double-click to receive 50 Fire/ Water/ Earth/ Wind/ Darkness/ Holy Attribute Stones. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.etc_pi_gift_box_i04" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1381,11 +1381,11 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_HAIRACC" />
 		<set name="handler" val="Appearance" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="price" val="200000" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1393,7 +1393,7 @@
 		</skills>
 	</item>
 	<item id="37494" name="Chaos Essence (Dual Class)" type="EtcItem">
-		<!-- Mysterious essence with the power of chaos. Take it to Hardin at the Reliquary of the Giants to change your specialized awakened class. Can be used only by dual classes. 30-day. -->
+		<!-- Mysterious essence with the power of chaos. Take it to Hardin at the Reliquary of the Giants to change your specialized awakened class. Cannot be used by Ertheia. Can be used only by dual classes. 30-day. -->
 		<set name="icon" val="icon.etc_water_of_silen_i00" />
 		<set name="is_depositable" val="false" />
 		<set name="is_tradable" val="false" />
@@ -1408,8 +1408,8 @@
 		<set name="weight" val="2" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="37496" name="Riding Manual: Lyn Draco" type="EtcItem">
@@ -1421,7 +1421,7 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<skills>
-			<skill id="17081" level="1" /> <!-- Lyn Draco -->
+			<skill id="17081" level="1" /> <!-- Summon Lyn Draco -->
 		</skills>
 	</item>
 	<item id="37497" name="Lindvior Slayer's Helmet" type="Armor">
@@ -1438,15 +1438,15 @@
 		<set name="commissionItemType" val="HAIR_ACCESSORY" />
 	</item>
 	<item id="37498" name="Energy of Dimensions" type="EtcItem">
-		<!-- Buff for people who share a world with the victorious clan in a dimensional siege. Atk. Spd. +10%, Casting Spd. +10%, Speed +10, and Max HP/MP/CP +10%. Cooldown is 60 min. Cannot be used in the Olympiad. -->
+		<!-- Buff for people who share a world with the victorious clan in a dimensional siege. Atk. Spd. +10%, Casting Spd. +10%, Speed +10, and Max HP/ MP/ CP +10%. Cooldown is 60 min. Cannot be used in the Olympiad. -->
 		<set name="icon" val="icon.tersi_specter_seed" />
 		<set name="weight" val="5" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 	</item>

@@ -89,12 +89,12 @@ mod tests {
     #[test]
     fn dist_values_load() {
         let cfg = AutoPotionsConfig::load_from(crate::data::DIST_GAME);
-        assert!(cfg.enabled, "AutoPotionsEnabled = True");
+        assert!(!cfg.enabled, "AutoPotionsEnabled = false");
         assert!(!cfg.in_olympiad, "and off during a match");
         assert_eq!(cfg.minimum_level, 1);
         assert!(cfg.hp.enabled && cfg.cp.enabled && cfg.mp.enabled);
         assert_eq!(cfg.hp.percentage, 70);
-        assert_eq!(cfg.mp.percentage, 30);
+        assert_eq!(cfg.mp.percentage, 70);
         // The order is a preference ranking, so it has to survive the parse.
         assert_eq!(cfg.hp.item_ids, vec![1540, 1539, 1061, 1060]);
         assert_eq!(cfg.cp.item_ids, vec![5592, 5591]);

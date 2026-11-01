@@ -153,7 +153,7 @@ pub(crate) fn render_hall_list(world: &World, viewer_oid: i32) -> String {
         // `&^<id>;` / `&%<id>;` are client-side clan-hall name/desc string refs.
         rows.push_str(&format!(
             "<tr><td width=50><font color=\"aaaaff\">&^{id};</font></td>\
-             <td width=100><a action=\"bypass -h Quest ClanHallAuctioneer auctionList id={id}\">\
+             <td width=100><a action=\"bypass -h Script ClanHallAuctioneer auctionList id={id}\">\
              <font color=\"ffffaa\">&%{id};[0]</font></a></td>\
              <td width=50>{end_date}</td>\
              <td width=70 align=right><font color=\"aaffff\">{bid}</font></td></tr>",

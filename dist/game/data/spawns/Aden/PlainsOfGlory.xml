@@ -134,7 +134,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="1" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 	<spawn>
@@ -147,7 +147,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="4" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="7" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="7" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="8" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 	<spawn>
@@ -161,7 +161,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="2" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="4" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="4" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="3" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 	<spawn>
@@ -175,7 +175,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="4" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="8" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="8" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="7" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 	<spawn>
@@ -190,7 +190,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="2" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="4" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="4" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="3" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 	<spawn>
@@ -203,7 +203,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="2" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="3" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="3" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 	<spawn>
@@ -216,7 +216,7 @@
 			</territory>
 		</territories>
 		<npc id="20681" count="2" respawnTime="30sec" /> <!-- Vanor Silenos -->
-		<npc id="20682" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Grunt -->
+		<npc id="20682" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Solider -->
 		<npc id="20683" count="2" respawnTime="30sec" /> <!-- Vanor Silenos Scout -->
 	</spawn>
 </list>

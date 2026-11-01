@@ -16,12 +16,12 @@
  */
 package quests.Q00036_MakeASewingKit;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Make a Sewing Kit (36)
@@ -31,13 +31,16 @@ public class Q00036_MakeASewingKit extends Quest
 {
 	// NPC
 	private static final int FERRIS = 30847;
+	
 	// Monster
 	private static final int REINFORCED_IRON_GOLEM = 20566;
+	
 	// Items
 	private static final int IRON_ORE = 36521;
 	private static final int COKES = 36561;
 	private static final int SEWING_KIT = 7078;
 	private static final int REINFORCED_IRON = 7163;
+	
 	// Misc
 	private static final int MIN_LEVEL = 85;
 	private static final int IRON_COUNT = 5;
@@ -75,6 +78,7 @@ public class Q00036_MakeASewingKit extends Quest
 				{
 					return getNoQuestMsg(player);
 				}
+				
 				takeItems(player, REINFORCED_IRON, -1);
 				qs.setCond(3, true);
 				break;
@@ -100,11 +104,12 @@ public class Q00036_MakeASewingKit extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final Player member = getRandomPartyMember(player, 1);
 		if ((member != null) && getRandomBoolean())
@@ -119,7 +124,6 @@ public class Q00036_MakeASewingKit extends Quest
 				playSound(player, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 			}
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -163,6 +167,7 @@ public class Q00036_MakeASewingKit extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

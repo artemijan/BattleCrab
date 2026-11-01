@@ -1,10 +1,10 @@
-//! `General.ini`'s GM-restriction family — the keys that decide what a GM's
-//! `PlayerCondOverride` grid actually exempts them from.
+//! `General.ini`'s GM-restriction family — the keys that decide what being a
+//! GM actually exempts a character from.
 //!
 //! Three of them (`GMSkillRestriction`, `GMItemRestriction`,
 //! `GMTradeRestrictedItems`) read as though they *grant* GM powers and in fact
-//! **withdraw** them: Java's guard is `canOverrideCond(...) && !Config.KEY`, so
-//! setting the key to `True` is what stops the override applying. This dist
+//! **withdraw** them: Java's guard is `isGM() && !Config.KEY`, so setting the
+//! key to `True` is what stops the exemption applying. This dist
 //! sets two of the three, which is why the port letting GMs bypass everything
 //! was a divergence rather than a convenience.
 
@@ -96,34 +96,6 @@ fn gm_skill_restriction_true_binds_a_gm_to_skill_conditions() {
     }
 }
 
-/// The override is what the key gates, not the access level — so a GM who
-/// clears `SKILL_CONDITIONS` with `//set_exception 2` is bound by conditions
-/// even with `GMSkillRestriction` off.
-///
-/// Pinned because reading the access level directly (which the port did) gives
-/// the same answer in every test above and a different one here.
-#[test]
-fn the_exemption_follows_the_override_not_the_access_level() {
-    let mut world = gm_world();
-    world.cfg.general.gm_skill_restriction = false;
-    let _rx = ingame_player_access(&mut world, 1, 7303, GM_LEVEL);
-    let _t = ingame_player(&mut world, 2, 7304, 0, 0, 0);
-    let skill = level_gated_skill();
-    assert!(
-        conditions::check_cast(&world, 7303, &skill, 7304).is_ok(),
-        "exempt while the override is held"
-    );
-
-    // Drop just the SKILL_CONDITIONS bit.
-    if let Some(p) = world.objects.get_component_mut::<Player>(&7303) {
-        p.cond_overrides &= !(1u64 << crate::game_loop::admin::SKILL_CONDITIONS_ORDINAL);
-    }
-    assert!(
-        conditions::check_cast(&world, 7303, &skill, 7304).is_err(),
-        "and bound once it is cleared, though the access level never changed"
-    );
-}
-
 /// `GMRestartFighting` (**True** here) — the one key in the family that grants
 /// rather than restricts: a GM may log out mid-fight, an ordinary player may
 /// not.
@@ -157,7 +129,7 @@ fn gm_restart_fighting_exempts_only_a_gm_and_only_while_set() {
 }
 
 /// `GMTradeRestrictedItems` (**False** here) and the drop gate. Java exempts on
-/// `canOverrideCond(DROP_ALL_ITEMS) && GM_TRADE_RESTRICTED_ITEMS`, covering
+/// `isGM() && GM_TRADE_RESTRICTED_ITEMS`, covering
 /// **both** the undroppable gate and the quest-item gate.
 ///
 /// The dist value means a GM currently may not drop either, which is what the

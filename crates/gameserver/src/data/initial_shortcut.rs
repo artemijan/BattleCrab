@@ -1,5 +1,5 @@
 //! Port of `data/xml/InitialShortcutData` — the shortcut panel a freshly
-//! created character starts with (`data/stats/initialShortcuts.xml`): global
+//! created character starts with (`data/stats/players/initialShortcuts.xml`): global
 //! pages, per-classId pages, and the macro presets MACRO slots reference.
 //! Applied at character creation (`game_loop/client/lobby.rs`); persistence only —
 //! there's no in-world session to echo packets to at that point.
@@ -13,7 +13,7 @@ use tracing::info;
 use crate::data::xml::{attr_i32, attr_str};
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, ShortcutType};
 
-pub const INITIAL_SHORTCUTS_FILE: &str = "data/stats/initialShortcuts.xml";
+pub const INITIAL_SHORTCUTS_FILE: &str = "data/stats/players/initialShortcuts.xml";
 
 /// One `<slot>` line — like Java's reuse of the `Shortcut` DTO but keeping
 /// the item *id* semantics explicit (ITEM entries hold an item id until

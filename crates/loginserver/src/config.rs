@@ -1,5 +1,5 @@
-//! Login-server section of `Config.java`, reading the same
-//! `config/LoginServer.ini` keys.
+//! Login-server config: Java's `LoginConfig` (`config/Server.ini`) and
+//! `DatabaseConfig` (`config/Database.ini`), reading the same keys.
 
 use commons::config::PropertiesParser;
 
@@ -46,24 +46,29 @@ pub struct LoginConfig {
     pub internal_status_port: u16,
 }
 
-pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/LoginServer.ini";
+pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/Server.ini";
+/// The database keys (`URL`, pool size, backup) — Java's `DatabaseConfig`.
+pub const LOGIN_DATABASE_CONFIG_FILE: &str = "dist/login/config/Database.ini";
 
 /// The prefix of the path above: the login server addresses its files
 /// from the *repository root*, not from inside `dist/login`, which is why the
 /// systemd unit sets `WorkingDirectory` to the deployment root. Anything else
-/// that has to sit beside `LoginServer.ini` — `Logging.ini`, the `log/`
+/// that has to sit beside `Server.ini` — `Logging.ini`, the `log/`
 /// directory — must be resolved against this, or it silently lands one or two
 /// levels up from the rest of the datapack.
 pub const LOGIN_ROOT: &str = "dist/login/";
 
 impl LoginConfig {
     pub fn load() -> Self {
-        Self::from_parser(&PropertiesParser::load(LOGIN_CONFIG_FILE))
+        Self::from_parsers(
+            &PropertiesParser::load(LOGIN_CONFIG_FILE),
+            &PropertiesParser::load(LOGIN_DATABASE_CONFIG_FILE),
+        )
     }
 
     /// Split out from [`load`](Self::load) so a caller (or a test) can supply
-    /// the ini body directly; every key and default is unchanged.
-    pub fn from_parser(p: &PropertiesParser) -> Self {
+    /// the ini bodies directly; every key and default is unchanged.
+    pub fn from_parsers(p: &PropertiesParser, db: &PropertiesParser) -> Self {
         Self {
             internal_status_bind_address: p.get_string("InternalStatusBindAddress", "127.0.0.1"),
             internal_status_port: p.get_int("InternalStatusPort", 7778) as u16,
@@ -72,8 +77,8 @@ impl LoginConfig {
             game_server_login_host: p.get_string("LoginHostname", "127.0.0.1"),
             game_server_login_port: p.get_int("LoginPort", 9014) as u16,
 
-            database_url: p.get_string("URL", "jdbc:sqlite:./data/l2jmobius.db"),
-            database_max_connections: p.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
+            database_url: db.get_string("URL", "jdbc:sqlite:./data/l2jmobius.db"),
+            database_max_connections: db.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
 
             login_try_before_ban: p.get_int("LoginTryBeforeBan", 5),
             login_block_after_ban: p.get_int("LoginBlockAfterBan", 900),
@@ -96,8 +101,8 @@ impl LoginConfig {
             login_server_schedule_restart: p.get_bool("LoginRestartSchedule", false),
             login_server_schedule_restart_time: p.get_long("LoginRestartTime", 24),
 
-            backup_database: p.get_bool("BackupDatabase", false),
-            backup_path: p.get_string("BackupPath", "../backup/"),
+            backup_database: db.get_bool("BackupDatabase", false),
+            backup_path: db.get_string("BackupPath", "../backup/"),
         }
     }
 }

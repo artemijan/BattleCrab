@@ -46,11 +46,16 @@ pub fn scan(dir: &str, recursive: bool, needles: &[&str], out: &mut BTreeSet<i32
     }
 }
 
-/// Skill ids a player can learn — `data/skillTrees/**`. The denominator that
+/// Skill ids a player can learn — `data/stats/players/skillTrees/**`. The denominator that
 /// matters: rank by *learnable* usage, never by raw instance count (`StatUp` is
 /// 465 skills and 9 learnable ones).
 pub fn learnable() -> BTreeSet<i32> {
     let mut out = BTreeSet::new();
-    scan("data/skillTrees", true, &[r#"skillId=""#], &mut out);
+    scan(
+        "data/stats/players/skillTrees",
+        true,
+        &[r#"skillId=""#],
+        &mut out,
+    );
     out
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="22100" name="Spiritshot Pack (C-grade)" type="EtcItem">
 		<!-- If used, five thousand Spiritshots in C-grade are acquired. -->
@@ -1053,9 +1053,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="22157" name="Forget-me-not Hairpin" type="Armor">
 		<!-- Forget-me-not shaped hairpin. Female only. -->
@@ -1070,9 +1070,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="22158" name="Outlaw's Eyepatch" type="Armor">
 		<!-- Purple eyepatch accessory -->
@@ -1198,9 +1198,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="isAppearanceable" val="true" />
 		<set name="is_sellable" val="false" />
-		<cond msgId="1518">
+		<conditions msgId="1518">
 			<player sex="1" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="22167" name="Raccoon Ears" type="Armor">
 		<!-- Raccoon ear shaped hair accessory. -->
@@ -1301,13 +1301,13 @@
 		<!-- Guess -->
 		<set name="enchanted" val="5" />
 		<set name="commissionItemType" val="RING" />
-		<skills>
-			<skill id="3561" level="1" /> <!-- Baium's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3561" level="1" /> <!-- Baium's Ring -->
+		</skills>
 	</item>
 	<item id="22174" name="Reinforced Queen Ant's Ring" type="Armor">
 		<!-- MP +21, Poison Resistance +30%, Poison Atk. Rate +30%, Hold Resistance +20%, Hold Atk. Rate +20%. Increases Accuracy and P. Critical Damage. Only one effect is applied when wearing two of the same ring. -->
@@ -1324,16 +1324,16 @@
 		<set name="enchanted" val="5" />
 		<set name="commissionItemType" val="RING" />
 		<!-- Guess -->
-		<skills>
-			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
-		</skills>
 		<stats>
 			<stat type="mDef">48</stat>
 			<stat type="maxMp">21</stat>
 		</stats>
+		<skills>
+			<skill id="3562" level="1" /> <!-- Queen Ant's Ring -->
+		</skills>
 	</item>
 	<item id="22175" name="Reinforced Blessed Zaken's Earring" type="Armor">
-		<!-- MP +37, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount +15%, Vampiric Rage Effect, Stun/Mental Attack Resistance +30%, Stun/Metal Atk. Rate +30%, and Dark Resistance +15. Only one effect is applied even when the same two earrings are worn. If it is equipped together with a standard Zaken's Earring, only the effect of Blessed Zaken's Earring will be applied. -->
+		<!-- MP +37, Bleed Resistance +30%, Bleed Atk. Rate +30%, Heal Amount +15%, Vampiric Rage Effect, Stun/ Mental Attack Resistance +30%, Stun/ Metal Atk. Rate +30%, and Dark Resistance +15. Only one effect is applied even when the same two earrings are worn. If it is equipped together with a standard Zaken's Earring, only the effect of Blessed Zaken's Earring will be applied. -->
 		<set name="icon" val="icon.accessory_earring_of_zaken_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -1346,25 +1346,25 @@
 		<set name="enchanted" val="5" />
 		<set name="commissionItemType" val="EARRING" />
 		<!-- Guess -->
-		<skills>
-			<skill id="3559" level="2" /> <!-- Blessed Zaken's Earring -->
-		</skills>
 		<stats>
 			<stat type="mDef">94</stat>
 			<stat type="maxMp">37</stat>
 		</stats>
+		<skills>
+			<skill id="3559" level="2" /> <!-- Blessed Zaken's Earring -->
+		</skills>
 	</item>
 	<item id="22176" name="Event - Summon Scroll: Bad Bunny" type="EtcItem">
 		<!-- Scroll that summons a Bad Bunny. If you relieve the Bad Bunny's fatigue, you can acquire Apiga. (Recovery is only possible through Cupid's Fatigue Relief Potion or Cupid's Powerful Fatigue Relief Potion.) -->
 		<set name="icon" val="BranchSys2.icon2.g_ev_rabbit" />
 		<set name="material" val="PAPER" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22306" level="1" /> <!-- Event - Summon Scroll: Bad Bunny -->
 		</skills>
@@ -1374,12 +1374,12 @@
 		<set name="icon" val="BranchSys2.icon2.g_ev_rabbit" />
 		<set name="material" val="PAPER" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22308" level="1" /> <!-- Event - Summon Scroll: Liverless Bunny -->
 		</skills>
@@ -1389,12 +1389,12 @@
 		<set name="icon" val="BranchSys2.icon2.g_ev_rabbit_boss" />
 		<set name="material" val="PAPER" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22307" level="1" /> <!-- Event - Summon Scroll: Bad Bunny Captain -->
 		</skills>
@@ -1404,12 +1404,12 @@
 		<set name="icon" val="BranchSys2.icon2.g_ev_rabbit_boss" />
 		<set name="material" val="PAPER" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<skills>
 			<skill id="22309" level="1" /> <!-- Event - Summon Scroll: Liverless Bunny Captain -->
 		</skills>
@@ -1423,9 +1423,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22181" min="60" max="60" chance="100" /> <!-- Event - Cupid's Fatigue Relief Potion -->
@@ -1525,8 +1525,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="handler" val="ExtractableItems" />
 		<set name="is_stackable" val="true" />
+		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
 			<item id="22188" min="3" max="3" chance="100" /> <!-- Birthday Vitality Potion -->
 			<item id="21594" min="1" max="1" chance="100" /> <!-- Birthday Hat -->
@@ -1545,9 +1545,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="22312" level="1" /> <!-- Birthday Vitality Buff -->
 		</skills>
@@ -1699,7 +1699,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<skills>
-			<skill id="22318" level="5" /> <!-- 5th Place Treasure Sack -->
+			<skill id="22318" level="5" /> <!-- 5th Place Treasure sack -->
 		</skills>
 	</item>
 	<item id="22199" name="6th Place Treasure Sack" type="EtcItem">

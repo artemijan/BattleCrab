@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/multisell.xsd">
+	<npcs>
+		<npc>30847</npc> <!-- Ferris (Aden) -->
+	</npcs>
+	<item>
+		<ingredient count="1" id="48202" enchantmentLevel="5" /> <!-- Warrior's Circlet -->
+		<ingredient count="1" id="48212" /> <!-- Noble Circlet Upgrade Stone -->
+		<production count="1" id="48203" /> <!-- Noble Warrior's Circlet -->
+	</item>
+	<item>
+		<ingredient count="1" id="48203" enchantmentLevel="5" /> <!-- Noble Warrior's Circlet -->
+		<ingredient count="1" id="48213" /> <!-- Radiant Circlet Upgrade Stone -->
+		<production count="1" id="48204" /> <!-- Radiant Warrior's Circlet -->
+	</item>
+	<item>
+		<ingredient count="1" id="48205" enchantmentLevel="5" /> <!-- Wizard's Circlet -->
+		<ingredient count="1" id="48212" /> <!-- Noble Circlet Upgrade Stone -->
+		<production count="1" id="48206" /> <!-- Noble Wizard's Circlet -->
+	</item>
+	<item>
+		<ingredient count="1" id="48206" enchantmentLevel="5" /> <!-- Noble Wizard's Circlet -->
+		<ingredient count="1" id="48213" /> <!-- Radiant Circlet Upgrade Stone -->
+		<production count="1" id="48207" /> <!-- Radiant Wizard's Circlet -->
+	</item>
+	<item>
+		<ingredient count="1" id="48208" enchantmentLevel="5" /> <!-- Knight's Circlet -->
+		<ingredient count="1" id="48212" /> <!-- Noble Circlet Upgrade Stone -->
+		<production count="1" id="48209" /> <!-- Noble Knight's Circlet -->
+	</item>
+	<item>
+		<ingredient count="1" id="48209" enchantmentLevel="5" /> <!-- Noble Knight's Circlet -->
+		<ingredient count="1" id="48213" /> <!-- Radiant Circlet Upgrade Stone -->
+		<production count="1" id="48210" /> <!-- Radiant Knight's Circlet -->
+	</item>
+	<item>
+		<ingredient count="1" id="48491" enchantmentLevel="5" /> <!-- Dragon Skin Shirt -->
+		<ingredient count="1" id="48495" /> <!-- Noble Leather Upgrade Stone -->
+		<production count="1" id="48492" /> <!-- Dragon Leather Shirt -->
+	</item>
+	<item>
+		<ingredient count="1" id="48492" enchantmentLevel="5" /> <!-- Dragon Leather Shirt -->
+		<ingredient count="1" id="48496" /> <!-- Radiant Rind Upgrade Stone -->
+		<production count="1" id="48493" /> <!-- Dragon Rind Leather Shirt -->
+	</item>
+</list>

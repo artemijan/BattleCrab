@@ -88,7 +88,7 @@ echo "==> Syncing dist/login and dist/game"
 # with no fixup below — never overwrite a live one; *.db* and log/ are runtime
 # state, not datapack.
 #
-# LoginServer.ini, Server.ini and both Monitor.ini ARE synced. Their only
+# Both Server.ini, both Database.ini and both Monitor.ini ARE synced. Their only
 # per-environment keys are the addresses the topology decides, which the
 # set_ini calls below rewrite right after this sync. Excluding the whole file
 # instead used to strand every other setting at whatever was seeded on the
@@ -115,12 +115,12 @@ if ! on "$GAME_HOST" test -f "$REMOTE_PATH/dist/game/config/ipconfig.xml"; then
 fi
 
 # The addresses between services, whatever the dev-checked-in defaults
-# (LoginServer.ini's `*`, Server.ini's LAN IP) say: loopback where two services
+# (login Server.ini's `*`, game Server.ini's LAN IP) say: loopback where two services
 # share a machine, the private address where they don't (deploy-lib.sh).
 echo "==> Applying topology to the server configs"
-set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/LoginServer.ini" LoginHostname "$GS_LINK_ADDRESS"
+set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/Server.ini" LoginHostname "$GS_LINK_ADDRESS"
 set_ini "$GAME_HOST" "$REMOTE_PATH/dist/game/config/Server.ini" LoginHost "$GS_LINK_ADDRESS"
-set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/LoginServer.ini" InternalStatusBindAddress "$LOGIN_CHANNEL_ADDRESS"
+set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/Server.ini" InternalStatusBindAddress "$LOGIN_CHANNEL_ADDRESS"
 set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/Monitor.ini" InternalMonitorBindAddress "$LOGIN_CHANNEL_ADDRESS"
 set_ini "$GAME_HOST" "$REMOTE_PATH/dist/game/config/Monitor.ini" InternalMonitorBindAddress "$GAME_CHANNEL_ADDRESS"
 

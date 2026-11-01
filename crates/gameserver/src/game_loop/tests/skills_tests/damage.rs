@@ -802,6 +802,72 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
     );
 }
 
+/// **`SKILL_POWER_ADD` is added to a skill's power before the formula runs.**
+/// A nuke's damage is proportional to its power, so adding the skill's own
+/// power doubles it exactly; a physical skill's is `k·(pAtk·levelMod + power)`,
+/// so each equal step of the add raises it by the same amount.
+#[test]
+fn skill_power_add_raises_a_skills_power() {
+    use crate::game_loop;
+    use model::components::stats::StatModifiers;
+    use model::stats::Stat;
+
+    const POWER_STRIKE: i32 = 3;
+    const WIND_STRIKE: i32 = 1177;
+    const CASTER: i32 = 6402;
+    let npc = game_loop::npc::FIRST_NPC_OBJECT_ID + 7802;
+
+    let (mut world, ..) = test_world();
+    world.data = dist::game_data_owned();
+    let _rx = ingame_player_access(&mut world, 1, CASTER, 0);
+    add_test_npc(&mut world, npc, 20001, "Monster", 20, 0, 0, 0);
+
+    let measure = |world: &mut World, skill_id: i32, add: f64| -> f64 {
+        let mut mods = world
+            .objects
+            .get_component::<StatModifiers>(&CASTER)
+            .cloned()
+            .expect("modifiers");
+        mods.add.insert(Stat::SkillPowerAdd, add);
+        world.objects.add_components(&CASTER, mods);
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc) {
+            v.max_hp = 1_000_000;
+            v.cur_hp = 1_000_000.0;
+        }
+        let skill = skill_by_id(world, skill_id, 1).expect("skill");
+        world.clear_forced_rolls();
+        world.force_rolls([50; 12]);
+        effects::apply_skill_effects(world, CASTER, npc, &skill);
+        1_000_000.0 - hp_of(world, npc)
+    };
+
+    let wind_power = skill_by_id(&world, WIND_STRIKE, 1)
+        .expect("Wind Strike")
+        .effects
+        .iter()
+        .find_map(|e| match e {
+            model::skill::effects::SkillEffect::MagicalDamage { power, .. } => Some(*power),
+            _ => None,
+        })
+        .expect("MagicalDamage");
+    let plain_m = measure(&mut world, WIND_STRIKE, 0.0);
+    let added_m = measure(&mut world, WIND_STRIKE, wind_power);
+    assert!(plain_m > 0.0, "the nuke deals damage at all: {plain_m}");
+    assert!(
+        (added_m - plain_m * 2.0).abs() < 1.0,
+        "SKILL_POWER_ADD = power doubles a nuke ({plain_m} → {added_m})"
+    );
+
+    let d0 = measure(&mut world, POWER_STRIKE, 0.0);
+    let d1 = measure(&mut world, POWER_STRIKE, 100.0);
+    let d2 = measure(&mut world, POWER_STRIKE, 200.0);
+    assert!(d1 > d0 + 1.0, "the add raises the skill ({d0} → {d1})");
+    assert!(
+        ((d2 - d1) - (d1 - d0)).abs() < 1.0,
+        "and linearly in power ({d0}, {d1}, {d2})"
+    );
+}
+
 /// **A nuke carries the caster's random-damage spread**, exactly as a swing
 /// does: `calcMagicDam`'s tail multiplies by
 /// `attacker.getRandomDamageMultiplier()`. Every class template declares

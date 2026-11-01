@@ -2,8 +2,9 @@
 //! master's "Use Shadow Weapon Exchange Coupon" desk.
 //!
 //! Every class transfer hands out 15 Shadow Item Exchange Coupons (8869
-//! D-grade at first transfer, 8870 C-grade at second — see
-//! [`crate::scripts::elf_human_change1`] and its siblings). This is where they
+//! D-grade at first transfer, 8870 C-grade at second — Interlude's race
+//! `*Change1`/`*Change2` village-master scripts did; Salvation retired them).
+//! This is where they
 //! are spent: the script itself only picks which of four pages to show, and the
 //! page's link opens the real exchange, one of three multisells, at 1 coupon
 //! per weapon.

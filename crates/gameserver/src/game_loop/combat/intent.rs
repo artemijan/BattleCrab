@@ -54,12 +54,14 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     // predicate also ORs `isPhysicalAttackMuted()` — the auto-attack lock,
     // distinct from `PHYSICAL_MUTED`'s skill lock (G34 S3).
     // Java `AttackRequest`: `if ((!target.isTargetable() ||
-    // player.isTargetingDisabled()) && !canOverrideCond(TARGET_ALL))` — the
-    // force-attack path has the same targeting gate as `Action`.
+    // player.isTargetingDisabled()) && !player.isGM())` — the force-attack
+    // path has the same targeting gate as `Action`, GM exemption included.
+    // The exemption covers the targeting pair only, not the disabled check.
     if crate::game_loop::abnormal::is_blocked_from_actions(world, object_id)
         || crate::game_loop::abnormal::is_physical_attack_muted(world, object_id)
-        || crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
-        || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id)
+        || ((crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
+            || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id))
+            && !helpers::is_gm(world, object_id))
     {
         helpers::send_action_failed(world, client_id);
         return;
@@ -342,7 +344,18 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
 /// clients (`StatusUpdate`); a breach opens the gate (`siege::damage_door`).
 /// Shared by the melee swing (`do_door_swing`) and offensive skills
 /// (`skills::effects::apply_skill_damage`).
-pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
+///
+/// `Door.reduceCurrentHp` hands a non-wall door straight to
+/// `Creature.reduceCurrentHp`, so a gate hit publishes the damage events like
+/// any other.
+pub(crate) fn apply_door_damage(
+    world: &mut World,
+    attacker_oid: i32,
+    door_oid: i32,
+    damage: i32,
+    hit: super::DamageHit,
+) {
+    super::fire_damage_events(world, attacker_oid, door_oid, f64::from(damage), hit);
     crate::game_loop::siege::damage_door(world, door_oid, damage);
     let (cur_hp, max_hp) = {
         let d = world
@@ -369,6 +382,7 @@ pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
             ),
         );
     }
+    super::send_damage_message(world, attacker_oid, door_oid, damage, hit);
 }
 
 /// Per-tick player combat system: drive every attack/cast intent one step.

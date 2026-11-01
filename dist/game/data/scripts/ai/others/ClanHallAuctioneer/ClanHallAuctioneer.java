@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package ai.others.ClanHallAuctioneer;
 
@@ -24,34 +28,35 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.l2jmobius.gameserver.data.xml.ClanHallData;
-import org.l2jmobius.gameserver.instancemanager.ClanHallAuctionManager;
+import org.l2jmobius.gameserver.managers.ClanHallAuctionManager;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.clan.Clan;
-import org.l2jmobius.gameserver.model.clan.ClanPrivilege;
+import org.l2jmobius.gameserver.model.clan.ClanAccess;
 import org.l2jmobius.gameserver.model.html.PageBuilder;
 import org.l2jmobius.gameserver.model.html.PageResult;
 import org.l2jmobius.gameserver.model.html.formatters.BypassParserFormatter;
 import org.l2jmobius.gameserver.model.html.pagehandlers.NextPrevPageHandler;
 import org.l2jmobius.gameserver.model.html.styles.ButtonsStyle;
+import org.l2jmobius.gameserver.model.item.enums.ItemProcessType;
 import org.l2jmobius.gameserver.model.itemcontainer.Inventory;
 import org.l2jmobius.gameserver.model.residences.Bidder;
 import org.l2jmobius.gameserver.model.residences.ClanHall;
 import org.l2jmobius.gameserver.model.residences.ClanHallAuction;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
-import org.l2jmobius.gameserver.util.BypassParser;
-
-import ai.AbstractNpcAI;
 
 /**
  * Clan Hall Auctioneer AI.
- * @author Sdw
+ * @author Sdw, Mobius
  */
-public class ClanHallAuctioneer extends AbstractNpcAI
+public class ClanHallAuctioneer extends Script
 {
 	// NPC
 	private static final int AUCTIONEER = 30767; // Auctioneer
@@ -67,7 +72,6 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 	public String onEvent(String event, Npc npc, Player player)
 	{
 		String htmltext = null;
-		
 		switch (event)
 		{
 			case "ClanHallAuctioneer.html":
@@ -92,9 +96,9 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 					return htmltext;
 				}
 				
-				if (!player.isClanLeader() || (clan.getLevel() < 2))
+				if (!player.isClanLeader() || (clan.getLevel() < 4))
 				{
-					player.sendPacket(SystemMessageId.ONLY_A_CLAN_LEADER_WHOSE_CLAN_IS_OF_LEVEL_2_OR_ABOVE_IS_ALLOWED_TO_PARTICIPATE_IN_A_CLAN_HALL_AUCTION);
+					player.sendPacket(SystemMessageId.YOU_CAN_PARTICIPATE_IN_THE_CLAN_HALL_AUCTION_IF_YOUR_CLAN_LEVEL_IS_4_OR_ABOVE_AND_YOU_ARE_THE_CLAN_LEADER_OR_HAVE_THE_AUCTION_RIGHT);
 					return htmltext;
 				}
 				
@@ -121,9 +125,9 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 					return htmltext;
 				}
 				
-				if (!player.isClanLeader() || (clan.getLevel() < 2))
+				if (!player.isClanLeader() || (clan.getLevel() < 4))
 				{
-					player.sendPacket(SystemMessageId.ONLY_A_CLAN_LEADER_WHOSE_CLAN_IS_OF_LEVEL_2_OR_ABOVE_IS_ALLOWED_TO_PARTICIPATE_IN_A_CLAN_HALL_AUCTION);
+					player.sendPacket(SystemMessageId.YOU_CAN_PARTICIPATE_IN_THE_CLAN_HALL_AUCTION_IF_YOUR_CLAN_LEVEL_IS_4_OR_ABOVE_AND_YOU_ARE_THE_CLAN_LEADER_OR_HAVE_THE_AUCTION_RIGHT);
 					return htmltext;
 				}
 				
@@ -143,7 +147,7 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 			}
 			case "rebid":
 			{
-				if (player.hasClanPrivilege(ClanPrivilege.CH_AUCTION))
+				if (player.hasAccess(ClanAccess.HALL_AUCTION))
 				{
 					final Clan clan = player.getClan();
 					final ClanHallAuction clanHallAuction = ClanHallAuctionManager.getInstance().getClanHallAuctionByClan(clan);
@@ -173,9 +177,9 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 					return htmltext;
 				}
 				
-				if (!player.isClanLeader() || (clan.getLevel() < 2))
+				if (!player.isClanLeader() || (clan.getLevel() < 4))
 				{
-					player.sendPacket(SystemMessageId.ONLY_A_CLAN_LEADER_WHOSE_CLAN_IS_OF_LEVEL_2_OR_ABOVE_IS_ALLOWED_TO_PARTICIPATE_IN_A_CLAN_HALL_AUCTION);
+					player.sendPacket(SystemMessageId.YOU_CAN_PARTICIPATE_IN_THE_CLAN_HALL_AUCTION_IF_YOUR_CLAN_LEVEL_IS_4_OR_ABOVE_AND_YOU_ARE_THE_CLAN_LEADER_OR_HAVE_THE_AUCTION_RIGHT);
 					return htmltext;
 				}
 				
@@ -212,21 +216,20 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 			{
 				if (event.startsWith("auctionList"))
 				{
-					processClanHallBypass(player, npc, new BypassParser(event));
-					return htmltext;
+					processClanHallBypass(player, npc, event);
 				}
 				else if (event.startsWith("bid"))
 				{
-					processBidBypass(player, npc, new BypassParser(event));
-					return htmltext;
+					processBidBypass(player, npc, event);
 				}
 				else if (event.startsWith("listBidder"))
 				{
-					processBiddersBypass(player, npc, new BypassParser(event));
-					return htmltext;
+					processBiddersBypass(player, npc, event);
 				}
+				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -236,10 +239,10 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 		return "ClanHallAuctioneer.html";
 	}
 	
-	private void processClanHallBypass(Player player, Npc npc, BypassParser parser)
+	private void processClanHallBypass(Player player, Npc npc, String event)
 	{
-		final int page = parser.getInt("page", 0);
-		final int clanHallId = parser.getInt("id", 0);
+		final int page = parseInt(event, "page", 0);
+		final int clanHallId = parseInt(event, "id", 0);
 		
 		if (clanHallId > 0)
 		{
@@ -277,8 +280,8 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 			else
 			{
 				final NpcHtmlMessage html = new NpcHtmlMessage(npc.getObjectId(), getHtm(player, "ClanHallAuctioneer-list.html"));
-				//@formatter:off
-				final PageResult result = PageBuilder.newBuilder(clanHalls, 8, "bypass -h Quest ClanHallAuctioneer auctionList")
+				// @formatter:off
+				final PageResult result = PageBuilder.newBuilder(clanHalls, 8, "bypass -h Script ClanHallAuctioneer auctionList")
 					.currentPage(page)
 					.pageHandler(NextPrevPageHandler.INSTANCE)
 					.formatter(BypassParserFormatter.INSTANCE)
@@ -291,9 +294,10 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 						// System.out.println(clanHall.getResidenceId());
 						return;
 					}
+					
 					sb.append("<tr><td width=50><font color=\"aaaaff\">&^");
 					sb.append(clanHall.getResidenceId());
-					sb.append(";</font></td><td width=100><a action=\"bypass -h Quest ClanHallAuctioneer auctionList id=");
+					sb.append(";</font></td><td width=100><a action=\"bypass -h Script ClanHallAuctioneer auctionList id=");
 					sb.append(clanHall.getResidenceId());
 					sb.append("\"><font color=\"ffffaa\">&%");
 					sb.append(clanHall.getResidenceId());
@@ -303,7 +307,7 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 					sb.append(auction.getHighestBid());
 					sb.append("</font></td></tr>");
 				}).build();
-				//@formatter:on
+				// @formatter:on
 				html.replace("%pages%", result.getPages() > 0 ? result.getPagerTemplate() : "");
 				html.replace("%agitList%", result.getBodyTemplate().toString());
 				player.sendPacket(html);
@@ -311,10 +315,10 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 		}
 	}
 	
-	private void processBidBypass(Player player, Npc npc, BypassParser parser)
+	private void processBidBypass(Player player, Npc npc, String event)
 	{
-		final int clanHallId = parser.getInt("id", 0);
-		final long bid = parser.getLong("bid", 0);
+		final int clanHallId = parseInt(event, "id", 0);
+		final long bid = parseLong(event, "bid", 0);
 		
 		if (clanHallId > 0)
 		{
@@ -323,6 +327,7 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 			{
 				return;
 			}
+			
 			final Clan clan = player.getClan();
 			if (clan == null)
 			{
@@ -330,15 +335,16 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 				return;
 			}
 			
-			if (!player.isClanLeader() || (clan.getLevel() < 2))
+			if (!player.isClanLeader() || (clan.getLevel() < 4))
 			{
-				player.sendPacket(SystemMessageId.ONLY_A_CLAN_LEADER_WHOSE_CLAN_IS_OF_LEVEL_2_OR_ABOVE_IS_ALLOWED_TO_PARTICIPATE_IN_A_CLAN_HALL_AUCTION);
+				player.sendPacket(SystemMessageId.YOU_CAN_PARTICIPATE_IN_THE_CLAN_HALL_AUCTION_IF_YOUR_CLAN_LEVEL_IS_4_OR_ABOVE_AND_YOU_ARE_THE_CLAN_LEADER_OR_HAVE_THE_AUCTION_RIGHT);
 				return;
 			}
+			
 			final ClanHall playerClanHall = ClanHallData.getInstance().getClanHallByClan(clan);
 			if (playerClanHall != null)
 			{
-				player.sendMessage("You do not meet the requirements to participate in an auction.");
+				player.sendPacket(SystemMessageId.YOU_ALREADY_HAVE_A_CLAN_HALL_SO_YOU_CANNOT_BID);
 				return;
 			}
 			
@@ -347,6 +353,7 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 				player.sendPacket(SystemMessageId.SINCE_YOU_HAVE_ALREADY_SUBMITTED_A_BID_YOU_ARE_NOT_ALLOWED_TO_PARTICIPATE_IN_ANOTHER_AUCTION_AT_THIS_TIME);
 				return;
 			}
+			
 			if (bid == 0)
 			{
 				final NpcHtmlMessage html = new NpcHtmlMessage(npc.getObjectId());
@@ -364,13 +371,14 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 					player.sendPacket(SystemMessageId.THE_HIGHEST_BID_IS_OVER_999_9_BILLION_THEREFORE_YOU_CANNOT_PLACE_A_BID);
 					return;
 				}
+				
 				final ClanHallAuction auction = ClanHallAuctionManager.getInstance().getClanHallAuctionById(clanHallId);
 				if (bid < auction.getHighestBid())
 				{
 					player.sendPacket(SystemMessageId.YOUR_BID_PRICE_MUST_BE_HIGHER_THAN_THE_MINIMUM_PRICE_CURRENTLY_BEING_BID);
 					return;
 				}
-				else if (clan.getWarehouse().destroyItemByItemId("Clan Hall Auction", Inventory.ADENA_ID, bid, player, null) == null)
+				else if (clan.getWarehouse().destroyItemByItemId(ItemProcessType.FEE, Inventory.ADENA_ID, bid, player, null) == null)
 				{
 					player.sendPacket(SystemMessageId.THERE_IS_NOT_ENOUGH_ADENA_IN_THE_CLAN_HALL_WAREHOUSE);
 					return;
@@ -395,10 +403,11 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 		}
 	}
 	
-	private void processBiddersBypass(Player player, Npc npc, BypassParser parser)
+	private void processBiddersBypass(Player player, Npc npc, String event)
 	{
-		final int page = parser.getInt("page", 0);
-		final int clanHallId = parser.getInt("id", 0);
+		final int page = parseInt(event, "page", 0);
+		final int clanHallId = parseInt(event, "id", 0);
+		
 		if (clanHallId > 0)
 		{
 			final ClanHallAuction clanHallAuction = ClanHallAuctionManager.getInstance().getClanHallAuctionById(clanHallId);
@@ -408,8 +417,8 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 			}
 			
 			final NpcHtmlMessage html = new NpcHtmlMessage(npc.getObjectId(), getHtm(player, "ClanHallAuctioneer-bidderList.html"));
-			//@formatter:off
-			final PageResult result = PageBuilder.newBuilder(clanHallAuction.getBids().values().stream().sorted(Comparator.comparingLong(Bidder::getTime).reversed()).collect(Collectors.toList()), 10, "bypass -h Quest ClanHallAuctioneer auctionList")
+			// @formatter:off
+			final PageResult result = PageBuilder.newBuilder(clanHallAuction.getBids().values().stream().sorted(Comparator.comparingLong(Bidder::getTime).reversed()).collect(Collectors.toList()), 10, "bypass -h Script ClanHallAuctioneer auctionList")
 				.currentPage(page)
 				.pageHandler(NextPrevPageHandler.INSTANCE)
 				.formatter(BypassParserFormatter.INSTANCE)
@@ -424,12 +433,50 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 				sb.append(bidder.getFormattedTime());
 				sb.append("</td></tr>");
 			}).build();
-			//@formatter:on
+			// @formatter:on
 			html.replace("%pages%", result.getPages() > 0 ? result.getPagerTemplate() : "");
 			html.replace("%bidderList%", result.getBodyTemplate().toString());
 			html.replace("%id%", clanHallAuction.getClanHallId());
 			player.sendPacket(html);
 		}
+	}
+	
+	private int parseInt(String event, String key, int defaultValue)
+	{
+		final Pattern pattern = Pattern.compile(key + "=\\s*'?([^'\\s]+)'?");
+		final Matcher matcher = pattern.matcher(event);
+		if (matcher.find())
+		{
+			try
+			{
+				return Integer.parseInt(matcher.group(1).trim());
+			}
+			catch (NumberFormatException e)
+			{
+				// Ignore and return default.
+			}
+		}
+		
+		return defaultValue;
+	}
+	
+	private long parseLong(String event, String key, long defaultValue)
+	{
+		final Pattern pattern = Pattern.compile(key + "='([^']+)'");
+		final Matcher matcher = pattern.matcher(event);
+		if (matcher.find())
+		{
+			try
+			{
+				return Long.parseLong(matcher.group(1).trim());
+			}
+			catch (NumberFormatException e)
+			{
+				// Ignore and return default.
+			}
+		}
+		
+		return defaultValue;
 	}
 	
 	private String getTownName(String fnAgitMap)
@@ -485,6 +532,7 @@ public class ClanHallAuctioneer extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return name;
 	}
 	

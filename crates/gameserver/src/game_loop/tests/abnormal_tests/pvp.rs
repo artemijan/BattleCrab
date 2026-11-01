@@ -36,6 +36,40 @@ fn pvp_damage_bonus_is_a_difference_of_multipliers_not_a_product() {
     );
 }
 
+/// Salvation's PvP arm multiplies the whole bonus by the target's
+/// `DRAGON_WEAPON_DEFENCE` when the attacker's weapon `isDragonWeapon()` — and
+/// only then. Valakas Cutter (36500) is one of the dist's 96 dragon weapons.
+#[test]
+fn a_dragon_weapon_reads_the_targets_dragon_defence() {
+    use crate::model::stats::Stat;
+
+    let (mut world, _db, _l) = cc2_world();
+    world.data.item_data = crate::data::dist::items_owned();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+    assert!(
+        world.data.item_data.get(36500).unwrap().is_dragon_weapon,
+        "premise: Valakas Cutter is a dragon weapon"
+    );
+
+    let bonus = |world: &World| effects::pvp_pve_bonus_for_test(world, CASTER, victim, None);
+    stack_mul_modifier(&mut world, CASTER, Stat::PvpPhysicalAttackDamage, 1.5);
+    stack_mul_modifier(&mut world, victim, Stat::DragonWeaponDefence, 0.5);
+    assert_eq!(bonus(&world), 1.5, "bare-handed: the defence is not read");
+
+    let row = item_row(
+        90000,
+        36500,
+        1,
+        crate::model::inventory::PaperdollSlot::RHand,
+    );
+    world
+        .objects
+        .add_components(&CASTER, Inventory::from_rows(&[row]));
+    assert_eq!(bonus(&world), 0.75, "dragon weapon: 0.5 · (1 + (1.5 − 1))");
+}
+
 /// The branch is picked by *how* the damage is delivered, not just by who is
 /// fighting: an auto-attack (Java's `skill == null`) reads the
 /// `PHYSICAL_ATTACK` pair, a physical skill the `PHYSICAL_SKILL` pair and a
@@ -118,7 +152,16 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
     world.cfg.character.magic_failures = false;
     let victim = CASTER + 1;
     let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
-    let mut nuke = cc_skill(9412, SkillEffect::MagicalAttack { power: 100.0 }, "NONE");
+    let mut nuke = cc_skill(
+        9412,
+        SkillEffect::MagicalDamage {
+            power: 100.0,
+            debuff_modifier: 1.0,
+            races: Vec::new(),
+            race_modifier: 1.0,
+        },
+        "NONE",
+    );
     nuke.magic_type = 1;
     world.data.skill_data.insert_for_test(nuke);
 

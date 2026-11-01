@@ -733,12 +733,13 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
 /// The outfit is **not** equipped: nothing enters the inventory and no stat
 /// changes, the client is simply told to draw those items for `WearDelay`
 /// seconds. What it costs is real, though — `WearPrice` **per slot**.
-///
-/// SKIP(census): Java's Kamael weapon/armour filters (rapier, crossbow,
-/// ancient sword, heavy/magic armour) are skipped — Kamael is a Gracia race
-/// and no character on this dist can be one, so every branch is unreachable.
 pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, body: &[u8]) {
-    use crate::model::inventory::PaperdollSlot;
+    use crate::data::item_data::{
+        self,
+        kinds::{ArmorType, ItemKind, WeaponType},
+    };
+    use crate::enums::Race;
+    use crate::model::inventory::{PAPERDOLL_TOTAL_SLOTS, PaperdollSlot};
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
@@ -784,8 +785,13 @@ pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, bod
         return;
     };
 
-    let mut outfit: std::collections::HashMap<PaperdollSlot, i32> =
-        std::collections::HashMap::new();
+    // Keyed by Java's paperdoll index rather than `PaperdollSlot`: a slotless
+    // item lands one past the paperdoll (see below).
+    let mut outfit: std::collections::HashMap<usize, i32> = std::collections::HashMap::new();
+    let race = world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .map_or(-1, |p| p.race);
     let mut total_price: i64 = 0;
     let wear_price = i64::from(world.cfg.general.wear_price);
     for &item_id in &wanted {
@@ -802,12 +808,39 @@ pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, bod
         let Some(template) = world.data.item_data.get(item_id) else {
             continue;
         };
-        // Anything that does not go in a paperdoll slot is silently skipped,
-        // not refused — Java `continue`s, so a potion in the list costs
-        // nothing and shows nothing.
-        let Some(slot) = Inventory::primary_slot(template.body_part) else {
-            continue;
+        // `Inventory.getPaperdollIndex(bodyPart)`, which is the body part's own
+        // slot with none of the borrowing `equipItem` does: a two-handed
+        // weapon, full armour, hair-all piece or paired earring/ring answers
+        // -1 and is skipped for free. A slotless item (`none`, a potion) is
+        // *not* skipped: Java maps it to `PAPERDOLL_TOTALSLOTS`, so it costs a
+        // slot's price and a second one is "at the same time".
+        let slot = if template.body_part == item_data::SLOT_NONE {
+            PAPERDOLL_TOTAL_SLOTS
+        } else {
+            match Inventory::body_part_slot(template.body_part) {
+                Some(slot) => slot as usize,
+                None => continue,
+            }
         };
+        if race == Race::Kamael as i32 {
+            let kamael_skips = match template.kind {
+                ItemKind::Weapon => matches!(
+                    world.data.item_data.weapon_type(item_id),
+                    WeaponType::None
+                        | WeaponType::Rapier
+                        | WeaponType::Crossbow
+                        | WeaponType::AncientSword
+                ),
+                ItemKind::Armor => matches!(
+                    world.data.item_data.armor_type(item_id),
+                    ArmorType::Heavy | ArmorType::Magic
+                ),
+                ItemKind::Etc => false,
+            };
+            if kamael_skips {
+                continue;
+            }
+        }
         if outfit.contains_key(&slot) {
             send_sm_and_action_failed(
                 world,
@@ -842,7 +875,12 @@ pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, bod
     helpers::send_to_client(
         world,
         client_id,
-        crate::network::server_packets::shop_preview_info(&outfit),
+        crate::network::server_packets::shop_preview_info(
+            &outfit
+                .iter()
+                .filter_map(|(&i, &id)| PaperdollSlot::from_index(i).map(|s| (s, id)))
+                .collect(),
+        ),
     );
     // `ThreadPool.schedule(new RemoveWearItemsTask(player), WEAR_DELAY * 1000)`.
     let delay =

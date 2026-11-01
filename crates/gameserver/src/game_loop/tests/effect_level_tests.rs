@@ -183,11 +183,11 @@ fn guts_keeps_its_ungated_effect_and_drops_the_enchant_only_one() {
 /// A guard on the whole datapack: no loaded skill level may carry an effect
 /// whose declared range excludes it. Rather than re-parse the XML here, this
 /// asserts the *outcome* on the two weapon-mastery skills whose
-/// `TriggerSkillByAttack` is `fromLevel="9" toLevel="45"` — they have levels
+/// `TriggerSkillByDamageDealt` is `fromLevel="9" toLevel="45"` — they have levels
 /// below 9, which must come out clean.
 ///
-/// (`TriggerSkillByAttack` is itself unported, so what is asserted is that the
-/// *count* of effects differs across the boundary — the gate ran.)
+/// What is asserted is that the *count* of effects grows across the boundary by
+/// exactly the trigger — the gate ran.
 #[test]
 fn weapon_mastery_effect_count_changes_at_its_boundary() {
     let skills = super::dist::skills_owned();
@@ -199,12 +199,10 @@ fn weapon_mastery_effect_count_changes_at_its_boundary() {
             below.is_some() && at.is_some(),
             "skill {id} has levels 8 and 9"
         );
-        // `TriggerSkillByAttack` is unported, so it contributes no
-        // `SkillEffect` either way — the assertion is simply that gating did
-        // not corrupt the surrounding effects.
-        assert!(
-            below.unwrap() <= at.unwrap(),
-            "skill {id}: level 8 carries no more effects than level 9"
+        assert_eq!(
+            below.unwrap() + 1,
+            at.unwrap(),
+            "skill {id}: level 9 adds the trigger to level 8's effects"
         );
     }
 }

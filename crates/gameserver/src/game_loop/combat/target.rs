@@ -42,12 +42,19 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
     {
         return crate::game_loop::siege::attackable_door(world, target_oid);
     }
+    // `FriendlyNpc.isAutoAttackable`: open to anything but a playable or
+    // another friendly.
+    let friendly =
+        |oid: i32| npc_template(world, oid).is_some_and(|t| t.type_name == "FriendlyNpc");
+    if friendly(target_oid) {
+        return !helpers::is_playable(world, attacker_oid) && !friendly(attacker_oid);
+    }
     // `Monster.isAutoAttackable`: `if (attacker.isMonster()) return
     // attacker.isFakePlayer();` — for a plain monster attacker that is `false`.
     // Only ever consulted for an NPC attacker, so no player path changes.
     //
     // This became reachable when NPC casts started resolving through the
-    // target-type handlers (`npc_cast::resolve_npc_cast_target`): `Enemy.java`
+    // target-type handlers (`skills::cast::resolve_handler_target`): `Enemy.java`
     // asks exactly this question, and without the rule a mob's offensive skill
     // would happily accept a faction-mate the AI handed it. Siege towers, HQ
     // flags and stationed guards keep their own relations below — Java gates
@@ -251,17 +258,18 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         {
             crate::game_loop::combat::start_pickup_intent(world, object_id, pkt.object_id);
         }
-    } else if world
+    } else if (world
         .objects
         .get_component::<components::player::AdminFlags>(&pkt.object_id)
         .is_some_and(|f| f.untargetable)
         // Java `Action`: `if ((!obj.isTargetable() || player.isTargetingDisabled())
-        // && !canOverrideCond(TARGET_ALL))` — the two effect-driven halves of the
-        // same gate the `//settargetable` admin flag already stands in for
-        // (G34 S3). `UNTARGETABLE` is on the *clicked* object,
-        // `TARGETING_DISABLED` on the *clicker*.
+        // && !player.isGM())` — the two effect-driven halves of the same gate
+        // the `//settargetable` admin flag already stands in for (G34 S3).
+        // `UNTARGETABLE` is on the *clicked* object, `TARGETING_DISABLED` on
+        // the *clicker*, and a GM passes all three.
         || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id)
-        || crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
+        || crate::game_loop::abnormal::is_targeting_disabled(world, object_id))
+        && !helpers::is_gm(world, object_id)
     {
         // `//settargetable` off — Java's `isTargetable()` gate in `canTarget`.
         helpers::send_action_failed(world, client_id);
@@ -727,6 +735,11 @@ pub(crate) fn interact_with_npc(
     // Everything below hands `world` out mutably, so take what we need off the
     // template first.
     let npc_id = t.id;
+    if world.quests.has_start_npc(npc_id) {
+        world
+            .objects
+            .add_components(&object_id, components::player::LastQuestNpc(npc_object_id));
+    }
     // `NpcAction`: an `ON_NPC_FIRST_TALK` listener replaces the chat window
     // outright. The check sits *before* `showChatWindow` in Java, so it also
     // fires for a non-talkable NPC (where `showChatWindow` would have bailed).
@@ -852,7 +865,7 @@ fn load_chat_window_html(
         "Warehouse" => Some("warehouse"),
         "Guard" => Some("guard"),
         "PetManager" => Some("petmanager"),
-        t if t.starts_with("VillageMaster") => Some("villagemaster"),
+        "VillageMaster" => Some("villagemaster"),
         _ => None,
     };
     let read = |p: String| crate::data::htm_cache::read_htm_for_client(world, client_id, p);

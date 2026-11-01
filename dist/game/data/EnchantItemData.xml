@@ -17,6 +17,13 @@
 		<item id="48209" />
 		<item id="48210" />
 	</enchant>
+	
+	<!-- Blessed Scroll: Enchant Dragon Shirt -->
+	<enchant id="48498" maxEnchant="5">
+		<item id="48491" />
+		<item id="48492" />
+		<item id="48493" />
+	</enchant>
 
 	<!-- Heavenly Enchant Scroll: Weapon -->
 	<enchant id="22427" targetGrade="R" maxEnchant="12" bonusRate="100" />
@@ -746,6 +753,11 @@
 
 	<!-- Blessed Giant's Scroll: Enchant Armor -->
 	<enchant id="36284" targetGrade="R" />
+	
+	<!-- Practice Weapon Enchant Scroll -->
+	<enchant id="48171" targetGrade="R" maxEnchant="7" bonusRate="100">
+		<item id="48170" /> <!-- Enhancement Practice Long Sword -->
+	</enchant>
 		
 	<!-- Lucky Enchant Stone: Weapon -->
 	<support id="12362" targetGrade="D" minEnchant="3" maxEnchant="9" bonusRate="20" />

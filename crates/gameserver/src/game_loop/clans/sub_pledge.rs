@@ -173,8 +173,10 @@ fn create_sub_pledge(
             reputation,
         });
     }
-    let info =
-        server_packets::pledge_show_info_update(world.clans.get(&clan_id).expect("checked above"));
+    let info = server_packets::pledge_show_info_update(
+        world.clans.get(&clan_id).expect("checked above"),
+        super::pledge_standing(world, clan_id),
+    );
     let leader_display_name = if leader_id != 0 {
         player_name_or_empty(world, leader_id)
     } else {

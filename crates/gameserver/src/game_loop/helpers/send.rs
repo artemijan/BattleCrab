@@ -144,17 +144,17 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         .get_component::<AdminFlags>(&object_id)
         .is_some_and(|f| f.silence)
         || crate::game_loop::moderation::punishment::is_chat_banned(world, object_id);
-    let charges = world
+    let (charges, souls) = world
         .objects
         .get_component::<Player>(&object_id)
-        .map_or(0, |p| p.charges);
+        .map_or((0, 0), |p| (p.charges, p.souls));
     let wp = world
         .objects
         .get_component::<model::components::stats::WeightPenalty>(&object_id)
         .map_or(0, |w| w.level);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::etc_status_update(
-            charges, wp, ep.weapon, ep.armor, silence,
+            charges, souls, wp, ep.weapon, ep.armor, silence,
         ));
     }
 }

@@ -321,7 +321,7 @@ pub(crate) fn resolve_cast_target(
     {
         return Err(sm_ids::INVALID_TARGET);
     }
-    finalize_target(world, caster.object_id, resolved, skill)
+    finalize_target(world, caster.object_id, resolved, skill.target_type, skill)
 }
 
 /// The outpost NPC `AdvanceBase.java` hard-codes.
@@ -334,7 +334,7 @@ pub(crate) fn is_artefact(world: &World, oid: i32) -> bool {
 
 /// The selection test of the four handlers that take `creature.getTarget()`
 /// and accept it only if it is the one kind of object the skill is for. Shared
-/// by the player resolver above and `npc::cast::resolve_npc_cast_target`.
+/// by the player resolver above and [`resolve_handler_target`].
 pub(crate) fn selection_fits(
     world: &World,
     caster_oid: i32,
@@ -388,9 +388,197 @@ pub(crate) fn selection_fits(
     }
 }
 
+/// `Skill.getTarget(creature, selected, forceUse = false, dontMove,
+/// sendMessage = false)` — the `handlers/targethandlers/*.java` scripts for
+/// every caller that never forces and never messages: an NPC's AI cast, and a
+/// trigger's `TargetHandler.getTarget(...)` (`dontMove` false there).
+///
+/// The player path with ctrl/shift and system messages lives in
+/// [`resolve_cast_target`] and takes a `&Player`. `target_type` is passed
+/// apart from the skill because a trigger resolves its *own* `targetType`
+/// param, not the triggered skill's.
+pub(crate) fn resolve_handler_target(
+    world: &World,
+    caster_oid: i32,
+    selected_oid: i32,
+    target_type: TargetType,
+    skill: &Skill,
+    dont_move: bool,
+) -> Option<i32> {
+    use crate::data::zone_data::ZoneKind;
+    use crate::game_loop::combat::target;
+    use crate::game_loop::helpers;
+    use crate::game_loop::servitor;
+    use crate::game_loop::space::zones::in_zone;
+
+    let resolved = match target_type {
+        // `None.java`: the caster outright, with no peace-zone gate.
+        TargetType::None_ => return Some(caster_oid),
+        // `MyParty.java`: the selection when it is another player in the
+        // caster's party (Java compares the two parties' leaders), else the
+        // caster — and an NPC has no party. No LOS gate.
+        TargetType::MyParty => {
+            let mate = selected_oid != caster_oid
+                && world
+                    .objects
+                    .has_component::<crate::model::Player>(&selected_oid)
+                && crate::game_loop::party::same_party(world, caster_oid, selected_oid);
+            return Some(if mate { selected_oid } else { caster_oid });
+        }
+        // `Self.java`: the caster; a *bad* self skill is refused in a peace
+        // zone. This is the arm that fixes point-blank mob AoEs — the cast
+        // lands on the mob, and `affectScope` sweeps outward from there.
+        TargetType::Self_ => {
+            if skill.is_bad() && in_zone(world, caster_oid, ZoneKind::Peace) {
+                return None;
+            }
+            return Some(caster_oid);
+        }
+        // `Ground.java` is gated on `creature.isPlayable()`; an NPC caster
+        // falls through to null there, so NPC GROUND skills are inert in Java
+        // too. A playable reaches this only through a trigger, and no trigger
+        // on this dist casts a GROUND skill.
+        TargetType::Ground => return None,
+        // `Others.java`: the NPC's own selection, never itself. No NPC on this
+        // dist casts an `OTHERS` skill, so this is inert in practice.
+        TargetType::Others => {
+            if selected_oid == caster_oid {
+                return None;
+            }
+            selected_oid
+        }
+        // `DoorTreasure.java` reads `creature.getTarget()` and accepts only a
+        // door or a chest. No NPC on this dist casts Unlock, and an NPC has no
+        // reason to pick a lock, so this is inert on both sides.
+        TargetType::DoorTreasure => return None,
+        // `Summon.java`: a player with a summon out gets `getAnyServitor()` —
+        // servitors only, so a pet alone yields null — and anyone else
+        // `getPet()`, which is null for an NPC and, for a player with nothing
+        // out, too. That collapses to the servitor link. No LOS gate.
+        TargetType::Summon => return servitor::servitor_of(world, caster_oid),
+        // `Target.java`: any creature, self included (self returns early and
+        // skips every gate — "you can always target yourself").
+        TargetType::Target => {
+            if selected_oid == caster_oid {
+                return Some(caster_oid);
+            }
+            if dont_move && !within_cast_range(world, caster_oid, selected_oid, skill) {
+                return None;
+            }
+            selected_oid
+        }
+        // `Enemy.java` / `EnemyOnly.java`: never self, never a corpse, and the
+        // target must be auto-attackable (`forceUse` is false for an AI cast,
+        // so there is no override). A monster attacker makes every player
+        // auto-attackable, which is what lets a mob nuke you at all.
+        TargetType::Enemy | TargetType::EnemyOnly => {
+            if selected_oid == caster_oid {
+                return None;
+            }
+            if helpers::is_dead(world, selected_oid) && !skill.stay_after_death {
+                return None;
+            }
+            if !target::is_auto_attackable(world, caster_oid, selected_oid) {
+                return None;
+            }
+            if dont_move && !within_cast_range(world, caster_oid, selected_oid, skill) {
+                return None;
+            }
+            selected_oid
+        }
+        // `EnemyNot.java`: the inverse gate — a hostile target is refused, self
+        // is always allowed, and the dead are not excluded (a heal may land on
+        // a fresh corpse ahead of a resurrection).
+        TargetType::EnemyNot => {
+            if selected_oid == caster_oid {
+                return Some(caster_oid);
+            }
+            if target::is_auto_attackable(world, caster_oid, selected_oid) {
+                return None;
+            }
+            selected_oid
+        }
+        // `NpcBody.java` / `PcBody.java`: a corpse of the matching kind.
+        TargetType::NpcBody => {
+            if !helpers::is_dead(world, selected_oid)
+                || !world
+                    .objects
+                    .has_component::<crate::model::npc::Npc>(&selected_oid)
+            {
+                return None;
+            }
+            selected_oid
+        }
+        TargetType::PcBody => {
+            if !helpers::is_dead(world, selected_oid)
+                || !world
+                    .objects
+                    .has_component::<crate::model::Player>(&selected_oid)
+            {
+                return None;
+            }
+            selected_oid
+        }
+        // `targethandlers/OwnerPet.java` — `creature.getActingPlayer()`, and
+        // `getActingPlayer()` on a summon is its **owner**. So a servitor
+        // casting one of these aims at the player who owns it, never at
+        // whatever the caster happens to have selected.
+        //
+        // The tamed-beast buffs (5186-5201) reach here with the tamer already
+        // selected, so they resolved correctly even while this arm was folded
+        // into `Other` — Master Recharge (4025, every Baby Kookaburra) did
+        // not, which is what put this arm here.
+        // Read straight off `ServitorOf` rather than through `acting_player`,
+        // whose "not a servitor → itself" fallback would let a plain monster
+        // self-target. Java has no such fallback: `getActingPlayer()` is null
+        // for a bare `Npc`, so the cast finds no target and dies.
+        //
+        // A player caster is its own acting player.
+        TargetType::OwnerPet => {
+            if world
+                .objects
+                .has_component::<crate::model::Player>(&caster_oid)
+            {
+                caster_oid
+            } else {
+                crate::game_loop::servitor::owner_of(world, caster_oid)?
+            }
+        }
+        // A name with no Java handler; nothing on this dist reads as this.
+        TargetType::Other => selected_oid,
+        // The four selection-testing handlers, as on the player path. The one
+        // that matters is `ARTILLERY`: the Swoop Cannon's shots land on a
+        // besieged gate and on nothing else.
+        TargetType::HolyThing
+        | TargetType::Artillery
+        | TargetType::AdvanceBase
+        | TargetType::FortressFlagpole => {
+            return selection_fits(world, caster_oid, selected_oid, target_type)
+                .then_some(selected_oid);
+        }
+        // `Item.java` needs an item selection, `MyMentor.java` a player
+        // caster, and `WyvernTarget.java` is `return null`.
+        TargetType::Item | TargetType::MyMentor | TargetType::WyvernTarget => return None,
+    };
+
+    // The closing LOS + peace-zone gates, shared with the player resolver.
+    // The peace-zone half is a playable-on-playable rule, so it never fires
+    // for a monster caster — kept for shape and for the servitor casts that
+    // do reach this path.
+    finalize_target(world, caster_oid, resolved, target_type, skill).ok()
+}
+
+/// `Util.checkIfInRange(skill.getCastRange(), npc, target, false)` as the
+/// `dontMove` handlers use it — 2D centre distance, no collision radii (Java
+/// compares `calculateDistance2D(target) > skill.getCastRange()` directly).
+fn within_cast_range(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill) -> bool {
+    crate::geo::distance::distance_2d(world, caster_oid, target_oid)
+        .is_some_and(|d| d <= skill.cast_range as f64)
+}
+
 /// The closing gates of `Target.java`/`Enemy.java`/`EnemyOnly.java`, shared
 /// verbatim by the player resolver above and the NPC resolver
-/// (`npc::cast::resolve_npc_cast_target`):
+/// ([`resolve_handler_target`]):
 ///
 /// - `Target`/`EnemyNot`'s rush gate — `skill.isFlyType() &&
 ///   !GeoEngine.canMoveToTarget(...)` → SM 2187.
@@ -408,6 +596,7 @@ pub(crate) fn finalize_target(
     world: &World,
     caster_oid: i32,
     resolved: i32,
+    target_type: TargetType,
     skill: &Skill,
 ) -> Result<i32, i16> {
     use server_packets::sm_ids;
@@ -422,7 +611,7 @@ pub(crate) fn finalize_target(
     // handlers carry it — `Enemy`/`EnemyOnly` do not, and rely on
     // `handleSkillFly` stopping the caster at the last walkable point.
     if skill.fly.is_some()
-        && matches!(skill.target_type, TargetType::Target | TargetType::EnemyNot)
+        && matches!(target_type, TargetType::Target | TargetType::EnemyNot)
         && resolved != caster_oid
         && !world
             .geo
@@ -440,7 +629,7 @@ pub(crate) fn finalize_target(
     {
         return Err(sm_ids::CANNOT_SEE_TARGET);
     }
-    if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
+    if matches!(target_type, TargetType::Enemy | TargetType::EnemyOnly)
         && crate::game_loop::space::zones::is_inside_peace_zone(world, caster_oid, resolved)
     {
         return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);

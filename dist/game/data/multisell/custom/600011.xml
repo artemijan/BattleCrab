@@ -5,86 +5,80 @@
 	</npcs>
 	<item>
 		<!-- Adena -->
-		<ingredient count="90000000" id="57" />
-		<!-- Spiritshot (No Grade) -->
-		<production count="1" id="3947" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="90000000" id="57" />
-		<!-- Soulshot (No Grade) -->
-		<production count="1" id="1835" />
-	</item>
-	<item>
-		<!-- Adena -->
 		<ingredient count="10000000" id="57" />
 		<!-- Soulshot Pack (D-grade) -->
 		<production count="1" id="22104" />
 	</item>
 	<item>
 		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
+		<ingredient count="10000000" id="57" />
 		<!-- Soulshot Pack (C-grade) -->
 		<production count="1" id="22105" />
 	</item>
 	<item>
 		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
+		<ingredient count="10000000" id="57" />
 		<!-- Soulshot Pack (B-grade) -->
 		<production count="1" id="22106" />
 	</item>
 	<item>
 		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
-		<!-- Soulshot Pack (A-grade) -->
-		<production count="1" id="22107" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
+		<ingredient count="10000000" id="57" />
 		<!-- Soulshot Pack (S-grade) -->
 		<production count="1" id="22108" />
 	</item>
 	<item>
 		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
-		<!-- Blessed Spiritshot Pack (D-grade) -->
-		<production count="1" id="22094" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
-		<!-- Blessed Spiritshot Pack (C-grade) -->
-		<production count="1" id="22095" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
-		<!-- Blessed Spiritshot Pack (B-grade) -->
-		<production count="1" id="22096" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
-		<!-- Blessed Spiritshot Pack (A-grade) -->
-		<production count="1" id="22097" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
-		<!-- Blessed Spiritshot Pack (S-grade) -->
-		<production count="1" id="22098" />
-	</item>
-	<item>
-		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
+		<ingredient count="10000000" id="57" />
 		<!-- Beast Soulshot Pack -->
 		<production count="1" id="20326" />
 	</item>
 	<item>
 		<!-- Adena -->
-		<ingredient count="1000000" id="57" />
+		<ingredient count="10000000" id="57" />
+		<!-- Soulshot Pack (R-grade) -->
+		<production count="1" id="30276" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
+		<!-- Blessed Spiritshot Pack (D-grade) -->
+		<production count="1" id="22094" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
+		<!-- Blessed Spiritshot Pack (C-grade) -->
+		<production count="1" id="22095" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
+		<!-- Blessed Spiritshot Pack (B-grade) -->
+		<production count="1" id="22096" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
+		<!-- Blessed Spiritshot Pack (A-grade) -->
+		<production count="1" id="22097" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
+		<!-- Blessed Spiritshot Pack (S-grade) -->
+		<production count="1" id="22098" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
 		<!-- Blessed Beast Spiritshot Pack -->
 		<production count="1" id="20328" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="10000000" id="57" />
+		<!-- Blessed Spiritshot (R-grade) -->
+		<production count="5000" id="19442" />
 	</item>
 </list>

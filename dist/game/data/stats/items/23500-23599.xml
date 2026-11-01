@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="23503" name="Military Top Appearance Stone" type="EtcItem">
 		<!-- Changes the appearance of a top into that of a Military look. An appearance-modified item has no change in abilities. All armor types. -->
@@ -9,9 +9,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22778" level="1" /> <!-- Military Top Appearance Stone -->
@@ -26,9 +26,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22779" level="1" /> <!-- Military Pants Appearance Stone -->
@@ -43,9 +43,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22780" level="1" /> <!-- Military Gloves Appearance Stone -->
@@ -60,9 +60,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22781" level="1" /> <!-- Military Shoes Appearance Stone -->
@@ -77,9 +77,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22782" level="1" /> <!-- Military Hair Accessory Appearance Stone -->
@@ -95,8 +95,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_event_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22788" level="1" /> <!-- Maid Appearance Stone -->
@@ -111,9 +111,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22789" level="1" /> <!-- Maid Hair Accessory Appearance Stone -->
@@ -146,8 +146,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22792" level="1" /> <!-- Automatic Appearance Stone: Emerald Weapon -->
@@ -163,8 +163,8 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22793" level="1" /> <!-- Automatic Appearance Stone: Japanese Weapon -->
@@ -174,18 +174,18 @@
 		<!-- Mark with which you can participate in monster duels in the Fantasy Isle Festival. Take it to a Contender to fight with him. -->
 		<set name="icon" val="BranchSys3.icon1.g_ev_sponsor_token" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="23533" name="Contender's Gift Box" additionalName="Event" type="EtcItem">
 		<!-- Item provided by a Contender as a reward for your victory. Has a chance of obtaining one of many event items. -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -196,10 +196,10 @@
 		<!-- Wrapped Pack containing Appearance Stone for either Hellblade, Claw of Destruction, Butcher Blade, Blades of Delusion, Blood Brother, or Mardil's Fan. -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
@@ -214,8 +214,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22808" level="1" /> <!-- Hellblade Appearance Stone -->
@@ -229,8 +229,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22809" level="1" /> <!-- Claw of Destruction Appearance Stone -->
@@ -244,23 +244,23 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22823" level="1" /> <!-- Butcher Blades Appearance Stone -->
 		</skills>
 	</item>
 	<item id="23538" name="Blades of Delusion Appearance Stone" additionalName="Event" type="EtcItem">
-		<!-- Changes the appearance of a dualsword into that of Blades of Delusion. -->
+		<!-- Changes the appearance of a dual sword into that of Blades of Delusion. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22824" level="1" /> <!-- Blades of Delusion Appearance Stone -->
@@ -274,8 +274,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22825" level="1" /> <!-- Blood Brother Appearance Stone -->
@@ -289,8 +289,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="is_stackable" val="true" />
+		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22826" level="1" /> <!-- Mardil's Fan Appearance Stone -->
@@ -302,9 +302,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -322,9 +322,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22795" level="1" /> <!-- Vesper Noble Top Appearance Stone -->
@@ -338,9 +338,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22796" level="1" /> <!-- Vesper Noble Pants Appearance Stone -->
@@ -354,9 +354,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22797" level="1" /> <!-- Vesper Noble Gloves Appearance Stone -->
@@ -370,9 +370,9 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="22798" level="1" /> <!-- Vesper Noble Shoes Appearance Stone -->
@@ -447,10 +447,10 @@
 		<set name="icon" val="icon.br_cash_pack_of_soulshot_r_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -462,10 +462,10 @@
 		<set name="icon" val="icon.br_cash_pack_of_blessed_spiritshot_r_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -833,10 +833,10 @@
 		<!-- Wrapped Pack containing either Vesper Noble Light Armor Top Appearance Stone (7-day) or Vorpal Light Armor Top Appearance Stone (7-day). -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
@@ -847,10 +847,10 @@
 		<!-- Wrapped Pack containing either Vesper Noble Light Armor Pants Appearance Stone (7-day) or Vorpal Light Armor Pants Appearance Stone (7-day). -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
@@ -861,10 +861,10 @@
 		<!-- Wrapped Pack containing either Vesper Noble Light Armor Gloves Appearance Stone (7-day) or Vorpal Light Armor Gloves Appearance Stone (7-day). -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
@@ -875,10 +875,10 @@
 		<!-- Wrapped Pack containing either Vesper Noble Light Armor Shoes Appearance Stone (7-day) or Vorpal Light Armor Shoes Appearance Stone (7-day). -->
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
@@ -889,11 +889,11 @@
 		<!-- Wrapped Pack containing either Istina's Earring, Baium's Ring or Octavis' Necklace. -->
 		<set name="icon" val="icon.etc_treasure_box_i08" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="STEEL" />
 		<skills>
@@ -1106,7 +1106,7 @@
 		</skills>
 	</item>
 	<item id="23593" name="Blades of Delusion Appearance Stone" additionalName="7-day (Event)" type="EtcItem">
-		<!-- Changes the appearance of a dualsword into that of Blades of Delusion. -->
+		<!-- Changes the appearance of a dual sword into that of Blades of Delusion. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="is_stackable" val="true" />
 		<set name="immediate_effect" val="true" />
@@ -1151,34 +1151,34 @@
 		</skills>
 	</item>
 	<item id="23596" name="Blessed Scroll: Enchant Weapon (R-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/blunt/fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/ blunt/ fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. If enchanting fails, the item will not be crystallized but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.blessed_scroll_of_enchant_weapon_i06" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_WP" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9187" level="1" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="23597" name="Blessed Scroll: Enchant Armor (R-grade)" additionalName="Event" type="EtcItem">
-		<!-- When enchanted, P. Def. for armor/accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized, but the enchant value will be reset to 0. -->
+		<!-- When enchanted, P. Def. for armor/ accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. If enchanting fails, the item will not be crystallized, but the enchant value will be reset to 0. -->
 		<set name="icon" val="icon.blessed_scroll_of_enchant_armor_i06" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_ENCHT_AM" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9196" level="1" /> <!-- Blessed Scroll: Enchant Armor (R-grade) -->
@@ -1189,10 +1189,10 @@
 		<set name="icon" val="icon.ench_wp_potion_violet_i00" />
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="WEAPON_ENCHANT_STONE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9207" level="1" /> <!-- Lucky Clover (R-grade) -->

@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package events.RudolphsBlessing;
 
@@ -21,18 +25,18 @@ import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.events.Containers;
 import org.l2jmobius.gameserver.model.events.EventType;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerSummonAgathion;
-import org.l2jmobius.gameserver.model.events.impl.creature.player.OnPlayerUnsummonAgathion;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerSummonAgathion;
+import org.l2jmobius.gameserver.model.events.holders.actor.player.OnPlayerUnsummonAgathion;
 import org.l2jmobius.gameserver.model.events.listeners.ConsumerEventListener;
-import org.l2jmobius.gameserver.model.holders.ItemHolder;
-import org.l2jmobius.gameserver.model.holders.SkillHolder;
+import org.l2jmobius.gameserver.model.item.holders.ItemHolder;
 import org.l2jmobius.gameserver.model.itemcontainer.Inventory;
-import org.l2jmobius.gameserver.model.quest.LongTimeEvent;
+import org.l2jmobius.gameserver.model.script.LongTimeEvent;
 import org.l2jmobius.gameserver.model.skill.Skill;
 import org.l2jmobius.gameserver.model.skill.SkillCaster;
+import org.l2jmobius.gameserver.model.skill.holders.SkillHolder;
 
 /**
- * @author IvanTotov, Edoo
+ * @author ivantotov, Edoo
  */
 public class RudolphsBlessing extends LongTimeEvent
 {
@@ -60,19 +64,18 @@ public class RudolphsBlessing extends LongTimeEvent
 	@Override
 	public String onEvent(String event, Npc npc, Player player)
 	{
-		if (event.equals("rudolph_eat"))
+		if (event.equals("rudolph_eat") && (player != null) && player.isOnline())
 		{
-			if ((player != null) && player.isOnline())
+			if (takeItems(player, ITEM_REQUIREMENT.getId(), ITEM_REQUIREMENT.getCount()))
 			{
-				if (takeItems(player, ITEM_REQUIREMENT.getId(), ITEM_REQUIREMENT.getCount()))
-				{
-					SkillCaster.triggerCast(player, player, RUDOLPH_TRICK.getSkill());
-					final Skill rudolphsBlessing = SkillData.getInstance().getSkill(23297, 1);
-					rudolphsBlessing.applyEffects(player, player);
-				}
-				startQuestTimer("rudolph_eat", 10 * 60 * 1000, null, player);
+				SkillCaster.triggerCast(player, player, RUDOLPH_TRICK.getSkill());
+				final Skill rudolphsBlessing = SkillData.getInstance().getSkill(23297, 1);
+				rudolphsBlessing.applyEffects(player, player);
 			}
+			
+			startQuestTimer("rudolph_eat", 10 * 60 * 1000, null, player);
 		}
+		
 		if (player == null)
 		{
 			return null;
@@ -83,7 +86,7 @@ public class RudolphsBlessing extends LongTimeEvent
 		{
 			case "rudolph":
 			{
-				if (hasQuestItems(player, AGATHION_SEAL_BRACELET_RUDOLPH))
+				if (ownsAtLeastOneItem(player, AGATHION_SEAL_BRACELET_RUDOLPH))
 				{
 					htmltext = "13285-05.htm";
 				}
@@ -118,6 +121,7 @@ public class RudolphsBlessing extends LongTimeEvent
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -127,6 +131,7 @@ public class RudolphsBlessing extends LongTimeEvent
 		{
 			return;
 		}
+		
 		final Player player = event.getPlayer();
 		if (player == null)
 		{
@@ -142,6 +147,7 @@ public class RudolphsBlessing extends LongTimeEvent
 		{
 			return;
 		}
+		
 		final Player player = event.getPlayer();
 		if (player == null)
 		{

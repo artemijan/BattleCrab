@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="24100" name="Agathion - Pisces" additionalName="Stage 4" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1800 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +10. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1800 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -12,6 +12,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -22,7 +23,7 @@
 		</skills>
 	</item>
 	<item id="24101" name="Agathion - Pisces" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1650 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +15. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1650 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -33,6 +34,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -43,7 +45,7 @@
 		</skills>
 	</item>
 	<item id="24102" name="Agathion - Pisces" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1500 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +15. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1500 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -54,6 +56,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -64,7 +67,7 @@
 		</skills>
 	</item>
 	<item id="24103" name="Agathion - Pisces" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1350 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +20. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1350 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -75,6 +78,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -85,7 +89,7 @@
 		</skills>
 	</item>
 	<item id="24104" name="Agathion - Pisces" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1200 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +20. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1200 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -96,6 +100,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -106,7 +111,7 @@
 		</skills>
 	</item>
 	<item id="24105" name="Agathion - Pisces" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1050 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +25. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 1050 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -117,6 +122,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -127,7 +133,7 @@
 		</skills>
 	</item>
 	<item id="24106" name="Agathion - Pisces" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 900 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +25. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 900 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -138,6 +144,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -148,7 +155,7 @@
 		</skills>
 	</item>
 	<item id="24107" name="Agathion - Pisces" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 750 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +30. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 750 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -159,6 +166,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -169,7 +177,7 @@
 		</skills>
 	</item>
 	<item id="24108" name="Agathion - Pisces" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 600 sec.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Atk./Resistance +30. -->
+		<!-- Can summon Pisces when equipped. <Active Skill>. 1. Slippery Scale: For 60 sec., defends against debuffs 5 times. (Cooldown is 600 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_feb_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -180,6 +188,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17619" level="1" /> <!-- Release Agathion's Seal - Pisces -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -201,8 +210,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="27359" level="1" /> <!-- Archer's Call -->
@@ -221,8 +231,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="1" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="1" /> <!-- Zodiac Agathion Stat Boost -->
@@ -242,8 +253,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="2" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="1" /> <!-- Zodiac Agathion Stat Boost -->
@@ -252,7 +264,7 @@
 		</skills>
 	</item>
 	<item id="24112" name="Agathion - Sagittarius" additionalName="Stage 4" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 30 min.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 30 min.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -263,8 +275,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="2" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="2" /> <!-- Zodiac Agathion Stat Boost -->
@@ -273,7 +286,7 @@
 		</skills>
 	</item>
 	<item id="24113" name="Agathion - Sagittarius" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 22 min. 30 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 22 min. 30 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -284,8 +297,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="3" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="2" /> <!-- Zodiac Agathion Stat Boost -->
@@ -294,7 +308,7 @@
 		</skills>
 	</item>
 	<item id="24114" name="Agathion - Sagittarius" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 15 min.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 15 min.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -305,8 +319,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="3" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="3" /> <!-- Zodiac Agathion Stat Boost -->
@@ -315,7 +330,7 @@
 		</skills>
 	</item>
 	<item id="24115" name="Agathion - Sagittarius" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 7 min. 30 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour 7 min. 30 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -326,8 +341,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="4" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="3" /> <!-- Zodiac Agathion Stat Boost -->
@@ -336,7 +352,7 @@
 		</skills>
 	</item>
 	<item id="24116" name="Agathion - Sagittarius" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1 hour.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -347,8 +363,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="4" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="4" /> <!-- Zodiac Agathion Stat Boost -->
@@ -357,7 +374,7 @@
 		</skills>
 	</item>
 	<item id="24117" name="Agathion - Sagittarius" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 52 min. 30 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 52 min. 30 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -368,8 +385,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="5" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="4" /> <!-- Zodiac Agathion Stat Boost -->
@@ -378,7 +396,7 @@
 		</skills>
 	</item>
 	<item id="24118" name="Agathion - Sagittarius" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 45 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 45 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -389,8 +407,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="5" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="5" /> <!-- Zodiac Agathion Stat Boost -->
@@ -399,7 +418,7 @@
 		</skills>
 	</item>
 	<item id="24119" name="Agathion - Sagittarius" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 2250 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 2250 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -410,8 +429,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="6" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="5" /> <!-- Zodiac Agathion Stat Boost -->
@@ -420,7 +440,7 @@
 		</skills>
 	</item>
 	<item id="24120" name="Agathion - Sagittarius" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1800 sec.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Sagittarius when equipped. <Active Skill>. 1. Archer's Call: Summons all party members to you. (Cooldown is 1800 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy increased by +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_nov_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -431,8 +451,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
-			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Sagittarius -->
+			<skill id="17620" level="1" /> <!-- Release Agathion's Seal - Saggitarius -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 			<skill id="26117" level="6" /> <!-- Zodiac Agathion Attribute Enchant -->
 			<skill id="26116" level="6" /> <!-- Zodiac Agathion Stat Boost -->
@@ -441,7 +462,7 @@
 		</skills>
 	</item>
 	<item id="24121" name="Agathion - Cancer" additionalName="Stage 1" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr. 15 min.). 2. Attribute Enchant: Attribute Resistance +5. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr. 15 min.). 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy +5. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -452,6 +473,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -461,7 +483,7 @@
 		</skills>
 	</item>
 	<item id="24122" name="Agathion - Cancer" additionalName="Stage 2" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr. 10 min.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +5. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr. 10 min.). 2. Balanced Power: MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy +5. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -472,6 +494,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -482,7 +505,7 @@
 		</skills>
 	</item>
 	<item id="24123" name="Agathion - Cancer" additionalName="Stage 3" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr. 5 min.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr. 5 min.). 2. Balanced Power: MEN +1. 2. Attribute Defense: Fire/ Water/ Earth/ Wind/ Dark/ Holy +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -493,6 +516,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -503,7 +527,7 @@
 		</skills>
 	</item>
 	<item id="24124" name="Agathion - Cancer" additionalName="Stage 4" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1 hr.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -514,6 +538,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -524,7 +549,7 @@
 		</skills>
 	</item>
 	<item id="24125" name="Agathion - Cancer" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 55 min.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 55 min.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -535,6 +560,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -545,7 +571,7 @@
 		</skills>
 	</item>
 	<item id="24126" name="Agathion - Cancer" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 50 min.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 50 min.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -556,6 +582,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -566,7 +593,7 @@
 		</skills>
 	</item>
 	<item id="24127" name="Agathion - Cancer" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 45 min.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 45 min.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -577,6 +604,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -587,7 +615,7 @@
 		</skills>
 	</item>
 	<item id="24128" name="Agathion - Cancer" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 40 min.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 40 min.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -598,6 +626,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -608,7 +637,7 @@
 		</skills>
 	</item>
 	<item id="24129" name="Agathion - Cancer" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 35 min.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 35 min.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -619,6 +648,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -629,7 +659,7 @@
 		</skills>
 	</item>
 	<item id="24130" name="Agathion - Cancer" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 30 min.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 30 min.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -640,6 +670,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -650,7 +681,7 @@
 		</skills>
 	</item>
 	<item id="24131" name="Agathion - Cancer" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 25 min.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 25 min.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -661,6 +692,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -671,7 +703,7 @@
 		</skills>
 	</item>
 	<item id="24132" name="Agathion - Cancer" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Cancer when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 20 min.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<!-- Can summon Cance when equipped. <Active Skill>. 1. Exoskeletal Shield: For 20 min., reflects 20% of received damage. (Cooldown is 1200 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
 		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_june_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -682,6 +714,7 @@
 		<set name="is_sellable" val="false" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17621" level="1" /> <!-- Release Agathion's Seal - Cancer -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -703,6 +736,7 @@
 		<set name="default_action" val="EQUIP" />
 		<set name="material" val="BRONZE" />
 		<set name="bodypart" val="alldress" />
+		<set name="enchant_enabled" val="true" />
 		<stats>
 			<stat type="pDef">400</stat>
 		</stats>
@@ -747,11 +781,11 @@
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="24139" name="Starlight Jar" type="EtcItem">
-		<!-- Stars twinkle inside a star-shaped jar. Ingredient to crafting a Zodiac Agathion bracelet with a 100% success rate. -->
+		<!-- Stars twinkle inside a star-shaped jar. Ingredient needed to craft a Zodiac Agathion bracelet with a 100% success rate. -->
 		<set name="icon" val="BranchIcon.Icon.etc_sign_agathion_feed_yellow_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="MATERIAL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="MATERIAL" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="24140" name="Agathion - Three-headed Dragon" type="Armor">
@@ -839,8 +873,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
+		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="57" min="6485800" max="6485800" chance="100" /> <!-- Adena -->
+			<item id="2133" min="118" max="118" chance="100" /> <!-- Gemstone (A-grade) -->
+			<item id="45932" min="1" max="1" chance="100" /> <!-- Top-grade Spirit Stone -->
+		</capsuled_items>
 	</item>
 	<item id="24147" name="Top-grade Augmentation Pack (R95-grade)" type="EtcItem">
 		<!-- Wrapped Pack containing a Top-grade Life Stone (R95-grade) and all fees required for augmentation and de-augmentation. -->
@@ -850,8 +890,14 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
-		<set name="default_action" val="PEEL" />
+		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="FISH" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="57" min="2943200" max="2943200" chance="100" /> <!-- Adena -->
+			<item id="2133" min="45" max="45" chance="100" /> <!-- Gemstone (A-grade) -->
+			<item id="45931" min="1" max="1" chance="100" /> <!-- High-grade Spirit Stone -->
+		</capsuled_items>
 	</item>
 	<item id="24148" name="Wondrous Casket" additionalName="Taurus" type="EtcItem">
 		<!-- Has a chance of obtaining either a Sealed Talisman - Longing, Immortal Scroll, Talisman - Abundance, Elycum, Energy of Destruction 20-unit Pack, Giant's Energy, Top-grade augmentation Pack (R95-grade), Top-grade augmentation Pack (R99-grade), or Agathion - Taurus. -->
@@ -861,24 +907,84 @@
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="24146" min="1" max="1" chance="8.333333333333334" /> <!-- Top-grade Augmentation Pack (R99-grade) -->
+			<item id="24147" min="1" max="1" chance="8.333333333333334" /> <!-- Top-grade Augmentation Pack (R95-grade) -->
+			<item id="35649" min="1" max="1" chance="8.333333333333334" /> <!-- Sealed Talisman - Longing -->
+			<item id="38762" min="1" max="1" chance="8.333333333333334" /> <!-- Energy of Destruction 20-unit Pack -->
+			<item id="23833" min="1" max="1" chance="8.333333333333334" /> <!-- Talisman - Abundance - War -->
+			<item id="23834" min="1" max="1" chance="8.333333333333334" /> <!-- Talisman - Abundance - Tactics -->
+			<item id="23835" min="1" max="1" chance="8.333333333333334" /> <!-- Talisman - Abundance - Morale -->
+			<item id="23836" min="1" max="1" chance="8.333333333333334" /> <!-- Talisman - Abundance - Physique -->
+			<item id="35563" min="10" max="10" chance="8.333333333333334" /> <!-- Giant's Energy -->
+			<item id="36515" min="1" max="1" chance="8.333333333333334" /> <!-- Elcyum -->
+			<item id="37044" min="1" max="1" chance="8.333333333333334" /> <!-- Immortal Scroll -->
+			<item id="24037" min="1" max="1" chance="8.333333333333343" /> <!-- Agathion - Taurus - Stage 1 -->
+		</capsuled_items>
 	</item>
 	<item id="24149" name="Vintage Casket" type="EtcItem">
-		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), Giant's Scroll: Enchant Weapon/Armor (R-grade), Blessed Scroll: Enchant Weapo/Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/Armor (R-grade), or Scroll: Enchant Weapon/Armor (R-grade). -->
+		<!-- Has a chance of obtaining either an Ancient Scroll: Enchant Weapon/ Armor (R-grade), Blessed Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), Giant's Scroll: Enchant Weapon/ Armor (R-grade), Blessed Scroll: Enchant Weapo/ Armor (R-grade), Blessed Lucky Enchant Stone: Weapon/ Armor (R-grade), Blessed High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), Lesser Giant's Lucky Enchant Stone: Weapon/ Armor (R-grade), High-grade Lucky Enchant Stone: Weapon/ Armor (R-grade), or Scroll: Enchant Weapon/ Armor (R-grade). -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="19447" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed Scroll: Enchant Weapon (R-grade) -->
+			<item id="19448" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed Scroll: Enchant Armor (R-grade) -->
+			<item id="23342" min="1" max="1" chance="5.2631578947368425" /> <!-- Ancient Scroll: Enchant Weapon (R-grade) -->
+			<item id="23344" min="1" max="1" chance="5.2631578947368425" /> <!-- Ancient Scroll: Enchant Armor (R-grade) -->
+			<item id="23646" min="1" max="1" chance="5.2631578947368425" /> <!-- High-grade Lucky Enchant Stone: Weapon (R-grade) -->
+			<item id="23647" min="1" max="1" chance="5.2631578947368425" /> <!-- High-grade Lucky Enchant Stone: Armor (R-grade) -->
+			<item id="24341" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed Giant's Lucky Enchant Stone: Weapon Pack (R-grade) -->
+			<item id="24342" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed Giant's Lucky Enchant Stone: Armor Pack (R-grade) -->
+			<item id="24343" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed Lucky Enchant Stone: Weapon Pack (R-grade) -->
+			<item id="24344" min="1" max="1" chance="5.2631578947368425" /> <!-- Lesser Giant's Lucky Enchant Stone: Weapon Pack (R-grade) -->
+			<item id="24345" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed Lucky Enchant Stone: Armor Pack (R-grade) -->
+			<item id="24346" min="1" max="1" chance="5.2631578947368425" /> <!-- Lesser Giant's Lucky Enchant Stone: Armor Pack (R-grade) -->
+			<item id="24347" min="1" max="1" chance="5.2631578947368425" /> <!-- Scroll: Enchant Weapon Pack (R-grade) -->
+			<item id="24348" min="3" max="3" chance="5.2631578947368425" /> <!-- Scroll: Enchant Armor Pack (R-grade) -->
+			<item id="36163" min="1" max="1" chance="5.2631578947368425" /> <!-- Giant's Scroll: Enchant Weapon (R-grade) -->
+			<item id="36164" min="1" max="1" chance="5.2631578947368425" /> <!-- Giant's Scroll: Enchant Armor (R-grade) -->
+			<item id="38757" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed High-grade Lucky Enchant Stone: Weapon (R-grade) -->
+			<item id="38758" min="1" max="1" chance="5.2631578947368425" /> <!-- Blessed High-grade Lucky Enchant Stone: Armor (R-grade) -->
+			<item id="24148" min="1" max="1" chance="5.263157894736793" /> <!-- Wondrous Casket - Taurus -->
+		</capsuled_items>
 	</item>
 	<item id="24150" name="Shabby Casket" type="EtcItem">
-		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
+		<!-- Has a chance of obtaining either an XP Rune III (Lv. 1-100+) 100% Pack (30-day), Prestige Rune 100% Pack, Kat the Cat's Box of Roses, Pa'agrio's Warm Breeze, Ghost Potion, Emperor's Growth Scroll, Feather of Blessing Pack, Letter Collector's Gift, Mysterious Healthy Juice (HP/ CP), Gemstone (R-grade), or Heavenly Recovery Potion. -->
 		<set name="icon" val="icon.event_big_july_seven_park_i00" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
 		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="material" val="PAPER" />
+		<set name="extractableCountMin" val="1" />
+		<set name="extractableCountMax" val="1" />
+		<set name="handler" val="ExtractableItems" />
+		<capsuled_items>
+			<item id="23147" min="1" max="1" chance="7.142857142857143" /> <!-- Ghost Potion - Event -->
+			<item id="23346" min="1" max="1" chance="7.142857142857143" /> <!-- Letter Collector's Gift -->
+			<item id="23439" min="1" max="1" chance="7.142857142857143" /> <!-- Feather of Blessing Pack -->
+			<item id="24349" min="1" max="1" chance="7.142857142857143" /> <!-- XP Rune III (Lv. 1-100+) 100% Pack (30-day) -->
+			<item id="24350" min="1" max="1" chance="7.142857142857143" /> <!-- Prestige Rune 100% Pack - 30-day -->
+			<item id="37563" min="1" max="1" chance="7.142857142857143" /> <!-- Emperor's Growth Scroll -->
+			<item id="37659" min="2" max="2" chance="7.142857142857143" /> <!-- Mysterious Healthy Juice (HP/CP) -->
+			<item id="37671" min="5" max="5" chance="7.142857142857143" /> <!-- Heavenly Recovery Potion -->
+			<item id="37906" min="1" max="1" chance="7.142857142857143" /> <!-- Kat the Cat's Box of Roses -->
+			<item id="19440" min="500" max="500" chance="7.142857142857143" /> <!-- Gemstone (R-grade) -->
+			<item id="19440" min="50" max="50" chance="7.142857142857143" /> <!-- Gemstone (R-grade) -->
+			<item id="19440" min="5" max="5" chance="7.142857142857143" /> <!-- Gemstone (R-grade) -->
+			<item id="24148" min="1" max="1" chance="7.142857142857143" /> <!-- Wondrous Casket - Taurus -->
+			<item id="24149" min="1" max="1" chance="7.142857142857153" /> <!-- Vintage Casket -->
+		</capsuled_items>
 	</item>
 	<item id="24151" name="Agathion - Virgo Pack (Low-grade)" type="EtcItem">
 		<!-- Wrapped Pack containing Agathion - Virgo between Lv. 1 - 4. -->
@@ -1494,8 +1600,8 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="24188" name="Agathion - Twinkling Virgo" additionalName="Stage 1" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 2250 sec.). 2. Attribute Enchant: Attribute Resistance +5. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 2250 sec.). 2. Attribute Enchant: Attribute Resistance +5. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1506,6 +1612,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1515,8 +1622,8 @@
 		</skills>
 	</item>
 	<item id="24189" name="Agathion - Twinkling Virgo" additionalName="Stage 2" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 2100 sec.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +5. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 2100 sec.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +5. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1527,6 +1634,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1536,8 +1644,8 @@
 		</skills>
 	</item>
 	<item id="24190" name="Agathion - Twinkling Virgo" additionalName="Stage 3" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1950 sec.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1950 sec.). 2. Balanced Power: MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1548,6 +1656,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1558,8 +1667,8 @@
 		</skills>
 	</item>
 	<item id="24191" name="Agathion - Twinkling Virgo" additionalName="Stage 4" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1800 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1800 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +10. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1570,6 +1679,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1580,8 +1690,8 @@
 		</skills>
 	</item>
 	<item id="24192" name="Agathion - Twinkling Virgo" additionalName="Stage 5" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1650 sec.). 2. Balanced Power: CON/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1650 sec.). 2. Balanced Power: CON/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1592,6 +1702,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1602,8 +1713,8 @@
 		</skills>
 	</item>
 	<item id="24193" name="Agathion - Twinkling Virgo" additionalName="Stage 6" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1500 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1500 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +15. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1614,6 +1725,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1624,8 +1736,8 @@
 		</skills>
 	</item>
 	<item id="24194" name="Agathion - Twinkling Virgo" additionalName="Stage 7" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1350 sec.). 2. Balanced Power: CON/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1350 sec.). 2. Balanced Power: CON/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1636,6 +1748,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1646,8 +1759,8 @@
 		</skills>
 	</item>
 	<item id="24195" name="Agathion - Twinkling Virgo" additionalName="Stage 8" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1200 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1200 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +20. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1658,6 +1771,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1668,8 +1782,8 @@
 		</skills>
 	</item>
 	<item id="24196" name="Agathion - Twinkling Virgo" additionalName="Stage 9" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 1050 sec.). 2. Balanced Power: CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 1050 sec.). 2. Balanced Power: CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1680,6 +1794,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1690,8 +1805,8 @@
 		</skills>
 	</item>
 	<item id="24197" name="Agathion - Twinkling Virgo" additionalName="Stage 10" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 900 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 900 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +25. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1702,6 +1817,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1712,8 +1828,8 @@
 		</skills>
 	</item>
 	<item id="24198" name="Agathion - Twinkling Virgo" additionalName="Stage 11" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 750 sec.). 2. Balanced Power: INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 750 sec.). 2. Balanced Power: INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1724,6 +1840,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
@@ -1734,8 +1851,8 @@
 		</skills>
 	</item>
 	<item id="24199" name="Agathion - Twinkling Virgo" additionalName="Stage 12" type="Armor">
-		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/MP/CP with a chance to cancel debuffs. (Cooldown is 600 sec.). 2. Balanced Power: STR/INT/CON/DEX/WIT/MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
-		<set name="icon" val="BranchIcon.Icon.accessary_sign_agathion_april_aug_i00" />
+		<!-- Can summon Virgo when equipped. <Active Skill>. 1. Healing Light: Restores entire party's HP/ MP/ CP with a chance to cancel debuffs. (Cooldown is 600 sec.). 2. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN +1. 2. Attribute Enchant: Attribute Resistance +30. -->
+		<set name="icon" val="BranchIcon.Icon.accessary_lbracelet_sign_agathion_aug_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
 		<set name="crystal_type" val="R" />
@@ -1746,6 +1863,7 @@
 		<set name="is_freightable" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<set name="enchant_enabled" val="true" />
 		<skills>
 			<skill id="17610" level="2" /> <!-- Release Agathion's Seal - Virgo -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->

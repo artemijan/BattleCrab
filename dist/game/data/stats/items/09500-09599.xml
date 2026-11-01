@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="9500" name="Recipe: Sealed Dynasty Helmet" type="EtcItem">
 		<!-- For Dwarves only. Recipe for the Sealed Dynasty Helmet. Requires Create Item (Lv. 9). The success rate is 100%. -->
@@ -156,7 +156,7 @@
 		<set name="commissionItemType" val="RECIPE" />
 		<set name="is_stackable" val="true" />
 	</item>
-	<item id="9513" name="Recipe: Sealed Dynasty Shield" type="EtcItem">
+	<item id="9513" name="Recipe: Sealed Dynasty Shield (100%)" type="EtcItem">
 		<!-- For Dwarves only. Recipe for the Sealed Dynasty Shield. Requires Create Item (Lv. 9). The success rate is 100%. -->
 		<set name="icon" val="icon.etc_recipe_black_i00" />
 		<set name="default_action" val="RECIPE" />
@@ -1036,8 +1036,9 @@
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1051,8 +1052,9 @@
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1066,8 +1068,9 @@
 		<set name="weight" val="20" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
+		<set name="is_questitem" val="true" />
 		<set name="commissionItemType" val="SOUL_CRYSTAL" />
-		<set name="is_questitem" val="false" />
+		<set name="is_depositable" val="false" />
 		<skills>
 			<skill id="2096" level="1" /> <!-- Soul Crystal -->
 		</skills>
@@ -1081,9 +1084,9 @@
 		<set name="price" val="28800" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="80" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9574" name="Mid-grade Life Stone - Lv. 80" type="EtcItem">
 		<!-- Mid-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 80 or above. -->
@@ -1094,9 +1097,9 @@
 		<set name="price" val="115200" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="80" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9575" name="High-grade Life Stone - Lv. 80" type="EtcItem">
 		<!-- High-grade mineral that has been petrified by a creature's physical or magical damage. Key component used in weapon augmentation by characters level 80 or above. -->
@@ -1107,9 +1110,9 @@
 		<set name="price" val="576000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="80" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9576" name="Top-grade Life Stone - Lv. 80" type="EtcItem">
 		<!-- This is the highest-grade mineral available, having been petrified by a creature's physical or magical force. Key component used in weapon augmentation by characters level 80 or above. -->
@@ -1120,9 +1123,9 @@
 		<set name="price" val="2880000" />
 		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="LIFE_STONE" />
-		<cond msgId="113" addName="1">
+		<conditions msgId="113" addName="1">
 			<player level="80" />
-		</cond>
+		</conditions>
 	</item>
 	<item id="9577" name="Cotton Shirt" type="Armor">
 		<set name="icon" val="icon.etc_shirts_none_i00" />

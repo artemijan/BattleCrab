@@ -1,18 +1,22 @@
 /*
- * This file is part of the L2J Mobius project.
+ * Copyright (c) 2013 L2jMobius
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package quests.Q00622_SpecialtyLiquorDelivery;
 
@@ -21,9 +25,9 @@ import java.util.List;
 
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Specialty Liquor Delivery (622)
@@ -39,16 +43,20 @@ public class Q00622_SpecialtyLiquorDelivery extends Quest
 	private static final int KUBER = 31546;
 	private static final int BOELIN = 31547;
 	private static final int LIETTA = 31267;
+	
 	// Items
 	private static final int SPECIAL_DRINK = 7197;
 	private static final int SPECIAL_DRINK_PRICE = 7198;
+	
 	// Rewards
 	private static final int QUICK_STEP_POTION = 734;
 	private static final int SEALED_RING_OF_AURAKYRA = 6849;
 	private static final int SEALED_SANDDRAGONS_EARING = 6847;
 	private static final int SEALED_DRAGON_NECKLACE = 6851;
+	
 	// Misc
 	private static final int MIN_LEVEL = 68;
+	
 	// Talkers
 	private static final List<Integer> TALKERS = Arrays.asList(KUBER, CROCUS, NAFF, PULIN);
 	
@@ -70,6 +78,7 @@ public class Q00622_SpecialtyLiquorDelivery extends Quest
 		{
 			return htmltext;
 		}
+		
 		switch (event)
 		{
 			case "31521-03.htm":
@@ -160,12 +169,14 @@ public class Q00622_SpecialtyLiquorDelivery extends Quest
 					{
 						rewardItems(player, SEALED_DRAGON_NECKLACE, 1);
 					}
+					
 					qs.exitQuest(true, true);
 					htmltext = event;
 				}
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
@@ -272,6 +283,7 @@ public class Q00622_SpecialtyLiquorDelivery extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

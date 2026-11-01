@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="22700" name="Equipment Restoration Stone (R-grade)" type="EtcItem">
 		<!-- Restores the original appearance of R-grade equipment (only weapons and armor, no hair accessories) whose appearances have been modified. Double-click to use. -->
@@ -10,9 +10,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_ALLITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22556" level="1" /> <!-- Equipment Restoration Stone (R-grade) -->
@@ -28,9 +28,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_ALLITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22557" level="1" /> <!-- Equipment Restoration Stone (S-grade) -->
@@ -46,9 +46,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_ALLITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22558" level="1" /> <!-- Equipment Restoration Stone (A-grade) -->
@@ -64,9 +64,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_ALLITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22559" level="1" /> <!-- Equipment Restoration Stone (B-grade) -->
@@ -82,9 +82,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_ALLITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22560" level="1" /> <!-- Equipment Restoration Stone (C-grade) -->
@@ -100,9 +100,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_ALLITEM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22561" level="1" /> <!-- Equipment Restoration Stone (D-grade) -->
@@ -118,9 +118,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22562" level="1" /> <!-- (Test) Formal Wear Appearance Stone -->
@@ -136,9 +136,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22563" level="1" /> <!-- (Test) Immortal Top Appearance Stone -->
@@ -172,9 +172,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_HAIRACC" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22565" level="1" /> <!-- Blessed Hair Accessory Appearance Stone -->
@@ -189,13 +189,13 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="1800000" />
 		<set name="shared_reuse_group" val="15" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="22566" level="1" /> <!-- Vitality Suspending Potion -->
@@ -223,7 +223,7 @@
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -250,7 +250,7 @@
 			<stat type="pAtk">80</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -278,7 +278,7 @@
 			<stat type="pAtk">112</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -306,7 +306,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">4</stat>
+			<stat type="critRate">4</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -329,18 +329,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="205" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">92</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="22716" name="Japanese Bow" type="Weapon">
 		<!-- Japanese weapon. Bow form. Basic Japanese Weapon Appearance Stone. -->
@@ -366,7 +366,7 @@
 			<stat type="pAtk">191</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -395,7 +395,7 @@
 			<stat type="pAtk">117</stat>
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">303</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">400</stat>
@@ -424,7 +424,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">4</stat>
+			<stat type="critRate">4</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -453,7 +453,7 @@
 			<stat type="mAtk">79</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">4</stat>
+			<stat type="critRate">4</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -481,7 +481,7 @@
 			<stat type="mAtk">54</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">4</stat>
+			<stat type="critRate">4</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -510,13 +510,13 @@
 			<stat type="mAtk">122</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">4</stat>
+			<stat type="critRate">4</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
 	</item>
-	<item id="22722" name="Japanese Dualsword" type="Weapon">
-		<!-- Japanese weapon. Dualsword form. Basic Japanese Weapon Appearance Stone. -->
+	<item id="22722" name="Japanese Dual Sword" type="Weapon">
+		<!-- Japanese weapon. dual sword form. Basic Japanese Weapon Appearance Stone. -->
 		<set name="icon" val="BranchSys3.Icon.g_japan_dual" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -537,7 +537,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">51</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -564,7 +564,7 @@
 			<stat type="pAtk">107</stat>
 			<stat type="mAtk">51</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -594,7 +594,7 @@
 			<stat type="mAtk">186</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">4</stat>
+			<stat type="critRate">4</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -651,9 +651,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22567" level="1" /> <!-- Japanese Sword Appearance Stone -->
@@ -669,9 +669,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22568" level="1" /> <!-- Japanese Dagger Appearance Stone -->
@@ -687,9 +687,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22569" level="1" /> <!-- Japanese Long Sword Appearance Stone -->
@@ -705,9 +705,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22570" level="1" /> <!-- Japanese Fist Weapon Appearance Stone -->
@@ -723,9 +723,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22571" level="1" /> <!-- Japanese Great Spear Appearance Stone -->
@@ -741,9 +741,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22572" level="1" /> <!-- Japanese Bow Appearance Stone -->
@@ -759,9 +759,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22573" level="1" /> <!-- Japanese Crossbow Appearance Stone -->
@@ -777,9 +777,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22574" level="1" /> <!-- Japanese Blunt Appearance Stone -->
@@ -795,9 +795,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22575" level="1" /> <!-- Japanese Giant Blunt Appearance Stone -->
@@ -813,9 +813,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22576" level="1" /> <!-- Japanese Magic Blunt Appearance Stone -->
@@ -831,16 +831,16 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22577" level="1" /> <!-- Japanese Giant Magic Blunt Appearance Stone -->
 		</skills>
 	</item>
-	<item id="22738" name="Japanese Dualsword Appearance Stone" type="EtcItem">
-		<!-- Changes the appearance of a dualsword to that of a Japanese dualsword. -->
+	<item id="22738" name="Japanese Dual Sword Appearance Stone" type="EtcItem">
+		<!-- Changes the appearance of a dual sword to that of a Japanese dual sword. -->
 		<set name="icon" val="BranchSys3.Icon.g_shape_shifting_dual" />
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
@@ -849,12 +849,12 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="22578" level="1" /> <!-- Japanese Dualsword Appearance Stone -->
+			<skill id="22578" level="1" /> <!-- Japanese Dual Sword Appearance Stone -->
 		</skills>
 	</item>
 	<item id="22739" name="Japanese Double Dagger Appearance Stone" type="EtcItem">
@@ -867,9 +867,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22579" level="1" /> <!-- Japanese Double Dagger Appearance Stone -->
@@ -885,9 +885,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22580" level="1" /> <!-- Japanese Double Blunt Appearance Stone -->
@@ -903,9 +903,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22581" level="1" /> <!-- Japanese Shield Appearance Stone -->
@@ -921,9 +921,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22582" level="1" /> <!-- Japanese Sigil Appearance Stone -->
@@ -937,9 +937,9 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22583" level="1" /> <!-- Transformation Scroll: Fairweather Borna -->
@@ -953,10 +953,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -971,11 +971,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="259200000" />
 		<skills>
@@ -990,10 +990,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1008,11 +1008,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="259200000" />
 		<skills>
@@ -1027,10 +1027,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1045,11 +1045,11 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="259200000" />
 		<skills>
@@ -1064,10 +1064,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -1250,10 +1250,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1268,10 +1268,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1286,10 +1286,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1304,10 +1304,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1322,10 +1322,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1340,10 +1340,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1358,10 +1358,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1376,10 +1376,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1394,10 +1394,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1412,10 +1412,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1430,10 +1430,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1448,10 +1448,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="60000" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
@@ -1459,7 +1459,7 @@
 		</capsuled_items>
 	</item>
 	<item id="22775" name="Drake Maul" type="Weapon">
-		<!-- Two-handed blunt with special powers used by the Drake Lord. -->
+		<!-- Two-handed blunt with special powers used by the Drake Lord. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1477,21 +1477,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">532</stat>
 			<stat type="mAtk">192</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
+		</skills>
 	</item>
 	<item id="22776" name="Drake Maul" additionalName="HP Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed blunt with special powers used by the Drake Lord. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1509,22 +1511,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22777" name="Drake Maul" additionalName="HP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed blunt with special powers used by the Drake Lord. Increases HP Recovery Rate. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1542,22 +1546,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3569" level="4" /> <!-- Special Ability: HP Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22778" name="Drake Maul" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed blunt with special powers used by the Drake Lord. Max HP increases by 25%. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1575,19 +1581,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">532</stat>
 			<stat type="mAtk">192</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="22779" name="Drake Maul (PvP)" type="Weapon">
 		<!-- Two-handed blunt with special powers used by the Drake Lord. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -1608,23 +1616,23 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
-			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">532</stat>
 			<stat type="mAtk">192</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
+			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
-	<item id="22780" name="Drake Maul (PvP)" additionalName="HP Drain" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed blunt with special powers used by the Drake Lord. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. -->
+	<item id="22780" name="Drake Maul (PvP) - HP Drain" type="Weapon">
+		<!-- <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Absorbs 4% of standard melee damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1642,24 +1650,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="22781" name="Drake Maul (PvP)" additionalName="HP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed blunt with special powers used by the Drake Lord. Increases HP Recovery Rate. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. -->
+	<item id="22781" name="Drake Maul (PvP) - HP Regeneration" type="Weapon">
+		<!-- <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Increases HP Recovery Bonus Rate. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1677,24 +1685,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3569" level="4" /> <!-- Special Ability: HP Regeneration -->
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="22782" name="Drake Maul (PvP)" additionalName="Health" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed blunt with special powers used by the Drake Lord. Max HP increases by 25%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. -->
+	<item id="22782" name="Drake Maul (PvP) - Health" type="Weapon">
+		<!-- <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Max HP increases by 25%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1712,24 +1720,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22783" name="Drake Maul - Evil Spirit" type="Weapon">
-		<!-- Masterwork Item with chance of HP absorption during an attack. -->
+		<!-- Masterwork Item with chance of HP absorption during an attack. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1747,21 +1755,24 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
-			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">532</stat>
 			<stat type="mAtk">192</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
+			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="22784" name="Drake Maul - Evil Spirit" additionalName="HP Drain" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1779,22 +1790,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22785" name="Drake Maul - Evil Spirit" additionalName="HP Regeneration" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1812,22 +1826,25 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3569" level="4" /> <!-- Special Ability: HP Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22786" name="Drake Maul - Evil Spirit" additionalName="Health" type="Weapon">
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1845,20 +1862,22 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
-			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
-			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">532</stat>
 			<stat type="mAtk">192</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
+			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
+			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
+		</skills>
 	</item>
 	<item id="22787" name="Drake Maul - Evil Spirit (PvP)" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -1879,21 +1898,21 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3653" level="1" /> <!-- PvP Weapon - Attack Rate -->
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22788" name="Drake Maul - Evil Spirit (PvP) - HP Drain" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Recovers 4% of standard melee physical damage inflicted upon the enemy as HP. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
@@ -1914,6 +1933,15 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
@@ -1921,18 +1949,9 @@
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3568" level="2" /> <!-- Special Ability: HP Drain -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22789" name="Drake Maul - Evil Spirit (PvP) - HP Regeneration" type="Weapon">
-		<!-- Masterwork Item with chance of HP absorption during an attack. <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Increases HP Recovery Rate. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
+		<!-- Masterwork Item with chance of HP absorption during an attack. <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Increases HP Recovery Bonus Rate. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_drake_maul_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -1950,6 +1969,15 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
@@ -1957,15 +1985,6 @@
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3569" level="4" /> <!-- Special Ability: HP Regeneration -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22790" name="Drake Maul - Evil Spirit (PvP) - Health" type="Weapon">
 		<!-- Masterwork Item with chance of HP absorption during an attack. <Special Option>. Two-handed blunt with special powers used by the Drake Lord. Max HP increases by 25%. Increases damage inflicted during PvP. Has a chance of inflicting additional damage when attacking. No Soul Crystal option. -->
@@ -1986,6 +2005,15 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
+		<stats>
+			<stat type="pAtk">532</stat>
+			<stat type="mAtk">192</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21293" level="1" /> <!-- Two-handed Weapon of Vampiric Rage -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
@@ -1993,18 +2021,9 @@
 			<skill id="21279" level="1" /> <!-- Drake Lord's Authority -->
 			<skill id="3013" level="3" /> <!-- Special Ability: Health -->
 		</skills>
-		<stats>
-			<stat type="pAtk">532</stat>
-			<stat type="mAtk">192</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22791" name="Freya's Staff" type="Weapon">
-		<!-- Two-handed magic blunt with special powers used by Freya. -->
+		<!-- Two-handed magic blunt with special powers used by Freya. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2023,21 +2042,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="21280" level="1" /> <!-- Freya's Authority -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">426</stat>
 			<stat type="mAtk">281</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21280" level="1" /> <!-- Freya's Authority -->
+		</skills>
 	</item>
 	<item id="22792" name="Freya's Staff" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed magic blunt with special powers used by Freya. 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2056,23 +2077,25 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">426</stat>
+			<stat type="mAtk">281</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3577" level="2" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 			<skill id="21280" level="1" /> <!-- Freya's Authority -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">426</stat>
-			<stat type="mAtk">281</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22793" name="Freya's Staff" additionalName="Empower" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed magic blunt with special powers used by Freya. M. Atk. Increases by 177. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2091,22 +2114,24 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
+		<stats>
+			<stat type="pAtk">426</stat>
+			<stat type="mAtk">281</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="21280" level="1" /> <!-- Freya's Authority -->
 			<skill id="3575" level="4" /> <!-- Special Ability: Empower -->
 		</skills>
-		<stats>
-			<stat type="pAtk">426</stat>
-			<stat type="mAtk">281</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22794" name="Freya's Staff" additionalName="MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed magic blunt with special powers used by Freya. MP Recovery Rate is raised. Increases damage inflicted during PvP. -->
+		<!-- Not used -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2125,19 +2150,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="21280" level="1" /> <!-- Freya's Authority -->
-			<skill id="3576" level="4" /> <!-- Special Ability: MP Regeneration -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">426</stat>
 			<stat type="mAtk">281</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21280" level="1" /> <!-- Freya's Authority -->
+			<skill id="3576" level="4" /> <!-- Special Ability: MP Regeneration -->
+		</skills>
 	</item>
 	<item id="22795" name="Freya's Staff (PvP)" type="Weapon">
 		<!-- Two-handed magic blunt with special powers used by Freya. Increases damage inflicted during PvP. Has a chance of recovering CP during an attack. No Soul Crystal option. -->
@@ -2159,23 +2186,23 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="3655" level="1" /> <!-- PvP Weapon - Rapid Fire -->
-			<skill id="21280" level="1" /> <!-- Freya's Authority -->
-			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
-		</skills>
 		<stats>
 			<stat type="pAtk">426</stat>
 			<stat type="mAtk">281</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3655" level="1" /> <!-- PvP Weapon - Rapid Fire -->
+			<skill id="21280" level="1" /> <!-- Freya's Authority -->
+			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
+		</skills>
 	</item>
-	<item id="22796" name="Freya's Staff (PvP)" additionalName="Magic Hold" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed magic blunt with special powers used by Freya. A 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. -->
+	<item id="22796" name="Freya's Staff (PvP) - Magic Hold" type="Weapon">
+		<!-- <Special Option>. Two-handed magic blunt with special powers used by Freya. A 20% chance of casting Dryad Root on the target during magic use. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2194,24 +2221,24 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">426</stat>
+			<stat type="mAtk">281</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3552" level="3" /> <!-- Special Ability: PvP Damage -->
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="21280" level="1" /> <!-- Freya's Authority -->
 			<skill id="3577" level="2" type_chance="20" type="ON_MAGIC_SKILL" /> <!-- Special Ability: Magic Hold -->
 		</skills>
-		<stats>
-			<stat type="pAtk">426</stat>
-			<stat type="mAtk">281</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="22797" name="Freya's Staff (PvP)" additionalName="Empower" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed magic blunt with special powers used by Freya. M. Atk. Increases by 177. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. -->
+	<item id="22797" name="Freya's Staff (PvP) - Empower" type="Weapon">
+		<!-- <Special Option>. Two-handed magic blunt with special powers used by Freya. M. Atk. Increases by 177. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2230,24 +2257,24 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">426</stat>
+			<stat type="mAtk">281</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3575" level="4" /> <!-- Special Ability: Empower -->
 			<skill id="21280" level="1" /> <!-- Freya's Authority -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">426</stat>
-			<stat type="mAtk">281</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
-	<item id="22798" name="Freya's Staff (PvP)" additionalName="MP Regeneration" type="Weapon">
-		<!-- <Soul Crystal Enhancement>. Two-handed magic blunt with special powers used by Freya. MP Recovery Rate is raised. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. -->
+	<item id="22798" name="Freya's Staff (PvP) - MP Regeneration" type="Weapon">
+		<!-- <Special Option>. Two-handed magic blunt with special powers used by Freya. MP Recovery Bonus Rate is raised. Increases damage inflicted during PvP. Has a chance of increasing Casting Spd. when attacked. No Soul Crystal option. -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i01" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2266,24 +2293,24 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
+		<stats>
+			<stat type="pAtk">426</stat>
+			<stat type="mAtk">281</stat>
+			<stat type="pAtkSpd">325</stat>
+			<stat type="accCombat">8</stat>
+			<stat type="critRate">6</stat>
+			<stat type="randomDamage">20</stat>
+			<stat type="pAtkRange">40</stat>
+		</stats>
 		<skills>
 			<skill id="3654" level="1" /> <!-- PvP Weapon - Casting -->
 			<skill id="3576" level="4" /> <!-- Special Ability: MP Regeneration -->
 			<skill id="21280" level="1" /> <!-- Freya's Authority -->
 			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
 		</skills>
-		<stats>
-			<stat type="pAtk">426</stat>
-			<stat type="mAtk">281</stat>
-			<stat type="pAtkSpd">325</stat>
-			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
-			<stat type="randomDamage">20</stat>
-			<stat type="pAtkRange">40</stat>
-		</stats>
 	</item>
 	<item id="22799" name="Freya's Staff - Cleverness" type="Weapon">
-		<!-- Masterwork Item with chance of MP absorption. Two-handed magic blunt with special powers used by Freya. -->
+		<!-- Masterwork Item with chance of MP absorption. Two-handed magic blunt with special powers used by Freya. Can bestow 1 regular Soul Crystal and 1 special Soul Crystal. -->
 		<set name="icon" val="BranchSys3.Icon.g_glacierin_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lrhand" />
@@ -2302,18 +2329,20 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="21280" level="1" /> <!-- Freya's Authority -->
-			<skill id="3893" level="1" /> <!-- Blunt Weapon of Mana Regeneration -->
-		</skills>
+		<set name="ensoulNormalSlots" val="1" />
+		<set name="ensoulSpecialSlots" val="1" />
 		<stats>
 			<stat type="pAtk">426</stat>
 			<stat type="mAtk">281</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="21280" level="1" /> <!-- Freya's Authority -->
+			<skill id="3893" level="1" /> <!-- Blunt Weapon of Mana Regeneration -->
+		</skills>
 	</item>
 </list>

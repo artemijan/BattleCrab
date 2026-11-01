@@ -284,9 +284,71 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
 
 /// `ScheduledTask::MinionRespawn` — one minion's return. Routed through
 /// [`spawn_minions`] so it re-counts first: if the leader died, was despawned,
-/// or the pack refilled some other way, nothing is over-spawned.
+/// or the pack refilled some other way, nothing is over-spawned. A leader with
+/// a spawn-line escort tops that list up the same way.
 pub(crate) fn handle_minion_respawn(world: &mut World, master_object_id: i32, _minion_npc_id: i32) {
     let _ = spawn_minions(world, master_object_id);
+    let _ = spawn_line_minions(world, master_object_id);
+}
+
+/// `NpcSpawnTemplate.spawnNpc`: when the spawned npc is a monster and its
+/// spawn line declares `<minions>`, `getMinionList().spawnMinions(_minions)`.
+/// The list is copied onto the leader so a respawned minion can find it
+/// again (runtime spawns carry a placeholder `spawn_ref`).
+pub(crate) fn attach_spawn_line_minions(
+    world: &mut World,
+    master_oid: i32,
+    spawn_idx: usize,
+    group_idx: usize,
+    npc_idx: usize,
+) -> usize {
+    let Some(list) = world
+        .data
+        .spawn_data
+        .spawns
+        .get(spawn_idx)
+        .and_then(|s| s.groups.get(group_idx))
+        .and_then(|g| g.npcs.get(npc_idx))
+        .filter(|d| !d.minions.is_empty())
+        .map(|d| d.minions.clone())
+    else {
+        return 0;
+    };
+    if !npc_template(world, master_oid).is_some_and(|t| t.is_monster()) {
+        return 0;
+    }
+    world
+        .objects
+        .add_components(&master_oid, SpawnLineMinions(list));
+    spawn_line_minions(world, master_oid)
+}
+
+/// `MinionList.spawnMinions(list)`: per entry, `count − countSpawnedMinionsById`.
+/// Java counts by id across the whole roster, so a second entry for an id the
+/// first already filled spawns nothing — Andreas Van Halter's three `29063`
+/// rows yield one acolyte, as they do in Java.
+fn spawn_line_minions(world: &mut World, master_oid: i32) -> usize {
+    if is_dead(world, master_oid) {
+        return 0;
+    }
+    let Some(list) = world
+        .objects
+        .get_component::<SpawnLineMinions>(&master_oid)
+        .map(|l| l.0.clone())
+    else {
+        return 0;
+    };
+    let mut placed = 0;
+    for m in list {
+        let alive = count_alive_minions(world, master_oid, m.npc_id);
+        for _ in alive..m.count.max(0) {
+            if spawn_one_minion(world, master_oid, m.npc_id) {
+                placed += 1;
+            }
+        }
+    }
+    world.minions_placed += placed;
+    placed
 }
 
 /// `MinionList.onMasterDie`: a **raid** leader takes its escort with it
@@ -386,6 +448,11 @@ pub struct MinionOf(pub i32);
 /// so nothing has to prune it from the death path.
 #[derive(Debug, Clone, bevy_ecs::component::Component)]
 pub struct Minions(pub Vec<i32>);
+
+/// The leader's spawn-line `<minions>` (Java `NpcSpawnTemplate._minions`),
+/// kept for the respawn top-up.
+#[derive(Clone, bevy_ecs::component::Component)]
+pub struct SpawnLineMinions(pub Vec<crate::data::spawn_data::SpawnMinion>);
 
 /// Java `Attackable.isRaidMinion()` — set by `Monster.onSpawn` as
 /// `setIsRaidMinion(_master.isRaid())`, so it is simply "my master is a raid".

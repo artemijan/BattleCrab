@@ -18,20 +18,18 @@ package ai.others.CastleDoorManager;
 
 import java.util.StringTokenizer;
 
-import org.l2jmobius.commons.util.CommonUtil;
-import org.l2jmobius.gameserver.enums.PlayerCondOverride;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.clan.ClanPrivilege;
+import org.l2jmobius.gameserver.model.clan.ClanAccess;
+import org.l2jmobius.gameserver.model.script.Script;
 import org.l2jmobius.gameserver.model.siege.Castle;
-
-import ai.AbstractNpcAI;
+import org.l2jmobius.gameserver.util.ArrayUtil;
 
 /**
  * Castle Door Manager AI.
  * @author St3eT
  */
-public class CastleDoorManager extends AbstractNpcAI
+public class CastleDoorManager extends Script
 {
 	// NPCs
 	// @formatter:off
@@ -130,23 +128,24 @@ public class CastleDoorManager extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
 	public String onFirstTalk(Npc npc, Player player)
 	{
-		return isOwningClan(player, npc) && player.hasClanPrivilege(ClanPrivilege.CS_OPEN_DOOR) ? getHtmlName(npc) + ".html" : getHtmlName(npc) + "-no.html";
+		return isOwningClan(player, npc) && player.hasAccess(ClanAccess.CASTLE_OPEN_DOOR) ? getHtmlName(npc) + ".html" : getHtmlName(npc) + "-no.html";
 	}
 	
 	private String getHtmlName(Npc npc)
 	{
-		return CommonUtil.contains(DOORMEN_INNER, npc.getId()) ? "CastleDoorManager-Inner" : "CastleDoorManager-Outter";
+		return ArrayUtil.contains(DOORMEN_INNER, npc.getId()) ? "CastleDoorManager-Inner" : "CastleDoorManager-Outter";
 	}
 	
 	private boolean isOwningClan(Player player, Npc npc)
 	{
-		return player.canOverrideCond(PlayerCondOverride.CASTLE_CONDITIONS) || ((npc.getCastle().getOwnerId() == player.getClanId()) && (player.getClanId() != 0));
+		return player.isGM() || ((npc.getCastle().getOwnerId() == player.getClanId()) && (player.getClanId() != 0));
 	}
 	
 	public static void main(String[] args)

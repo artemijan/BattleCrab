@@ -42,7 +42,13 @@ impl StoreLine<'_> {
 /// `PrivateStoreManageListSell` (0xA0): the owner's setup window — every
 /// inventory item they *could* sell (with the reference-price×2 suggestion) then
 /// the items already added to the store (with their set price).
+///
+/// Sent twice, like every p140 item list. Phase 2 carries the sellable items
+/// under a doubled count. Phase 1 is the header: Java writes both lists there
+/// too, but behind hard 0 counts, so the client reads neither — kept
+/// byte-for-byte.
 pub fn manage_list_sell(
+    send_type: u8,
     owner_object_id: i32,
     owner_adena: i64,
     sellable: &[StoreLine],
@@ -51,18 +57,28 @@ pub fn manage_list_sell(
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PRIVATE_STORE_MANAGE_LIST);
-    w.write_i32(owner_object_id);
-    w.write_i32(i32::from(packaged));
-    w.write_i64(owner_adena);
-    w.write_i32(sellable.len() as i32);
-    for line in sellable {
-        line.write_entry(&mut w);
-        w.write_i64(line.suggested_price()); // no price set yet, just the hint
-    }
-    w.write_i32(in_store.len() as i32);
-    for line in in_store {
-        line.write_entry(&mut w);
-        line.write_prices(&mut w);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(sellable.len() as i32);
+        w.write_i32(sellable.len() as i32);
+        for line in sellable {
+            line.write_entry(&mut w);
+            w.write_i64(line.suggested_price()); // no price set yet, just the hint
+        }
+    } else {
+        w.write_i32(owner_object_id);
+        w.write_i32(i32::from(packaged));
+        w.write_i64(owner_adena);
+        w.write_i32(0);
+        for line in sellable {
+            line.write_entry(&mut w);
+            w.write_i64(line.suggested_price());
+        }
+        w.write_i32(0);
+        for line in in_store {
+            line.write_entry(&mut w);
+            line.write_prices(&mut w);
+        }
     }
     w.into_bytes()
 }
@@ -104,7 +120,11 @@ pub fn msg_sell(owner_object_id: i32, title: &str) -> Vec<u8> {
 /// Note the shape difference from the sell window: no package-sell int, and
 /// each wanted line carries **price, reference×2 and count** (the sell window's
 /// count rides inside the item block, since a sell line is a real item).
+///
+/// Two phases with the same hard-0 phase-1 counts as
+/// [`manage_list_sell`].
 pub fn manage_list_buy(
+    send_type: u8,
     owner_object_id: i32,
     owner_adena: i64,
     inventory: &[StoreLine],
@@ -112,18 +132,28 @@ pub fn manage_list_buy(
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PRIVATE_STORE_BUY_MANAGE_LIST);
-    w.write_i32(owner_object_id);
-    w.write_i64(owner_adena);
-    w.write_i32(inventory.len() as i32);
-    for line in inventory {
-        line.write_entry(&mut w);
-        w.write_i64(line.suggested_price());
-    }
-    w.write_i32(wanted.len() as i32);
-    for line in wanted {
-        line.write_entry(&mut w);
-        line.write_prices(&mut w);
-        w.write_i64(line.item.count);
+    w.write_u8(send_type);
+    if send_type == 2 {
+        w.write_i32(inventory.len() as i32);
+        w.write_i32(inventory.len() as i32);
+        for line in inventory {
+            line.write_entry(&mut w);
+            w.write_i64(line.suggested_price());
+        }
+    } else {
+        w.write_i32(owner_object_id);
+        w.write_i64(owner_adena);
+        w.write_i32(0);
+        for line in inventory {
+            line.write_entry(&mut w);
+            w.write_i64(line.suggested_price());
+        }
+        w.write_i32(0);
+        for line in wanted {
+            line.write_entry(&mut w);
+            line.write_prices(&mut w);
+            w.write_i64(line.item.count);
+        }
     }
     w.into_bytes()
 }

@@ -16,18 +16,18 @@
  */
 package ai.others.ValakasTeleporters;
 
-import org.l2jmobius.Config;
+import org.l2jmobius.gameserver.config.GrandBossConfig;
 import org.l2jmobius.gameserver.data.xml.DoorData;
-import org.l2jmobius.gameserver.instancemanager.GrandBossManager;
-import org.l2jmobius.gameserver.instancemanager.QuestManager;
+import org.l2jmobius.gameserver.managers.GrandBossManager;
+import org.l2jmobius.gameserver.managers.ScriptManager;
 import org.l2jmobius.gameserver.model.Location;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
 import org.l2jmobius.gameserver.model.actor.instance.GrandBoss;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.Script;
 
-import ai.AbstractNpcAI;
 import ai.bosses.Valakas.Valakas;
 
 /**
@@ -35,7 +35,7 @@ import ai.bosses.Valakas.Valakas;
  * Original python script by Emperorc.
  * @author Plim
  */
-public class ValakasTeleporters extends AbstractNpcAI
+public class ValakasTeleporters extends Script
 {
 	// NPCs
 	private static final int[] NPCs =
@@ -47,6 +47,7 @@ public class ValakasTeleporters extends AbstractNpcAI
 		31687, // Gatekeeper of Fire Dragon : Opens doors to Heart of Volcano
 		31759, // Teleportation Cubic : Teleport out of Lair of Valakas
 	};
+	
 	// Items
 	private static final int VACUALITE_FLOATING_STONE = 7267;
 	private static final Location ENTER_HALL_OF_FLAMES = new Location(183813, -115157, -3303);
@@ -75,6 +76,7 @@ public class ValakasTeleporters extends AbstractNpcAI
 		{
 			htmltext = "31540-06.htm";
 		}
+		
 		return htmltext;
 	}
 	
@@ -106,7 +108,7 @@ public class ValakasTeleporters extends AbstractNpcAI
 							if (status == 0)
 							{
 								final GrandBoss valakas = GrandBossManager.getInstance().getBoss(29028);
-								valakasAI().startQuestTimer("beginning", Config.VALAKAS_WAIT_TIME * 60000L, valakas, null);
+								valakasAI().startQuestTimer("VALAKAS_START_ENCOUNTER", GrandBossConfig.VALAKAS_WAIT_TIME * 60000, valakas, null);
 								GrandBossManager.getInstance().setStatus(29028, 1);
 							}
 						}
@@ -132,17 +134,17 @@ public class ValakasTeleporters extends AbstractNpcAI
 			}
 			case 31384:
 			{
-				DoorData.getInstance().getDoor(24210004).openMe();
+				DoorData.getInstance().getDoor(25140004).openMe();
 				break;
 			}
 			case 31686:
 			{
-				DoorData.getInstance().getDoor(24210005).openMe();
+				DoorData.getInstance().getDoor(25140005).openMe();
 				break;
 			}
 			case 31687:
 			{
-				DoorData.getInstance().getDoor(24210006).openMe();
+				DoorData.getInstance().getDoor(25140006).openMe();
 				break;
 			}
 			case 31540:
@@ -175,12 +177,13 @@ public class ValakasTeleporters extends AbstractNpcAI
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	private Quest valakasAI()
 	{
-		return QuestManager.getInstance().getQuest(Valakas.class.getSimpleName());
+		return ScriptManager.getInstance().getScript(Valakas.class.getSimpleName());
 	}
 	
 	public static void main(String[] args)

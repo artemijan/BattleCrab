@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/skills.xsd">
 	<skill id="17600" toLevel="1" name="Starfish Appearance Stone: Sigil">
 		<icon>icon.skill0000</icon>
@@ -8,7 +8,7 @@
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
-	<skill id="17602" toLevel="1" name="Blue Mackerel Appearance Stone: Dualsword">
+	<skill id="17602" toLevel="1" name="Blue Mackerel Appearance Stone: Dual Sword">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
 	</skill>
@@ -54,10 +54,10 @@
 		<!-- The Agathion - Virgo seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
 		<targetScope>SINGLE</targetScope>
 		<effects>
 			<effect name="SummonAgathion">
@@ -73,10 +73,10 @@
 		<!-- The Agathion - Capricorn Seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
 		<targetScope>SINGLE</targetScope>
 		<effects>
 			<effect name="SummonAgathion">
@@ -92,10 +92,10 @@
 		<!-- The Agathion - Libra seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
 		<targetScope>SINGLE</targetScope>
 		<effects>
 			<effect name="SummonAgathion">
@@ -111,11 +111,11 @@
 		<!-- The Agathion - Aries seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -130,11 +130,11 @@
 		<!-- The Agathion - Taurus seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -149,11 +149,11 @@
 		<!-- The Agathion - Leo seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -168,11 +168,11 @@
 		<!-- The Agathion - Gemini seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -187,11 +187,11 @@
 		<!-- The Agathion - Scorpio seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -206,11 +206,11 @@
 		<!-- The Agathion - Aquarius seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -225,11 +225,11 @@
 		<!-- The Agathion - Pisces seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -244,11 +244,11 @@
 		<!-- The Agathion - Sagittarius seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -263,11 +263,11 @@
 		<!-- The Agathion - Cancer seal is released. -->
 		<icon>icon.etc_summon_aga_agit_i00</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<effects>
 			<effect name="SummonAgathion">
 				<npcId>
@@ -354,12 +354,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -375,12 +375,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -396,12 +396,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -417,12 +417,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -438,12 +438,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -459,12 +459,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -480,12 +480,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -501,12 +501,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -522,12 +522,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -543,12 +543,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -564,12 +564,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -585,12 +585,12 @@
 		<!-- Teleports you to the Town of Aden. -->
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
+		<targetType>SELF</targetType>
+		<affectScope>SINGLE</affectScope>
 		<hitTime>3000</hitTime>
 		<isMagic>2</isMagic>
 		<magicLevel>85</magicLevel>
 		<reuseDelay>1800000</reuseDelay>
-		<targetType>SELF</targetType>
-		<affectScope>SINGLE</affectScope>
 		<conditions>
 			<condition name="OpCanEscape" />
 		</conditions>
@@ -872,8 +872,11 @@
 		<operateType>A1</operateType>
 		<effectPoint>1</effectPoint>
 	</skill>
-	<skill id="17686" toLevel="4" name="Lara's Random Buff">
-		<!-- XP/SP gain + 30% when hunting, P./M. Atk. + 5%. Received damage - 5%. -->
+	<skill id="17686" toLevel="4" name="Uldie's Creepy Blessing">
+		<!-- Level 1: Special buff from Uldie. XP/ SP gain +30% when hunting, P./ M. Atk. +5%. Received damage -5%. When expires transforms to Uldie's Scary Blessing. -->
+		<!-- Level 2: Special buff from Uldie. XP/ SP gain +30% when hunting, P./ M. Atk. +5%. Received damage -5%. Attribute Resistance +30. When expires transforms to Uldie's Horrible Blessing. -->
+		<!-- Level 3: Special buff from Uldie. XP/ SP gain +30% when hunting, and P./ M. Atk. +5%. Received damage -5%. Attribute Resistance +30, Attribute Attack +50. When expires adds Secret Gift From Uldie to your inventory. -->
+		<!-- Level 4: Adds Secret Gift From Uldie to your inventory. -->
 		<icon>BranchSys.icon.br_sevenlove_girlpresent_i00</icon>
 		<operateType>A2</operateType>
 		<castRange>
@@ -891,7 +894,10 @@
 		<effectPoint>1</effectPoint>
 	</skill>
 	<skill id="17688" toLevel="4" name="Lara's Random Buff">
-		<!-- XP/SP gain + 30% when hunting, P./M. Atk. + 5%. Received damage - 5%. -->
+		<!-- Level 1: XP/ SP gain +30% when hunting, P./ M. Atk. +5%. Received damage -5%. -->
+		<!-- Level 2: XP/ SP gain +30% when hunting, P./ M. Atk. +5%. Received damage -5%. Attribute Resistance +30. -->
+		<!-- Level 3: XP/ SP gain +30% when hunting, and P./ M. Atk. +5%. Received damage -5%. Attribute Resistance +30, Attribute Attack +50. -->
+		<!-- Level 4: Lara is going crazy with buffs! -->
 		<icon>BranchSys.icon.br_sevenlove_girlpresent_i00</icon>
 		<operateType>A2</operateType>
 		<castRange>
@@ -914,12 +920,12 @@
 	<skill id="17691" toLevel="1" name="Blessed High-grade Lucky Enchant Stone: Weapon (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -942,12 +948,12 @@
 	<skill id="17692" toLevel="1" name="Blessed High-grade Lucky Enchant Stone: Armor (R-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -966,12 +972,12 @@
 	<skill id="17693" toLevel="1" name="Blessed High-grade Lucky Enchant Stone: Weapon (S-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -994,12 +1000,12 @@
 	<skill id="17694" toLevel="1" name="Blessed High-grade Lucky Enchant Stone: Armor (S-grade)">
 		<icon>icon.skill0000</icon>
 		<operateType>A1</operateType>
-		<magicCriticalRate>5</magicCriticalRate>
-		<hitCancelTime>0</hitCancelTime>
-		<magicLevel>1</magicLevel>
-		<isMagic>2</isMagic>
 		<targetType>ITEM</targetType>
 		<affectScope>SINGLE</affectScope>
+		<hitCancelTime>0</hitCancelTime>
+		<isMagic>2</isMagic>
+		<magicCriticalRate>5</magicCriticalRate>
+		<magicLevel>1</magicLevel>
 		<conditions>
 			<condition name="TargetItemCrystalType">
 				<itemType>
@@ -1019,16 +1025,16 @@
 		<!-- Invisible NPC skill for summoning the 10th Anniversary event squash. -->
 		<icon>icon.skill17695</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>1000</hitTime>
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 	<skill id="17696" toLevel="1" name="Summon Large Squash">
 		<!-- Invisible NPC skill for summoning the 10th Anniversary event squash. -->
 		<icon>icon.skill17696</icon>
 		<operateType>A1</operateType>
-		<hitTime>1000</hitTime>
 		<coolTime>500</coolTime>
+		<hitTime>1000</hitTime>
 		<reuseDelay>10000</reuseDelay>
 	</skill>
 </list>

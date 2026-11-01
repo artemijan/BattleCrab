@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="46100" name="Treasure Map - High Priest Raymond" type="EtcItem">
 		<!-- A map showing the location of some treasure. It says "For the High Priest", so it's probably a gift for the temple. -->
@@ -72,7 +72,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18404" level="1" /> <!-- Drake Maul Appearance Stone -->
+			<skill id="18404" level="1" /> <!-- Drake Maul Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46109" name="Freya's Staff Appearance Stone" additionalName="30-day" type="EtcItem">
@@ -85,7 +85,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18405" level="1" /> <!-- Freya's Staff Appearance Stone -->
+			<skill id="18405" level="1" /> <!-- Freya's Staff Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46110" name="Spezion's Claw Appearance Stone" additionalName="30-day" type="EtcItem">
@@ -98,7 +98,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18406" level="1" /> <!-- Spezion's Claw Appearance Stone -->
+			<skill id="18406" level="1" /> <!-- Spezion's Claw Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46111" name="Maliss Stormer Appearance Stone" additionalName="30-day" type="EtcItem">
@@ -111,7 +111,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18407" level="1" /> <!-- Maliss Stormer Appearance Stone -->
+			<skill id="18407" level="1" /> <!-- Maliss Stormer Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46112" name="Steregos' Dagger Appearance Stone" additionalName="30-day" type="EtcItem">
@@ -124,7 +124,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18408" level="1" /> <!-- Steregos' Dagger Appearance Stone -->
+			<skill id="18408" level="1" /> <!-- Steregos' Dagger Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46113" name="Ron's Dual Blunt Weapon Appearance Stone" additionalName="30-day" type="EtcItem">
@@ -137,7 +137,7 @@
 		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
-			<skill id="18409" level="1" /> <!-- Ron's Dual Blunt Weapon Appearance Stone -->
+			<skill id="18409" level="1" /> <!-- Ron's Dual Blunt Weapon Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46114" name="Drake Maul Appearance Stone" type="EtcItem">
@@ -352,8 +352,8 @@
 		<!-- A piece of El Floato's evil thoughts. Use it to open the door to get to Harpe in the Garden of Spirits. -->
 		<set name="icon" val="icon.etc_ertheia_prophecy_device_piece" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="46131" name="Kelbim Exclusive Weapon" type="Weapon">
@@ -371,7 +371,7 @@
 			<stat type="pAtk">5</stat>
 			<stat type="mAtk">5</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 			<stat type="randomDamage">5</stat>
@@ -586,7 +586,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46151" name="Superior Giant's Codex - Mastery Chapter 1" type="EtcItem">
-		<!-- Superior Giant's Codex. Rare item needed for +11~+20 blessed skill enchantment after Awakening. -->
+		<!-- Superior Giant's Codex. Rare item needed for +21~+30 blessed skill enchantment after Awakening. -->
 		<set name="icon" val="icon.codex_of_incuse_dexterity" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -621,7 +621,7 @@
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46155" name="Superior Giant's Codex - Mastery Chapter 2" type="EtcItem">
-		<!-- Superior Giant's Codex. Rare item needed for enchanting blessed skills between +21~+30 after Awakening. -->
+		<!-- Superior Giant's Codex. Rare item needed for +21~+30 blessed skill enchantment after Awakening. -->
 		<set name="icon" val="icon.codex_of_incuse_dexterity" />
 		<set name="weight" val="10" />
 		<set name="is_sellable" val="false" />
@@ -657,9 +657,9 @@
 		<set name="is_oly_restricted" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
-		<cond addName="1" msgId="113">
+		<conditions addName="1" msgId="113">
 			<player flyMounted="false" />
-		</cond>
+		</conditions>
 		<skills>
 			<skill id="18426" level="1" /> <!-- Scroll of Escape: Blackbird Campsite -->
 		</skills>
@@ -810,9 +810,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18433" level="1" /> <!-- Male Swimsuit No.1 Appearance Stone -->
@@ -824,9 +824,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18434" level="1" /> <!-- Male Swimsuit No.2 Appearance Stone -->
@@ -838,9 +838,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18435" level="1" /> <!-- Bikini No.1 Appearance Stone -->
@@ -852,9 +852,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18436" level="1" /> <!-- Bikini No.2 Appearance Stone -->
@@ -864,18 +864,18 @@
 		<!-- Wrapped Pack containing 1 bottle containing Antharas, Valakas, Queen Ant, Orfen, Frintezza, or Baium's soul. -->
 		<set name="icon" val="icon.etc_elite_marguene_collection_box_i00" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="SCROLL" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="SCROLL" />
 		<set name="material" val="PAPER" />
 	</item>
 	<item id="46178" name="Heavenly Cocktail" type="EtcItem">
-		<!-- For 60 minutes, it receives the following level 2 effects: Horn Melody, Lute Melody, Pipe Organ Melody, Guitar Melody, Harp Melody, and Drum Melody. Cooldown is 60 min. -->
+		<!-- For 60 minutes, it receives the following level 2 effects: Horn Melody, Pipe Organ Melody, Guitar Melody, and Drum Melody. Cooldown is 60 min. -->
 		<set name="icon" val="icon.etc_fruit_cocktail_i01" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46179" name="Male Swimwear No.1" type="Armor">
@@ -940,12 +940,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="etcitem_type" val="POTION" />
 		<set name="is_stackable" val="true" />
+		<set name="etcitem_type" val="POTION" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="46185" name="Agathion - Anakim Holy Barrier" type="Armor">
-		<!-- Summons Anakim Holy Barrier, which is comprised of 5 Anakim Spheres. <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Enchant: Fire/Water/Earth/Wind/Dark/Holy Atk. increases by 30. 3. Anakim Blessing: Acquired XP and SP +3%. -->
+		<!-- Summons Anakim Holy Barrier, which is comprised of 5 Anakim Spheres. <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Enchant: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. increases by 30. 3. Anakim Blessing : Acquired XP and SP +3%. -->
 		<set name="icon" val="BranchSys3.iconItem.g_agathion_anakim" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -956,12 +956,12 @@
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
 			<skill id="17552" level="1" /> <!-- Attribute Enchant -->
 			<skill id="18442" level="1" /> <!-- Anakim Blessing -->
-			<skill id="18443" level="1" /> <!-- Release Agathion's Seal - Anakaim Holy Barrier -->
+			<skill id="18443" level="1" /> <!-- Agathion Summon - Anakim Holy Barrier -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
 	<item id="46186" name="Agathion - Anakim Holy Barrier" additionalName="30-day" type="Armor">
-		<!-- Summons Anakim Holy Barrier, which is comprised of 5 Anakim Spheres. <Item Skill>. 1. Balanced Power: STR/INT/CON/DEX/WIT/MEN increases by 1. 2. Attribute Enchant: Fire/Water/Earth/Wind/Dark/Holy Atk. increases by 30. 3. Anakim Blessing: Acquired XP and SP +3%. -->
+		<!-- Summons Anakim Holy Barrier, which is comprised of 5 Anakim Spheres. <Item Skill>. 1. Balanced Power: STR/ INT/ CON/ DEX/ WIT/ MEN increases by 1. 2. Attribute Enchant: Fire/ Water/ Earth/ Wind/ Dark/ Holy Atk. increases by 30. 3. Anakim Blessing : Acquired XP and SP +3%. -->
 		<set name="icon" val="BranchSys3.iconItem.g_agathion_anakim" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lbracelet" />
@@ -975,12 +975,12 @@
 			<skill id="17551" level="1" /> <!-- Balanced Power -->
 			<skill id="17552" level="1" /> <!-- Attribute Enchant -->
 			<skill id="18442" level="1" /> <!-- Anakim Blessing -->
-			<skill id="18443" level="1" /> <!-- Release Agathion's Seal - Anakaim Holy Barrier -->
+			<skill id="18443" level="1" /> <!-- Agathion Summon - Anakim Holy Barrier -->
 			<skill id="3267" level="1" type="ON_UNEQUIP" /> <!-- Seal Agathion -->
 		</skills>
 	</item>
 	<item id="46187" name="Agathion - Anakim Holy Barrier Pack" additionalName="30-day" type="EtcItem">
-		<!-- Wrapped Pack containing Agathion - Anakim Holy Barrier (30-day). -->
+		<!-- Wrapped Pack containing Holy Barrier Agathion Charm (30-day). -->
 		<set name="icon" val="icon.event_high_oriental_park_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -995,7 +995,7 @@
 		</capsuled_items>
 	</item>
 	<item id="46188" name="Agathion - Anakim Holy Barrier Pack" type="EtcItem">
-		<!-- Wrapped Pack containing an Agathion - Anakim Holy Barrier (30-day) or an Agathion - Anakim Holy Barrier. -->
+		<!-- Wrapped Pack containing an Anakim Holy Barrier Agathion Charm (30-day) or an Agathion Charm - Anakim Holy Barrier. -->
 		<set name="icon" val="icon.event_high_oriental_park_i00" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="weight" val="10" />
@@ -1014,9 +1014,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="18440" level="1" /> <!-- Vampiric Style Appearance Stone -->
@@ -1028,12 +1028,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM_FIXED" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
-			<skill id="18441" level="1" /> <!-- Vampiric Style Appearance Stone -->
+			<skill id="18441" level="1" /> <!-- Vampiric Style Appearance Stone (30-day) -->
 		</skills>
 	</item>
 	<item id="46191" name="Vampiric Style Appearance Stone Pack" type="EtcItem">
@@ -1063,6 +1063,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
+		<stats>
+			<stat type="pDef">28</stat>
+		</stats>
 		<skills>
 			<skill id="18444" level="1" type="ON_ENCHANT" type_value="5" /> <!-- Physical Reflect Shirt Enchant Effect -->
 			<skill id="18444" level="2" type="ON_ENCHANT" type_value="6" /> <!-- Physical Reflect Shirt Enchant Effect -->
@@ -1071,9 +1074,6 @@
 			<skill id="18444" level="5" type="ON_ENCHANT" type_value="9" /> <!-- Physical Reflect Shirt Enchant Effect -->
 			<skill id="18444" level="6" type="ON_ENCHANT" type_value="10" /> <!-- Physical Reflect Shirt Enchant Effect -->
 		</skills>
-		<stats>
-			<stat type="pDef">28</stat>
-		</stats>
 	</item>
 	<item id="46194" name="Magical Reflect Shirt" type="Armor">
 		<!-- Magic shirt for M. Def. Can be enchanted to +10 using Elemental Shirt Enchant Scrolls. When enchanted to +4 or more, passive and stats are increased. When enchanted to +5 or more, a M. Def. effect is given. -->
@@ -1086,6 +1086,9 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
+		<stats>
+			<stat type="pDef">28</stat>
+		</stats>
 		<skills>
 			<skill id="18445" level="1" type="ON_ENCHANT" type_value="5" /> <!-- Magical Reflect Shirt Enchant Effect -->
 			<skill id="18445" level="2" type="ON_ENCHANT" type_value="6" /> <!-- Magical Reflect Shirt Enchant Effect -->
@@ -1094,9 +1097,6 @@
 			<skill id="18445" level="5" type="ON_ENCHANT" type_value="9" /> <!-- Magical Reflect Shirt Enchant Effect -->
 			<skill id="18445" level="6" type="ON_ENCHANT" type_value="10" /> <!-- Magical Reflect Shirt Enchant Effect -->
 		</skills>
-		<stats>
-			<stat type="pDef">28</stat>
-		</stats>
 	</item>
 	<item id="46195" name="Shiny Elemental Shirt Bag" type="EtcItem">
 		<!-- Double-click to get 1 Shiny Elemental Shirt and 10 Elemental Shirt Enchant Scrolls. -->

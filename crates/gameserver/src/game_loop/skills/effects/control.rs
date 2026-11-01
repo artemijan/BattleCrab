@@ -225,36 +225,31 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
     }
 }
 
-/// `Mute.onStart` — silencing someone also drops the cast they were already
-/// mid-way through, otherwise a mute landing during a cast would let that cast
-/// finish. **Raid bosses are immune** (Java's `effected.isRaid()` bail), which
-/// is what stops a single silence from neutering a raid.
+/// The mute family's `onStart` side effects, keyed on the flags the landed
+/// skill carries:
 ///
-/// Unlike a stun this does not touch movement — a silenced character walks
+/// - `Mute` (`MUTED`) drops the cast the target was mid-way through, otherwise
+///   a mute landing during a cast would let that cast finish. **Raid bosses
+///   are immune** (Java's `effected.isRaid()` bail), which is what stops a
+///   single silence from neutering a raid.
+/// - `PhysicalDamageMute` (`PSYCHICAL_ATTACK_MUTED`) drops the swing in flight
+///   (`abortAttack()`), raid or not — its handler has no raid check.
+///
+/// `PhysicalMute`'s `onStart` only notifies the AI: it aborts neither the cast
+/// nor the swing. None of these touch movement — a silenced character walks
 /// normally.
 pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
-    let mutes = skill.effect_flags()
-        & (crate::model::skill::effect_flag::MUTED
-            | crate::model::skill::effect_flag::PHYSICAL_MUTED)
-        != 0;
-    if !mutes {
-        return;
+    let flags = skill.effect_flags();
+    if flags & crate::model::skill::effect_flag::PSYCHICAL_ATTACK_MUTED != 0 {
+        crate::game_loop::combat::abort_attack(world, target_oid);
     }
-    let is_raid = npc::is_raid_npc(world, target_oid);
-    if is_raid {
+    if flags & crate::model::skill::effect_flag::MUTED == 0 || npc::is_raid_npc(world, target_oid) {
         return;
     }
     // Java's is `abortCast()` → `stopCasting(true)`, so the same
     // `MagicSkillCanceled` applies here: a silenced caster's animation has to
     // stop with the cast.
     crate::game_loop::skills::cast::abort_all_skill_casters(world, target_oid);
-    // `startPhysicalAttackMuted()` is `abortAttack()` and nothing else, so the
-    // swing in flight dies with a **physical** mute only. A plain silence
-    // stops the cast and leaves the swing alone — Java's `Mute.onStart` never
-    // calls `abortAttack`.
-    if skill.effect_flags() & crate::model::skill::effect_flag::PHYSICAL_MUTED != 0 {
-        crate::game_loop::combat::abort_attack(world, target_oid);
-    }
 }
 
 /// `BlockActions.onStart` — `startParalyze()` (`abortCast` + `stopMove`) plus
@@ -419,7 +414,7 @@ pub(crate) fn bluff(
 /// `ChangeWaitType(WT_START_FAKEDEATH)`.
 ///
 /// Java's `FAKE_DEATH_UNTARGET` block (clearing the fake-dead player off
-/// everyone else's target) is **False** on this dist's `Character.ini`, so it
+/// everyone else's target) is **False** on this dist's `Player.ini`, so it
 /// is deliberately not ported.
 pub(crate) fn fake_death(world: &mut World, target_oid: i32) {
     // Players only — Java's `startFakeDeath` returns immediately for anything
@@ -480,18 +475,15 @@ pub(crate) fn skill_turning(
 /// chance to shake off a stun (`BreakStun`, **True** on this dist and `false`
 /// in Java's own default, so the dist opts *into* it).
 ///
-/// Java's removal is narrower than "every BLOCK_ACTIONS effect": it takes the
-/// ones whose `AbnormalType` is `STUN`, and only while
-/// `info.getTime() <= info.getSkill().getAbnormalTime()` — the guard that
-/// spares a stun whose duration was doubled by skill mastery until it has
-/// burned back down to the normal length. The port models no such doubling, so
-/// that second half is always true here; it is written down rather than
-/// silently dropped, because it becomes load-bearing the moment mastery
-/// durations land.
+/// Java's removal is narrower than "every BLOCK_ACTIONS effect": it needs a
+/// `STUN` whose `info.getTime() <= info.getSkill().getAbnormalTime()` — a stun
+/// doubled by a Skill Mastery proc is spared until it has burned back down to
+/// the normal length — and then takes every `STUN`.
 ///
 /// Sleep and paralyze also carry `BLOCK_ACTIONS` and are deliberately **not**
 /// removed — only `STUN` is, which is why this filters on the abnormal type
-/// rather than the flag.
+/// rather than the flag. `stopStunning`'s `notifyAction(THINK)` for an NPC is
+/// the AI's next tick.
 pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
     if !world.cfg.character.alt_game_stun_break {
         return;
@@ -506,8 +498,47 @@ pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
     if world.roll(14) != 0 {
         return;
     }
+    let now = world.tick;
+    let breakable = world
+        .objects
+        .get_component::<crate::model::components::skills::Buffs>(&object_id)
+        .is_some_and(|b| {
+            b.0.iter().any(|buff| {
+                buff.abnormal_type.eq_ignore_ascii_case("STUN")
+                    && (buff.expires_at_tick == u64::MAX
+                        || world
+                            .data
+                            .skill_data
+                            .get(buff.skill_id, buff.skill_level)
+                            .is_some_and(|skill| {
+                                // `getTime()`: the abnormal time less the whole
+                                // seconds elapsed, i.e. the remaining seconds
+                                // rounded up.
+                                let left = buff
+                                    .expires_at_tick
+                                    .saturating_sub(now)
+                                    .div_ceil(crate::scheduler::ms_to_ticks(1000u64));
+                                left <= skill.abnormal_time.max(0) as u64
+                            }))
+            })
+        });
+    if !breakable {
+        return;
+    }
     expire_buffs_where(world, object_id, |_, buff| {
         buff.abnormal_type.eq_ignore_ascii_case("STUN")
+    });
+}
+
+/// `Formulas.calcRealTargetBreak` + `stopEffects(AbnormalType.REAL_TARGET)`:
+/// every non-DoT hit rolls `Rnd.get(100) <= 3` and, on success, strips any
+/// Real Target mark.
+pub(crate) fn try_break_real_target(world: &mut World, object_id: i32) {
+    if world.roll(100) > 3 {
+        return;
+    }
+    expire_buffs_where(world, object_id, |_, buff| {
+        buff.abnormal_type.eq_ignore_ascii_case("REAL_TARGET")
     });
 }
 

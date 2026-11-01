@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="47000" name="Paulina's Dynasty Necklace" additionalName="Skill Cooldown" type="Armor">
 		<!-- A Dynasty Necklace imbued with the energy of Paulina. Skill Cooldown -5%. -->
@@ -12,13 +12,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13934" level="2" /> <!-- Paulina's Necklace - Skill Cooldown -->
-		</skills>
 		<stats>
 			<stat type="mDef">108</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="13934" level="2" /> <!-- Paulina's Necklace - Skill Cooldown -->
+		</skills>
 	</item>
 	<item id="47001" name="Paulina's Dynasty Earring" additionalName="Vampiric Rage" type="Armor">
 		<!-- Dynasty Earrings imbued with the energy of Paulina. Vampiric Rage effect. -->
@@ -32,13 +32,13 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13935" level="2" /> <!-- Paulina's Earrings - Vampiric Rage -->
-		</skills>
 		<stats>
 			<stat type="mDef">81</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="13935" level="2" /> <!-- Paulina's Earrings - Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="47002" name="Paulina's Dynasty Earring" additionalName="MP Consumption" type="Armor">
 		<!-- Dynasty Earrings imbued with the energy of Paulina. MP Consumption -3%. -->
@@ -52,16 +52,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13936" level="2" /> <!-- Paulina's Earrings - MP Consumption -->
-		</skills>
 		<stats>
 			<stat type="mDef">81</stat>
 			<stat type="maxMp">35</stat>
 		</stats>
+		<skills>
+			<skill id="13936" level="2" /> <!-- Paulina's Earrings - MP Consumption -->
+		</skills>
 	</item>
 	<item id="47003" name="Paulina's Dynasty Ring" additionalName="Critical Damage" type="Armor">
-		<!-- A Dynasty Ring imbued with the energy of Paulina. P./M. Critical Damage +7%. -->
+		<!-- A Dynasty Ring imbued with the energy of Paulina. P./ M. Critical Damage +7%. -->
 		<set name="icon" val="icon.accessary_dynasty_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -72,16 +72,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<stats>
+			<stat type="mDef">54</stat>
+			<stat type="maxMp">23</stat>
+		</stats>
 		<skills>
 			<skill id="13937" level="2" /> <!-- Paulina's Ring - Critical Damage -->
 		</skills>
-		<stats>
-			<stat type="mDef">54</stat>
-			<stat type="maxMp">23</stat>
-		</stats>
 	</item>
 	<item id="47004" name="Paulina's Dynasty Ring" additionalName="Critical Rate" type="Armor">
-		<!-- A Dynasty Ring imbued with the energy of Paulina. P./M. Critical Rate +20. -->
+		<!-- A Dynasty Ring imbued with the energy of Paulina. P./ M. Critical Rate +20. -->
 		<set name="icon" val="icon.accessary_dynasty_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -92,16 +92,16 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13938" level="2" /> <!-- Paulina's Ring - Critical Rate -->
-		</skills>
 		<stats>
 			<stat type="mDef">54</stat>
 			<stat type="maxMp">23</stat>
 		</stats>
+		<skills>
+			<skill id="13938" level="2" /> <!-- Paulina's Ring - Critical Rate -->
+		</skills>
 	</item>
 	<item id="47005" name="Old Elemental Shirt" type="Armor">
-		<!-- A gift from Tulesir the Minstrel to heroes of the future having safely completed 10 days of adventure. Though old, its performance is on par with a new one. Enchantment not possible. When equipped, STR +1 , DEX +1, CON +1, INT +1, WIT +1, MEN +1, Max HP/MP +510, Speed +7, 6 Defensive Attributes +6. -->
+		<!-- A magical shirt imbued with Einhasad's energy. Though old, its performance is on par with a new one. Enchantment not possible. When equipped, STR +1 , DEX +1, CON +1, INT +1, WIT +1, MEN +1, Max HP/ MP +510, Movement Speed +7, 6 Defensive Attributes +6. -->
 		<set name="icon" val="icon.etc_shirts_a_i04" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="underwear" />
@@ -113,12 +113,12 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<skills>
-			<skill id="13945" level="1" /> <!-- Old Elemental Shirt -->
-		</skills>
 		<stats>
 			<stat type="pDef">28</stat>
 		</stats>
+		<skills>
+			<skill id="13945" level="1" /> <!-- Old Elemental Shirt -->
+		</skills>
 	</item>
 	<item id="47006" name="Supply Items for Adventurer" type="EtcItem">
 		<!-- A gift from Tulesir the Minstrel to heroes of the future having safely completed 10 days of adventure. Contains supplies necessary for adventure. -->
@@ -139,7 +139,7 @@
 			<item id="47083" min="1" max="1" chance="100" /> <!-- Tulesir's Gift Box -->
 		</capsuled_items>
 	</item>
-	<item id="47007" name="Paulina's Apocalypse Shaper" type="Weapon">
+	<item id="47007" name="Paulina's Apocalypse Shaper" additionalName="Not used" type="Weapon">
 		<!-- Apocalypse Shaper imbued with the energy of Paulina. -->
 		<set name="icon" val="icon.weapon_phasian_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -156,7 +156,7 @@
 		<stats>
 			<stat type="pAtk">441</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">5</stat>
@@ -181,7 +181,7 @@
 		<stats>
 			<stat type="pAtk">519</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -205,7 +205,7 @@
 		<stats>
 			<stat type="pAtk">632</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -229,7 +229,7 @@
 		<stats>
 			<stat type="pAtk">519</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -254,7 +254,7 @@
 		<stats>
 			<stat type="pAtk">632</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -277,19 +277,19 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="damage_range" val="0;0;66;120" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-		</skills>
 		<stats>
 			<stat type="pAtk">519</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">80</stat>
 			<stat type="windPower">150</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+		</skills>
 	</item>
 	<item id="47013" name="Paulina's Apocalypse Thrower" type="Weapon">
 		<!-- An Apocalypse Thrower imbued with the energy of Paulina. <Special Option>. Atk. Spd. +5%, P. Skill Critical Damage +10%. Enchantment, Augment, Soul Crystal, Crystallization, Appearance Modification, Attribute Assignment not possible. -->
@@ -309,7 +309,7 @@
 		<stats>
 			<stat type="pAtk">1022</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">293</stat>
 			<stat type="randomDamage">5</stat>
@@ -335,7 +335,7 @@
 		<stats>
 			<stat type="pAtk">920</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">5</stat>
@@ -343,7 +343,7 @@
 			<stat type="windPower">150</stat>
 		</stats>
 	</item>
-	<item id="47015" name="Paulina's Apocalypse Buster" type="Weapon">
+	<item id="47015" name="Paulina's Apocalypse Buster" additionalName="Not used" type="Weapon">
 		<!-- Apocalypse Buster imbued with the energy of Paulina. -->
 		<set name="icon" val="icon.weapon_imerose_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -361,7 +361,7 @@
 		<stats>
 			<stat type="pAtk">403</stat>
 			<stat type="mAtk">293</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -386,7 +386,7 @@
 		<stats>
 			<stat type="pAtk">415</stat>
 			<stat type="mAtk">293</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="randomDamage">20</stat>
@@ -412,7 +412,7 @@
 		<stats>
 			<stat type="pAtk">505</stat>
 			<stat type="mAtk">322</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -420,8 +420,8 @@
 			<stat type="windPower">150</stat>
 		</stats>
 	</item>
-	<item id="47018" name="Paulina's Apocalypse Dualsword" type="Weapon">
-		<!-- An Apocalypse Dualsword imbued with the energy of Paulina. <Special Option>. Atk. Spd. +5%, P. Critical Rate +82. Enchantment, Augment, Soul Crystal, Crystallization, Appearance Modification, Attribute Assignment not possible. -->
+	<item id="47018" name="Paulina's Apocalypse Dual Sword" type="Weapon">
+		<!-- An Apocalypse dual sword imbued with the energy of Paulina. <Special Option>. Atk. Spd. +5%, P. Critical Rate +82. Enchantment, Augment, Soul Crystal, Crystallization, Appearance Modification, Attribute Assignment not possible. -->
 		<set name="icon" val="icon.weapon_r_dualsword_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="weapon_type" val="DUAL" />
@@ -437,7 +437,7 @@
 		<stats>
 			<stat type="pAtk">632</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
@@ -462,7 +462,7 @@
 		<stats>
 			<stat type="pAtk">519</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkSpd">433</stat>
 			<stat type="randomDamage">10</stat>
@@ -470,7 +470,7 @@
 			<stat type="windPower">150</stat>
 		</stats>
 	</item>
-	<item id="47020" name="Paulina's Apocalypse Dual Blunt" type="Weapon">
+	<item id="47020" name="Paulina's Apocalypse Dual Blunt" additionalName="Not used" type="Weapon">
 		<!-- An Apocalypse Dual Blunt imbued with the energy of Paulina. -->
 		<set name="icon" val="icon.weapon_r_dualblunt_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -487,7 +487,7 @@
 		<stats>
 			<stat type="pAtk">613</stat>
 			<stat type="mAtk">232</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="randomDamage">20</stat>
@@ -499,6 +499,7 @@
 		<!-- A Twilight Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -561,6 +562,7 @@
 		<!-- Twilight Gauntlets imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t601_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -581,6 +583,7 @@
 		<!-- Twilight Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t601_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -598,7 +601,7 @@
 		</stats>
 	</item>
 	<item id="47026" name="Paulina's Twilight Shield" additionalName="Heavy Armor" type="Armor">
-		<!-- A Twilight Shield imbued with the energy of Paulina. -->
+		<!-- A Twilight Shield imbued with Paulina's energy. -->
 		<set name="icon" val="icon.kratere_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="lhand" />
@@ -619,6 +622,7 @@
 		<!-- A Twilight Leather Helmet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_leather_helmet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -683,6 +687,7 @@
 		<!-- Twilight Leather Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t602_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -703,6 +708,7 @@
 		<!-- Twilight Leather Boots imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t602_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -723,6 +729,7 @@
 		<!-- A Twilight Circlet imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_circlet_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="head" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -789,6 +796,7 @@
 		<!-- Twilight Gloves imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t603_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -809,6 +817,7 @@
 		<!-- Twilight Shoes imbued with the energy of Paulina. Enchantment and Attribute Assignment not possible. -->
 		<set name="icon" val="icon.armor_t603_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_type" val="R" />
@@ -858,13 +867,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="13934" level="3" /> <!-- Paulina's Necklace - Skill Cooldown -->
-		</skills>
 		<stats>
 			<stat type="mDef">146</stat>
 			<stat type="maxMp">58</stat>
 		</stats>
+		<skills>
+			<skill id="13934" level="3" /> <!-- Paulina's Necklace - Skill Cooldown -->
+		</skills>
 	</item>
 	<item id="47039" name="Paulina's Twilight Earring" additionalName="Vampiric Rage" type="Armor">
 		<!-- Twilight Earrings imbued with the energy of Paulina. MP +43, Vampiric Rage effect. -->
@@ -879,13 +888,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="13935" level="3" /> <!-- Paulina's Earrings - Vampiric Rage -->
-		</skills>
 		<stats>
 			<stat type="mDef">109</stat>
 			<stat type="maxMp">43</stat>
 		</stats>
+		<skills>
+			<skill id="13935" level="3" /> <!-- Paulina's Earrings - Vampiric Rage -->
+		</skills>
 	</item>
 	<item id="47040" name="Paulina's Twilight Earring" additionalName="MP Consumption" type="Armor">
 		<!-- Twilight Earrings imbued with the energy of Paulina. MP +43, MP Consumption -5%. -->
@@ -900,16 +909,16 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="13936" level="3" /> <!-- Paulina's Earrings - MP Consumption -->
-		</skills>
 		<stats>
 			<stat type="mDef">109</stat>
 			<stat type="maxMp">43</stat>
 		</stats>
+		<skills>
+			<skill id="13936" level="3" /> <!-- Paulina's Earrings - MP Consumption -->
+		</skills>
 	</item>
 	<item id="47041" name="Paulina's Twilight Ring" additionalName="Critical Damage" type="Armor">
-		<!-- A Twilight Ring imbued with the energy of Paulina. MP +29, P./M. Critical Damage +15%. -->
+		<!-- A Twilight Ring imbued with the energy of Paulina. MP +29, P./ M. Critical Damage +15%. -->
 		<set name="icon" val="icon.r2_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -921,16 +930,16 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="time" val="43200" />
+		<stats>
+			<stat type="mDef">73</stat>
+			<stat type="maxMp">29</stat>
+		</stats>
 		<skills>
 			<skill id="13937" level="3" /> <!-- Paulina's Ring - Critical Damage -->
 		</skills>
-		<stats>
-			<stat type="mDef">73</stat>
-			<stat type="maxMp">29</stat>
-		</stats>
 	</item>
 	<item id="47042" name="Paulina's Twilight Ring" additionalName="Critical Rate" type="Armor">
-		<!-- A Twilight Ring imbued with the energy of Paulina. MP +29, P./M. Critical Rate +40. -->
+		<!-- A Twilight Ring imbued with the energy of Paulina. MP +29, P./ M. Critical Rate +40. -->
 		<set name="icon" val="icon.r2_ring_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rfinger;lfinger" />
@@ -942,13 +951,13 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="time" val="43200" />
-		<skills>
-			<skill id="13938" level="3" /> <!-- Paulina's Ring - Critical Rate -->
-		</skills>
 		<stats>
 			<stat type="mDef">73</stat>
 			<stat type="maxMp">29</stat>
 		</stats>
+		<skills>
+			<skill id="13938" level="3" /> <!-- Paulina's Ring - Critical Rate -->
+		</skills>
 	</item>
 	<item id="47043" name="Beloa's Supply Items" type="EtcItem">
 		<!-- Supply Items given by the Dimensional Tracker Beloa to agents who have completed "Exploring the Dimension - 30-day Search Operation". -->
@@ -981,12 +990,12 @@
 		<set name="enchant_enabled" val="true" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
-		<skills>
-			<skill id="13946" level="1" /> <!-- Commando Belt -->
-		</skills>
 		<stats>
 			<stat type="pDef">25</stat>
 		</stats>
+		<skills>
+			<skill id="13946" level="1" /> <!-- Commando Belt -->
+		</skills>
 	</item>
 	<item id="47045" name="Dimensional Force Sustaining Device" type="EtcItem">
 		<!-- A device that sustains the ever-changing dimensional force of the Dimensional Crack. While this device is operational, search operations can be continued in the Dimensional Crack. -->
@@ -1300,7 +1309,7 @@
 			<item id="46885" min="1" max="1" chance="100" /> <!-- Blessed Paulina's Seraph Ring - Critical Rate -->
 		</capsuled_items>
 	</item>
-	<item id="47068" name="Premium Account - Paulina's Seraph Heavy Armor Box" additionalName="4-hour" type="EtcItem">
+	<item id="47068" name="PA - Paulina's Seraph Heavy Armor Box" additionalName="4-hour" type="EtcItem">
 		<!-- Double click to obtain a 4-hour Seraph Heavy Armor Set which can be equipped from Lv. 85 upwards. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="default_action" val="PEEL" />
@@ -1312,14 +1321,14 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
-			<item id="46898" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Breastplate - Heavy Armor -->
-			<item id="46899" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Gaiters - Heavy Armor -->
-			<item id="46897" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Helmet - Heavy Armor -->
-			<item id="46900" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Gauntlets - Heavy Armor -->
-			<item id="46901" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Boots - Heavy Armor -->
+			<item id="46898" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Breastplate - Heavy Armor -->
+			<item id="46899" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Gaiters - Heavy Armor -->
+			<item id="46897" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Helmet - Heavy Armor -->
+			<item id="46900" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Gauntlets - Heavy Armor -->
+			<item id="46901" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Boots - Heavy Armor -->
 		</capsuled_items>
 	</item>
-	<item id="47069" name="Premium Account - Paulina's Seraph Light Armor Box" additionalName="4-hour" type="EtcItem">
+	<item id="47069" name="PA - Paulina's Seraph Light Armor Box" additionalName="4-hour" type="EtcItem">
 		<!-- Double click to obtain a 4-hour Seraph Light Armor Set which can be equipped from Lv. 85 upwards. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="default_action" val="PEEL" />
@@ -1331,14 +1340,14 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
-			<item id="46904" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Leather Armor - Light Armor -->
-			<item id="46905" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Leather Leggings - Light Armor -->
-			<item id="46903" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Leather Helmet - Light Armor -->
-			<item id="46906" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Leather Gloves - Light Armor -->
-			<item id="46907" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Leather Boots - Light Armor -->
+			<item id="46904" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Leather Armor - Light Armor -->
+			<item id="46905" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Leather Leggings - Light Armor -->
+			<item id="46903" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Leather Helmet - Light Armor -->
+			<item id="46906" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Leather Gloves - Light Armor -->
+			<item id="46907" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Leather Boots - Light Armor -->
 		</capsuled_items>
 	</item>
-	<item id="47070" name="Premium Account - Paulina's Seraph Robe Box" additionalName="4-hour" type="EtcItem">
+	<item id="47070" name="PA - Paulina's Seraph Robe Box" additionalName="4-hour" type="EtcItem">
 		<!-- Double click to obtain a 4-hour Seraph Robe Set which can be equipped from Lv. 85 upwards. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="default_action" val="PEEL" />
@@ -1350,15 +1359,15 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
-			<item id="46909" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Tunic - Robe -->
-			<item id="46910" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Stockings - Robe -->
-			<item id="46908" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Circlet - Robe -->
-			<item id="46911" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Gloves - Robe -->
-			<item id="46912" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Shoes - Robe -->
-			<item id="46913" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Sigil - Robe -->
+			<item id="46909" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Tunic - Robe -->
+			<item id="46910" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Stockings - Robe -->
+			<item id="46908" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Circlet - Robe -->
+			<item id="46911" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Gloves - Robe -->
+			<item id="46912" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Shoes - Robe -->
+			<item id="46913" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Sigil - Robe -->
 		</capsuled_items>
 	</item>
-	<item id="47071" name="Premium Account - Paulina's Seraph Accessory Pack" additionalName="4-hour" type="EtcItem">
+	<item id="47071" name="PA - Paulina's Seraph Accessory Pack" additionalName="4-hour" type="EtcItem">
 		<!-- Double click to obtain a 4-hour Seraph Accessory Set which can be equipped from Lv. 85 upwards. -->
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="default_action" val="PEEL" />
@@ -1370,15 +1379,15 @@
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
-			<item id="46914" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Necklace - Skill Cooldown -->
-			<item id="46915" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Earring - Vampiric Rage -->
-			<item id="46916" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Earring - MP Consumption -->
-			<item id="46917" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Ring - Critical Damage -->
-			<item id="46918" min="1" max="1" chance="100" /> <!-- Premium Account - Paulina's Seraph Ring - Critical Rate -->
+			<item id="46914" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Necklace - Skill Cooldown -->
+			<item id="46915" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Earring - Vampiric Rage -->
+			<item id="46916" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Earring - MP Consumption -->
+			<item id="46917" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Ring - Critical Damage -->
+			<item id="46918" min="1" max="1" chance="100" /> <!-- PA - Paulina's Seraph Ring - Critical Rate -->
 		</capsuled_items>
 	</item>
-	<item id="47072" name="Blessed Paulina's Specter Dualsword Box" additionalName="30-day" type="EtcItem">
-		<!-- Dimensional Item. Double click to obtain a 30-day Specter Dualsword which can be equipped from Lv. 85 upwards. -->
+	<item id="47072" name="Blessed Paulina's Specter Dual Sword Box" additionalName="30-day" type="EtcItem">
+		<!-- Dimensional Item. Double click to obtain a 30-day Specter dual sword which can be equipped from Lv. 85 upwards. -->
 		<set name="icon" val="br_cashtex.item.br_cash_lucky_box_i00" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
@@ -1390,7 +1399,7 @@
 		<set name="material" val="FISH" />
 		<set name="handler" val="ExtractableItems" />
 		<capsuled_items>
-			<item id="46853" min="1" max="1" chance="100" /> <!-- Blessed Paulina's Specter Dualsword -->
+			<item id="46853" min="1" max="1" chance="100" /> <!-- Blessed Paulina's Specter Dual Sword -->
 		</capsuled_items>
 	</item>
 	<item id="47073" name="Blessed Paulina's Specter Cutter Box" additionalName="30-day" type="EtcItem">

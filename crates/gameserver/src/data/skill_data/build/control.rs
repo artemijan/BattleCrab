@@ -67,9 +67,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // mechanic is entirely the flag.
         "Mute" => vec![skill::effects::SkillEffect::Mute],
         "PhysicalMute" => vec![skill::effects::SkillEffect::PhysicalMute],
-        "PhysicalAttackMute" => {
-            vec![skill::effects::SkillEffect::PhysicalAttackMute]
-        }
+        "PhysicalDamageMute" => vec![skill::effects::SkillEffect::PhysicalDamageMute],
         "DebuffBlock" => vec![skill::effects::SkillEffect::DebuffBlock],
         "BuffBlock" => vec![skill::effects::SkillEffect::BuffBlock],
         "Untargetable" => vec![skill::effects::SkillEffect::Untargetable],

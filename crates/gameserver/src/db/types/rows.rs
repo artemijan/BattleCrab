@@ -232,7 +232,7 @@ pub struct CustomMailRow {
 }
 
 /// One `olympiad_nobles_eom` row — the end-of-cycle snapshot the Grand Olympiad
-/// Manager's class leaderboard reads (`AltOlyShowMonthlyWinners = True` here, so
+/// Manager's class leaderboard reads (`OlympiadShowMonthlyWinners = True` here, so
 /// the board shows the *last completed* cycle rather than the live one). `name`
 /// comes from the `characters` join Java's query does.
 #[derive(Debug, Clone)]

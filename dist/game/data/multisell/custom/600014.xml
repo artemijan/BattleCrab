@@ -77,6 +77,24 @@
 	</item>
 	<item>
 		<!-- Adena -->
+		<ingredient count="1336100" id="57" />
+		<!-- Military Fleuret -->
+		<production count="1" id="9304" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="1336100" id="57" />
+		<!-- Innominate Victory -->
+		<production count="1" id="9308" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="1336100" id="57" />
+		<!-- Peacemaker -->
+		<production count="1" id="9312" />
+	</item>
+	<item>
+		<!-- Adena -->
 		<ingredient count="20741000" id="57" />
 		<!-- Soul Separator -->
 		<production count="1" id="236" />
@@ -96,6 +114,12 @@
 	<item>
 		<!-- Adena -->
 		<ingredient count="20741000" id="57" />
+		<!-- Lacerator -->
+		<production count="1" id="9340" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="20741000" id="57" />
 		<!-- Dragon Slayer -->
 		<production count="1" id="81" />
 	</item>
@@ -108,8 +132,20 @@
 	<item>
 		<!-- Adena -->
 		<ingredient count="20741000" id="57" />
+		<!-- Undertaker -->
+		<production count="1" id="9344" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="20741000" id="57" />
 		<!-- Soul Bow -->
 		<production count="1" id="289" />
+	</item>
+	<item>
+		<!-- Adena -->
+		<ingredient count="20741000" id="57" />
+		<!-- Reaper -->
+		<production count="1" id="9348" />
 	</item>
 	<item>
 		<!-- Adena -->

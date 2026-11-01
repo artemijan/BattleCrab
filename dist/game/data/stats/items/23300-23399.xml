@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="23300" name="Enchanted Sayha's Shirt Pack" type="EtcItem">
 		<!-- Wrapped Pack containing Sayha's Shirt enchanted to +7. -->
@@ -7,9 +7,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -31,6 +31,9 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
+		<stats>
+			<stat type="pDef">28</stat>
+		</stats>
 		<skills>
 			<skill id="9371" level="1" type="ON_ENCHANT" type_value="7" /> <!-- Sayha's Portal -->
 			<skill id="9371" level="1" type="ON_ENCHANT" type_value="8" /> <!-- Sayha's Portal -->
@@ -41,9 +44,6 @@
 			<skill id="9373" level="2" type="ON_ENCHANT" type_value="9" /> <!-- Power of Sayha -->
 			<skill id="9373" level="2" type="ON_ENCHANT" type_value="10" /> <!-- Power of Sayha -->
 		</skills>
-		<stats>
-			<stat type="pDef">28</stat>
-		</stats>
 	</item>
 	<item id="23302" name="Blessed Scroll: Enchant Elemental Shirt Pack" additionalName="Eva" type="EtcItem">
 		<!-- Wrapped Pack containing 30 Blessed Scroll: Enchant Elemental Shirt. Has a very low chance of acquiring a +7 Eva's Shirt. -->
@@ -52,9 +52,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22687" level="1" /> <!-- Blessed Scroll: Enchant Elemental Shirt Pack -->
@@ -67,9 +67,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -77,7 +77,7 @@
 		</capsuled_items>
 	</item>
 	<item id="23304" name="Eva's Shirt" type="Armor">
-		<!-- Magic shirt filled with the power of Eva, the goddess of water. Can be enchanted to +10 using Elemental Shirt Enchant Scrolls. When enchanted to +7 or above, can use HP/MP/CP recovering skills. -->
+		<!-- Magic shirt filled with the power of Eva, the goddess of water. Can be enchanted to +10 using Elemental Shirt Enchant Scrolls. When enchanted to +7 or above, can use HP/ MP/ CP recovering skills. -->
 		<set name="icon" val="icon.pi_shirt_of_wolf_2nd_water" />
 		<set name="default_action" val="EQUIP" />
 		<set name="is_tradable" val="false" />
@@ -91,15 +91,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
+		<stats>
+			<stat type="pDef">28</stat>
+		</stats>
 		<skills>
 			<skill id="9365" level="1" type="ON_ENCHANT" type_value="7" /> <!-- Power of Eva -->
 			<skill id="9365" level="1" type="ON_ENCHANT" type_value="8" /> <!-- Power of Eva -->
 			<skill id="9365" level="2" type="ON_ENCHANT" type_value="9" /> <!-- Power of Eva -->
 			<skill id="9365" level="2" type="ON_ENCHANT" type_value="10" /> <!-- Power of Eva -->
 		</skills>
-		<stats>
-			<stat type="pDef">28</stat>
-		</stats>
 	</item>
 	<item id="23305" name="Blessed Scroll: Enchant Elemental Shirt Pack" additionalName="Maphr" type="EtcItem">
 		<!-- Wrapped Pack containing 30 Blessed Scroll: Enchant Elemental Shirt. Has a very low chance of acquiring a +7 Maphr's Shirt. -->
@@ -108,9 +108,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22688" level="1" /> <!-- Blessed Scroll: Enchant Elemental Shirt Pack -->
@@ -123,9 +123,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -147,15 +147,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
+		<stats>
+			<stat type="pDef">28</stat>
+		</stats>
 		<skills>
 			<skill id="9369" level="1" type="ON_ENCHANT" type_value="7" /> <!-- Power of Maphr -->
 			<skill id="9369" level="1" type="ON_ENCHANT" type_value="8" /> <!-- Power of Maphr -->
 			<skill id="9369" level="2" type="ON_ENCHANT" type_value="9" /> <!-- Power of Maphr -->
 			<skill id="9369" level="2" type="ON_ENCHANT" type_value="10" /> <!-- Power of Maphr -->
 		</skills>
-		<stats>
-			<stat type="pDef">28</stat>
-		</stats>
 	</item>
 	<item id="23308" name="Recipe: Elven Radler" additionalName="Event" type="EtcItem">
 		<!-- Recipe needed for making Elven Radler. -->
@@ -164,10 +164,10 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="RECIPE" />
 		<set name="etcitem_type" val="RECIPE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="recipe_id" val="3002" /> <!-- mk_g_ev_beer_racipe -->
 		<set name="handler" val="Recipes" />
 		<set name="material" val="LIQUID" />
@@ -464,11 +464,11 @@
 		<set name="icon" val="icon.etc_lesser_potion_scarlet_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -521,10 +521,10 @@
 		<set name="weight" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SOULSHOT" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -537,10 +537,10 @@
 		<set name="weight" val="500" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SPIRITSHOT" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="PAPER" />
 		<capsuled_items>
@@ -553,11 +553,11 @@
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="259200000" />
 		<skills>
@@ -570,11 +570,11 @@
 		<set name="weight" val="30" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="259200000" />
 		<skills>
@@ -586,10 +586,10 @@
 		<set name="icon" val="BranchSys3.lcon.g_scrl_vitality_point_up" />
 		<set name="weight" val="30" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -601,10 +601,10 @@
 		<set name="icon" val="BranchSys3.lcon.g_scrl_vitality_point_up_2" />
 		<set name="weight" val="30" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -616,10 +616,10 @@
 		<set name="icon" val="BranchSys3.lcon.g_scrl_vitality_point_up_3" />
 		<set name="weight" val="30" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -633,91 +633,91 @@
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="22712" level="1" /> <!-- Vitality Recovering Potion -->
 		</skills>
 	</item>
 	<item id="23342" name="Ancient Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- Enchant success rate +10%. Current enchant stats remain if enchant fails. When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/blunt/fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. -->
+		<!-- Enchant success rate +10%. Current enchant stats remain if enchant fails. When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/ blunt/ fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. -->
 		<set name="icon" val="BranchSys.icon.br_ancient_cry_of_ench_wp_s_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22439" level="1" /> <!-- Ancient Scroll: Enchant Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="23343" name="Heavenly Scroll: Enchant Weapon (R-grade)" type="EtcItem">
-		<!-- Enchant success rate is 100%. When enchanted, P. Atk. for one-handed sword/blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/blunt/fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. Can enchant physical weapons to +12, and magic weapons to +7. -->
+		<!-- Enchant success rate. When enchanted, P. Atk. for one-handed sword/ blunt, dagger, spear, etc. (R-grade) +6, and two-handed sword/ blunt/ fist, dagger, crossbow +7. P. Atk. for bows +12. M. Atk. for all weapons +5. When enchanted to +4 or above, P. Atk. and M. Atk. Increase greatly. Blessed weapons have greater increases than standard weapons. Can enchant standard weapons to +12, and magic weapons to +7. -->
 		<set name="icon" val="BranchSys.icon.br_holy_cry_of_ench_wp_s_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_WEAPON" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22440" level="1" /> <!-- Divine Scroll: Enchant Weapon (R-grade) -->
 		</skills>
 	</item>
 	<item id="23344" name="Ancient Scroll: Enchant Armor (R-grade)" type="EtcItem">
-		<!-- Enchant success rate +10%. Current enchant stats remain if enchant fails. When enchanted, P. Def. for armor/accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. -->
+		<!-- Enchant success rate +10%. Current enchant stats remain if enchant fails. When enchanted, P. Def. for armor/ accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. Can be safely enchanted up to +3. HP gradually increases with each enchant level starting from +4. -->
 		<set name="icon" val="BranchSys.icon.br_ancient_cry_of_ench_am_s_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22442" level="1" /> <!-- Ancient Scroll: Enchant Armor (R-grade) -->
 		</skills>
 	</item>
 	<item id="23345" name="Heavenly Scroll: Enchant Armor (R-grade)" type="EtcItem">
-		<!-- Enchant success rate is 100%. When enchanted, P. Def. for armor/accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. HP gradually increases with each enchant level starting from +4. Can enchant to +7. -->
+		<!-- Enchant success rate. When enchanted, P. Def. for armor/ accessories (R-grade) +2. When enchanted to +4 or above, P. Def. Increases greatly. HP gradually increases with each enchant level starting from +4. Can enchant armor or accessories up to +7. -->
 		<set name="icon" val="BranchSys.icon.br_holy_cry_of_ench_am_s_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="SCROLL_ENCHANT_ARMOR" />
 		<set name="etcitem_type" val="ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_AM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="EnchantScrolls" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22443" level="1" /> <!-- Divine Scroll: Enchant Armor (R-grade) -->
 		</skills>
 	</item>
 	<item id="23346" name="Letter Collector's Gift" type="EtcItem">
-		<!-- Letter Collector's Gift. For 2 hr., Atk. Spd. +15%, Casting Spd. +15%, Speed +20, and equipped weapons/armor appearance change to that of Memorable items. Cooldown is 60 min. -->
+		<!-- Letter Collector's Gift. For 2 hr., Atk. Spd. +15%, Casting Spd. +15%, Speed +20, and equipped weapons/ armor appearance change to that of Memorable items. Cooldown is 60 min. -->
 		<set name="icon" val="icon.shield_bread_i01" />
 		<set name="weight" val="5" />
 		<set name="is_oly_restricted" val="true" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="POTION" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<set name="reuse_delay" val="3600000" />
 		<skills>
@@ -730,10 +730,10 @@
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="WEAPON_ENCHANT_STONE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_WP" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9207" level="1" /> <!-- Lucky Clover (R-grade) -->
@@ -745,10 +745,10 @@
 		<set name="weight" val="120" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="ARMOR_ENCHANT_STONE" />
 		<set name="etcitem_type" val="ENCHT_ATTR_INC_PROP_ENCHT_AM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="9208" level="1" /> <!-- Lucky Clover (R-grade) -->
@@ -759,10 +759,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -774,10 +774,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22714" level="1" /> <!-- Transformation Scroll Pack -->
@@ -790,10 +790,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22419" level="1" /> <!-- Weapon Appearance Stone (R-grade) -->
@@ -806,10 +806,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22420" level="1" /> <!-- Weapon Appearance Stone (S-grade) -->
@@ -822,10 +822,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22421" level="1" /> <!-- Weapon Appearance Stone (A-grade) -->
@@ -838,10 +838,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22425" level="1" /> <!-- Blessed Weapon Appearance Stone (R-grade) -->
@@ -854,10 +854,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22426" level="1" /> <!-- Blessed Weapon Appearance Stone (S-grade) -->
@@ -870,10 +870,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_WP" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22427" level="1" /> <!-- Blessed Weapon Appearance Stone (A-grade) -->
@@ -884,12 +884,12 @@
 		<set name="icon" val="BranchSys3.icon.g_wp_processing_stone_r" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22431" level="1" /> <!-- Weapon Restoration Stone (R-grade) -->
@@ -900,12 +900,12 @@
 		<set name="icon" val="BranchSys3.icon.g_wp_processing_stone_s" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22432" level="1" /> <!-- Weapon Restoration Stone (S-grade) -->
@@ -916,12 +916,12 @@
 		<set name="icon" val="BranchSys3.icon.g_wp_processing_stone_a" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_WP" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22433" level="1" /> <!-- Weapon Restoration Stone (A-grade) -->
@@ -934,10 +934,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22538" level="1" /> <!-- Armor Appearance Stone (R-grade) -->
@@ -950,10 +950,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22539" level="1" /> <!-- Armor Appearance Stone (S-grade) -->
@@ -966,10 +966,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_AM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22540" level="1" /> <!-- Armor Appearance Stone (A-grade) -->
@@ -982,10 +982,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22544" level="1" /> <!-- Blessed Armor Appearance Stone (R-grade) -->
@@ -998,10 +998,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22545" level="1" /> <!-- Blessed Armor Appearance Stone (S-grade) -->
@@ -1014,10 +1014,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_AM" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22546" level="1" /> <!-- Blessed Armor Appearance Stone (A-grade) -->
@@ -1028,12 +1028,12 @@
 		<set name="icon" val="BranchSys3.icon.g_wp_processing_stone_r" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22550" level="1" /> <!-- Armor Restoration Stone (R-grade) -->
@@ -1044,12 +1044,12 @@
 		<set name="icon" val="BranchSys3.icon.g_wp_processing_stone_s" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22551" level="1" /> <!-- Armor Restoration Stone (S-grade) -->
@@ -1060,12 +1060,12 @@
 		<set name="icon" val="BranchSys3.icon.g_wp_processing_stone_a" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_AM" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22552" level="1" /> <!-- Armor Restoration Stone (A-grade) -->
@@ -1078,10 +1078,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SHAPE_SHIFTING_HAIRACC" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22564" level="1" /> <!-- Hair Accessory Appearance Stone -->
@@ -1094,10 +1094,10 @@
 		<set name="handler" val="Appearance" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="BLESS_SHAPE_SHIFTING_HAIRACC" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22565" level="1" /> <!-- Blessed Hair Accessory Appearance Stone -->
@@ -1108,12 +1108,12 @@
 		<set name="icon" val="BranchSys3.icon.g_bless_wp_processing_stone_r" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="RESTORE_SHAPE_SHIFTING_HAIRACC" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22624" level="1" /> <!-- Hair Accessory Restoration Stone -->
@@ -1124,10 +1124,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1140,10 +1140,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1156,10 +1156,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1172,10 +1172,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1188,10 +1188,10 @@
 		<set name="icon" val="BranchSys.icon.br_four_leaf_clover_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1200,14 +1200,14 @@
 		</capsuled_items>
 	</item>
 	<item id="23377" name="Heavenly Treasure Chest" type="EtcItem">
-		<!-- Chest containing countless treasures. You can obtain either an Ancient/Heavenly Enchant Scroll, Lv. 5 Legendary Dye, Seal Scroll, or Life Stone. -->
+		<!-- Chest containing countless treasures. You can obtain either an Ancient/ Heavenly Enchant Scroll, Lv. 5 Legendary Dye, Seal Scroll, or Life Stone. -->
 		<set name="icon" val="BranchSys3.icon.g_cash_fortuna_box_r" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22715" level="1" /> <!-- Heavenly Treasure Chest -->
@@ -1218,10 +1218,10 @@
 		<set name="icon" val="BranchSys.icon.br_fortuna_box_s_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22716" level="1" /> <!-- Fantastical Treasure Chest -->
@@ -1232,10 +1232,10 @@
 		<set name="icon" val="br_cashtex.item.br_cash_lucky_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22717" level="1" /> <!-- Glorious Treasure Chest -->
@@ -1253,9 +1253,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="21328" level="1" /> <!-- Adenian Underwear: Speed -->
-		</skills>
 		<stats>
 			<stat type="pDef">35</stat>
 			<stat type="mDef">15</stat>
@@ -1266,6 +1263,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="21328" level="1" /> <!-- Adenian Underwear: Speed -->
+		</skills>
 	</item>
 	<item id="23381" name="Adenian Premium Underwear" type="Armor">
 		<!-- Adenian Collection. Underwear with a sophisticated feel. High basic stats. P. Def. +35, M. Def. +15, all attribute defense +15, and Speed +7. Can be augmented with Life Stone - Adenian Underwear through the town blacksmith. -->
@@ -1279,9 +1279,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="21329" level="1" /> <!-- Adenian Underwear: Speed -->
-		</skills>
 		<stats>
 			<stat type="pDef">35</stat>
 			<stat type="mDef">15</stat>
@@ -1292,6 +1289,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="21329" level="1" /> <!-- Adenian Underwear: Speed -->
+		</skills>
 	</item>
 	<item id="23382" name="Adenian Temptation Underwear" type="Armor">
 		<!-- Adenian Collection. Sexy underwear. High basic stats. P. Def. +35, M. Def. +15, all attribute defense +15, and Speed +7. Can be augmented with Life Stone - Adenian Underwear through the town blacksmith. -->
@@ -1305,9 +1305,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="21330" level="1" /> <!-- Adenian Underwear: Speed -->
-		</skills>
 		<stats>
 			<stat type="pDef">35</stat>
 			<stat type="mDef">15</stat>
@@ -1318,6 +1315,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="21330" level="1" /> <!-- Adenian Underwear: Speed -->
+		</skills>
 	</item>
 	<item id="23383" name="Adenian Cyber Underwear" type="Armor">
 		<!-- Adenian Collection. Underwear with a cyberpunk look. High basic stats. P. Def. +35, M. Def. +15, all attribute defense +15, and Speed +7. Can be augmented with Life Stone - Adenian Underwear through the town blacksmith. -->
@@ -1331,9 +1331,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="21331" level="1" /> <!-- Adenian Underwear: Speed -->
-		</skills>
 		<stats>
 			<stat type="pDef">35</stat>
 			<stat type="mDef">15</stat>
@@ -1344,6 +1341,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="21331" level="1" /> <!-- Adenian Underwear: Speed -->
+		</skills>
 	</item>
 	<item id="23384" name="Adenian Cute Underwear" type="Armor">
 		<!-- Adenian Collection. Cute underwear. High basic stats. P. Def. +35, M. Def. +15, all attribute defense +15, and Speed +7. Female only. Can be augmented with Life Stone - Adenian Underwear through the town blacksmith. -->
@@ -1357,9 +1357,6 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="130" />
 		<set name="material" val="CRYSTAL" />
-		<skills>
-			<skill id="21332" level="1" /> <!-- Adenian Underwear: Speed -->
-		</skills>
 		<stats>
 			<stat type="pDef">35</stat>
 			<stat type="mDef">15</stat>
@@ -1370,6 +1367,9 @@
 			<stat type="holyRes">15</stat>
 			<stat type="darkRes">15</stat>
 		</stats>
+		<skills>
+			<skill id="21332" level="1" /> <!-- Adenian Underwear: Speed -->
+		</skills>
 	</item>
 	<item id="23385" name="Life Stone: Adenian Underwear" type="EtcItem">
 		<!-- Life Stone for Adenian Underwear. Can use through the town blacksmith. -->
@@ -1379,8 +1379,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 	</item>
 	<item id="23386" name="Agathion - Griffin" additionalName="Wind Walk" type="Armor">
@@ -1427,10 +1427,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22719" level="1" /> <!-- Transformation Scroll Pack -->
@@ -1443,10 +1443,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1460,10 +1460,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="STEEL" />
 		<capsuled_items>
@@ -1505,10 +1505,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22720" level="1" /> <!-- Brilliant Talisman Pack -->
@@ -1521,10 +1521,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22721" level="1" /> <!-- Scroll: Seal Weapon Pack -->
@@ -1537,10 +1537,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22722" level="1" /> <!-- Scroll: Seal Armor Pack -->
@@ -1553,10 +1553,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22723" level="1" /> <!-- Scroll: Enchant Weapon Pack -->
@@ -1569,10 +1569,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22724" level="1" /> <!-- Scroll: Enchant Armor Pack -->
@@ -1585,10 +1585,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22725" level="1" /> <!-- Blessed Scroll: Enchant Weapon Pack -->
@@ -1601,10 +1601,10 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_freightable" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="COTTON" />
 		<skills>
 			<skill id="22726" level="1" /> <!-- Blessed Scroll: Enchant Armor Pack -->

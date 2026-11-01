@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="24_16">
+		<group>
+			<npc id="21350" x="131474" y="-43587" z="-3384" heading="47169" respawnTime="109sec" /> <!-- Varka Silenos Recruit -->
+			<npc id="21350" x="131277" y="-40612" z="-3304" heading="10837" respawnTime="109sec" /> <!-- Varka Silenos Recruit -->
+			<npc id="21351" x="132438" y="-43282" z="-3144" heading="63205" respawnTime="109sec" /> <!-- Varka Silenos Footman -->
+			<npc id="21351" x="131943" y="-41709" z="-3224" heading="19071" respawnTime="109sec" /> <!-- Varka Silenos Footman -->
+			<npc id="21352" x="131088" y="-42386" z="-3352" respawnTime="109sec" /> <!-- Grazing Antelope -->
+			<npc id="35467" x="149024" y="-55456" z="-2760" respawnTime="60sec" /> <!-- Branhillde -->
+			<npc id="31641" x="147408" y="-64016" z="-3424" heading="49000" respawnTime="60sec" /> <!-- Pilgrim of Darkness -->
+			<npc id="31640" x="160082" y="-47862" z="-3648" heading="5000" respawnTime="60sec" /> <!-- Pilgrim of Darkness -->
+		</group>
+	</spawn>
+</list>

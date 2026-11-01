@@ -16,12 +16,12 @@
  */
 package quests.Q00043_HelpTheSister;
 
-import org.l2jmobius.gameserver.enums.QuestSound;
 import org.l2jmobius.gameserver.model.actor.Npc;
 import org.l2jmobius.gameserver.model.actor.Player;
-import org.l2jmobius.gameserver.model.quest.Quest;
-import org.l2jmobius.gameserver.model.quest.QuestState;
-import org.l2jmobius.gameserver.model.quest.State;
+import org.l2jmobius.gameserver.model.script.Quest;
+import org.l2jmobius.gameserver.model.script.QuestSound;
+import org.l2jmobius.gameserver.model.script.QuestState;
+import org.l2jmobius.gameserver.model.script.State;
 
 /**
  * Help The Sister! (43)
@@ -32,6 +32,7 @@ public class Q00043_HelpTheSister extends Quest
 	// NPCs
 	private static final int COOPER = 30829;
 	private static final int GALLADUCCI = 30097;
+	
 	// Monsters
 	private static final int HOBGOBLIN = 20147;
 	private static final int DION_GRIZZLY = 20203;
@@ -41,11 +42,13 @@ public class Q00043_HelpTheSister extends Quest
 	private static final int MONSTER_EYE_GAZER = 20266;
 	private static final int ENKU_ORC_HERO = 20291;
 	private static final int ENKU_ORC_SHAMAN = 20292;
+	
 	// Items
 	private static final int CRAFTED_DAGGER = 220;
 	private static final int MAP_PIECE = 7550;
 	private static final int MAP = 7551;
 	private static final int PET_TICKET = 7584;
+	
 	// Misc
 	private static final int MIN_LEVEL = 26;
 	
@@ -123,11 +126,12 @@ public class Q00043_HelpTheSister extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 	
 	@Override
-	public String onKill(Npc npc, Player player, boolean isSummon)
+	public void onKill(Npc npc, Player player, boolean isSummon)
 	{
 		final QuestState qs = getQuestState(player, false);
 		if ((qs != null) && qs.isCond(2))
@@ -142,7 +146,6 @@ public class Q00043_HelpTheSister extends Quest
 				playSound(player, QuestSound.ITEMSOUND_QUEST_ITEMGET);
 			}
 		}
-		return super.onKill(npc, player, isSummon);
 	}
 	
 	@Override
@@ -218,6 +221,7 @@ public class Q00043_HelpTheSister extends Quest
 				break;
 			}
 		}
+		
 		return htmltext;
 	}
 }

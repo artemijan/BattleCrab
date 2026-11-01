@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="12200" name="Common Item - Blue Wolf Gloves" additionalName="Robe" type="Armor">
 		<!-- Blue Wolf Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t70_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="1" />
@@ -124,6 +125,7 @@
 		<!-- Dark Crystal Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t74_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -140,6 +142,7 @@
 		<!-- Dark Crystal Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t75_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -156,6 +159,7 @@
 		<!-- Dark Crystal Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t76_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -207,6 +211,7 @@
 		<!-- Dark Crystal Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t74_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -223,6 +228,7 @@
 		<!-- Dark Crystal Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t75_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -239,6 +245,7 @@
 		<!-- Dark Crystal Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t76_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -251,7 +258,7 @@
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
-	<item id="12215" name="Common Item - Dark Crystal Shield" type="Armor">
+	<item id="12215" name="Common Item- Dark Crystal Shield" type="Armor">
 		<!-- Dark Crystal Shield with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_dark_crystal_shield_i00" />
 		<set name="default_action" val="EQUIP" />
@@ -419,7 +426,7 @@
 			<stat type="pDef">46</stat>
 		</stats>
 	</item>
-	<item id="12225" name="Common Item - Sealed Dark Crystal Shield" type="Armor">
+	<item id="12225" name="Common Item- Sealed Dark Crystal Shield" type="Armor">
 		<!-- Sealed Dark Crystal Shield with limited power enhancement. Enchantment, storing souls, and augmenting are impossible. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.shield_dark_crystal_shield_i02" />
 		<set name="default_action" val="EQUIP" />
@@ -609,6 +616,7 @@
 		<!-- Tallum Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t77_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -625,6 +633,7 @@
 		<!-- Tallum Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t78_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -641,6 +650,7 @@
 		<!-- Tallum Gloves with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t79_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -674,6 +684,7 @@
 		<!-- Tallum Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t77_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -690,6 +701,7 @@
 		<!-- Tallum Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t78_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -706,6 +718,7 @@
 		<!-- Tallum Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t79_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="2" />
@@ -791,6 +804,7 @@
 		<!-- Majestic Gauntlets with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t83_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -807,6 +821,7 @@
 		<!-- Majestic Gauntlets with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t84_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -823,6 +838,7 @@
 		<!-- Majestic Gauntlets with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t85_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -874,6 +890,7 @@
 		<!-- Majestic Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t83_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -890,6 +907,7 @@
 		<!-- Majestic Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t84_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -906,6 +924,7 @@
 		<!-- Majestic Boots with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t85_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1135,7 +1154,7 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="12268" name="Common Item - Sealed Shield of Nightmare" type="Armor">
+	<item id="12268" name="Common Item- Sealed Shield of Nightmare" type="Armor">
 		<!-- Sealed Shield of Nightmare with limited power enhancement. Enchantment, storing souls, and augmenting are impossible. The blacksmith in a village can release the seal on this item. -->
 		<set name="icon" val="icon.shield_shield_of_nightmare_i02" />
 		<set name="default_action" val="EQUIP" />
@@ -1190,6 +1209,7 @@
 		<!-- Gauntlets of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t80_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1206,6 +1226,7 @@
 		<!-- Gauntlets of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t81_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1222,6 +1243,7 @@
 		<!-- Gauntlets of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t82_g_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="gloves" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1273,6 +1295,7 @@
 		<!-- Boots of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t80_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="HEAVY" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1289,6 +1312,7 @@
 		<!-- Boots of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t81_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="LIGHT" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1305,6 +1329,7 @@
 		<!-- Boots of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.armor_t82_b_i00" />
 		<set name="default_action" val="EQUIP" />
+		<set name="armor_type" val="MAGIC" />
 		<set name="bodypart" val="feet" />
 		<set name="immediate_effect" val="true" />
 		<set name="crystal_count" val="3" />
@@ -1317,7 +1342,7 @@
 			<stat type="pDef">49</stat>
 		</stats>
 	</item>
-	<item id="12279" name="Common Item - Shield of Nightmare" type="Armor">
+	<item id="12279" name="Common Item- Shield of Nightmare" type="Armor">
 		<!-- Shield of Nightmare with limited enhancement options. Enchantment, soul storing and augmenting are impossible. -->
 		<set name="icon" val="icon.shield_shield_of_nightmare_i00" />
 		<set name="default_action" val="EQUIP" />

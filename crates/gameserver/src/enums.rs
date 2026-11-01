@@ -87,7 +87,7 @@ impl Race {
     }
 }
 
-/// Port of `enums/InventorySlot` — the client's 33 equip-slot components, in
+/// Port of `enums/InventorySlot` — the client's 38 equip-slot components, in
 /// wire order (`LRHand` is a display slot backed by the `RHand` paperdoll
 /// entry). The declaration order **is** the mask: `getMask()` = ordinal.
 ///
@@ -118,6 +118,11 @@ pub enum InventorySlot {
     Hair2,
     RBracelet,
     LBracelet,
+    Agathion1,
+    Agathion2,
+    Agathion3,
+    Agathion4,
+    Agathion5,
     Deco1,
     Deco2,
     Deco3,
@@ -156,6 +161,11 @@ impl InventorySlot {
             Self::Hair2 => PaperdollSlot::Hair2,
             Self::RBracelet => PaperdollSlot::RBracelet,
             Self::LBracelet => PaperdollSlot::LBracelet,
+            Self::Agathion1 => PaperdollSlot::Agathion1,
+            Self::Agathion2 => PaperdollSlot::Agathion2,
+            Self::Agathion3 => PaperdollSlot::Agathion3,
+            Self::Agathion4 => PaperdollSlot::Agathion4,
+            Self::Agathion5 => PaperdollSlot::Agathion5,
             Self::Deco1 => PaperdollSlot::Deco1,
             Self::Deco2 => PaperdollSlot::Deco2,
             Self::Deco3 => PaperdollSlot::Deco3,
@@ -427,7 +437,7 @@ impl FlyType {
 
 /// Port of `enums/AdminTeleportType` — the GM "Additional Movement Options"
 /// click-to-move modes (`html/admin/move.htm`). The mode is a *latch* on the
-/// GM: once armed, the next `MoveBackwardToLocation` click is consumed by the
+/// GM: once armed, the next `MoveToLocation` click is consumed by the
 /// matching branch instead of starting an ordinary walk. Never persisted
 /// (Java: a plain `Player` field defaulting to `NORMAL`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -489,13 +499,15 @@ mod tests {
     /// a reordered or inserted variant shifts every later block's bit.
     #[test]
     fn mask_enums_are_index_aligned() {
-        assert_eq!(InventorySlot::VALUES.len(), 33);
+        assert_eq!(InventorySlot::VALUES.len(), 38);
         for (i, slot) in InventorySlot::VALUES.iter().enumerate() {
             assert_eq!(slot.mask(), i, "{slot:?}");
         }
         assert_eq!(InventorySlot::Under.mask(), 0);
         assert_eq!(InventorySlot::LRHand.mask(), 14);
-        assert_eq!(InventorySlot::BroochJewel6.mask(), 32);
+        assert_eq!(InventorySlot::Agathion1.mask(), 19);
+        assert_eq!(InventorySlot::Deco1.mask(), 24);
+        assert_eq!(InventorySlot::BroochJewel6.mask(), 37);
 
         assert_eq!(UserInfoType::VALUES.len(), 23);
         for (i, block) in UserInfoType::VALUES.iter().enumerate() {

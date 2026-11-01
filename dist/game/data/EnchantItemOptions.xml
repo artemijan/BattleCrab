@@ -1601,6 +1601,58 @@
 		<options level="9" option1="24974" option2="24980" option3="24983" />
 		<options level="10" option1="24984" option2="24985" option3="24983" />
 	</item>
+	<item id="34623"> <!-- Pa'agrio's Shirt -->
+		<options level="0" option1="30227" />
+		<options level="1" option1="30228" />
+		<options level="2" option1="30229" />
+		<options level="3" option1="30230" />
+		<options level="4" option1="30231" />
+		<options level="5" option1="30232" />
+		<options level="6" option1="30233" />
+		<options level="7" option1="30234" option2="30238" />
+		<options level="8" option1="30235" option2="30239" />
+		<options level="9" option1="30236" option2="30238" />
+		<options level="10" option1="30237" option2="30239" />
+	</item>
+	<item id="34624"> <!-- Sayha's Shirt -->
+		<options level="0" option1="30227" />
+		<options level="1" option1="30228" />
+		<options level="2" option1="30229" />
+		<options level="3" option1="30230" />
+		<options level="4" option1="30231" />
+		<options level="5" option1="30232" />
+		<options level="6" option1="30233" />
+		<options level="7" option1="30234" option2="30240" option3="30240" />
+		<options level="8" option1="30235" option2="30240" option3="30240" />
+		<options level="9" option1="30236" option2="30241" option3="30241" />
+		<options level="10" option1="30237" option2="30241" option3="30241" />
+	</item>
+	<item id="34625"> <!-- Eva's Shirt -->
+		<options level="0" option1="30227" />
+		<options level="1" option1="30228" />
+		<options level="2" option1="30229" />
+		<options level="3" option1="30230" />
+		<options level="4" option1="30231" />
+		<options level="5" option1="30232" />
+		<options level="6" option1="30233" />
+		<options level="7" option1="30234" option2="30243" />
+		<options level="8" option1="30235" option2="30243" />
+		<options level="9" option1="30236" option2="30244" />
+		<options level="10" option1="30237" option2="30244" />
+	</item>
+	<item id="34626"> <!-- Maphr's Shirt -->
+		<options level="0" option1="30227" />
+		<options level="1" option1="30228" />
+		<options level="2" option1="30229" />
+		<options level="3" option1="30230" />
+		<options level="4" option1="30231" />
+		<options level="5" option1="30232" />
+		<options level="6" option1="30233" />
+		<options level="7" option1="30234" option2="30245" />
+		<options level="8" option1="30235" option2="30245" />
+		<options level="9" option1="30236" option2="30246" />
+		<options level="10" option1="30237" option2="30246" />
+	</item>
 	<item id="34717"> <!-- Refined Devil Horn -->
 		<options level="1" option1="30178" />
 		<options level="2" option1="30180" />
@@ -1616,6 +1668,19 @@
 		<options level="12" option1="30218" />
 		<options level="13" option1="30222" />
 		<options level="14" option1="30226" />
+	</item>
+	<item id="37718"> <!-- Shiny Elemental Shirt -->
+		<options level="0" option1="30299" />
+		<options level="1" option1="30300" />
+		<options level="2" option1="30301" />
+		<options level="3" option1="30302" />
+		<options level="4" option1="30303" />
+		<options level="5" option1="30304" />
+		<options level="6" option1="30305" option2="30310" />
+		<options level="7" option1="30306" option2="30311" />
+		<options level="8" option1="30307" option2="30312" />
+		<options level="9" option1="30308" option2="30313" />
+		<options level="10" option1="30309" option2="30314" />
 	</item>
 	<!-- Shadow Weapons Option Data -->
 	<item id="46317"> <!-- Shadow Shaper -->
@@ -1748,71 +1813,6 @@
 		<options level="9" option1="32870" />
 		<options level="10" option1="32871" />
 	</item>
-	<item id="34623"> <!-- Pa'agrio's Shirt -->
-		<options level="0" option1="30227" />
-		<options level="1" option1="30228" />
-		<options level="2" option1="30229" />
-		<options level="3" option1="30230" />
-		<options level="4" option1="30231" />
-		<options level="5" option1="30232" />
-		<options level="6" option1="30233" />
-		<options level="7" option1="30234" option2="30238" />
-		<options level="8" option1="30235" option2="30239" />
-		<options level="9" option1="30236" option2="30238" />
-		<options level="10" option1="30237" option2="30239" />
-	</item>
-	<item id="34624"> <!-- Sayha's Shirt -->
-		<options level="0" option1="30227" />
-		<options level="1" option1="30228" />
-		<options level="2" option1="30229" />
-		<options level="3" option1="30230" />
-		<options level="4" option1="30231" />
-		<options level="5" option1="30232" />
-		<options level="6" option1="30233" />
-		<options level="7" option1="30234" option2="30240" option3="30240" />
-		<options level="8" option1="30235" option2="30240" option3="30240" />
-		<options level="9" option1="30236" option2="30241" option3="30241" />
-		<options level="10" option1="30237" option2="30241" option3="30241" />
-	</item>
-	<item id="34625"> <!-- Eva's Shirt -->
-		<options level="0" option1="30227" />
-		<options level="1" option1="30228" />
-		<options level="2" option1="30229" />
-		<options level="3" option1="30230" />
-		<options level="4" option1="30231" />
-		<options level="5" option1="30232" />
-		<options level="6" option1="30233" />
-		<options level="7" option1="30234" option2="30243" />
-		<options level="8" option1="30235" option2="30243" />
-		<options level="9" option1="30236" option2="30244" />
-		<options level="10" option1="30237" option2="30244" />
-	</item>
-	<item id="34626"> <!-- Maphr's Shirt -->
-		<options level="0" option1="30227" />
-		<options level="1" option1="30228" />
-		<options level="2" option1="30229" />
-		<options level="3" option1="30230" />
-		<options level="4" option1="30231" />
-		<options level="5" option1="30232" />
-		<options level="6" option1="30233" />
-		<options level="7" option1="30234" option2="30245" />
-		<options level="8" option1="30235" option2="30245" />
-		<options level="9" option1="30236" option2="30246" />
-		<options level="10" option1="30237" option2="30246" />
-	</item>
-	<item id="37718"> <!-- Shiny Elemental Shirt -->
-		<options level="0" option1="30299" />
-		<options level="1" option1="30300" />
-		<options level="2" option1="30301" />
-		<options level="3" option1="30302" />
-		<options level="4" option1="30303" />
-		<options level="5" option1="30304" />
-		<options level="6" option1="30305" option2="30310" />
-		<options level="7" option1="30306" option2="30311" />
-		<options level="8" option1="30307" option2="30312" />
-		<options level="9" option1="30308" option2="30313" />
-		<options level="10" option1="30309" option2="30314" />
-	</item>
 	<item id="46193"> <!-- Physical Reflect Shirt -->
 		<options level="0" option1="32839" />
 		<options level="1" option1="32840" />
@@ -1911,5 +1911,29 @@
 		<options level="3" option1="33288" option2="33277" />
 		<options level="4" option1="33288" option2="33278" />
 		<options level="5" option1="33288" option2="33279" />
+	</item>
+	<item id="48491"> <!-- Dragon Shirt -->
+		<options level="0" option1="33337" />
+		<options level="1" option1="33338" />
+		<options level="2" option1="33339" />
+		<options level="3" option1="33340" />
+		<options level="4" option1="33341" />
+		<options level="5" option1="33342" />
+	</item>
+	<item id="48492"> <!-- Dragon Leather Shirt -->
+		<options level="0" option1="33343" />
+		<options level="1" option1="33344" />
+		<options level="2" option1="33345" />
+		<options level="3" option1="33346" />
+		<options level="4" option1="33347" />
+		<options level="5" option1="33348" />
+	</item>
+	<item id="48493"> <!-- Dragon Rind Leather Shirt -->
+		<options level="0" option1="33349" />
+		<options level="1" option1="33350" />
+		<options level="2" option1="33351" />
+		<options level="3" option1="33352" />
+		<options level="4" option1="33353" />
+		<options level="5" option1="33354" />
 	</item>
 </list>

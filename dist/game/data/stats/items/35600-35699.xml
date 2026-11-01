@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/items.xsd">
 	<item id="35600" name="Wind Royal Guard Necklace" type="Armor">
 		<!-- Necklace purchased at the Mysterious Mansion. Wind Resistance +30, MP +46. -->
@@ -29,12 +29,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8380" level="2" /> <!-- Royal Guard Ring - Dion -->
-		</skills>
 		<stats>
 			<stat type="mDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8380" level="2" /> <!-- Royal Guard Ring - Dion -->
+		</skills>
 	</item>
 	<item id="35602" name="Earth Royal Guard Ring" type="Armor">
 		<!-- Ring purchased at the Mysterious Mansion. Earth Resistance +15, MP +23. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -48,12 +48,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8382" level="2" /> <!-- Royal Guard Ring - Oren -->
-		</skills>
 		<stats>
 			<stat type="mDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8382" level="2" /> <!-- Royal Guard Ring - Oren -->
+		</skills>
 	</item>
 	<item id="35603" name="Fire Royal Guard Ring" type="Armor">
 		<!-- Ring purchased at the Mysterious Mansion. Fire Resistance +15, MP +23. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -67,12 +67,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8381" level="2" /> <!-- Royal Guard Ring - Giran -->
-		</skills>
 		<stats>
 			<stat type="mDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8381" level="2" /> <!-- Royal Guard Ring - Giran -->
+		</skills>
 	</item>
 	<item id="35604" name="Holy Royal Guard Ring" type="Armor">
 		<!-- Ring purchased at the Mysterious Mansion. Holy Resistance +15, MP +23. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -86,12 +86,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8384" level="2" /> <!-- Royal Guard Ring - Innadril -->
-		</skills>
 		<stats>
 			<stat type="mDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8384" level="2" /> <!-- Royal Guard Ring - Innadril -->
+		</skills>
 	</item>
 	<item id="35605" name="Dark Royal Guard Ring" type="Armor">
 		<!-- Ring purchased at the Mysterious Mansion. Dark Resistance +15, MP +23. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -105,12 +105,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8385" level="2" /> <!-- Royal Guard Ring - Goddard -->
-		</skills>
 		<stats>
 			<stat type="mDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8385" level="2" /> <!-- Royal Guard Ring - Goddard -->
+		</skills>
 	</item>
 	<item id="35606" name="Wind Royal Guard Ring" type="Armor">
 		<!-- Ring purchased at the Mysterious Mansion. Wind Resistance +15, MP +23. Only one effect is applied when two rings with the same effect are equipped. -->
@@ -124,12 +124,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8386" level="2" /> <!-- Royal Guard Ring - Rune -->
-		</skills>
 		<stats>
 			<stat type="mDef">60</stat>
 		</stats>
+		<skills>
+			<skill id="8386" level="2" /> <!-- Royal Guard Ring - Rune -->
+		</skills>
 	</item>
 	<item id="35607" name="Resistance Earring A" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Stun attack +15%, Bleed Resistance +15%, Water Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -143,12 +143,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8348" level="1" /> <!-- Resistance Earring - Gludio -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8348" level="1" /> <!-- Resistance Earring - Gludio -->
+		</skills>
 	</item>
 	<item id="35608" name="Resistance Earring B" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Hold attack +15%, Poison Resistance +15%, Holy Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -162,12 +162,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8349" level="1" /> <!-- Resistance Earring - Dion -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8349" level="1" /> <!-- Resistance Earring - Dion -->
+		</skills>
 	</item>
 	<item id="35609" name="Resistance Earring C" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Bleed attack +15%, Paralysis Resistance +15%, Wind Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -181,12 +181,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8350" level="1" /> <!-- Resistance Earring - Giran -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8350" level="1" /> <!-- Resistance Earring - Giran -->
+		</skills>
 	</item>
 	<item id="35610" name="Resistance Earring D" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Paralysis attack +15%, Hold Resistance +15%, Dark Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -200,12 +200,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8351" level="1" /> <!-- Resistance Earring - Oren -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8351" level="1" /> <!-- Resistance Earring - Oren -->
+		</skills>
 	</item>
 	<item id="35611" name="Resistance Earring E" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Mental attack +15%, Stun Resistance +15%, Earth Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -219,12 +219,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8352" level="1" /> <!-- Resistance Earring - Aden -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8352" level="1" /> <!-- Resistance Earring - Aden -->
+		</skills>
 	</item>
 	<item id="35612" name="Resistance Earring F" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Sleep attack +15%, Stun Resistance +15%, Water Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -238,12 +238,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8353" level="1" /> <!-- Resistance Earring - Innadril -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8353" level="1" /> <!-- Resistance Earring - Innadril -->
+		</skills>
 	</item>
 	<item id="35613" name="Resistance Earring G" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Stun attack +15%, Sleep Resistance +15%, Fire Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -257,12 +257,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8354" level="1" /> <!-- Resistance Earring - Goddard -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8354" level="1" /> <!-- Resistance Earring - Goddard -->
+		</skills>
 	</item>
 	<item id="35614" name="Resistance Earring H" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Poison attack +15%, Hold Resistance +15%, Fire Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -276,12 +276,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8355" level="1" /> <!-- Resistance Earring - Rune -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8355" level="1" /> <!-- Resistance Earring - Rune -->
+		</skills>
 	</item>
 	<item id="35615" name="Resistance Earring I" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Mental Attack Resistance +15%, hold attack 15%, Wind Resistance +8, MP +25. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -295,15 +295,15 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8356" level="1" /> <!-- Resistance Earring - Schuttgart -->
-		</skills>
 		<stats>
 			<stat type="mDef">63</stat>
 		</stats>
+		<skills>
+			<skill id="8356" level="1" /> <!-- Resistance Earring - Schuttgart -->
+		</skills>
 	</item>
 	<item id="35616" name="Top-grade Resistance Earring - Stun" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases shock attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases shock attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -314,16 +314,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8881" level="1" /> <!-- Top-grade Resistance Earring - Stun -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35617" name="Top-grade Resistance Earring - Hold" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases hold attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases hold attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -334,16 +334,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8882" level="1" /> <!-- Top-grade Resistance Earring - Hold -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35618" name="Top-grade Resistance Earring - Bleed" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases bleed attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases bleed attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -354,16 +354,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8883" level="1" /> <!-- Top-grade Resistance Earring - Bleed -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35619" name="Top-grade Resistance Earring - Paralyze" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases paralysis attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases paralysis attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -374,16 +374,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8884" level="1" /> <!-- Top-grade Resistance Earring - Paralyze -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35620" name="Top-grade Resistance Earring - Mental Attack" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases Mental attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases Mental attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -394,16 +394,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8885" level="1" /> <!-- Top-grade Resistance Earring - Mental Attack -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35621" name="Top-grade Resistance Earring - Sleep" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases sleep attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases sleep attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -414,16 +414,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8886" level="1" /> <!-- Top-grade Resistance Earring - Sleep -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35622" name="Top-grade Resistance Earring - Poison" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases poison attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases poison attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -434,16 +434,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8887" level="1" /> <!-- Top-grade Resistance Earring - Poison -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35623" name="Top-grade Resistance Earring - Knock Back/Knock Down" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases Knock Back and Knock Down attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases Knock Back and Knock Down attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -454,16 +454,16 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
+		<stats>
+			<stat type="mDef">118</stat>
+			<stat type="maxMp">46</stat>
+		</stats>
 		<skills>
 			<skill id="8888" level="1" /> <!-- Top-grade Resistance Earring - Knock Back/Knock Down -->
 		</skills>
-		<stats>
-			<stat type="mDef">118</stat>
-			<stat type="maxMp">46</stat>
-		</stats>
 	</item>
 	<item id="35624" name="Top-grade Resistance Earring - Aerial Yoke" type="Armor">
-		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases aerial yoke attack/resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
+		<!-- Earring purchased at the Mysterious Mansion. MP +46, CP +5%. Increases aerial yoke attack/ resistance by 20%. Only one effect is applied when two earrings with the same effect are equipped. -->
 		<set name="icon" val="icon.accessary_inferno_earing_i00" />
 		<set name="default_action" val="EQUIP" />
 		<set name="bodypart" val="rear;lear" />
@@ -474,13 +474,13 @@
 		<set name="immediate_effect" val="true" />
 		<set name="commissionItemType" val="EARRING" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8889" level="1" /> <!-- Top-grade Resistance Earring - Aerial Yoke -->
-		</skills>
 		<stats>
 			<stat type="mDef">118</stat>
 			<stat type="maxMp">46</stat>
 		</stats>
+		<skills>
+			<skill id="8889" level="1" /> <!-- Top-grade Resistance Earring - Aerial Yoke -->
+		</skills>
 	</item>
 	<item id="35625" name="Royal Guard Earring A" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Stun attack +15%, Bleed Resistance +15%, Water Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -494,12 +494,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8348" level="2" /> <!-- Royal Guard Earring - Gludio -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8348" level="2" /> <!-- Royal Guard Earring - Gludio -->
+		</skills>
 	</item>
 	<item id="35626" name="Royal Guard Earring B" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Hold attack +15%, Poison Resistance +15%, Holy Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -513,12 +513,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8349" level="2" /> <!-- Royal Guard Earring - Dion -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8349" level="2" /> <!-- Royal Guard Earring - Dion -->
+		</skills>
 	</item>
 	<item id="35627" name="Royal Guard Earring C" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Bleed attack +15%, Paralysis Resistance +15%, Wind Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -532,12 +532,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8350" level="2" /> <!-- Royal Guard Earring - Giran -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8350" level="2" /> <!-- Royal Guard Earring - Giran -->
+		</skills>
 	</item>
 	<item id="35628" name="Royal Guard Earring D" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Paralysis attack +15%, Hold Resistance +15%, Dark Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -551,12 +551,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8351" level="2" /> <!-- Royal Guard Earring - Oren -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8351" level="2" /> <!-- Royal Guard Earring - Oren -->
+		</skills>
 	</item>
 	<item id="35629" name="Royal Guard Earring E" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Mental attack +15%, Stun Resistance +15%, Earth Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -570,12 +570,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8352" level="2" /> <!-- Royal Guard Earring - Aden -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8352" level="2" /> <!-- Royal Guard Earring - Aden -->
+		</skills>
 	</item>
 	<item id="35630" name="Royal Guard Earring F" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Sleep attack +15%, Stun Resistance +15%, Water Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -589,12 +589,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8353" level="2" /> <!-- Royal Guard Earring - Innadril -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8353" level="2" /> <!-- Royal Guard Earring - Innadril -->
+		</skills>
 	</item>
 	<item id="35631" name="Royal Guard Earring G" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Stun attack +15%, Sleep Resistance +15%, Fire Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -608,12 +608,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8354" level="2" /> <!-- Royal Guard Earring - Goddard -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8354" level="2" /> <!-- Royal Guard Earring - Goddard -->
+		</skills>
 	</item>
 	<item id="35632" name="Royal Guard Earring H" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Poison attack +15%, Hold Resistance +15%, Fire Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -627,12 +627,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8355" level="2" /> <!-- Royal Guard Earring - Rune -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8355" level="2" /> <!-- Royal Guard Earring - Rune -->
+		</skills>
 	</item>
 	<item id="35633" name="Royal Guard Earring I" type="Armor">
 		<!-- Earring purchased at the Mysterious Mansion. Hold attack +15%, Mental Resistance +15%, Wind Resistance +10. CP +5%, MP +35. Only one effect is applied when two earrings with the same effect are equipped. -->
@@ -646,12 +646,12 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="150" />
 		<set name="material" val="SILVER" />
-		<skills>
-			<skill id="8356" level="2" /> <!-- Royal Guard Earring - Schuttgart -->
-		</skills>
 		<stats>
 			<stat type="mDef">79</stat>
 		</stats>
+		<skills>
+			<skill id="8356" level="2" /> <!-- Royal Guard Earring - Schuttgart -->
+		</skills>
 	</item>
 	<item id="35634" name="Sword of Protection" type="Weapon">
 		<!-- Long Sword created to develop the Revolutionaries. -->
@@ -676,7 +676,7 @@
 			<stat type="pAtk">333</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -706,7 +706,7 @@
 			<stat type="pAtk">654</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
@@ -736,7 +736,7 @@
 			<stat type="pAtk">267</stat>
 			<stat type="mAtk">202</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -764,7 +764,7 @@
 			<stat type="pAtk">291</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
@@ -789,18 +789,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1520" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
-			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
-		</skills>
 		<stats>
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3552" level="1" /> <!-- Special Ability: PvP Damage -->
+			<skill id="3411" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Special Ability: Focus -->
+		</skills>
 	</item>
 	<item id="35639" name="Two-handed Sword of Protection" type="Weapon">
 		<!-- Two-handed sword created to develop the Revolutionaries. -->
@@ -825,7 +825,7 @@
 			<stat type="pAtk">405</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -836,8 +836,8 @@
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="35641" name="Mysterious Supply Box - Magic Pin (B, C-grade)" type="EtcItem">
@@ -845,9 +845,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -859,9 +859,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -873,9 +873,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -887,9 +887,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -901,9 +901,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -915,9 +915,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -929,9 +929,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -943,9 +943,9 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="weight" val="100" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -968,48 +968,48 @@
 		</capsuled_items>
 	</item>
 	<item id="35650" name="Summon Scroll: Bratty Angma" type="EtcItem">
-		<!-- Item that can summon a combat-type Bratty Angma. Can be used at levels 76 - 84. If you can reduce the Bratty Angma's HP to 0 within 30 seconds, you will acquire 100 Clan Reputation, 1000 individual fame, and receive an additional item. Only PC's who belong to a clan can summon it. The requirements for acquiring individual fame and Clan Reputation must be met. -->
+		<!-- Item that can summon a combat-type Bratty Angma. Can be used at levels 76-84. If you can reduce the Bratty Angma's HP to 0 within 30 seconds, you will acquire 100 Clan Reputation, 1000 individual fame, and receive an additional item. Only PC's who belong to a clan can summon it. The requirements for acquiring individual fame and Clan Reputation must be met. -->
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="7109" level="1" /> <!-- Summon Bratty Angma -->
 		</skills>
 	</item>
 	<item id="35651" name="Summon Scroll: Bratty Angma" type="EtcItem">
-		<!-- Item that can summon a combat-type Bratty Angma. Can be used at levels 85 - 89. If you can reduce the Bratty Angma's HP to 0 within 30 seconds, you will acquire 100 Clan Reputation, 1000 individual fame, and receive an additional item. Only PC's who belong to a clan can summon it. The requirements for acquiring individual fame and Clan Reputation must be met. -->
+		<!-- Item that can summon a combat-type Bratty Angma. Can be used at levels 85-89. If you can reduce the Bratty Angma's HP to 0 within 30 seconds, you will acquire 100 Clan Reputation, 1000 individual fame, and receive an additional item. Only PC's who belong to a clan can summon it. The requirements for acquiring individual fame and Clan Reputation must be met. -->
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="7110" level="1" /> <!-- Summon Bratty Angma -->
 		</skills>
 	</item>
 	<item id="35652" name="Summon Scroll: Bratty Angma" type="EtcItem">
-		<!-- Item that can summon a combat-type Bratty Angma. Can be used at levels 90 - 94. If you can reduce the Bratty Angma's HP to 0 within 30 seconds, you will acquire 100 Clan Reputation, 1000 individual fame, and receive an additional item. Only PC's who belong to a clan can summon it. The requirements for acquiring individual fame and Clan Reputation must be met. -->
+		<!-- Item that can summon a combat-type Bratty Angma. Can be used at levels 90-94. If you can reduce the Bratty Angma's HP to 0 within 30 seconds, you will acquire 100 Clan Reputation, 1000 individual fame, and receive an additional item. Only PC's who belong to a clan can summon it. The requirements for acquiring individual fame and Clan Reputation must be met. -->
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="7111" level="1" /> <!-- Summon Bratty Angma -->
@@ -1020,12 +1020,12 @@
 		<set name="icon" val="icon.etc_scroll_white_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="10000" />
 		<set name="commissionItemType" val="SCROLL_OTHER" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="etcitem_type" val="SCROLL" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="7112" level="1" /> <!-- Summon Bratty Angma -->
@@ -1049,18 +1049,18 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="35655" name="Mysterious Pouch" type="EtcItem">
 		<!-- Double-click to acquire the reward. You may acquire nothing. -->
@@ -1070,9 +1070,9 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="CAPSULE" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ItemSkills" />
 		<set name="material" val="FISH" />
 		<skills>
@@ -1086,8 +1086,8 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="35657" name="Mysterious Seed" type="EtcItem">
@@ -1098,9 +1098,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15156" level="1" /> <!-- Flower Planting -->
@@ -1114,9 +1114,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15157" level="1" /> <!-- Flower Planting -->
@@ -1130,9 +1130,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15158" level="1" /> <!-- Flower Planting -->
@@ -1146,9 +1146,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15159" level="1" /> <!-- Flower Planting -->
@@ -1162,9 +1162,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15160" level="1" /> <!-- Flower Planting -->
@@ -1178,9 +1178,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15161" level="1" /> <!-- Flower Planting -->
@@ -1194,9 +1194,9 @@
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="default_action" val="SKILL_REDUCE" />
 		<set name="handler" val="ItemSkills" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="STEEL" />
 		<skills>
 			<skill id="15162" level="1" /> <!-- Flower Planting -->
@@ -1255,8 +1255,8 @@
 		<set name="icon" val="icon.etc_tauti_piece" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
-		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="is_stackable" val="true" />
+		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="material" val="LEATHER" />
 	</item>
 	<item id="35668" name="Core of Twisted Magic" type="EtcItem">
@@ -1267,12 +1267,12 @@
 		<set name="is_dropable" val="false" />
 		<set name="is_destroyable" val="false" />
 		<set name="is_sellable" val="false" />
-		<set name="immediate_effect" val="true" />
 		<set name="is_stackable" val="true" />
+		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 	</item>
 	<item id="35669" name="Angel Cat's Blessing" type="EtcItem">
-		<!-- For 60 minutes, P. Atk. +5%, M. Atk. by 20%, P. Def. by 5%, M. Def. by 5%, Atk. Spd. by 5%, Casting Spd. by 5%, Max HP/MP by 5%, and XP and SP acquired through hunting by 30%. Cannot be used in the Olympiad. Cannot be applied along with event buffs such as Letter Collector's Gift. -->
+		<!-- For 60 minutes, P. Atk. +5%, M. Atk. by 20%, P. Def. by 5%, M. Def. by 5%, Atk. Spd. by 5%, Casting Spd. by 5%, Max HP/ MP by 5%, and XP and SP acquired through hunting by 30%. Cannot be used in the Olympiad. Cannot be applied along with event buffs such as Letter Collector's Gift. -->
 		<set name="icon" val="icon.skilltransform4" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
@@ -1292,16 +1292,16 @@
 		</skills>
 	</item>
 	<item id="35670" name="Beast Soulshot" additionalName="Wynn Summoners Only" type="EtcItem">
-		<!-- The light of Spirits fill the pet/servitor to instantly inflict a powerful attack on the enemy. You can check the number of consumed soulshots at the pet/servitor info screen. (They are used from the master's inventory.) -->
+		<!-- The light of Spirits fill the pet/ servitor to instantly inflict a powerful attack on the enemy. You can check the number of consumed soulshots at the pet/ servitor info screen. (They are used from the master's inventory.) -->
 		<set name="icon" val="BranchSys.icon.br_beast_soul_shot_i00" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
 		<set name="is_sellable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="for_npc" val="true" />
 		<set name="default_action" val="SUMMON_SOULSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="BeastSoulShot" />
 		<set name="material" val="PAPER" />
 		<skills>
@@ -1309,16 +1309,16 @@
 		</skills>
 	</item>
 	<item id="35671" name="Blessed Beast Spiritshot" additionalName="Wynn Summoners Only" type="EtcItem">
-		<!-- High-level light of Spirits fill the pet/servitor to instantly strengthen the pet/servitor's M. Atk. It is very light. You can check the number of consumed spiritshots at the pet/servitor info screen. (They are used from the master's inventory.) -->
+		<!-- High-level light of Spirits fill the pet/ servitor to instantly strengthen the pet/ servitor's M. Atk. It is very light. You can check the number of consumed spiritshots at the pet/ servitor info screen. (They are used from the master's inventory.) -->
 		<set name="icon" val="BranchSys.icon.br_blessed_beast_spirit_shot_i00" />
 		<set name="price" val="65" />
 		<set name="is_tradable" val="false" />
 		<set name="is_dropable" val="false" />
+		<set name="is_stackable" val="true" />
 		<set name="for_npc" val="true" />
 		<set name="default_action" val="SUMMON_SPIRITSHOT" />
 		<set name="etcitem_type" val="SOULSHOT" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="PAPER" />
 		<skills>
 			<skill id="22038" level="1" /> <!-- Blessed Beast Spiritshot -->
@@ -1348,7 +1348,7 @@
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1372,18 +1372,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="weight" val="1520" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">302</stat>
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">406</stat>
-			<stat type="rCrit">10</stat>
+			<stat type="critRate">10</stat>
 			<stat type="randomDamage">40</stat>
 			<stat type="accCombat">-1.5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="3426" level="1" type="ON_ENCHANT" type_value="4" /> <!-- Maximum Ability -->
+		</skills>
 	</item>
 	<item id="35674" name="Mace of Protection" type="Weapon">
 		<!-- Blunt created to develop the Revolutionaries. -->
@@ -1409,7 +1409,7 @@
 			<stat type="mAtk">151</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1420,6 +1420,7 @@
 		<set name="weight" val="5" />
 		<set name="crystal_type" val="R" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="120000" />
 		<set name="shared_reuse_group" val="6" />
 		<set name="commissionItemType" val="POTION" />
@@ -1428,7 +1429,6 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="2860" level="7" /> <!-- Superior Elixir of Life (R-grade) -->
@@ -1440,6 +1440,7 @@
 		<set name="weight" val="5" />
 		<set name="crystal_type" val="R" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="120000" />
 		<set name="shared_reuse_group" val="6" />
 		<set name="commissionItemType" val="POTION" />
@@ -1448,7 +1449,6 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="2861" level="7" /> <!-- Superior Elixir of Mind (R-grade) -->
@@ -1460,6 +1460,7 @@
 		<set name="weight" val="5" />
 		<set name="crystal_type" val="R" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="reuse_delay" val="120000" />
 		<set name="shared_reuse_group" val="7" />
 		<set name="commissionItemType" val="POTION" />
@@ -1468,7 +1469,6 @@
 		<set name="etcitem_type" val="ELIXIR" />
 		<set name="handler" val="ItemSkills" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 		<skills>
 			<skill id="2862" level="7" /> <!-- Superior Elixir of CP (R-grade) -->
@@ -1491,18 +1491,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">527</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13282" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="35679" name="Test Cutter" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1521,17 +1521,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13252" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="35680" name="Test Slasher" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1550,17 +1550,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">733</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13261" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Two-handed Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="35681" name="Test Avenger" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1579,18 +1579,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13256" level="3" type="ON_ENCHANT" type_value="4" /> <!-- One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="35682" name="Test Fighter" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1609,18 +1609,18 @@
 		<set name="damage_range" val="0;0;32;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">733</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13267" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Fist Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="35683" name="Test Stormer" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1639,19 +1639,19 @@
 		<set name="damage_range" val="0;0;66;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="BRONZE" />
-		<skills>
-			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
-			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">80</stat>
 		</stats>
+		<skills>
+			<skill id="3599" level="1" /> <!-- Polearm Multi-attack -->
+			<skill id="13263" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Spear Special Ability -->
+		</skills>
 	</item>
 	<item id="35684" name="Test Thrower" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1671,18 +1671,18 @@
 		<set name="damage_range" val="0;0;10;0" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1185</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">293</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13292" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Bow Special Ability -->
+		</skills>
 	</item>
 	<item id="35685" name="Test Shooter" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1702,18 +1702,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">1067</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">5</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">500</stat>
 		</stats>
+		<skills>
+			<skill id="13294" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Crossbow Special Ability -->
+		</skills>
 	</item>
 	<item id="35686" name="Test Buster" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1733,17 +1733,17 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">350</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13295" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="35687" name="Test Caster" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1763,18 +1763,18 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">482</stat>
 			<stat type="mAtk">350</stat>
 			<stat type="pAtkSpd">379</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13299" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic One-handed Blunt Special Ability -->
+		</skills>
 	</item>
 	<item id="35688" name="Test Retributer" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1794,21 +1794,21 @@
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="WOOD" />
 		<set name="is_magic_weapon" val="true" />
-		<skills>
-			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">587</stat>
 			<stat type="mAtk">385</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
 			<stat type="accMagic">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13304" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Magic Two-handed Blunt Special Ability -->
+		</skills>
 	</item>
-	<item id="35689" name="Test Dualsword" additionalName="Test" type="Weapon">
+	<item id="35689" name="Test Dual Sword" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
 		<set name="icon" val="icon.weapon_r_dualsword_i10" />
 		<set name="default_action" val="EQUIP" />
@@ -1825,17 +1825,17 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dualsword Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">733</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13277" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Sword Special Ability -->
+		</skills>
 	</item>
 	<item id="35690" name="Test Dual Dagger" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1854,18 +1854,18 @@
 		<set name="damage_range" val="0;0;44;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="STEEL" />
-		<skills>
-			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">602</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">433</stat>
-			<stat type="rCrit">12</stat>
+			<stat type="critRate">12</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="accCombat">-3.75</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13287" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Dagger Special Ability -->
+		</skills>
 	</item>
 	<item id="35691" name="Test Dual Blunt Weapon" additionalName="Test" type="Weapon">
 		<!-- For Test (not GD2.0 update content) -->
@@ -1884,18 +1884,18 @@
 		<set name="damage_range" val="0;0;40;120" />
 		<set name="immediate_effect" val="true" />
 		<set name="material" val="FINE_STEEL" />
-		<skills>
-			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
-		</skills>
 		<stats>
 			<stat type="pAtk">733</stat>
 			<stat type="mAtk">298</stat>
 			<stat type="pAtkSpd">325</stat>
 			<stat type="accCombat">8</stat>
-			<stat type="rCrit">6</stat>
+			<stat type="critRate">6</stat>
 			<stat type="randomDamage">20</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
+		<skills>
+			<skill id="13272" level="3" type="ON_ENCHANT" type_value="4" /> <!-- Dual Blunt Weapon Special Ability -->
+		</skills>
 	</item>
 	<item id="35692" name="Monster's Weapon" additionalName="Test" type="Weapon">
 		<!-- Test weapon. -->
@@ -1919,7 +1919,7 @@
 			<stat type="pAtk">10</stat>
 			<stat type="mAtk">10</stat>
 			<stat type="pAtkSpd">379</stat>
-			<stat type="rCrit">8</stat>
+			<stat type="critRate">8</stat>
 			<stat type="randomDamage">10</stat>
 			<stat type="pAtkRange">40</stat>
 		</stats>
@@ -1939,19 +1939,19 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="1440" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="9498" level="1" /> <!-- Santa Girl's Cloak -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="9498" level="1" /> <!-- Santa Girl's Cloak -->
+		</skills>
 	</item>
 	<item id="35694" name="Santa Girl's Cloak" additionalName="3-day (Event)" type="Armor">
 		<!-- Warm and festive winter cloak to celebrate the holidays. This Santa Girl's Holiday Event reward item. 3 days. -->
@@ -1968,28 +1968,28 @@
 		<set name="immediate_effect" val="true" />
 		<set name="time" val="4320" />
 		<set name="material" val="CLOTH" />
-		<cond msgId="2453">
+		<conditions msgId="2453">
 			<player cloakStatus="true" />
-		</cond>
-		<cond>
+		</conditions>
+		<conditions>
 			<player level="80" />
-		</cond>
-		<skills>
-			<skill id="9498" level="1" /> <!-- Santa Girl's Cloak -->
-		</skills>
+		</conditions>
 		<stats>
 			<stat type="pDef">50</stat>
 			<stat type="mDef">40</stat>
 		</stats>
+		<skills>
+			<skill id="9498" level="1" /> <!-- Santa Girl's Cloak -->
+		</skills>
 	</item>
 	<item id="35695" name="Holiday Tree - Star Ornament" additionalName="Event" type="EtcItem">
 		<!-- Essential ornament for a Holiday Tree. Bring it to Santa Girl to help her decorate the trees. -->
 		<set name="icon" val="BranchSys3.icon.g_christmas_tree_star" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="35696" name="Holiday Tree - Globe Ornament" additionalName="Event" type="EtcItem">
@@ -1997,9 +1997,9 @@
 		<set name="icon" val="BranchSys3.icon.g_christmas_tree_bead" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="LIQUID" />
 	</item>
 	<item id="35697" name="Holiday Tree - Garland Ornament" additionalName="Event" type="EtcItem">
@@ -2007,9 +2007,9 @@
 		<set name="icon" val="BranchSys3.icon.g_christmas_tree_band" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CLOTH" />
 	</item>
 	<item id="35698" name="Holiday Tree - Bow Ornament" additionalName="Event" type="EtcItem">
@@ -2017,9 +2017,9 @@
 		<set name="icon" val="BranchSys3.icon.g_christmas_tree_ribbon" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="material" val="CLOTH" />
 	</item>
 	<item id="35699" name="Santa Girl's Gift Box" additionalName="Event" type="EtcItem">
@@ -2027,10 +2027,10 @@
 		<set name="icon" val="icon.event_hero_treasure_box_i00" />
 		<set name="is_sellable" val="false" />
 		<set name="is_oly_restricted" val="true" />
+		<set name="is_stackable" val="true" />
 		<set name="commissionItemType" val="OTHER_ITEM" />
 		<set name="default_action" val="PEEL" />
 		<set name="immediate_effect" val="true" />
-		<set name="is_stackable" val="true" />
 		<set name="handler" val="ExtractableItems" />
 		<set name="material" val="FISH" />
 		<capsuled_items>
